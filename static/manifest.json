@@ -1,0 +1,16 @@
+{
+  "name": "Cargones y Pollos TPV",
+  "short_name": "Carbones",
+  "description": "App para pedidos y Kiosko",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#facc15",
+  "theme_color": "#facc15",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

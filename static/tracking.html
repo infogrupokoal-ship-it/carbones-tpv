@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GPS Tracking - Cargones y Pollos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#facc15">
+    <style>
+        body { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans items-center justify-center p-6">
+    
+    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
+        <div class="text-7xl mb-4 animate-bounce" id="emoji-status">📍</div>
+        <h1 class="text-3xl font-black text-gray-800 mb-2">Tracking en Vivo</h1>
+        <p class="text-gray-500 font-bold mb-8 text-lg">Avisa a cocina para que tu pedido esté perfecto.</p>
+        
+        <div class="bg-gray-50 p-4 rounded-xl mb-8 border-2 border-gray-100 hidden" id="status-panel">
+            <span class="block text-gray-500 font-bold uppercase tracking-widest text-sm mb-1">Estado del GPS</span>
+            <span class="block font-black text-xl text-emerald-600" id="status-text">Conectando...</span>
+        </div>
+
+        <button id="btn-start" onclick="iniciarTracking()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white p-5 rounded-2xl font-black text-xl shadow-lg transition-transform active:scale-95">
+            COMPARTIR MI UBICACIÓN
+        </button>
+        
+        <button id="btn-stop" onclick="detenerTracking()" class="w-full bg-red-100 hover:bg-red-200 text-red-600 p-5 rounded-2xl font-black text-xl mt-4 transition-transform active:scale-95 hidden">
+            DETENER
+        </button>
+    </div>
+
+    <script>
+        const API_URL = "http://" + window.location.host + "/api";
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedidoId = urlParams.get('pedido');
+        let watchId = null;
+
+        // Dummy coords for testing: Cocina
+        const TIENDA_LAT = 39.4699; 
+        const TIENDA_LON = -0.3763;
+
+        // Haversine formula to approximate distance
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // metres
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return Math.floor(R * c); 
+        }
+
+        async function enviarUbicacionAlServidor(lat, lon, dist) {
+            if(!pedidoId) return;
+            try {
+                await fetch(`${API_URL}/pedidos/${pedidoId}/ubicacion`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat: lat, lon: lon, distancia_metros: dist })
+                });
+            } catch(e) {
+                console.error("Error enviando ubicación:", e);
+            }
+        }
+
+        function iniciarTracking() {
+            if(!pedidoId) {
+                alert("❌ Faltan parámetros en el enlace (pedido).");
+                return;
+            }
+            if (!("geolocation" in navigator)) {
+                alert("❌ Tu navegador no soporta GPS.");
+                return;
+            }
+
+            document.getElementById('btn-start').classList.add('hidden');
+            document.getElementById('btn-stop').classList.remove('hidden');
+            document.getElementById('status-panel').classList.remove('hidden');
+            document.getElementById('status-text').innerText = "Buscando señal...";
+            document.getElementById('status-text').className = "block font-black text-xl text-yellow-500 animate-pulse";
+            document.getElementById('emoji-status').innerText = "🛰️";
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const distancia = calculateDistance(lat, lon, TIENDA_LAT, TIENDA_LON);
+                    
+                    document.getElementById('status-text').innerText = `Emitiendo en vivo (${distancia}m)`;
+                    document.getElementById('status-text').className = "block font-black text-xl text-emerald-600";
+                    document.getElementById('emoji-status').innerText = "📡";
+                    
+                    enviarUbicacionAlServidor(lat, lon, distancia);
+                },
+                (error) => {
+                    console.error("GPS Error:", error);
+                    document.getElementById('status-text').innerText = "GPS Denegado/Error";
+                    document.getElementById('status-text').className = "block font-black text-xl text-red-600";
+                    detenerTracking();
+                    alert("Asegúrate de conceder permisos de ubicación.");
+                },
+                { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+            );
+        }
+
+        function detenerTracking() {
+            if(watchId) navigator.geolocation.clearWatch(watchId);
+            document.getElementById('btn-start').classList.remove('hidden');
+            document.getElementById('btn-stop').classList.add('hidden');
+            document.getElementById('status-text').innerText = "Detenido";
+            document.getElementById('status-text').className = "block font-black text-xl text-gray-500";
+            document.getElementById('emoji-status').innerText = "📍";
+        }
+    </script>
+</body>
+</html>

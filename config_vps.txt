@@ -1,0 +1,24 @@
+# CONFIGURACION VPS - CARBONES Y POLLOS TPV
+
+Este archivo contiene los datos necesarios para trabajar con el TPV en el servidor remoto.
+
+## Datos de Acceso
+- IP: 113.30.148.104
+- Usuario: root
+- Carpeta: /root/carbones_y_pollos_tpv
+
+## Comandos Rápidos (en el VPS)
+1. Ir a la carpeta:
+   cd /root/carbones_y_pollos_tpv
+2. Activar entorno virtual:
+   source venv/bin/activate
+3. Arrancar servidor (Puerto 5001):
+   python3 main.py
+
+## Acceso desde el ordenador de casa:
+- Panel TPV: http://113.30.148.104:5001
+- API: http://113.30.148.104:5001/docs
+
+## Datos IA:
+- Utiliza Gemini 1.5 Flash.
+- Necesita la variable de entorno GOOGLE_API_KEY configurada en el servidor.

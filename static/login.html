@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Maestros - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 h-screen flex items-center justify-center font-sans">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm border-4 border-yellow-400">
+        <div class="text-center mb-8">
+            <span class="text-6xl mb-4 block">🍗</span>
+            <h1 class="text-3xl font-black text-gray-800 tracking-tight">Acceso Empleados</h1>
+        </div>
+        <form id="login-form" class="flex flex-col gap-5">
+            <div>
+                <label class="font-bold text-gray-500">Usuario</label>
+                <input id="user" type="text" class="w-full bg-gray-100 p-4 rounded-xl font-bold text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 mt-1" required autocomplete="username">
+            </div>
+            <div>
+                <label class="font-bold text-gray-500">Contraseña</label>
+                <input id="pass" type="password" class="w-full bg-gray-100 p-4 rounded-xl font-bold text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 mt-1" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-black text-2xl p-4 rounded-xl mt-4 active:scale-95 transition">ENTRAR</button>
+        </form>
+        <p id="error" class="text-red-500 font-bold mt-4 text-center hidden">Credenciales incorrectas.</p>
+    </div>
+
+    <script>
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = { username: form.user.value, password: form.pass.value };
+            try {
+                const r = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(r.ok) {
+                    const data = await r.json();
+                    localStorage.setItem('auth_user', data.username);
+                    localStorage.setItem('auth_role', data.role);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    document.getElementById('error').classList.remove('hidden');
+                }
+            } catch(ex) {
+                alert("Error de conexión");
+            }
+        });
+    </script>
+</body>
+</html>

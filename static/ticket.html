@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket TPV</title>
+    <style>
+        @page { margin: 0; size: 80mm auto; }
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            width: 80mm; 
+            margin: 0; 
+            padding: 5mm; 
+            font-size: 12px; 
+            color: #000;
+        }
+        .center { text-align: center; }
+        .bold { font-weight: bold; }
+        .big { font-size: 18px; }
+        .huge { font-size: 24px; }
+        .mb { margin-bottom: 5px; }
+        .line { border-top: 1px dashed #000; margin: 5px 0; }
+        .item-row { display: flex; justify-content: space-between; }
+        .item-name { max-width: 65%; word-wrap: break-word; }
+        .text-right { text-align: right; }
+        
+        /* Ocultar UI en la impresion real */
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0mm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print center mb" style="background:#facc15; padding: 10px; font-weight: bold; border-radius: 5px; cursor: pointer;" onclick="window.print()">
+        🖨️ IMPRIMIR AHORA (O ENTER)
+    </div>
+
+    <div id="ticket-content">
+        <!-- Content gets injected here -->
+        <div class="center">Cargando ticket...</div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedidoId = urlParams.get('pedido');
+        const tipo = urlParams.get('tipo'); // 'cliente' o 'cocina'
+
+        async function cargarTicket() {
+            if(!pedidoId) return;
+            const res = await fetch(`/api/pedidos`);
+            const pedidos = await res.json();
+            const ped = pedidos.find(p => p.id == pedidoId);
+            if(!ped) return;
+
+            const resItems = await fetch(`/api/pedidos/${pedidoId}/items`);
+            const items = await resItems.json();
+
+            let html = '';
+
+            const dateStr = new Date(ped.fecha).toLocaleString('es-ES');
+
+            if (tipo === 'cocina') {
+                // TICKET COCINA
+                html += `
+                    <div class="center bold big mb">--- COCINA ---</div>
+                    <div class="center bold huge mb">${ped.numero_ticket}</div>
+                    <div class="center mb">${dateStr}</div>
+                    <div class="line"></div>
+                `;
+                
+                items.forEach(i => {
+                    html += `
+                        <div class="item-row mb">
+                            <span class="bold big">${i.cantidad}x</span> 
+                            <span class="big bold" style="text-transform:uppercase">${i.nombre.substring(0, 15)}</span>
+                        </div>
+                    `;
+                });
+
+                if(ped.cubiertos_qty > 0) {
+                     html += `
+                        <div class="line"></div>
+                        <div class="center bold big">🍴 ${ped.cubiertos_qty} PAX</div>
+                     `;
+                }
+
+                html += `<div class="line"></div>`;
+
+            } else {
+                // TICKET CLIENTE
+                html += `
+                    <div class="center bold big mb">CARBONES Y POLLOS</div>
+                    <div class="center mb">Avenida de la Plata, 24</div>
+                    <div class="center mb">Valencia</div>
+                    <div class="line"></div>
+                    <div class="item-row mb">
+                        <span>Ticket: <span class="bold">${ped.numero_ticket}</span></span>
+                        <span>${dateStr}</span>
+                    </div>
+                    <div class="line"></div>
+                `;
+
+                // Calculate Net per Tax class. We assume all items.precio includes Tax already.
+                // 10% For Food, 21% for Drinks (We approximate 10% for all for now, as DB query is simple)
+                let iva10_neto = 0; let iva10_cuota = 0;
+                let iva21_neto = 0; let iva21_cuota = 0;
+
+                items.forEach(i => {
+                    // Logic to split could hit actual API if we returned tax per item, for now assume 10% IVA on all.
+                    // If product matches "Bebidas", we could parse it, but for brevity assuming 10% hospitality rule.
+                    let totalL = i.precio * i.cantidad;
+                    iva10_neto += totalL / 1.10;
+                    iva10_cuota += totalL - (totalL / 1.10);
+
+                    html += `
+                        <div class="item-row">
+                            <span class="item-name">${i.cantidad}x ${i.nombre}</span>
+                            <span>${totalL.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+
+                if(ped.cubiertos_qty > 0) {
+                    let totalCubiertos = ped.cubiertos_qty * 0.20;
+                    iva10_neto += totalCubiertos / 1.10;
+                    iva10_cuota += totalCubiertos - (totalCubiertos / 1.10);
+                    html += `
+                        <div class="item-row">
+                            <span class="item-name">${ped.cubiertos_qty}x CUBIERTO/S</span>
+                            <span>${totalCubiertos.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="line"></div>
+                    <div class="item-row bold big">
+                        <span>TOTAL (€)</span>
+                        <span>${ped.total.toFixed(2)}</span>
+                    </div>
+                    <div class="line"></div>
+                    <div class="center mb">Desglose Impuestos</div>
+                    <div class="item-row">
+                        <span>Base Imponible 10%</span>
+                        <span>${iva10_neto.toFixed(2)}</span>
+                    </div>
+                    <div class="item-row">
+                        <span>Cuota IVA 10%</span>
+                        <span>${iva10_cuota.toFixed(2)}</span>
+                    </div>
+                    <div class="line"></div>
+                    <div class="center italic mb mt-2">¡Gracias por su visita!</div>
+                    <div class="center mb">Conserve este ticket para devoluciones.</div>
+                `;
+            }
+
+            document.getElementById('ticket-content').innerHTML = html;
+            
+            // Auto-print 
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        window.onload = cargarTicket;
+    </script>
+</body>
+</html>
