@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import json
 import logging
 import os
@@ -17,6 +18,13 @@ except ImportError:
 
 app = FastAPI(title="Cargones y Pollos - Puente de Impresión Local")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # ------------------------------------------------------------
 # CONFIGURACIÓN: Nombra tu impresora térmica exactamente 
 # como aparece en "Dispositivos e impresoras" de Windows.
@@ -28,33 +36,39 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 def imprimir_texto_crudo(nombre_impresora, texto_ticket):
     """Envía texto crudo (ESC/POS) o texto normal a la impresora térmica"""
-    if not PRINT_ENABLED:
-         logging.info("SIMULANDO IMPRESIÓN (Librerías win32print no instaladas):")
-         logging.info(f"=== TICKET PARA {nombre_impresora} ==\n{texto_ticket}\n====================")
-         return True
-
-    try:
-        hPrinter = win32print.OpenPrinter(nombre_impresora)
+    # Mandar a la impresora fìsica o App Android
+    if PRINT_ENABLED:
         try:
-            hJob = win32print.StartDocPrinter(hPrinter, 1, ("Ticket Restaurante", None, "RAW"))
+            hprinter = win32print.OpenPrinter(nombre_impresora)
             try:
-                win32print.StartPagePrinter(hPrinter)
-                
-                # Convertimos a bytes (Generalmente cp850 o utf-8 funciona para tildes en tickets)
-                # Comando para cortar papel ESC/POS (opcional si la impresora está en crudo): b'\x1d\x56\x42\x00'
-                datos = texto_ticket.encode('utf-8') 
-                corte_papel = b'\n\n\n\n\x1B\x6D' # Hex code básico para corte de papel
-                
-                win32print.WritePrinter(hPrinter, datos + corte_papel)
-                win32print.EndPagePrinter(hPrinter)
+                win32print.StartDocPrinter(hprinter, 1, ("Ticket Restaurante", None, "RAW"))
+                win32print.StartPagePrinter(hprinter)
+                win32print.WritePrinter(hprinter, texto_ticket.encode("cp850")) # O "utf-8" dependiendo del firmware de la térmica
+                win32print.EndPagePrinter(hprinter)
+                win32print.EndDocPrinter(hprinter)
+                print(f"[{datetime.now()}] TICKET ENVIADO A LA COLA DE {nombre_impresora}")
             finally:
-                win32print.EndDocPrinter(hPrinter)
-        finally:
-            win32print.ClosePrinter(hPrinter)
-        return True
-    except Exception as e:
-        logging.error(f"Error al imprimir: {e}")
-        return False
+                win32print.ClosePrinter(hprinter)
+        except Exception as e:
+            print(f"Error al imprimir en Windows: {e}")
+            return False
+    else:
+        # SISTEMA ANDROID (Si estamos en Termux Android, lanzamos Intent de RawBT)
+        print(f"[{datetime.now()}] SIMULANDO/IMPRIMIENDO EN ANDROID para {nombre_impresora}")
+        print(texto_ticket)
+        try:
+            import subprocess
+            # Lanza el intent nativo de Android hacia la app RawBT con el texto del ticket
+            subprocess.run([
+                "am", "start", "-a", "ru.a402d.rawbtprinter.COMMAND",
+                "-t", "text/plain", "-e", "android.intent.extra.TEXT", texto_ticket,
+                "-p", "ru.a402d.rawbtprinter"
+            ], check=False)
+            print("=> Intent enviado a RawBT (Android) con éxito.")
+        except Exception as ex:
+            print("=> No se pudo lanzar el intent de Android (¿No estás en Termux/Android?). Ignorando impresión física.")
+            
+    return True
 
 @app.post("/webhook/imprimir")
 async def recibir_ticket(request: Request):
@@ -70,36 +84,65 @@ async def recibir_ticket(request: Request):
     items = payload.get("items", [])
     total = payload.get("total", 0.0)
     
+    # Fiscalidad
+    iva_10 = payload.get("cuota_iva_10", 0.0)
+    base_10 = payload.get("base_imponible_10", 0.0)
+    iva_21 = payload.get("cuota_iva_21", 0.0)
+    base_21 = payload.get("base_imponible_21", 0.0)
+    
     fecha_str = datetime.now().strftime("%d/%m/%Y %H:%M")
     
-    # ---- MAQUETAR EL TICKET (Rollo de 80mm) ----
     linea = "-" * 40
-    
-    ticket =  "       CARBONES Y POLLOS       \n"
-    ticket += "      Los mejores asados       \n\n"
-    ticket += f"Ticket: {numero_ticket}\n"
-    ticket += f"Fecha: {fecha_str}\n"
-    ticket += f"Origen: {origen}\n"
-    ticket += linea + "\n"
-    ticket += "Cant  Producto             Precio\n"
-    ticket += linea + "\n"
-    
-    for item in items:
-        # Formatear columnas (Cant. fija a 4, nombre cortado a 18, precio)
-        cant = str(item.get("cantidad", 1)).ljust(4)
-        nomb = str(item.get("nombre", "")[:18]).ljust(18)
-        prec = f"{item.get('precio', 0.0):.2f}€".rjust(8)
-        ticket += f"{cant} {nomb}    {prec}\n"
-        
-    ticket += linea + "\n"
-    ticket += f"TOTAL A PAGAR:             {total:.2f}€\n".rjust(40)
-    ticket += linea + "\n"
+    ticket = ""
     
     if tipo_ticket == "cliente":
+        ticket += "      CARBONES Y POLLOS       \n"
+        ticket += "      Los mejores asados       \n"
+        ticket += "   NIF: B-12345678  Dir: Falsa 123\n\n"
+        ticket += "      FACTURA SIMPLIFICADA    \n"
+        ticket += f"Ticket: {numero_ticket}\n"
+        ticket += f"Fecha: {fecha_str}\n"
+        ticket += f"Atiende: {origen}\n"
+        ticket += linea + "\n"
+        ticket += "Cant  Producto             Precio\n"
+        ticket += linea + "\n"
+        
+        for item in items:
+            cant = str(item.get("cantidad", 1)).ljust(4)
+            nomb = str(item.get("nombre", ""))[:18].ljust(18)
+            prec = f"{item.get('precio', 0.0):.2f}€".rjust(8)
+            ticket += f"{cant} {nomb}    {prec}\n"
+            
+        ticket += linea + "\n"
+        ticket += f"TOTAL A PAGAR:             {total:.2f}€\n".rjust(40)
+        
+        # Desglose Fiscal Legal
+        ticket += "\nDesglose de Impuestos (IVA INC):\n"
+        ticket += "Tipo      Base Imp       Cuota\n"
+        if base_10 > 0:
+            ticket += f"10%       {base_10:.2f}€".ljust(22) + f"{iva_10:.2f}€\n".rjust(8)
+        if base_21 > 0:
+            ticket += f"21%       {base_21:.2f}€".ljust(22) + f"{iva_21:.2f}€\n".rjust(8)
+            
+        ticket += linea + "\n"
         ticket += "      Gracias por su visita!    \n\n\n"
         impresora_destino = NOMBRE_IMPRESORA_TICKET
+        
     else:
-        ticket += "           *** COCINA ***       \n\n\n"
+        # TICKET COCINA (Sin Precios, Tipografía Expandida en la mente del cocinero)
+        ticket += "           *** COCINA ***       \n\n"
+        ticket += f"COMANDA: {numero_ticket}\n"
+        ticket += f"HORA: {fecha_str}\n"
+        ticket += f"ORIGEN: {origen}\n"
+        ticket += "=" * 40 + "\n"
+        
+        for item in items:
+            # Enfatizar cantidad
+            cant = str(item.get("cantidad", 1))
+            nomb = str(item.get("nombre", ""))
+            ticket += f"[ {cant} ] {nomb.upper()}\n"
+            
+        ticket += "=" * 40 + "\n\n\n"
         impresora_destino = NOMBRE_IMPRESORA_COCINA
 
     # Mandar a la impresora fìsica
@@ -109,6 +152,21 @@ async def recibir_ticket(request: Request):
         return {"status": "ok", "msj": f"Impreso en {impresora_destino}"}
     else:
         return {"status": "error", "msj": "Fallo en la impresora local"}
+
+@app.post("/webhook/abrir_caja")
+async def abrir_caja():
+    """
+    Envía la secuencia binaria estándar ESC/POS para abrir el cajón
+    portamonedas a través del puerto de la impresora.
+    """
+    # Secuencia para puerto 1, pulso de 25ms x 2 (aprox) -> ESC p 0 25 250
+    secuencia_apertura = "\x1B\x70\x00\x19\xFA"
+    exito = imprimir_texto_crudo(NOMBRE_IMPRESORA_TICKET, secuencia_apertura)
+    
+    if exito:
+        return {"status": "ok", "msj": "Cajón abierto"}
+    else:
+        return {"status": "error", "msj": "Error abriendo cajón"}
 
 if __name__ == "__main__":
     print("\n--- SERVIDOR DE IMPRESION LOCAL (PUENTE) INICIADO ---")

@@ -18,6 +18,9 @@ def registrar_pedido_kiosko(db, cliente_id: int, items: list, origen: str = "WHA
     db.flush()
     
     total = 0.0
+    total_iva_10 = 0.0
+    total_iva_21 = 0.0
+    
     for it in items:
         prod_id = it.get("producto_id")
         cantidad = it.get("cantidad", 1)
@@ -33,10 +36,21 @@ def registrar_pedido_kiosko(db, cliente_id: int, items: list, origen: str = "WHA
                 prod.stock_actual -= cantidad
                 db.add(MovimientoStock(producto_id=prod.id, cantidad=-cantidad, tipo="VENTA", origen_id=nuevo_pedido.id, descripcion="Venta IA Automatica"))
             
-            total += prod.precio * cantidad
+            coste_item = prod.precio * cantidad
+            total += coste_item
+            
+            if prod.impuesto == 21.0:
+                total_iva_21 += coste_item
+            else:
+                total_iva_10 += coste_item
+                
             db.add(ItemPedido(pedido_id=nuevo_pedido.id, producto_id=prod.id, cantidad=cantidad, precio_unitario=prod.precio))
             
-    nuevo_pedido.total = total
+    nuevo_pedido.total = round(total, 2)
+    nuevo_pedido.base_imponible_10 = round(total_iva_10 / 1.10, 2)
+    nuevo_pedido.cuota_iva_10 = round(total_iva_10 - nuevo_pedido.base_imponible_10, 2)
+    nuevo_pedido.base_imponible_21 = round(total_iva_21 / 1.21, 2)
+    nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
     db.commit()
     return {"status": "ok", "ticket": nuevo_pedido.numero_ticket, "total": total}
 

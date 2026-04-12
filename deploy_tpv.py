@@ -15,11 +15,29 @@ cd {REMOTE_PATH}
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install google-generativeai
+pip install google-generativeai requests
+
+# Parche de Migración Base de Datos SQLite Remota
+python3 -c "
+import sqlite3
+import os
+db_path = 'tpv_data.sqlite'
+if os.path.exists(db_path):
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute('PRAGMA table_info(pedidos)')
+    columns = [col[1] for col in cur.fetchall()]
+    new_cols = ['base_imponible_10', 'cuota_iva_10', 'base_imponible_21', 'cuota_iva_21']
+    for col in new_cols:
+        if col not in columns:
+            cur.execute(f'ALTER TABLE pedidos ADD COLUMN {{col}} FLOAT DEFAULT 0.0')
+    conn.commit()
+    conn.close()
+"
 
 # Start server
 nohup python3 main.py > server.log 2>&1 &
-echo "Carbones TPV deployed and restarted successfully on port 5001."
+echo "Carbones TPV deployed, db patched, and restarted successfully on port 5001."
 """
 
 try:

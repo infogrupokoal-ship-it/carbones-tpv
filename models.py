@@ -17,6 +17,8 @@ class Categoria(Base):
     nombre = Column(String, index=True)
     orden = Column(Integer, default=0)
     productos = relationship("Producto", back_populates="categoria")
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
 
 class Producto(Base):
     __tablename__ = "productos"
@@ -28,6 +30,8 @@ class Producto(Base):
     impuesto = Column(Float, default=10.0) # 10.0 Comida, 21.0 Alcohol
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=True)
     is_active = Column(Boolean, default=True)
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
     
     # Lógica Fraccional (Controla el inventario de un padre común)
     stock_actual = Column(Float, default=0)
@@ -43,7 +47,9 @@ class Cliente(Base):
     nombre = Column(String, nullable=True)
     nivel_fidelidad = Column(String, default="BRONCE") # BRONCE, PLATA, ORO
     visitas = Column(Integer, default=0)
-    preferencias = Column(String, nullable=True) # JSON de preferencias (sin picante, asado oscuro, etc)
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
+    preferencias = Column(String, nullable=True) # JSON de preferencias
     fecha_registro = Column(DateTime, default=datetime.now)
     
     pedidos = relationship("Pedido", back_populates="cliente")
@@ -62,6 +68,16 @@ class Pedido(Base):
     descuento_aplicado = Column(Float, default=0.0)
     cubiertos_qty = Column(Integer, default=0)
     
+    # Contabilidad Fiscal (Desglose legal de IVAs)
+    base_imponible_10 = Column(Float, default=0.0)
+    cuota_iva_10 = Column(Float, default=0.0)
+    base_imponible_21 = Column(Float, default=0.0)
+    cuota_iva_21 = Column(Float, default=0.0)
+    
+    # Campo para el Demonio Offline-First
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
+    
     # Geolocalización y Delivery
     tipo_entrega = Column(String, default="LOCAL") # LOCAL, RECOGIDA, DOMICILIO
     latitud_actual = Column(Float, nullable=True)
@@ -78,6 +94,8 @@ class ItemPedido(Base):
     producto_id = Column(Integer, ForeignKey("productos.id"))
     cantidad = Column(Integer, default=1)
     precio_unitario = Column(Float)
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
     
     pedido = relationship("Pedido", back_populates="items")
 
@@ -90,3 +108,7 @@ class MovimientoStock(Base):
     fecha = Column(DateTime, default=datetime.now)
     origen_id = Column(Integer, nullable=True) # ID del pedido si es venta, o nulo si es produccion manual
     descripcion = Column(String, nullable=True)
+    is_synced = Column(Boolean, default=False)
+    remote_id = Column(Integer, nullable=True)
+    
+    producto = relationship("Producto", back_populates="movimientos")

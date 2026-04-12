@@ -11,6 +11,7 @@ from typing import List, Optional
 from datetime import datetime
 import json
 import logging
+import os
 from ai_engine import procesar_mensaje_whatsapp
 
 from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock
@@ -126,7 +127,19 @@ def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
     db.add(nuevo_pedido)
     db.flush()
     
-    total = sum([pedido.cubiertos_qty * 0.20])
+    # IVA Tracking
+    total_iva_10 = 0.0
+    total_iva_21 = 0.0
+
+    total = 0.0
+    
+    # 1) Registrar cubiertos como un ítem contable al 10% IVA
+    if pedido.cubiertos_qty > 0:
+        coste_cubiertos = pedido.cubiertos_qty * 0.20
+        total += coste_cubiertos
+        total_iva_10 += coste_cubiertos
+        # En el front-end y receipt se tratará como servicio genérico si no hay tabla Producto
+        
     for item in pedido.items:
         prod = db.query(Producto).get(item.producto_id)
         if not prod: continue
@@ -140,15 +153,33 @@ def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
             prod.stock_actual -= item.cantidad
             db.add(MovimientoStock(producto_id=prod.id, cantidad=-item.cantidad, tipo="VENTA", origen_id=nuevo_pedido.id, descripcion="Venta TPV"))
             
-        total += prod.precio * item.cantidad
+        coste_item = prod.precio * item.cantidad
+        total += coste_item
+        
+        # Desglose IVA
+        if prod.impuesto == 21.0:
+            total_iva_21 += coste_item
+        else:
+            total_iva_10 += coste_item # Por defecto 10% en asador
+            
         db.add(ItemPedido(pedido_id=nuevo_pedido.id, producto_id=prod.id, cantidad=item.cantidad, precio_unitario=prod.precio))
         
     # Aplicar descuento de fidelidad
     subtotal = total
-    total = total - (total * descuento_aplicado)
+    if descuento_aplicado > 0:
+        total = total - (total * descuento_aplicado)
+        # Descuentos reducen IVA propocionalmente
+        total_iva_10 = total_iva_10 * (1 - descuento_aplicado)
+        total_iva_21 = total_iva_21 * (1 - descuento_aplicado)
     
-    nuevo_pedido.total = total
+    nuevo_pedido.total = round(total, 2)
     nuevo_pedido.descuento_aplicado = descuento_aplicado
+    
+    # Bases e IVA
+    nuevo_pedido.base_imponible_10 = round(total_iva_10 / 1.10, 2)
+    nuevo_pedido.cuota_iva_10 = round(total_iva_10 - nuevo_pedido.base_imponible_10, 2)
+    nuevo_pedido.base_imponible_21 = round(total_iva_21 / 1.21, 2)
+    nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
     db.commit()
     return {"status": "ok", "pedido_id": nuevo_pedido.id, "ticket": nuevo_pedido.numero_ticket, "total": total, "descuento": descuento_aplicado}
 
@@ -213,6 +244,42 @@ def cobrar_pedido(pedido_id: int, request: CheckoutRequest, db: Session = Depend
     pedido.estado = "EN_PREPARACION"
     pedido.metodo_pago = request.metodo_pago
     db.commit()
+    
+    # Intento de impresión
+    try:
+        import requests
+        # Usamos HTTPS si hay ngrok o HTTP localhost
+        NGROK_URL = os.environ.get("NGROK_URL", "http://127.0.0.1:8000")
+        
+        items = []
+        if pedido.cubiertos_qty > 0:
+            items.append({"nombre": "Servicio Cubiertos", "cantidad": pedido.cubiertos_qty, "precio": 0.20 * pedido.cubiertos_qty})
+            
+        for db_it in pedido.items:
+            prod = db.query(Producto).get(db_it.producto_id)
+            items.append({"nombre": prod.nombre if prod else "Desconocido", "cantidad": db_it.cantidad, "precio": db_it.precio_unitario * db_it.cantidad})
+            
+        payload = {
+            "numero_ticket": pedido.numero_ticket,
+            "origen": pedido.origen,
+            "total": pedido.total,
+            "items": items,
+            "base_imponible_10": pedido.base_imponible_10,
+            "cuota_iva_10": pedido.cuota_iva_10,
+            "base_imponible_21": pedido.base_imponible_21,
+            "cuota_iva_21": pedido.cuota_iva_21
+        }
+        
+        # 1. Imprimir para cocina
+        payload["tipo"] = "cocina"
+        requests.post(f"{NGROK_URL}/webhook/imprimir", json=payload, timeout=3)
+        # 2. Imprimir ticket cliente
+        payload["tipo"] = "cliente"
+        requests.post(f"{NGROK_URL}/webhook/imprimir", json=payload, timeout=3)
+        
+    except Exception as e:
+        print(f"Error disparando impresoras a Ngrok: {e}")
+        
     return {"status": "ok", "msj": "Pago Aprobado y enviado a Cocina."}
 
 @app.post("/api/webhook/caja_automatica")
@@ -334,6 +401,92 @@ async def receive_whatsapp(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         print("Webhook Error:", e)
         return {"status": "error"}
+
+# --- OFFLINE-FIRST SYNC ---
+@app.post("/api/sync/push")
+async def sync_push(request: Request, db: Session = Depends(get_db)):
+    """ Recibe datos desde el nodo local y los guarda/actualiza en el Cloud. """
+    payload = await request.json()
+    pedidos = payload.get("pedidos", [])
+    
+    upserts = 0
+    from datetime import datetime
+    for p_data in pedidos:
+        num_ticket = p_data.get("numero_ticket")
+        if not num_ticket: continue
+        
+        # Check si ya existe el pedido
+        existente = db.query(Pedido).filter(Pedido.numero_ticket == num_ticket).first()
+        if existente:
+            continue
+            
+        # Parse fecha
+        fecha_str = p_data.get("fecha", "")
+        parsed_fecha = datetime.now()
+        try:
+            # Simple conversion from YYYY-MM-DD HH:MM:SS.mmmmmm
+            parsed_fecha = datetime.strptime(fecha_str.split(".")[0], "%Y-%m-%d %H:%M:%S")
+        except:
+             pass
+
+        nuevo_pedido = Pedido(
+            numero_ticket=num_ticket,
+            origen=p_data.get("origen", "LOCAL"),
+            total=p_data.get("total", 0.0),
+            estado=p_data.get("estado", "LISTO"),
+            metodo_pago=p_data.get("metodo_pago"),
+            descuento_aplicado=p_data.get("descuento_aplicado", 0.0),
+            cajero_username=p_data.get("cajero_username"),
+            base_imponible_10=p_data.get("base_imponible_10", 0.0),
+            cuota_iva_10=p_data.get("cuota_iva_10", 0.0),
+            base_imponible_21=p_data.get("base_imponible_21", 0.0),
+            cuota_iva_21=p_data.get("cuota_iva_21", 0.0),
+            fecha=parsed_fecha,
+            is_synced=True
+        )
+        db.add(nuevo_pedido)
+        db.flush() # Force ID generation
+        
+        # Procesar Items
+        items = p_data.get("items", [])
+        for it in items:
+            nuevo_item = ItemPedido(
+                pedido_id=nuevo_pedido.id,
+                producto_id=it.get("producto_id"),
+                cantidad=it.get("cantidad", 1),
+                precio_unitario=it.get("precio_unitario", 0.0),
+                is_synced=True
+            )
+            db.add(nuevo_item)
+            
+        upserts += 1
+
+    try:
+        db.commit()
+        return {"status": "ok", "msj": f"Sincronizados {upserts} pedidos fiscales correctamente."}
+    except Exception as e:
+        db.rollback()
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, detail=f"Error Sync PUSH: {str(e)}")
+
+@app.get("/api/sync/pull")
+def sync_pull(db: Session = Depends(get_db)):
+    """ Devuelve datos que hayan sido creados en el Cloud y no estén en el Local. """
+    from models import Pedido
+    pedidos_nuevos = db.query(Pedido).filter(Pedido.is_synced == False, Pedido.origen == "WHATSAPP").all()
+    out = []
+    for p in pedidos_nuevos:
+        out.append({
+            "id": p.id,
+            "numero_ticket": p.numero_ticket,
+            "total": p.total,
+            # Marcar aquí o esperar confirmación
+        })
+        p.is_synced = True
+    db.commit()
+    return {"status": "ok", "nuevos_pedidos": out}
+
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
