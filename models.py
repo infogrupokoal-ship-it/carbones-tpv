@@ -39,6 +39,7 @@ class Producto(Base):
     factor_stock = Column(Float, default=1.0) # Cuanto resta al padre por unidad vendida
     
     categoria = relationship("Categoria", back_populates="productos")
+    movimientos = relationship("MovimientoStock", back_populates="producto")
     
 class Cliente(Base):
     __tablename__ = "clientes"
