@@ -138,17 +138,45 @@
                 categorias = await resCat.json();
                 productos = await resProd.json();
                 
+                // Guardar caché local offline-first
+                localStorage.setItem('tpv_categorias', JSON.stringify(categorias));
+                localStorage.setItem('tpv_productos', JSON.stringify(productos));
+                
                 fallosConexion = 0;
                 document.getElementById('error-conexion')?.remove();
+                document.getElementById('aviso-offline')?.remove();
                 
                 renderCategorias();
                 renderProductos(null); 
             } catch(e) {
-                console.error("Error al cargar datos", e);
-                fallosConexion++;
-                if (fallosConexion >= 2) mostrarErrorConexion();
-                // retry silently
-                setTimeout(initTPV, 3000);
+                console.warn("Fallo de red, intentando usar menú offline...", e);
+                const localCats = localStorage.getItem('tpv_categorias');
+                const localProds = localStorage.getItem('tpv_productos');
+                
+                if (localCats && localProds) {
+                    categorias = JSON.parse(localCats);
+                    productos = JSON.parse(localProds);
+                    document.getElementById('error-conexion')?.remove();
+                    mostrarAvisoOffline();
+                    renderCategorias();
+                    renderProductos(null);
+                } else {
+                    fallosConexion++;
+                    if (fallosConexion >= 2) mostrarErrorConexion();
+                }
+                
+                // retry quietly in background to recover connection
+                setTimeout(initTPV, 10000);
+            }
+        }
+
+        function mostrarAvisoOffline() {
+            if(!document.getElementById('aviso-offline')) {
+                const badge = document.createElement('div');
+                badge.id = 'aviso-offline';
+                badge.className = "fixed bottom-4 left-4 bg-yellow-500 text-yellow-900 px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 z-50 animate-pulse";
+                badge.innerHTML = `<span>⚠️</span> MODO OFFLINE (Menú Local)`;
+                document.body.appendChild(badge);
             }
         }
 
@@ -160,7 +188,7 @@
                 overlay.innerHTML = `
                     <div class="text-9xl mb-4">🔌</div>
                     <h1 class="text-5xl font-black mb-4 text-center">TPV DESCONECTADO</h1>
-                    <p class="text-2xl font-bold text-center px-4 max-w-2xl">No se puede conectar con el motor local.<br><br>Usa el botón "Arrancar TPV" en Termux:Widget para encenderlo.</p>
+                    <p class="text-2xl font-bold text-center px-4 max-w-2xl">No se pudo descargar el menú y no hay copia local.<br><br>Verifica internet o el servidor VPS.</p>
                 `;
                 document.body.appendChild(overlay);
             }

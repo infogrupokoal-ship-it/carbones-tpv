@@ -744,6 +744,34 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
     return {"status": "success"}
 
+from fastapi.responses import HTMLResponse
+
+@app.get("/pago_completado", response_class=HTMLResponse)
+def pago_completado(session_id: str = ""):
+    return """
+    <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pago Completado</title></head>
+        <body style="font-family:sans-serif; text-align:center; padding-top:50px; background:#f0fdf4; color:#166534;">
+            <h1 style="font-size:3rem;">✅ ¡Pago Exitoso!</h1>
+            <p style="font-size:1.2rem;">Tu pedido ha sido pagado correctamente y estamos preparándolo.</p>
+            <p>¡Gracias por confiar en Carbones y Pollos!</p>
+        </body>
+    </html>
+    """
+
+@app.get("/pago_cancelado", response_class=HTMLResponse)
+def pago_cancelado():
+    return """
+    <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pago Cancelado</title></head>
+        <body style="font-family:sans-serif; text-align:center; padding-top:50px; background:#fef2f2; color:#991b1b;">
+            <h1 style="font-size:3rem;">❌ Pago Cancelado</h1>
+            <p style="font-size:1.2rem;">Has cancelado el proceso de pago. Tu pedido sigue pendiente.</p>
+            <p>Si has tenido algún problema, contáctanos por WhatsApp.</p>
+        </body>
+    </html>
+    """
+
 # --- PEDIDOS A PROVEEDORES ---
 class PedidoProveedorReq(BaseModel):
     producto: str

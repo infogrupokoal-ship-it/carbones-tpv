@@ -7,3 +7,6 @@ python-multipart
 requests
 apscheduler
 pytz
+
+google-generativeai
+stripe
