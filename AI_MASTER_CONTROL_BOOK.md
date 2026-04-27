@@ -83,5 +83,18 @@ La infraestructura certifica el cumplimiento de los tres requerimientos fundamen
 1.  **Aislamiento Comercial (Kiosko):** Preparado vía PWA (Progressive Web App) en Chrome.
 2.  **Autonomía de Datos:** Base de datos validada para operaciones sin red externa.
 3.  **Persistencia Remota:** Script de soporte remoto (WAN) inyectado y funcional.
+4.  **Panel de Control Remoto (Fase 8):** Creado `admin_mobile.html` protegido con PIN, que se comunica con el servidor en la nube para encolar comandos de hardware.
+5.  **Cloud-Edge Bridge (Fase 8):** Implementado un hilo de *Long-Polling* en `local_printer_bridge.py` que consulta el endpoint Cloud.
+
+---
+
+## 7. AVISO CRÍTICO DE ARQUITECTURA PARA FUTURAS IAs (LA "PUERTA ONLINE")
+
+**ATENCIÓN IA:** El sistema TPV ya NO depende de conexiones de red local (RJ45/LAN) directas para comunicarse con los periféricos (impresora y cajón portamonedas).
+
+*   **Arquitectura Desacoplada:** El backend principal vive en **Render (Cloud)**.
+*   **Puerta Online (Polling):** La máquina física de la tienda (tablet/PC) ejecuta `local_printer_bridge.py`. Este script es un demonio local que realiza peticiones HTTP (Long-Polling) constantemente al endpoint de Render (`/api/hardware/poll`).
+*   **Gestión de Hardware:** Cuando la Nube en Render quiere imprimir un ticket o abrir el cajón, NO hace un PUSH (ya no hace falta Ngrok ni IP fija). En su lugar, Render guarda el comando (`HardwareCommand` en SQLite). El `local_printer_bridge.py` del restaurante "recoge" ese comando e interactúa con el hardware a través de `win32print` o `RawBT` dependiendo del SO local.
+*   **Resiliencia Operativa:** Si el TPV físico se mueve al trabajo o a otra red, **el sistema de impresión remoto seguirá funcionando sin configuración de red adicional**, siempre que el dispositivo local tenga acceso a Internet y `local_printer_bridge.py` esté corriendo.
 
 **FIN DEL REPORTE.**

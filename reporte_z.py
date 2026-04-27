@@ -2,12 +2,12 @@ import sqlite3
 import datetime
 import requests
 import os
-import json
 
 DB_PATH = "tpv_data.sqlite"
-# WAHA URL, en el futuro se cambiara a la IP de la máquina WAHA si está en VPS
-WAHA_URL = os.environ.get("WAHA_URL", "http://127.0.0.1:3000/api/sendText")
-TELEFONO_ADMIN = "34604864187" # El tuyo personal
+WAHA_URL = os.environ.get("WAHA_URL", "http://113.30.148.104:3000")
+WAHA_SESSION = os.environ.get("WAHA_SESSION", "carbones")
+WAHA_API_KEY = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
+TELEFONO_ADMIN = os.environ.get("TELEFONO_ADMIN", "34604864187")
 
 def generar_reporte_z():
     hoy = datetime.datetime.now()
@@ -18,8 +18,6 @@ def generar_reporte_z():
     cursor = conn.cursor()
     
     # Obtener pedidos pagados hoy
-    # fecha stored as datetime, we use LIKE for string matching or datetime func in sqlite
-    # Since datetime is stored as string 'YYYY-MM-DD HH:MM:SS.mmmmmm'
     query = """
         SELECT total, metodo_pago 
         FROM pedidos 
@@ -65,7 +63,6 @@ def generar_reporte_z():
             if res_movs and res_movs[0]:
                 pollos_vendidos += abs(res_movs[0])
                 
-        # Agregar al texto de sobrantes si hay stock
         if p_stock > 0 or p_stock < 0:
             sobrantes_texto += f"- {p_nombre}: {p_stock}\n"
 
@@ -87,14 +84,16 @@ def enviar_whatsapp(mensaje):
     payload = {
         "chatId": f"{TELEFONO_ADMIN}@c.us",
         "text": mensaje,
-        "session": "default"
+        "session": WAHA_SESSION
     }
     headers = {"Content-Type": "application/json"}
-    
+    if WAHA_API_KEY:
+        headers["X-Api-Key"] = WAHA_API_KEY
+        
     print(f"Enviando WhatsApp a {TELEFONO_ADMIN}...")
     try:
-        response = requests.post(WAHA_URL, json=payload, headers=headers, timeout=10)
-        if response.status_code == 201 or response.status_code == 200:
+        response = requests.post(f"{WAHA_URL}/api/sendText", json=payload, headers=headers, timeout=10)
+        if response.status_code in [200, 201]:
             print("WhatsApp enviado correctamente.")
         else:
             print(f"Error enviando WhatsApp: {response.text}")
@@ -103,7 +102,5 @@ def enviar_whatsapp(mensaje):
 
 if __name__ == "__main__":
     msg = generar_reporte_z()
-    print("-------------------------")
     print(msg)
-    print("-------------------------")
     enviar_whatsapp(msg)

@@ -582,18 +582,58 @@ from models import HardwareCommand
 
 @app.post("/api/hardware/enqueue")
 async def hw_enqueue(request: Request, db: Session = Depends(get_db)):
-    """(Cloud) El móvil del Admin pide ejecutar una acción física en la tienda."""
+    """El sistema pide ejecutar una acción física (cajón, ticket) en la tienda."""
     data = await request.json()
     accion = data.get("accion")
-    origen = data.get("origen", "app_movil_jefe")
+    origen = data.get("origen", "app")
     if not accion:
         raise HTTPException(400, "Acción requerida")
     
     cmd = HardwareCommand(accion=accion, origen=origen)
+    if "payload" in data:
+        cmd.payload = data["payload"]
+
     db.add(cmd)
     db.commit()
     db.refresh(cmd)
-    return {"status": "ok", "msj": f"Comando {accion} encolado", "id": cmd.id}
+
+    # --- INTEGRACION DIRECTA RawBT (ANDROID EDGE) ---
+    # Si la TPV está corriendo en la misma tablet (Termux), puede acceder a RawBT en 127.0.0.1:40213
+    # Generamos código ESC/POS simple para enviar
+    try:
+        rawbt_url = "http://127.0.0.1:40213/"
+        esc_pos_data = b""
+        
+        if accion == "abrir_caja":
+            # ESC p m t1 t2 (Abrir cajón)
+            esc_pos_data = b"\x1B\x70\x00\x19\xFA"
+            
+        elif accion == "imprimir" and "payload" in data:
+            import json
+            p_data = json.loads(data["payload"])
+            t = f"\n--- CARBONES Y POLLOS ---\n"
+            t += f"Ticket: {p_data.get('numero_ticket')}\n"
+            t += f"Tipo: {p_data.get('tipo', 'cliente').upper()}\n"
+            t += "-------------------------\n"
+            for it in p_data.get("items", []):
+                t += f"{it.get('cantidad')}x {it.get('nombre')}  {it.get('precio', 0.0):.2f}E\n"
+            t += "-------------------------\n"
+            t += f"TOTAL: {p_data.get('total', 0.0):.2f} E\n"
+            t += "-------------------------\n\n\n\n\n"
+            # Añadir corte parcial ESC m
+            esc_pos_data = t.encode("utf-8") + b"\x1B\x6D"
+
+        if esc_pos_data:
+            import urllib.request
+            req = urllib.request.Request(rawbt_url, data=esc_pos_data, method='POST')
+            urllib.request.urlopen(req, timeout=1.5)
+            print("=> RawBT Print EXITOSO")
+    except Exception as e:
+        # Falla silenciosamente (ej. si este código está ejecutándose en la nube VPS)
+        # El polling agent de Windows (si se usara) recogería el comando de BD de todos modos.
+        print(f"Nota: RawBT local no disponible ({e})")
+    
+    return {"status": "ok", "msj": f"Comando {accion} procesado", "id": cmd.id}
 
 @app.get("/api/hardware/poll")
 def hw_poll(db: Session = Depends(get_db)):
@@ -703,6 +743,73 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 logging.info(f"Pedido {pedido_id} marcado como PAGADO vía Stripe.")
 
     return {"status": "success"}
+
+# --- PEDIDOS A PROVEEDORES ---
+class PedidoProveedorReq(BaseModel):
+    producto: str
+    cantidad: float
+    telefono_proveedor: str
+
+@app.post("/api/proveedores/pedir")
+def pedir_proveedor(req: PedidoProveedorReq):
+    waha_url = os.environ.get("WAHA_URL", "http://113.30.148.104:3000")
+    session_name = os.environ.get("WAHA_SESSION", "carbones")
+    api_key = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
+    
+    # Formatear mensaje
+    mensaje = f"👋 Hola, somos Carbones y Pollos.\n"
+    mensaje += f"Necesitamos hacer un pedido de *{req.cantidad}* de *{req.producto}* para lo antes posible.\n"
+    mensaje += "Por favor, confirmad recepción del pedido. ¡Gracias!"
+    
+    payload_envio = {
+        "chatId": f"{req.telefono_proveedor}@c.us",
+        "text": mensaje,
+        "session": session_name
+    }
+    
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["X-Api-Key"] = api_key
+        
+    try:
+        res = requests.post(f"{waha_url}/api/sendText", json=payload_envio, headers=headers, timeout=5)
+        if res.status_code in [200, 201]:
+            return {"status": "ok", "msj": "Pedido enviado correctamente por WhatsApp"}
+        else:
+            raise HTTPException(500, f"Error WAHA: {res.text}")
+    except Exception as e:
+        raise HTTPException(500, f"Error conexión WAHA: {str(e)}")
+
+# --- AUTOMATIZACIÓN NOCTURNA (Cron) ---
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import pytz
+
+def job_cierre_z():
+    import reporte_z
+    try:
+        msg = reporte_z.generar_reporte_z()
+        reporte_z.enviar_whatsapp(msg)
+        logging.info("Cierre Z automático ejecutado con éxito.")
+    except Exception as e:
+        logging.error(f"Error en Cierre Z automático: {e}")
+
+def job_mantenimiento():
+    import db_maintenance
+    try:
+        db_maintenance.run_maintenance()
+        logging.info("Mantenimiento semanal automático ejecutado con éxito.")
+    except Exception as e:
+        logging.error(f"Error en Mantenimiento automático: {e}")
+
+# Instanciamos el planificador horario Europa/Madrid
+scheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Madrid'))
+scheduler.add_job(job_cierre_z, 'cron', hour=23, minute=59)
+scheduler.add_job(job_mantenimiento, 'cron', day_of_week='sun', hour=3, minute=0)
+
+@app.on_event("startup")
+def start_scheduler():
+    scheduler.start()
+    logging.info("Cron interno iniciado: Cierre Z (23:59) y Mantenimiento BD (Dom 03:00)")
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

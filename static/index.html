@@ -127,6 +127,8 @@
         let categorias = [];
         let carrito = [];
 
+        let fallosConexion = 0;
+
         async function initTPV() {
             try {
                 let [resCat, resProd] = await Promise.all([
@@ -136,12 +138,31 @@
                 categorias = await resCat.json();
                 productos = await resProd.json();
                 
+                fallosConexion = 0;
+                document.getElementById('error-conexion')?.remove();
+                
                 renderCategorias();
                 renderProductos(null); 
             } catch(e) {
                 console.error("Error al cargar datos", e);
+                fallosConexion++;
+                if (fallosConexion >= 2) mostrarErrorConexion();
                 // retry silently
-                setTimeout(initTPV, 2000);
+                setTimeout(initTPV, 3000);
+            }
+        }
+
+        function mostrarErrorConexion() {
+            if(!document.getElementById('error-conexion')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'error-conexion';
+                overlay.className = "fixed inset-0 bg-red-900 bg-opacity-95 z-[999] flex flex-col items-center justify-center text-white";
+                overlay.innerHTML = `
+                    <div class="text-9xl mb-4">🔌</div>
+                    <h1 class="text-5xl font-black mb-4 text-center">TPV DESCONECTADO</h1>
+                    <p class="text-2xl font-bold text-center px-4 max-w-2xl">No se puede conectar con el motor local.<br><br>Usa el botón "Arrancar TPV" en Termux:Widget para encenderlo.</p>
+                `;
+                document.body.appendChild(overlay);
             }
         }
 

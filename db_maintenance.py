@@ -2,9 +2,48 @@ import sqlite3
 import os
 import shutil
 import datetime
+import requests
+import base64
 
 DB_PATH = "tpv_data.sqlite"
 BACKUP_DIR = "backups"
+
+WAHA_URL = os.environ.get("WAHA_URL", "http://113.30.148.104:3000")
+WAHA_SESSION = os.environ.get("WAHA_SESSION", "carbones")
+WAHA_API_KEY = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
+TELEFONO_ADMIN = os.environ.get("TELEFONO_ADMIN", "34604864187")
+
+def enviar_backup_whatsapp(filepath):
+    print(f"Preparando envío de {filepath} por WAHA...")
+    try:
+        with open(filepath, "rb") as f:
+            b64_data = base64.b64encode(f.read()).decode("utf-8")
+        
+        filename = os.path.basename(filepath)
+        data_uri = f"data:application/x-sqlite3;base64,{b64_data}"
+        
+        payload = {
+            "chatId": f"{TELEFONO_ADMIN}@c.us",
+            "file": {
+                "mimetype": "application/x-sqlite3",
+                "filename": filename,
+                "url": data_uri
+            },
+            "caption": f"💾 Backup Semanal de Base de Datos ({filename})",
+            "session": WAHA_SESSION
+        }
+        
+        headers = {"Content-Type": "application/json"}
+        if WAHA_API_KEY:
+            headers["X-Api-Key"] = WAHA_API_KEY
+            
+        res = requests.post(f"{WAHA_URL}/api/sendFile", json=payload, headers=headers, timeout=30)
+        if res.status_code in [200, 201]:
+            print("Backup enviado por WhatsApp correctamente.")
+        else:
+            print(f"Error WAHA: {res.text}")
+    except Exception as e:
+        print(f"Excepción enviando backup: {e}")
 
 def run_maintenance():
     print("Iniciando Mantenimiento de Base de Datos...")
@@ -29,6 +68,10 @@ def run_maintenance():
     try:
         shutil.copy2(DB_PATH, backup_file)
         print(f"Copia de seguridad guardada en: {backup_file}")
+        
+        # Enviar vía WhatsApp
+        enviar_backup_whatsapp(backup_file)
+        
     except Exception as e:
         print(f"Error realizando la copia de seguridad: {e}")
         
