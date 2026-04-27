@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalación del Puente TPV</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #111827; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; width: 100%; text-align: center; }
+        h1 { color: #ef4444; }
+        p { font-size: 16px; line-height: 1.5; color: #4b5563; }
+        .code-box { background: #1f2937; color: #10b981; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 20px 0; word-break: break-all; user-select: all; cursor: pointer; position: relative;}
+        .copy-btn { background: #3b82f6; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .copy-btn:hover { background: #2563eb; }
+        .success { color: #16a34a; font-weight: bold; margin-top: 15px; display: none; }
+        .step { background: #e0e7ff; color: #3730a3; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; font-size: 15px;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>⚙️ Instalador Final (Android)</h1>
+        <p>Estás intentando configurar el auto-arranque del Cajón Registrador y la Impresora en esta tablet.</p>
+        
+        <div class="step">
+            <strong>Paso 1:</strong> Pulsa el botón azul para copiar el código mágico al portapapeles de esta tablet.
+        </div>
+        
+        <div class="code-box" id="codigoTerminal">pkill -f local_printer_bridge; cd ~/carbones-tpv || cd /storage/emulated/0/Download/carbones_y_pollos_tpv; git pull origin master; python local_printer_bridge.py</div>
+        
+        <button class="copy-btn" onclick="copiarCodigo()">1️⃣ COPIAR CÓDIGO</button>
+        <div id="msgCopiado" class="success">✅ ¡Código copiado!</div>
+
+        <div class="step">
+            <strong>Paso 2:</strong> Sal de aquí y abre la aplicación <b>Termux</b> (la pantalla negra).<br><br>
+            <strong>Paso 3:</strong> Mantén pulsado con el dedo en la pantalla negra, dale a <b>PEGAR</b> (o Paste) y pulsa la tecla Enter (Intro) en el teclado de la tablet.<br><br>
+            <strong>Paso 4:</strong> Verás que empiezan a salir letras. ¡Ya está encendido el motor!<br><br>
+            <strong>Paso 5:</strong> Abre la app de Google Play y descarga <b>"Termux:Boot"</b>. Ábrela solo una vez para darle permisos y olvídate para siempre. Ya puedes abrir tu TPV normal.
+        </div>
+    </div>
+
+    <script>
+        function copiarCodigo() {
+            const texto = document.getElementById('codigoTerminal').innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                document.getElementById('msgCopiado').style.display = 'block';
+                setTimeout(() => document.getElementById('msgCopiado').style.display = 'none', 3000);
+            }).catch(err => {
+                alert('No se pudo copiar automáticamente. Por favor, selecciona y copia el texto verde oscuro de arriba manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>
