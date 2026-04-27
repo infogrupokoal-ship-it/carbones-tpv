@@ -174,8 +174,104 @@ async def abrir_caja():
     else:
         return {"status": "error", "msj": "Error abriendo cajón"}
 
+def hardware_polling_loop():
+    while True:
+        try:
+            res = requests.get(f"{CLOUD_URL}/api/hardware/poll", timeout=5)
+            if res.status_code == 200:
+                data = res.json()
+                for cmd in data.get("comandos", []):
+                    accion = cmd.get("accion")
+                    payload = cmd.get("payload")
+                    
+                    if accion == "abrir_caja":
+                        print(f"[{datetime.now()}] Ejecutando comando nube: ABRIR CAJA (ID: {cmd['id']})")
+                        secuencia_apertura = "\x1B\x70\x00\x19\xFA"
+                        imprimir_texto_crudo(NOMBRE_IMPRESORA_TICKET, secuencia_apertura)
+                        requests.post(f"{CLOUD_URL}/api/hardware/ack/{cmd['id']}")
+                        
+                    elif accion == "imprimir" and payload:
+                        print(f"[{datetime.now()}] Ejecutando comando nube: IMPRIMIR (ID: {cmd['id']})")
+                        
+                        # Reutilizamos la lógica que ya teníamos en el webhook local
+                        tipo_ticket = payload.get("tipo", "cliente")
+                        numero_ticket = payload.get("numero_ticket", "T-00")
+                        origen = payload.get("origen", "MOSTRADOR")
+                        items = payload.get("items", [])
+                        total = payload.get("total", 0.0)
+                        
+                        iva_10 = payload.get("cuota_iva_10", 0.0)
+                        base_10 = payload.get("base_imponible_10", 0.0)
+                        iva_21 = payload.get("cuota_iva_21", 0.0)
+                        base_21 = payload.get("base_imponible_21", 0.0)
+                        
+                        fecha_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+                        linea = "-" * 40
+                        ticket = ""
+                        
+                        if tipo_ticket == "cliente":
+                            ticket += "      CARBONES Y POLLOS       \n"
+                            ticket += "      Los mejores asados       \n"
+                            ticket += "   NIF: B-12345678  Dir: Falsa 123\n\n"
+                            ticket += "      FACTURA SIMPLIFICADA    \n"
+                            ticket += f"Ticket: {numero_ticket}\n"
+                            ticket += f"Fecha: {fecha_str}\n"
+                            ticket += f"Atiende: {origen}\n"
+                            ticket += linea + "\n"
+                            ticket += "Cant  Producto             Precio\n"
+                            ticket += linea + "\n"
+                            
+                            for item in items:
+                                cant = str(item.get("cantidad", 1)).ljust(4)
+                                nomb = str(item.get("nombre", ""))[:18].ljust(18)
+                                prec = f"{item.get('precio', 0.0):.2f}€".rjust(8)
+                                ticket += f"{cant} {nomb}    {prec}\n"
+                                
+                            ticket += linea + "\n"
+                            ticket += f"TOTAL A PAGAR:             {total:.2f}€\n".rjust(40)
+                            
+                            ticket += "\nDesglose de Impuestos (IVA INC):\n"
+                            ticket += "Tipo      Base Imp       Cuota\n"
+                            if base_10 > 0:
+                                ticket += f"10%       {base_10:.2f}€".ljust(22) + f"{iva_10:.2f}€\n".rjust(8)
+                            if base_21 > 0:
+                                ticket += f"21%       {base_21:.2f}€".ljust(22) + f"{iva_21:.2f}€\n".rjust(8)
+                                
+                            ticket += linea + "\n"
+                            ticket += "      Gracias por su visita!    \n\n\n"
+                            impresora_destino = NOMBRE_IMPRESORA_TICKET
+                            
+                        else:
+                            ticket += "           *** COCINA ***       \n\n"
+                            ticket += f"COMANDA: {numero_ticket}\n"
+                            ticket += f"HORA: {fecha_str}\n"
+                            ticket += f"ORIGEN: {origen}\n"
+                            ticket += "=" * 40 + "\n"
+                            
+                            for item in items:
+                                cant = str(item.get("cantidad", 1))
+                                nomb = str(item.get("nombre", ""))
+                                ticket += f"[ {cant} ] {nomb.upper()}\n"
+                                
+                            ticket += "=" * 40 + "\n\n\n"
+                            impresora_destino = NOMBRE_IMPRESORA_COCINA
+                            
+                        exito = imprimir_texto_crudo(impresora_destino, ticket)
+                        if exito:
+                            requests.post(f"{CLOUD_URL}/api/hardware/ack/{cmd['id']}")
+                            
+        except Exception as e:
+            # Silencioso para no ensuciar consola
+            pass
+        time.sleep(5)
+
 if __name__ == "__main__":
     print("\n--- SERVIDOR DE IMPRESION LOCAL (PUENTE) INICIADO ---")
-    print("Recuerda abrir Ngrok con: ngrok http 8000")
+    print("El puente ahora escucha a la Nube mediante Polling.")
     print("------------------------------------------------------\n")
+    
+    # Iniciar polling thread para recibir comandos Cloud -> Edge
+    t = threading.Thread(target=hardware_polling_loop, daemon=True)
+    t.start()
+    
     uvicorn.run(app, host="127.0.0.1", port=8000)
