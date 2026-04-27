@@ -12,7 +12,8 @@ from datetime import datetime
 import json
 import logging
 import os
-from ai_engine import procesar_mensaje_whatsapp
+import requests
+# from ai_engine import procesar_mensaje_whatsapp
 
 from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock
 
@@ -149,9 +150,25 @@ def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
             if parent:
                 parent.stock_actual -= (item.cantidad * prod.factor_stock)
                 db.add(MovimientoStock(producto_id=parent.id, cantidad=-(item.cantidad * prod.factor_stock), tipo="VENTA", origen_id=nuevo_pedido.id, descripcion=f"Venta (Ref: {prod.nombre})"))
+                
+                # FASE 4: Alerta Predictiva de Inventario
+                if parent.stock_minimo > 0 and parent.stock_actual <= parent.stock_minimo:
+                    alerta = f"🚨 *ALERTA DE STOCK* 🚨\nEl producto *{parent.nombre}* ha bajado del umbral crítico.\nStock actual: {parent.stock_actual}\n¡Repón inmediatamente!"
+                    try:
+                        requests.post(os.environ.get("WAHA_URL", "http://127.0.0.1:3000/api/sendText"), json={"chatId": "34604864187@c.us", "text": alerta, "session": "default"}, timeout=2)
+                    except:
+                        pass
         else:
             prod.stock_actual -= item.cantidad
             db.add(MovimientoStock(producto_id=prod.id, cantidad=-item.cantidad, tipo="VENTA", origen_id=nuevo_pedido.id, descripcion="Venta TPV"))
+            
+            # FASE 4: Alerta Predictiva de Inventario
+            if prod.stock_minimo > 0 and prod.stock_actual <= prod.stock_minimo:
+                alerta = f"🚨 *ALERTA DE STOCK* 🚨\nEl producto *{prod.nombre}* ha bajado del umbral crítico.\nStock actual: {prod.stock_actual}\n¡Haz pedido al proveedor!"
+                try:
+                    requests.post(os.environ.get("WAHA_URL", "http://127.0.0.1:3000/api/sendText"), json={"chatId": "34604864187@c.us", "text": alerta, "session": "default"}, timeout=2)
+                except:
+                    pass
             
         coste_item = prod.precio * item.cantidad
         total += coste_item
@@ -313,6 +330,35 @@ def registrar_produccion(prod: ProduccionCrear, db: Session = Depends(get_db)):
         db.commit()
         return {"status": "ok", "nuevo_stock": p.stock_actual}
 
+@app.get("/api/inventario")
+def ver_inventario(db: Session = Depends(get_db)):
+    # Mostrar solo productos base (sin stock_base_id) o productos relevantes
+    prods = db.query(Producto).filter(Producto.is_active == True, Producto.stock_base_id == None).all()
+    out = []
+    for p in prods:
+        out.append({
+            "id": p.id,
+            "nombre": p.nombre,
+            "stock_actual": p.stock_actual,
+            "stock_minimo": p.stock_minimo
+        })
+    return out
+
+class AjusteInventario(BaseModel):
+    producto_id: int
+    cantidad_ajuste: float
+    descripcion: str = "Ajuste manual / Entrada Proveedor"
+
+@app.post("/api/inventario/ajuste")
+def ajustar_inventario(req: AjusteInventario, db: Session = Depends(get_db)):
+    p = db.query(Producto).get(req.producto_id)
+    if not p: raise HTTPException(404, "Producto no encontrado")
+    p.stock_actual += req.cantidad_ajuste
+    db.add(MovimientoStock(producto_id=p.id, cantidad=req.cantidad_ajuste, tipo="AJUSTE", descripcion=req.descripcion))
+    db.commit()
+    return {"status": "ok", "msj": f"Stock actualizado a {p.stock_actual}"}
+
+
 # --- AUTH & DASHBOARD ---
 class LoginRequest(BaseModel):
     username: str
@@ -389,8 +435,9 @@ async def receive_whatsapp(request: Request, db: Session = Depends(get_db)):
                         text = msg.get("text", {}).get("body", "")
                         
                         if text:
-                            # Mandar a procesar al cerebro IA
-                            respuesta_ia = procesar_mensaje_whatsapp(db, sender_phone, text, TELEFONOS_RESPONSABLES)
+                            # Mandar a procesar al cerebro IA (Desactivado en nodo local TPV)
+                            # respuesta_ia = procesar_mensaje_whatsapp(db, sender_phone, text, TELEFONOS_RESPONSABLES)
+                            respuesta_ia = "IA desactivada en TPV local. Procesamiento movido a VPS."
                             
                             # AQUI EN PRODUCTIVO SE LLAMARÍA A LA API DE META PARA ENVIAR 'respuesta_ia' DE VUELTA.
                             # Ej: enviar_mensaje_meta(sender_phone, respuesta_ia)
@@ -487,9 +534,47 @@ def sync_pull(db: Session = Depends(get_db)):
     db.commit()
     return {"status": "ok", "nuevos_pedidos": out}
 
+# --- CLOUD-EDGE HARDWARE BRIDGE ---
+from models import HardwareCommand
+
+@app.post("/api/hardware/enqueue")
+async def hw_enqueue(request: Request, db: Session = Depends(get_db)):
+    """(Cloud) El móvil del Admin pide ejecutar una acción física en la tienda."""
+    data = await request.json()
+    accion = data.get("accion")
+    origen = data.get("origen", "app_movil_jefe")
+    if not accion:
+        raise HTTPException(400, "Acción requerida")
+    
+    cmd = HardwareCommand(accion=accion, origen=origen)
+    db.add(cmd)
+    db.commit()
+    db.refresh(cmd)
+    return {"status": "ok", "msj": f"Comando {accion} encolado", "id": cmd.id}
+
+@app.get("/api/hardware/poll")
+def hw_poll(db: Session = Depends(get_db)):
+    """(Edge) La tablet de la tienda pregunta si hay acciones pendientes."""
+    cmds = db.query(HardwareCommand).filter(HardwareCommand.estado == "PENDIENTE").all()
+    out = []
+    for c in cmds:
+        out.append({"id": c.id, "accion": c.accion, "origen": c.origen})
+    return {"status": "ok", "comandos": out}
+
+@app.post("/api/hardware/ack/{cmd_id}")
+def hw_ack(cmd_id: int, db: Session = Depends(get_db)):
+    """(Edge) La tablet confirma que ejecutó la acción."""
+    cmd = db.query(HardwareCommand).filter(HardwareCommand.id == cmd_id).first()
+    if cmd:
+        cmd.estado = "EJECUTADO"
+        from datetime import datetime
+        cmd.fecha_ejecucion = datetime.now()
+        db.commit()
+        return {"status": "ok"}
+    raise HTTPException(404, "Comando no encontrado")
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=5001)

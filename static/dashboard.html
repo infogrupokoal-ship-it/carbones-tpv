@@ -19,6 +19,7 @@
                 <p class="text-gray-500 font-bold mt-1">Usuario activo: <span id="lbl-user" class="text-emerald-600 uppercase"></span></p>
             </div>
             <div class="flex gap-4">
+                <button onclick="abrirCajaRemota()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 hover:bg-indigo-700 transition shadow-[0_0_15px_rgba(79,70,229,0.5)]">🔓 ABRIR CAJA</button>
                 <button onclick="location.href='caja.html'" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition">💻 IR A LA CAJA</button>
                 <button onclick="cerrarSesion()" class="bg-red-100 text-red-600 px-6 py-3 rounded-xl font-bold hover:bg-red-200 active:scale-95 transition">Cerrar Sesión</button>
             </div>
@@ -46,16 +47,44 @@
             </div>
         </div>
         
-        <p class="text-center text-gray-400 font-bold mt-10">Cargando datos del día actual de forma automatizada...</p>
+        <!-- INVENTARIO -->
+        <div class="mt-8 bg-white p-8 rounded-3xl shadow-lg border-4 border-gray-200">
+            <h2 class="text-2xl font-black text-gray-800 mb-4">📦 Inventario Actual</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-left">
+                    <thead>
+                        <tr class="text-gray-500">
+                            <th class="py-2">Producto</th>
+                            <th class="py-2">Stock Actual</th>
+                            <th class="py-2">Mínimo</th>
+                            <th class="py-2 text-right">Ajustar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list" class="text-lg font-bold text-gray-800 border-t">
+                        <!-- Rellenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- CHART -->
+        <div class="mt-8 bg-white p-8 rounded-3xl shadow-lg border-4 border-gray-200">
+            <h2 class="text-2xl font-black text-gray-800 mb-4">📈 Distribución de Ventas</h2>
+            <canvas id="salesChart" height="100"></canvas>
+        </div>
+
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.getElementById('lbl-user').innerText = localStorage.getItem('auth_user');
+        document.getElementById('lbl-user').innerText = localStorage.getItem('auth_user') || 'ADMIN';
 
         function cerrarSesion() {
             localStorage.clear();
             window.location.href = 'login.html';
         }
+
+        let salesChart;
 
         async function cargarDatos() {
             const r_manana = await fetch('/api/dashboard?turno=manana').then(res => res.json());
@@ -63,10 +92,90 @@
             
             document.getElementById('fact-manana').innerText = r_manana.total_facturado.toFixed(2);
             document.getElementById('fact-tarde').innerText = r_tarde.total_facturado.toFixed(2);
+            
+            actualizarGrafico(r_manana.total_facturado, r_tarde.total_facturado);
+            
+            // Inventario
+            const r_inv = await fetch('/api/inventario').then(res => res.json());
+            const tbody = document.getElementById('inventory-list');
+            tbody.innerHTML = "";
+            r_inv.forEach(p => {
+                let colorClass = p.stock_actual <= p.stock_minimo ? "text-red-500" : "text-emerald-600";
+                tbody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="py-4">${p.nombre}</td>
+                        <td class="py-4 ${colorClass}">${p.stock_actual}</td>
+                        <td class="py-4 text-gray-400">${p.stock_minimo}</td>
+                        <td class="py-4 text-right">
+                            <button onclick="ajustarStock(${p.id})" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded font-bold">Modificar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        async function ajustarStock(id) {
+            let add = prompt("Cantidad a añadir (usa negativos para restar):", "0");
+            if (add !== null && add !== "") {
+                await fetch('/api/inventario/ajuste', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({producto_id: id, cantidad_ajuste: parseFloat(add)})
+                });
+                cargarDatos();
+            }
+        }
+
+        function actualizarGrafico(manana, tarde) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (salesChart) {
+                salesChart.data.datasets[0].data = [manana, tarde];
+                salesChart.update();
+            } else {
+                salesChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Turno Mañana', 'Turno Tarde'],
+                        datasets: [{
+                            label: 'Ventas (€)',
+                            data: [manana, tarde],
+                            backgroundColor: ['#fed7aa', '#bfdbfe'],
+                            borderColor: ['#f97316', '#3b82f6'],
+                            borderWidth: 2,
+                            borderRadius: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
         }
 
         cargarDatos();
-        setInterval(cargarDatos, 10000); // refresh 10s
+        setInterval(cargarDatos, 15000); // refresh 15s
+
+        async function abrirCajaRemota() {
+            if(!confirm("¿Estás seguro de abrir la caja físicamente en la tienda?")) return;
+            try {
+                const res = await fetch('/api/hardware/enqueue', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'app_admin'})
+                });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    alert('Orden enviada. La caja se abrirá en la tienda en unos segundos.');
+                } else {
+                    alert('Error encolando acción: ' + data.msj);
+                }
+            } catch(e) {
+                alert('Error de conexión con el servidor.');
+            }
+        }
     </script>
 </body>
 </html>

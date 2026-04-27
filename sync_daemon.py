@@ -116,12 +116,35 @@ def pull_remote_data():
     finally:
         db.close()
 
+def pull_hardware_commands():
+    try:
+        res = requests.get(f"{VPS_URL}/api/hardware/poll", timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            comandos = data.get("comandos", [])
+            for cmd in comandos:
+                logging.info(f"Comando remoto recibido: {cmd['accion']} (Origen: {cmd['origen']})")
+                if cmd['accion'] == "abrir_caja":
+                    # Llamar al puente local
+                    try:
+                        # Asume que local_printer_bridge expone /webhook/abrir_caja en puerto 8000
+                        requests.post("http://127.0.0.1:8000/webhook/abrir_caja", timeout=2)
+                        logging.info("=> Cajón abierto localmente con éxito.")
+                        # Notificar a la nube (ACK)
+                        requests.post(f"{VPS_URL}/api/hardware/ack/{cmd['id']}", timeout=2)
+                    except Exception as ex:
+                        logging.error(f"=> Error invocando puente local: {ex}")
+    except Exception as e:
+        pass
+
+
 def daemon_loop():
     logging.info(f"Iniciando Demonio de Sincronización...")
     logging.info(f"Conectando contra VPS en: {VPS_URL}")
     while True:
         push_local_data()
         pull_remote_data()
+        pull_hardware_commands()
         time.sleep(SYNC_INTERVAL)
 
 if __name__ == "__main__":

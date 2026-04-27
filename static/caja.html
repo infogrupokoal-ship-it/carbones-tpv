@@ -13,6 +13,7 @@
     <div class="bg-emerald-700 p-5 border-b border-gray-200 flex justify-between items-center shadow-md">
         <h1 class="text-3xl font-black text-white">💰 TPV MAESTRA - COBROS</h1>
         <div class="flex gap-4">
+            <button onclick="abrirCajaRemota()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] active:scale-95 transition-all">🔓 ABRIR CAJA</button>
             <button onclick="location.href='index.html'" class="bg-emerald-900 hover:bg-emerald-800 text-white px-5 py-3 rounded-xl font-bold text-lg shadow-md active:scale-95 transition-all">Ver Menú Público</button>
             <button onclick="location.href='dashboard.html'" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-5 py-3 rounded-xl font-black text-lg shadow-md active:scale-95 transition-all">Ir al Dashboard</button>
         </div>
@@ -82,9 +83,35 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ metodo_pago: metodo })
                 });
+                
+                // Si es efectivo y estamos en modo cloud remoto, enviamos orden de abrir cajón
+                if (metodo === "EFECTIVO") {
+                    await fetch('/api/hardware/enqueue', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'app_admin'})
+                    }).catch(e => console.log("Cajón remoto no configurado o no disponible"));
+                }
+                
                 cargarPedidos();
             } catch(e) {
                 alert("Error al confirmar cobrar: " + e);
+            }
+        }
+
+        async function abrirCajaRemota() {
+            try {
+                const res = await fetch('/api/hardware/enqueue', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'app_admin'})
+                });
+                const data = await res.json();
+                if(data.status !== 'ok') {
+                    console.log('Error encolando acción:', data.msj);
+                }
+            } catch(e) {
+                console.log('Error de red al intentar abrir caja');
             }
         }
 

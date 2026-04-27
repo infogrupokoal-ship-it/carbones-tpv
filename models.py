@@ -35,6 +35,7 @@ class Producto(Base):
     
     # Lógica Fraccional (Controla el inventario de un padre común)
     stock_actual = Column(Float, default=0)
+    stock_minimo = Column(Float, default=0) # Umbral de alerta
     stock_base_id = Column(Integer, ForeignKey("productos.id"), nullable=True) # Si es un hijo (Ej. Cuarto Pollo) apunta a Pollo General
     factor_stock = Column(Float, default=1.0) # Cuanto resta al padre por unidad vendida
     
@@ -113,3 +114,13 @@ class MovimientoStock(Base):
     remote_id = Column(Integer, nullable=True)
     
     producto = relationship("Producto", back_populates="movimientos")
+
+class HardwareCommand(Base):
+    __tablename__ = "hardware_commands"
+    id = Column(Integer, primary_key=True, index=True)
+    accion = Column(String) # Ejemplo: "abrir_caja"
+    origen = Column(String) # Ejemplo: "app_movil_jefe"
+    estado = Column(String, default="PENDIENTE") # PENDIENTE, EJECUTADO
+    fecha_creacion = Column(DateTime, default=datetime.now)
+    fecha_ejecucion = Column(DateTime, nullable=True)
+

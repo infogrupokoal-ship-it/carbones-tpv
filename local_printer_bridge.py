@@ -53,20 +53,26 @@ def imprimir_texto_crudo(nombre_impresora, texto_ticket):
             print(f"Error al imprimir en Windows: {e}")
             return False
     else:
-        # SISTEMA ANDROID (Si estamos en Termux Android, lanzamos Intent de RawBT)
-        print(f"[{datetime.now()}] SIMULANDO/IMPRIMIENDO EN ANDROID para {nombre_impresora}")
-        print(texto_ticket)
+        # SISTEMA ANDROID (Termux)
+        # Nos comunicamos con RawBT a través de su servidor WebSocket/HTTP interno (Puerto 40213)
+        # Esto permite enviar binarios (como la apertura de caja) sin corromperse por Intents de texto.
+        print(f"[{datetime.now()}] ENVIANDO TICKET A RAWBT (ANDROID) para {nombre_impresora}")
         try:
-            import subprocess
-            # Lanza el intent nativo de Android hacia la app RawBT con el texto del ticket
-            subprocess.run([
-                "am", "start", "-a", "ru.a402d.rawbtprinter.COMMAND",
-                "-t", "text/plain", "-e", "android.intent.extra.TEXT", texto_ticket,
-                "-p", "ru.a402d.rawbtprinter"
-            ], check=False)
-            print("=> Intent enviado a RawBT (Android) con éxito.")
+            import urllib.request
+            
+            # Enviar el texto (o secuencia ESC/POS binaria) a la API local de RawBT
+            url = 'http://127.0.0.1:40213/'
+            data = texto_ticket.encode("utf-8") if isinstance(texto_ticket, str) else texto_ticket
+            req = urllib.request.Request(url, data=data, method='POST')
+            req.add_header('Content-Type', 'text/plain')
+            
+            with urllib.request.urlopen(req, timeout=3) as response:
+                if response.status == 200:
+                    print("=> Enviado a RawBT con éxito.")
+                else:
+                    print(f"=> RawBT respondió con código {response.status}.")
         except Exception as ex:
-            print("=> No se pudo lanzar el intent de Android (¿No estás en Termux/Android?). Ignorando impresión física.")
+            print(f"=> Error conectando con RawBT: {ex}. ¿Está la app RawBT instalada y con el servidor activado?")
             
     return True
 
