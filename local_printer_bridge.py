@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import logging
@@ -25,6 +26,88 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# --- INSTALADOR WEB DE AUTO-ARRANQUE ---
+@app.get("/instalar_autoarranque", response_class=HTMLResponse)
+async def pagina_instalacion():
+    html = """
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Instalador TPV Hardware</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+            .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
+            h1 { color: #111827; margin-bottom: 10px; }
+            p { color: #4b5563; line-height: 1.6; margin-bottom: 30px; }
+            button { background-color: #ef4444; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; width: 100%; }
+            button:hover { background-color: #dc2626; }
+            .success { display: none; color: #16a34a; font-weight: bold; margin-top: 20px; font-size: 18px; }
+            .step { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 14px; text-align: left;}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>🛡️ Auto-Arranque TPV</h1>
+            <p>Configura la tablet para que el motor de la Caja Registradora y la Impresora se enciendan <strong>automáticamente</strong> al encender la pantalla, a prueba de apagones.</p>
+            <button id="btnInstalar" onclick="instalar()">Hacer Clic para Instalar</button>
+            <div id="msgExito" class="success">✅ ¡Motor configurado con éxito!</div>
+            <div id="pasoFinal" class="step" style="display:none;">
+                <strong>⚠️ ÚLTIMO PASO OBLIGATORIO:</strong><br><br>
+                1. Ve a la tienda (PlayStore o F-Droid).<br>
+                2. Instala la aplicación <b>"Termux:Boot"</b>.<br>
+                3. Ábrela una sola vez (y dale los permisos que te pida).<br>
+                ¡Listo! Ya puedes reiniciar la tablet para comprobarlo.
+            </div>
+        </div>
+        <script>
+            async function instalar() {
+                const btn = document.getElementById('btnInstalar');
+                btn.disabled = true;
+                btn.innerText = "Instalando...";
+                
+                try {
+                    const res = await fetch('/api/instalar_boot', { method: 'POST' });
+                    if(res.ok) {
+                        btn.style.display = 'none';
+                        document.getElementById('msgExito').style.display = 'block';
+                        document.getElementById('pasoFinal').style.display = 'block';
+                    } else {
+                        btn.innerText = "Error. Intenta de nuevo.";
+                        btn.disabled = false;
+                    }
+                } catch(e) {
+                    btn.innerText = "Fallo de conexión";
+                }
+            }
+        </script>
+    </body>
+    </html>
+    """
+    return html
+
+@app.post("/api/instalar_boot")
+async def ejecutar_instalacion_boot():
+    try:
+        import subprocess
+        # Comando para crear la estructura de Termux Boot y el script de autoarranque
+        comando_bash = '''
+        mkdir -p ~/.termux/boot/
+        cat << 'EOF' > ~/.termux/boot/arranque_tpv.sh
+#!/bin/bash
+termux-wake-lock
+cd /storage/emulated/0/Download/carbones_y_pollos_tpv || cd ~/carbones-tpv || cd ~/proyecto/carbones_y_pollos_tpv || cd ~/
+nohup python local_printer_bridge.py > ~/.termux/boot/impresora_log.txt 2>&1 &
+EOF
+        chmod +x ~/.termux/boot/arranque_tpv.sh
+        '''
+        subprocess.run(comando_bash, shell=True, executable='/bin/bash')
+        return {"status": "ok"}
+    except Exception as e:
+        print("Error instalando boot:", e)
+        return {"status": "error", "message": str(e)}
+
 # ------------------------------------------------------------
 # CONFIGURACIÓN: Nombra tu impresora térmica exactamente 
 # como aparece en "Dispositivos e impresoras" de Windows.
