@@ -38,82 +38,55 @@ async def pagina_instalacion():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Instalador TPV Hardware</title>
+        <title>Instalación del Puente TPV</title>
         <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
-            h1 { color: #111827; margin-bottom: 10px; }
-            p { color: #4b5563; line-height: 1.6; margin-bottom: 30px; }
-            button { background-color: #ef4444; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; width: 100%; }
-            button:hover { background-color: #dc2626; }
-            .success { display: none; color: #16a34a; font-weight: bold; margin-top: 20px; font-size: 18px; }
-            .step { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 14px; text-align: left;}
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #111827; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+            .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; width: 100%; text-align: center; }
+            h1 { color: #ef4444; }
+            p { font-size: 16px; line-height: 1.5; color: #4b5563; }
+            .code-box { background: #1f2937; color: #10b981; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 20px 0; word-break: break-all; user-select: all; cursor: pointer; position: relative;}
+            .copy-btn { background: #3b82f6; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
+            .copy-btn:hover { background: #2563eb; }
+            .success { color: #16a34a; font-weight: bold; margin-top: 15px; display: none; }
+            .step { background: #e0e7ff; color: #3730a3; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; font-size: 15px;}
         </style>
     </head>
     <body>
         <div class="card">
-            <h1>🛡️ Auto-Arranque TPV</h1>
-            <p>Configura la tablet para que el motor de la Caja Registradora y la Impresora se enciendan <strong>automáticamente</strong> al encender la pantalla, a prueba de apagones.</p>
-            <button id="btnInstalar" onclick="instalar()">Hacer Clic para Instalar</button>
-            <div id="msgExito" class="success">✅ ¡Motor configurado con éxito!</div>
-            <div id="pasoFinal" class="step" style="display:none;">
-                <strong>⚠️ ÚLTIMO PASO OBLIGATORIO:</strong><br><br>
-                1. Ve a la tienda (PlayStore o F-Droid).<br>
-                2. Instala la aplicación <b>"Termux:Boot"</b>.<br>
-                3. Ábrela una sola vez (y dale los permisos que te pida).<br>
-                ¡Listo! Ya puedes reiniciar la tablet para comprobarlo.
+            <h1>⚙️ Instalador Final (Android)</h1>
+            <p>Estás conectado a la red local del ordenador principal.</p>
+            
+            <div class="step">
+                <strong>Paso 1:</strong> Pulsa el botón azul para copiar el comando en la memoria de la tablet.
+            </div>
+            
+            <div class="code-box" id="codigoTerminal">pkill -f local_printer_bridge; cd ~/carbones-tpv || cd /storage/emulated/0/Download/carbones_y_pollos_tpv; git pull origin master; python local_printer_bridge.py</div>
+            
+            <button class="copy-btn" onclick="copiarCodigo()">1️⃣ COPIAR COMANDO DE INSTALACIÓN</button>
+            <div id="msgCopiado" class="success">✅ ¡Copiado! Ahora pégalo en Termux.</div>
+
+            <div class="step">
+                <strong>Paso 2:</strong> Cierra el navegador y abre la aplicación <b>Termux</b> (pantalla negra).<br><br>
+                <strong>Paso 3:</strong> Mantén pulsado el dedo sobre la pantalla negra, selecciona <b>Pegar</b>, y pulsa Enter.<br><br>
+                <strong>Paso 4:</strong> Descarga <b>Termux:Boot</b> de la PlayStore y ábrela 1 sola vez para darle permisos. Todo será automático a partir de ahora.
             </div>
         </div>
+
         <script>
-            async function instalar() {
-                const btn = document.getElementById('btnInstalar');
-                btn.disabled = true;
-                btn.innerText = "Instalando...";
-                
-                try {
-                    const res = await fetch('/api/instalar_boot', { method: 'POST' });
-                    if(res.ok) {
-                        btn.style.display = 'none';
-                        document.getElementById('msgExito').style.display = 'block';
-                        document.getElementById('pasoFinal').style.display = 'block';
-                    } else {
-                        btn.innerText = "Error. Intenta de nuevo.";
-                        btn.disabled = false;
-                    }
-                } catch(e) {
-                    btn.innerText = "Fallo de conexión";
-                }
+            function copiarCodigo() {
+                const texto = document.getElementById('codigoTerminal').innerText;
+                navigator.clipboard.writeText(texto).then(() => {
+                    document.getElementById('msgCopiado').style.display = 'block';
+                    setTimeout(() => document.getElementById('msgCopiado').style.display = 'none', 3000);
+                }).catch(err => {
+                    alert('No se pudo copiar. Selecciona el texto oscuro manualmente y cópialo.');
+                });
             }
         </script>
     </body>
     </html>
     """
     return html
-
-@app.post("/api/instalar_boot")
-async def ejecutar_instalacion_boot():
-    try:
-        import subprocess
-        # Comando para crear la estructura de Termux Boot y el script de autoarranque
-        comando_bash = '''
-        mkdir -p ~/.termux/boot/
-        cat << 'EOF' > ~/.termux/boot/arranque_tpv.sh
-#!/bin/bash
-termux-wake-lock
-cd /storage/emulated/0/Download/carbones_y_pollos_tpv || cd ~/carbones-tpv || cd ~/proyecto/carbones_y_pollos_tpv || cd ~/
-if ! command -v uvicorn &> /dev/null; then
-    echo "Instalando dependencias de Python..."
-    pip install fastapi uvicorn requests pydantic pypiwin32 > /dev/null 2>&1
-fi
-nohup python local_printer_bridge.py > ~/.termux/boot/impresora_log.txt 2>&1 &
-EOF
-        chmod +x ~/.termux/boot/arranque_tpv.sh
-        '''
-        subprocess.run(comando_bash, shell=True, executable='/bin/bash')
-        return {"status": "ok"}
-    except Exception as e:
-        print("Error instalando boot:", e)
-        return {"status": "error", "message": str(e)}
 
 # ------------------------------------------------------------
 # CONFIGURACIÓN: Nombra tu impresora térmica exactamente 
@@ -366,4 +339,4 @@ if __name__ == "__main__":
     t = threading.Thread(target=hardware_polling_loop, daemon=True)
     t.start()
     
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
