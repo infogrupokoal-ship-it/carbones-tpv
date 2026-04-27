@@ -6,6 +6,9 @@ import json
 import logging
 import os
 import sys
+import threading
+import time
+import requests
 from datetime import datetime
 
 # Dependencias para imprimir en Windows (Asegúrate de instalarlas: pip install pypiwin32)
@@ -98,6 +101,10 @@ async def ejecutar_instalacion_boot():
 #!/bin/bash
 termux-wake-lock
 cd /storage/emulated/0/Download/carbones_y_pollos_tpv || cd ~/carbones-tpv || cd ~/proyecto/carbones_y_pollos_tpv || cd ~/
+if ! command -v uvicorn &> /dev/null; then
+    echo "Instalando dependencias de Python..."
+    pip install fastapi uvicorn requests pydantic pypiwin32 > /dev/null 2>&1
+fi
 nohup python local_printer_bridge.py > ~/.termux/boot/impresora_log.txt 2>&1 &
 EOF
         chmod +x ~/.termux/boot/arranque_tpv.sh
@@ -114,6 +121,8 @@ EOF
 # ------------------------------------------------------------
 NOMBRE_IMPRESORA_TICKET = "POS-80" 
 NOMBRE_IMPRESORA_COCINA = "POS-80" # Puede ser otra diferente si tienes 2
+
+CLOUD_URL = "https://carbones-tpv.onrender.com"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
