@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # --- INSTALADOR WEB DE AUTO-ARRANQUE ---
-@app.get("/instalar_autoarranque", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def pagina_instalacion():
     html = """
     <!DOCTYPE html>
