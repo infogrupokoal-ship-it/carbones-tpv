@@ -111,6 +111,39 @@ Se ordenará a la IA que inyecte la tabla `inventory` en `tpv_data.sqlite` con l
 
 ---
 
+## 🟣 FASE 6: IA OMNICANAL VÍA WHATSAPP (DÍA 8 - 9)
+
+**Objetivo:** Eliminar la carga manual de toma de pedidos a domicilio y el reporte de inventario mediante inteligencia artificial generativa (Google Gemini).
+
+### 6.1. Reporte de Cocineros (Entrada de Inventario)
+* Los cocineros o responsables de turno pueden enviar un audio o texto por WhatsApp: *"He sacado 20 pollos, 15 de arroz y 5 codillos"*.
+* La IA interpretará el lenguaje natural, identificará los productos en la base de datos y añadirá el stock automáticamente.
+* La IA responderá confirmando: *"Entendido. Sumados 20 pollos, 15 arroces y 5 codillos al stock actual."*
+
+### 6.2. Toma de Pedidos de Clientes (A Domicilio / Recoger)
+* Los clientes escribirán al WhatsApp de la tienda.
+* La IA actuará como recepcionista virtual. Conocerá el menú del día y el stock en tiempo real.
+* Tomará nota del pedido, validará si es a domicilio o para recoger, y pedirá la dirección si es necesario.
+* Inyectará el pedido en la base de datos de la TPV en estado `PENDIENTE`.
+
+---
+
+## 🔵 FASE 7: PASARELA DE PAGOS Y CONTROL REMOTO (DÍA 10)
+
+**Objetivo:** Permitir el cobro sin fricción y el control físico de la tienda (caja registradora) desde cualquier parte del mundo.
+
+### 7.1. Pasarela de Pagos (Stripe)
+* Al finalizar la toma del pedido por WhatsApp, la IA generará un enlace de pago único y seguro a través de Stripe Checkout.
+* El cliente podrá pagar con Tarjeta, Apple Pay o Google Pay.
+* Un Webhook en Render interceptará el pago exitoso y cambiará el pedido a `PAGADO` automáticamente, disparando la impresión en la cocina.
+
+### 7.2. Control Remoto de Hardware (Admin Móvil)
+* El administrador podrá entrar al Dashboard web (`/dashboard`) desde su teléfono móvil.
+* Un botón gigante de **"ABRIR CAJA"** enviará una señal a través del túnel inverso (Long-Polling) directamente a la tablet Android de la tienda.
+* La tablet transmitirá el código binario ESC/POS (`\x1B\x70...`) al cajón portamonedas para que se abra mágicamente, sin importar dónde esté el administrador.
+
+---
+
 > [!IMPORTANT]
 > **PROTOCOLO DE DESARROLLO PARA IA's:**
 > Cualquier agente de IA que trabaje en este proyecto DEBE leer este documento y ejecutar estrictamente la fase correspondiente SIN saltarse pasos ni romper los endpoints de las Fases anteriores. Se debe priorizar el **100% Offline-First** para la operativa de ventas. La conexión a Internet solo debe ser obligatoria para enviar el WhatsApp de cierre o sincronizar backups.
