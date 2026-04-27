@@ -13,15 +13,15 @@
 </head>
 <body class="bg-gray-100 font-sans p-6 min-h-screen">
     <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 text-center md:text-left">
             <div>
-                <h1 class="text-3xl font-black text-gray-800 tracking-tight">🏢 Panel de Encargados</h1>
+                <h1 class="text-2xl md:text-3xl font-black text-gray-800 tracking-tight">🏢 Panel de Encargados</h1>
                 <p class="text-gray-500 font-bold mt-1">Usuario activo: <span id="lbl-user" class="text-emerald-600 uppercase"></span></p>
             </div>
-            <div class="flex gap-4">
-                <button onclick="abrirCajaRemota()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold active:scale-95 hover:bg-indigo-700 transition shadow-[0_0_15px_rgba(79,70,229,0.5)]">🔓 ABRIR CAJA</button>
-                <button onclick="location.href='caja.html'" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold active:scale-95 transition">💻 IR A LA CAJA</button>
-                <button onclick="cerrarSesion()" class="bg-red-100 text-red-600 px-6 py-3 rounded-xl font-bold hover:bg-red-200 active:scale-95 transition">Cerrar Sesión</button>
+            <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
+                <button onclick="abrirCajaRemota()" class="bg-indigo-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold active:scale-95 hover:bg-indigo-700 transition shadow-[0_0_15px_rgba(79,70,229,0.5)] flex-1 md:flex-none text-sm md:text-base whitespace-nowrap">🔓 ABRIR CAJA</button>
+                <button onclick="location.href='caja.html'" class="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold active:scale-95 transition flex-1 md:flex-none text-sm md:text-base whitespace-nowrap">💻 IR A LA CAJA</button>
+                <button onclick="cerrarSesion()" class="bg-red-100 text-red-600 px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold hover:bg-red-200 active:scale-95 transition w-full md:w-auto text-sm md:text-base mt-2 md:mt-0">Cerrar Sesión</button>
             </div>
         </header>
 
@@ -118,7 +118,7 @@
                         <td class="py-4 text-red-500 text-base">-${b.ventas}</td>
                         <td class="py-4 text-purple-500 text-base">-${b.mermas}</td>
                         <td class="py-4 text-xl ${colorClass}">${p.stock_actual}</td>
-                        <td class="py-4 text-right flex gap-2 justify-end">
+                        <td class="py-4 text-right flex flex-wrap gap-2 justify-end min-w-[200px] md:min-w-[280px]">
                             <button onclick="ajustarStock(${p.id}, 'PRODUCCION_MANANA')" class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm" title="Añadir Producción Mañana">➕ Mañana</button>
                             <button onclick="ajustarStock(${p.id}, 'PRODUCCION_TARDE')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm" title="Añadir Producción Tarde">➕ Tarde</button>
                             <button onclick="ajustarStock(${p.id}, 'MERMA')" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm" title="Registrar Merma">🗑️ Merma</button>
