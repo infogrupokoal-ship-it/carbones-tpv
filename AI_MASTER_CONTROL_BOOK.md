@@ -98,3 +98,37 @@ La infraestructura certifica el cumplimiento de los tres requerimientos fundamen
 *   **Resiliencia Operativa:** Si el TPV físico se mueve al trabajo o a otra red, **el sistema de impresión remoto seguirá funcionando sin configuración de red adicional**, siempre que el dispositivo local tenga acceso a Internet y `local_printer_bridge.py` esté corriendo.
 
 **FIN DEL REPORTE.**
+
+---
+
+## 8. RADIOGRAFÍA EXACTA DE LA ARQUITECTURA (MAPA DE COMPONENTES)
+
+*Este mapa ha sido verificado y fijado para todas las futuras iteraciones de la IA. Ningún agente debe crear nuevos scripts que dupliquen estas funciones.*
+
+### 8.1 ☁️ El "Cerebro Central" (VPS en la Nube / Render)
+Todo el sistema principal NO vive en el ordenador de la tienda, sino en la nube de Render, para garantizar funcionamiento 24/7.
+*   **Dirección Pública:** `https://carbones-tpv.onrender.com`
+*   **Código Fuente:** Almacenado en GitHub (`infogrupokoal-ship-it/carbones-tpv`). Render lee de ahí.
+*   **Base de Datos Exacta:** Está dentro de Render, en un disco persistente, en la ruta `/opt/render/project/src/instance/tpv_data.sqlite`.
+*   **Archivos Clave (en la nube):**
+    *   `main.py`: El corazón del sistema. Recibe todas las conexiones y maneja el backend.
+    *   `ai_agent.py`: La Inteligencia Artificial de Gemini. Lee WhatsApps y procesa comandos.
+    *   `stripe_service.py`: Controla la pasarela de pagos.
+
+### 8.2 🖨️ El Puente Físico (Ordenador/Tablet de la Tienda)
+Render está en la nube y no puede comunicarse directamente vía USB/Red LAN con la impresora. Para eso sirve el puente local.
+*   **Dirección Exacta (En tienda):** `D:\proyecto\carbones_y_pollos_tpv\local_printer_bridge.py`
+*   **Función:** Actúa como los "músculos" de la tienda. Se conecta silenciosamente a la nube (Render) y pregunta mediante Long-Polling: "¿Han pagado algo? ¿El admin le ha dado al botón de abrir caja?". Si la respuesta es afirmativa, envía el impulso eléctrico (`\x1B\x70...`) vía `win32print` (Windows) o RawBT (Android) para abrir el cajón y sacar el ticket.
+*   **Uso:** Debe estar SIEMPRE en ejecución. En Windows minimizado; en Android vía auto-arranque Termux.
+
+### 8.3 🚪 La Puerta Abierta (Control Remoto Windows)
+*   **Dirección Exacta:** `D:\proyecto\carbones_y_pollos_tpv\acceso_remoto.bat`
+*   **Función:** Crea un túnel cifrado (Ngrok) directo hacia el Escritorio Remoto (RDP) de Windows (puerto 3389).
+*   **Uso:** SOLO aplicable si el equipo de tienda es Windows y se requiere mantenimiento remoto desde casa.
+
+### 8.4 🗑️ Archivos Eliminados Quirúrgicamente
+*   **Archivo:** `tpv_agente_local.py`
+*   **Estado:** Eliminado (Purgado de repositorio y disco).
+*   **Motivo:** Código obsoleto y redundante que apuntaba a una IP errónea local en lugar de la arquitectura Render oficial.
+
+**RESUMEN OPERATIVO DEFINITIVO:** La Nube (Render) piensa y cobra. Tu Local (`local_printer_bridge.py`) obedece a la Nube y mueve el hardware físico. Todo el código base es coherente, único y centralizado.
