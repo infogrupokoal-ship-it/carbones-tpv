@@ -375,61 +375,140 @@
             const origenVal = telefono.trim() ? "KIOSKO-" + telefono.trim() : "KIOSKO";
             const qtyCubiertos = parseInt(cubiertos) || 0;
             
+            let total = 0;
+            carrito.forEach(item => { total += item.precio * item.cantidad; });
+
             const payload = {
-                items: carrito.map(c => ({ producto_id: c.id, cantidad: c.cantidad })),
+                items: carrito.map(c => ({ producto_id: c.id, cantidad: c.cantidad, nombre: c.nombre, precio: c.precio })),
                 origen: origenVal,
-                cubiertos_qty: qtyCubiertos
+                cubiertos_qty: qtyCubiertos,
+                total: total,
+                fecha: new Date().toISOString()
             };
 
             try {
+                if(!navigator.onLine) throw new Error("Offline");
+                
                 const res = await fetch(`${API_URL}/pedidos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                if(!res.ok) throw new Error("Server Error");
                 const data = await res.json();
                 
-                if(data.status === 'ok') {
-                    const descuentoMsj = data.descuento > 0 ? `<div class="bg-emerald-100 text-emerald-800 p-3 mt-4 rounded-xl text-xl font-bold text-center">¡Descuento de Fidelidad Aplicado! Ahorras: ${(data.total / (1 - data.descuento) * data.descuento).toFixed(2)}€</div>` : '';
-                    
-                    const overlay = document.createElement('div');
-                    overlay.className = "fixed inset-0 bg-yellow-400 z-50 flex flex-col items-center justify-center text-gray-900";
-                    overlay.innerHTML = `
-                        <div class="text-9xl mb-8 animate-bounce">🎟️</div>
-                        <h1 class="text-6xl font-black mb-5 tracking-tighter shadow-sm text-center">¡PEDIDO REALIZADO!</h1>
-                        <p class="text-2xl font-bold text-center mb-6">Pasa por caja para pagarlo y que empiece a prepararse.</p>
-                        <div class="bg-white px-10 py-6 rounded-3xl shadow-xl border-4 border-gray-900 text-center">
-                            <span class="text-gray-500 font-bold text-xl uppercase tracking-widest">TU TURNO</span>
-                            <p class="text-7xl font-black mt-2">${data.ticket}</p>
-                            <p class="text-2xl font-black text-gray-800 mt-4">Pagar: ${data.total.toFixed(2)}€</p>
-                        </div>
-                        ${descuentoMsj}
-                    `;
-                    document.body.appendChild(overlay);
-                    
-                    const iframeTicket = document.createElement('iframe');
-                    iframeTicket.src = `ticket.html?pedido=${data.pedido_id}&tipo=cliente`;
-                    iframeTicket.style.display = 'none';
-                    document.body.appendChild(iframeTicket);
-                    
-                    setTimeout(() => {
-                        const iframeCocina = document.createElement('iframe');
-                        iframeCocina.src = `ticket.html?pedido=${data.pedido_id}&tipo=cocina`;
-                        iframeCocina.style.display = 'none';
-                        document.body.appendChild(iframeCocina);
-                    }, 1500);
-
-                    setTimeout(() => {
-                        overlay.remove();
-                        try { document.body.removeChild(iframeTicket); } catch(e){}
-                        limpiarCarrito();
-                        initTPV();
-                    }, 6000);
-                }
+                procesarExitoCobro(data);
             } catch(e) {
-                alert("Error al enviar el pedido.");
+                console.warn("Sin conexión, guardando en cola offline...");
+                
+                // Modo Offline
+                let cola = JSON.parse(localStorage.getItem('tpv_cola_offline') || "[]");
+                
+                const pseudoTicket = {
+                    ...payload,
+                    is_offline: true,
+                    ticket: "OFF-" + Math.floor(Math.random()*1000),
+                    pedido_id: "OFF-" + Date.now()
+                };
+                
+                cola.push(pseudoTicket);
+                localStorage.setItem('tpv_cola_offline', JSON.stringify(cola));
+                
+                procesarExitoCobro({
+                    status: 'ok',
+                    ticket: pseudoTicket.ticket,
+                    total: pseudoTicket.total,
+                    pedido_id: pseudoTicket.pedido_id,
+                    descuento: 0,
+                    offline_warning: true
+                });
+                
+                iniciarSyncDaemon();
             }
         }
+
+        function procesarExitoCobro(data) {
+            if(data.status === 'ok') {
+                const descuentoMsj = data.descuento > 0 ? `<div class="bg-emerald-100 text-emerald-800 p-3 mt-4 rounded-xl text-xl font-bold text-center">¡Descuento de Fidelidad Aplicado! Ahorras: ${(data.total / (1 - data.descuento) * data.descuento).toFixed(2)}€</div>` : '';
+                const offlineMsj = data.offline_warning ? `<div class="bg-yellow-100 text-yellow-800 p-3 mt-2 rounded-xl text-md font-bold text-center animate-pulse">GUARDADO EN MEMORIA LOCAL (NO HAY RED)</div>` : '';
+                
+                const overlay = document.createElement('div');
+                overlay.className = "fixed inset-0 bg-yellow-400 z-50 flex flex-col items-center justify-center text-gray-900";
+                overlay.innerHTML = `
+                    <div class="text-9xl mb-8 animate-bounce">🎟️</div>
+                    <h1 class="text-6xl font-black mb-5 tracking-tighter shadow-sm text-center">¡PEDIDO REALIZADO!</h1>
+                    <p class="text-2xl font-bold text-center mb-6">Pasa por caja para pagarlo y que empiece a prepararse.</p>
+                    <div class="bg-white px-10 py-6 rounded-3xl shadow-xl border-4 border-gray-900 text-center">
+                        <span class="text-gray-500 font-bold text-xl uppercase tracking-widest">TU TURNO</span>
+                        <p class="text-7xl font-black mt-2">${data.ticket}</p>
+                        <p class="text-2xl font-black text-gray-800 mt-4">Pagar: ${data.total.toFixed(2)}€</p>
+                    </div>
+                    ${descuentoMsj}
+                    ${offlineMsj}
+                `;
+                document.body.appendChild(overlay);
+                
+                // Hardware Local (Directo a Termux Puente - Puerto 8000)
+                // Se envía incluso en Modo Offline
+                fetch('http://127.0.0.1:8000/webhook/abrir_caja', { method: 'POST' }).catch(e => console.warn('Caja local no responde', e));
+                
+                const printPayload = {
+                    numero_ticket: data.ticket,
+                    origen: "KIOSKO LOCAL",
+                    total: data.total,
+                    items: carrito.map(c => ({ nombre: c.nombre, cantidad: c.cantidad, precio_unitario: c.precio }))
+                };
+
+                fetch('http://127.0.0.1:8000/webhook/imprimir', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...printPayload, tipo: "cliente"})
+                }).catch(e => console.warn('Impresora local error', e));
+                
+                setTimeout(() => {
+                    fetch('http://127.0.0.1:8000/webhook/imprimir', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({...printPayload, tipo: "cocina"})
+                    }).catch(e => console.warn('Impresora local error', e));
+                }, 1000);
+
+                setTimeout(() => {
+                    overlay.remove();
+                    limpiarCarrito();
+                    setTimeout(initTPV, 500);
+                }, 6000);
+            }
+        }
+
+        let isSyncing = false;
+        function iniciarSyncDaemon() {
+            if(isSyncing) return;
+            isSyncing = true;
+            setInterval(async () => {
+                if(!navigator.onLine) return;
+                
+                let cola = JSON.parse(localStorage.getItem('tpv_cola_offline') || "[]");
+                if(cola.length === 0) return;
+                
+                let nuevaCola = [];
+                for(let pedido of cola) {
+                    try {
+                        const res = await fetch(`${API_URL}/pedidos`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(pedido)
+                        });
+                        if(!res.ok) throw new Error("Sync Failed");
+                        console.log("Pedido offline sincronizado: " + pedido.ticket);
+                    } catch(e) {
+                        nuevaCola.push(pedido); // Retener si falla
+                    }
+                }
+                localStorage.setItem('tpv_cola_offline', JSON.stringify(nuevaCola));
+            }, 5000);
+        }
+        
+        // Auto-Start del Demonio al cargar
+        setTimeout(iniciarSyncDaemon, 2000);
 
         // UI Móvil y Animaciones PWA
         function toggleCart() {
