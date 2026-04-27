@@ -130,7 +130,7 @@
         
         async function ajustarStock(id, tipo) {
             let accion = tipo === 'MERMA' ? "tirar a la basura" : "añadir a la producción";
-            let add = prompt(`Cantidad de pollos a ${accion}:`, "0");
+            let add = prompt(`Cantidad a ${accion}:`, "0");
             if (add !== null && add !== "") {
                 let qty = parseFloat(add);
                 if(isNaN(qty) || qty <= 0) return alert("Cantidad inválida");

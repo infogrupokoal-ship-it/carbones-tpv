@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Móvil - Carbones y Pollos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #ff9800;
+            text-align: center;
+        }
+        .btn {
+            background-color: #ff9800;
+            color: #000;
+            border: none;
+            padding: 20px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(255, 152, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2);
+        }
+        .btn-cajon {
+            background-color: #f44336;
+            color: white;
+            box-shadow: 0 4px 6px rgba(244, 67, 54, 0.3);
+        }
+        .btn-cajon:active {
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+        #pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .pin-input {
+            font-size: 2rem;
+            padding: 10px;
+            text-align: center;
+            width: 150px;
+            border-radius: 8px;
+            border: 2px solid #ff9800;
+            background-color: #222;
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="pin-overlay">
+        <h2>Ingresa el PIN</h2>
+        <input type="password" id="pin" class="pin-input" pattern="[0-9]*" inputmode="numeric" maxlength="4">
+        <button class="btn" onclick="checkPin()">Acceder</button>
+    </div>
+
+    <h1>Control Móvil</h1>
+
+    <button class="btn" onclick="pagarPedidoEfectivo()">Aceptar Pago en Efectivo</button>
+    <button class="btn btn-cajon" onclick="abrirCajon()">Abrir Cajón Mágico</button>
+
+    <script>
+        // Muy básico para Fase 8, solo para disuadir. En producción real iría contra backend.
+        function checkPin() {
+            const pin = document.getElementById('pin').value;
+            if (pin === "1234") { // Cambiar por PIN real
+                document.getElementById('pin-overlay').style.display = 'none';
+            } else {
+                alert("PIN Incorrecto");
+            }
+        }
+
+        async function abrirCajon() {
+            if (confirm("¿Estás seguro de abrir el cajón remoto?")) {
+                try {
+                    const res = await fetch("/api/hardware/enqueue", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ accion: "abrir_caja" })
+                    });
+                    const data = await res.json();
+                    if (data.status === "ok") {
+                        alert("Comando enviado al restaurante. El cajón se abrirá en breve.");
+                    } else {
+                        alert("Error enviando comando.");
+                    }
+                } catch (e) {
+                    alert("Error de conexión con el servidor.");
+                }
+            }
+        }
+
+        function pagarPedidoEfectivo() {
+            const pedidoId = prompt("Ingresa el ID del pedido a marcar como pagado en efectivo:");
+            if (pedidoId) {
+                // Aquí iría la lógica contra el backend para marcar pedido como pagado.
+                // Pendiente integración completa en Fase 8.
+                alert(`Lógica para marcar el pedido ${pedidoId} en efectivo a implementar.`);
+            }
+        }
+    </script>
+</body>
+</html>

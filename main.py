@@ -261,13 +261,9 @@ def cobrar_pedido(pedido_id: int, request: CheckoutRequest, db: Session = Depend
     pedido.estado = "EN_PREPARACION"
     pedido.metodo_pago = request.metodo_pago
     db.commit()
-    
-    # Intento de impresión
+    # Encolar comandos de hardware en vez de hacer POST HTTP a Ngrok
+    import json
     try:
-        import requests
-        # Usamos HTTPS si hay ngrok o HTTP localhost
-        NGROK_URL = os.environ.get("NGROK_URL", "http://127.0.0.1:8000")
-        
         items = []
         if pedido.cubiertos_qty > 0:
             items.append({"nombre": "Servicio Cubiertos", "cantidad": pedido.cubiertos_qty, "precio": 0.20 * pedido.cubiertos_qty})
@@ -287,17 +283,20 @@ def cobrar_pedido(pedido_id: int, request: CheckoutRequest, db: Session = Depend
             "cuota_iva_21": pedido.cuota_iva_21
         }
         
-        # 1. Imprimir para cocina
+        # 1. Comando abrir caja
+        db.add(HardwareCommand(accion="abrir_caja", origen="cobro_tpv"))
+        # 2. Comando imprimir cocina
         payload["tipo"] = "cocina"
-        requests.post(f"{NGROK_URL}/webhook/imprimir", json=payload, timeout=3)
-        # 2. Imprimir ticket cliente
+        db.add(HardwareCommand(accion="imprimir", origen="cobro_tpv", payload=json.dumps(payload)))
+        # 3. Comando imprimir cliente
         payload["tipo"] = "cliente"
-        requests.post(f"{NGROK_URL}/webhook/imprimir", json=payload, timeout=3)
+        db.add(HardwareCommand(accion="imprimir", origen="cobro_tpv", payload=json.dumps(payload)))
         
+        db.commit()
     except Exception as e:
-        print(f"Error disparando impresoras a Ngrok: {e}")
+        print(f"Error encolando hardware: {e}")
         
-    return {"status": "ok", "msj": "Pago Aprobado y enviado a Cocina."}
+    return {"status": "ok", "msj": "Pago Aprobado. Comandos encolados para la Tienda."}
 
 @app.post("/api/webhook/caja_automatica")
 def webhook_caja_automatica(payload: dict, db: Session = Depends(get_db)):
@@ -601,8 +600,15 @@ def hw_poll(db: Session = Depends(get_db)):
     """(Edge) La tablet de la tienda pregunta si hay acciones pendientes."""
     cmds = db.query(HardwareCommand).filter(HardwareCommand.estado == "PENDIENTE").all()
     out = []
+    import json
     for c in cmds:
-        out.append({"id": c.id, "accion": c.accion, "origen": c.origen})
+        p_json = None
+        if c.payload:
+            try:
+                p_json = json.loads(c.payload)
+            except:
+                pass
+        out.append({"id": c.id, "accion": c.accion, "origen": c.origen, "payload": p_json})
     return {"status": "ok", "comandos": out}
 
 @app.post("/api/hardware/ack/{cmd_id}")
@@ -616,6 +622,87 @@ def hw_ack(cmd_id: int, db: Session = Depends(get_db)):
         db.commit()
         return {"status": "ok"}
     raise HTTPException(404, "Comando no encontrado")
+
+# --- INTEGRACIÓN WHATSAPP AI (WAHA) ---
+from ai_agent import procesar_mensaje_whatsapp
+
+@app.post("/webhook/waha")
+async def waha_webhook(request: Request, db: Session = Depends(get_db)):
+    """(Cloud) Recibe todos los mensajes entrantes de WhatsApp desde WAHA."""
+    try:
+        data = await request.json()
+        logging.info(f"Webhook WAHA recibido: {json.dumps(data)}")
+        
+        # Parsear evento de WAHA
+        if data.get("event") == "message":
+            payload = data.get("payload", {})
+            from_number = payload.get("from")
+            text_body = payload.get("body", "")
+            from_me = payload.get("fromMe", False)
+            
+            # Solo procesamos si no lo hemos enviado nosotros (evitar bucles) y si es un mensaje de texto
+            if not from_me and text_body:
+                # Llamar al cerebro AI
+                respuesta = procesar_mensaje_whatsapp(text_body, from_number, db)
+                if respuesta:
+                    # Enviar respuesta de vuelta vía WAHA
+                    waha_url = os.environ.get("WAHA_URL", "http://113.30.148.104:3000")
+                    session_name = os.environ.get("WAHA_SESSION", "carbones")
+                    api_key = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
+                    
+                    headers = {"Content-Type": "application/json"}
+                    if api_key:
+                        headers["X-Api-Key"] = api_key
+                        
+                    payload_envio = {
+                        "chatId": from_number,
+                        "text": respuesta,
+                        "session": session_name
+                    }
+                    try:
+                        requests.post(f"{waha_url}/api/sendText", json=payload_envio, headers=headers, timeout=5)
+                    except Exception as e:
+                        logging.error(f"Error enviando mensaje por WAHA: {e}")
+                        
+        return {"status": "ok"}
+    except Exception as e:
+        logging.error(f"Error en webhook WAHA: {e}")
+        return {"status": "error", "message": str(e)}
+
+# --- PASARELA DE PAGOS (STRIPE) ---
+import stripe
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    payload = await request.body()
+    sig_header = request.headers.get('Stripe-Signature')
+    endpoint_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
+    try:
+        # Si no hay secret configurado (ej en local), podemos procesarlo sin firma
+        if not endpoint_secret:
+            event = json.loads(payload)
+        else:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+    except Exception as e:
+        logging.error(f"Error parseando webhook Stripe: {e}")
+        raise HTTPException(status_code=400, detail="Error en firma o payload")
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        pedido_id_str = session.get('metadata', {}).get('pedido_id')
+        if pedido_id_str:
+            pedido_id = int(pedido_id_str)
+            pedido = db.query(Pedido).get(pedido_id)
+            if pedido:
+                pedido.estado = "PAGADO"
+                # TODO: Enviar mensaje WAHA confirmando el pago al cliente y al restaurante
+                db.commit()
+                logging.info(f"Pedido {pedido_id} marcado como PAGADO vía Stripe.")
+
+    return {"status": "success"}
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

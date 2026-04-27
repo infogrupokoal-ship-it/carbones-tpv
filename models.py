@@ -121,6 +121,7 @@ class HardwareCommand(Base):
     accion = Column(String) # Ejemplo: "abrir_caja"
     origen = Column(String) # Ejemplo: "app_movil_jefe"
     estado = Column(String, default="PENDIENTE") # PENDIENTE, EJECUTADO
+    payload = Column(String, nullable=True) # JSON de datos del ticket
     fecha_creacion = Column(DateTime, default=datetime.now)
     fecha_ejecucion = Column(DateTime, nullable=True)
 
