@@ -344,17 +344,61 @@ def ver_inventario(db: Session = Depends(get_db)):
         })
     return out
 
+@app.get("/api/inventario/balance_hoy")
+def balance_inventario_hoy(db: Session = Depends(get_db)):
+    from datetime import datetime, date
+    hoy = date.today()
+    movs = db.query(MovimientoStock).all()
+    productos = db.query(Producto).all()
+    
+    balance = {}
+    for p in productos:
+        balance[p.id] = {
+            "sobrante_ayer": 0,
+            "prod_manana": 0,
+            "prod_tarde": 0,
+            "ventas": 0,
+            "mermas": 0,
+            "ajustes": 0,
+            "stock_actual": p.stock_actual
+        }
+
+    for m in movs:
+        if m.fecha.date() == hoy:
+            pid = m.producto_id
+            if pid in balance:
+                tipo = m.tipo
+                cant = m.cantidad
+                if tipo == "PRODUCCION_MANANA": balance[pid]["prod_manana"] += cant
+                elif tipo == "PRODUCCION_TARDE": balance[pid]["prod_tarde"] += cant
+                elif tipo == "MERMA": balance[pid]["mermas"] += abs(cant)
+                elif tipo == "VENTA": balance[pid]["ventas"] += abs(cant)
+                else: balance[pid]["ajustes"] += cant
+    
+    # Calcular sobrante de ayer matemáticamente
+    for pid, b in balance.items():
+        movimientos_hoy = b["prod_manana"] + b["prod_tarde"] - b["ventas"] - b["mermas"] + b["ajustes"]
+        b["sobrante_ayer"] = b["stock_actual"] - movimientos_hoy
+            
+    return balance
+
 class AjusteInventario(BaseModel):
     producto_id: int
     cantidad_ajuste: float
-    descripcion: str = "Ajuste manual / Entrada Proveedor"
+    descripcion: str = "Ajuste manual"
+    tipo: str = "AJUSTE" # PRODUCCION_MANANA, PRODUCCION_TARDE, MERMA, SOBRANTE_DIA_ANTERIOR
 
 @app.post("/api/inventario/ajuste")
 def ajustar_inventario(req: AjusteInventario, db: Session = Depends(get_db)):
     p = db.query(Producto).get(req.producto_id)
     if not p: raise HTTPException(404, "Producto no encontrado")
+    
+    # Si es MERMA, debe restar al stock actual
+    if req.tipo == "MERMA" and req.cantidad_ajuste > 0:
+        req.cantidad_ajuste = -req.cantidad_ajuste
+        
     p.stock_actual += req.cantidad_ajuste
-    db.add(MovimientoStock(producto_id=p.id, cantidad=req.cantidad_ajuste, tipo="AJUSTE", descripcion=req.descripcion))
+    db.add(MovimientoStock(producto_id=p.id, cantidad=req.cantidad_ajuste, tipo=req.tipo, descripcion=req.descripcion))
     db.commit()
     return {"status": "ok", "msj": f"Stock actualizado a {p.stock_actual}"}
 

@@ -42,26 +42,33 @@ def generar_reporte_z():
             
     total_caja = total_efectivo + total_tarjeta
     
-    # Contar pollos asados vendidos
-    # Asumimos que los pollos (id 1, o buscamos por nombre)
-    # Busquemos el ID del pollo asado base
-    cursor.execute("SELECT id FROM productos WHERE nombre LIKE '%Pollo Asado%' AND stock_base_id IS NULL LIMIT 1")
-    pollo_res = cursor.fetchone()
+    # Contar pollos asados vendidos y obtener stock actual
+    cursor.execute("SELECT id, nombre, stock_actual FROM productos")
+    productos = cursor.fetchall()
+    
+    sobrantes_texto = ""
     pollos_vendidos = 0
-    if pollo_res:
-        pollo_id = pollo_res[0]
-        # Sumar movimientos de stock tipo VENTA para este pollo de hoy
-        cursor.execute("""
-            SELECT SUM(cantidad) 
-            FROM movimientos_stock 
-            WHERE producto_id = ? 
-            AND tipo = 'VENTA' 
-            AND date(fecha) = ?
-        """, (pollo_id, fecha_hoy_str))
-        res_movs = cursor.fetchone()
-        if res_movs and res_movs[0]:
-            pollos_vendidos = abs(res_movs[0])
-            
+    
+    for p in productos:
+        p_id, p_nombre, p_stock = p
+        
+        # Si es Pollo Asado, calcular vendidos hoy
+        if "Pollo Asado" in p_nombre:
+            cursor.execute("""
+                SELECT SUM(cantidad) 
+                FROM movimientos_stock 
+                WHERE producto_id = ? 
+                AND tipo = 'VENTA' 
+                AND date(fecha) = ?
+            """, (p_id, fecha_hoy_str))
+            res_movs = cursor.fetchone()
+            if res_movs and res_movs[0]:
+                pollos_vendidos += abs(res_movs[0])
+                
+        # Agregar al texto de sobrantes si hay stock
+        if p_stock > 0 or p_stock < 0:
+            sobrantes_texto += f"- {p_nombre}: {p_stock}\n"
+
     conn.close()
     
     mensaje = f"🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
@@ -70,7 +77,9 @@ def generar_reporte_z():
     mensaje += f"💳 Tarjeta: {total_tarjeta:.2f} €\n"
     mensaje += f"------------------------\n"
     mensaje += f"📊 *TOTAL CAJA: {total_caja:.2f} €*\n\n"
-    mensaje += f"🍗 Pollos Vendidos: {int(pollos_vendidos)}\n"
+    mensaje += f"🍗 Pollos Vendidos Hoy: {int(pollos_vendidos)}\n\n"
+    mensaje += f"📦 *INVENTARIO FINAL (SOBRANTES)*:\n"
+    mensaje += sobrantes_texto if sobrantes_texto else "Sin sobrantes."
     
     return mensaje
 

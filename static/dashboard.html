@@ -53,11 +53,15 @@
             <div class="overflow-x-auto">
                 <table class="min-w-full text-left">
                     <thead>
-                        <tr class="text-gray-500">
+                        <tr class="text-gray-500 text-sm">
                             <th class="py-2">Producto</th>
-                            <th class="py-2">Stock Actual</th>
-                            <th class="py-2">Mínimo</th>
-                            <th class="py-2 text-right">Ajustar</th>
+                            <th class="py-2" title="Sobrantes de ayer">Sob. Ayer</th>
+                            <th class="py-2 text-orange-500">Prod. Mañana</th>
+                            <th class="py-2 text-blue-500">Prod. Tarde</th>
+                            <th class="py-2 text-red-500">Ventas</th>
+                            <th class="py-2 text-purple-500">Mermas</th>
+                            <th class="py-2 font-black text-black">STOCK ACTUAL</th>
+                            <th class="py-2 text-right">Acciones de Cocina</th>
                         </tr>
                     </thead>
                     <tbody id="inventory-list" class="text-lg font-bold text-gray-800 border-t">
@@ -95,32 +99,46 @@
             
             actualizarGrafico(r_manana.total_facturado, r_tarde.total_facturado);
             
-            // Inventario
+            // Cargar balance de hoy
+            const balanceHoy = await fetch('/api/inventario/balance_hoy').then(res => res.json());
             const r_inv = await fetch('/api/inventario').then(res => res.json());
+
             const tbody = document.getElementById('inventory-list');
             tbody.innerHTML = "";
             r_inv.forEach(p => {
-                let colorClass = p.stock_actual <= p.stock_minimo ? "text-red-500" : "text-emerald-600";
+                let colorClass = p.stock_actual <= p.stock_minimo ? "text-red-500 font-black" : "text-emerald-600 font-black";
+                let b = balanceHoy[p.id] || {sobrante_ayer:0, prod_manana:0, prod_tarde:0, ventas:0, mermas:0};
+                
                 tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="py-4">${p.nombre}</td>
-                        <td class="py-4 ${colorClass}">${p.stock_actual}</td>
-                        <td class="py-4 text-gray-400">${p.stock_minimo}</td>
-                        <td class="py-4 text-right">
-                            <button onclick="ajustarStock(${p.id})" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded font-bold">Modificar</button>
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="py-4 text-base">${p.nombre}</td>
+                        <td class="py-4 text-gray-500 text-base">${b.sobrante_ayer}</td>
+                        <td class="py-4 text-orange-500 text-base">+${b.prod_manana}</td>
+                        <td class="py-4 text-blue-500 text-base">+${b.prod_tarde}</td>
+                        <td class="py-4 text-red-500 text-base">-${b.ventas}</td>
+                        <td class="py-4 text-purple-500 text-base">-${b.mermas}</td>
+                        <td class="py-4 text-xl ${colorClass}">${p.stock_actual}</td>
+                        <td class="py-4 text-right flex gap-2 justify-end">
+                            <button onclick="ajustarStock(${p.id}, 'PRODUCCION_MANANA')" class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm">➕ Mañana</button>
+                            <button onclick="ajustarStock(${p.id}, 'PRODUCCION_TARDE')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm">➕ Tarde</button>
+                            <button onclick="ajustarStock(${p.id}, 'MERMA')" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-2 rounded-lg font-bold text-xs shadow-sm">🗑️ Merma</button>
                         </td>
                     </tr>
                 `;
             });
         }
         
-        async function ajustarStock(id) {
-            let add = prompt("Cantidad a añadir (usa negativos para restar):", "0");
+        async function ajustarStock(id, tipo) {
+            let accion = tipo === 'MERMA' ? "tirar a la basura" : "añadir a la producción";
+            let add = prompt(`Cantidad de pollos a ${accion}:`, "0");
             if (add !== null && add !== "") {
+                let qty = parseFloat(add);
+                if(isNaN(qty) || qty <= 0) return alert("Cantidad inválida");
+                
                 await fetch('/api/inventario/ajuste', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({producto_id: id, cantidad_ajuste: parseFloat(add)})
+                    body: JSON.stringify({producto_id: id, cantidad_ajuste: qty, tipo: tipo, descripcion: "Ajuste desde Panel"})
                 });
                 cargarDatos();
             }
