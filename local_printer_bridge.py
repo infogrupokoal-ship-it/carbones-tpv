@@ -175,6 +175,8 @@ async def recibir_ticket(request: Request):
     iva_21 = payload.get("cuota_iva_21", 0.0)
     base_21 = payload.get("base_imponible_21", 0.0)
     
+    notas_cliente = payload.get("notas_cliente", "")
+    
     fecha_str = datetime.now().strftime("%d/%m/%Y %H:%M")
     
     linea = "-" * 40
@@ -226,6 +228,12 @@ async def recibir_ticket(request: Request):
             cant = str(item.get("cantidad", 1))
             nomb = str(item.get("nombre", ""))
             ticket += f"[ {cant} ] {nomb.upper()}\n"
+            
+        if notas_cliente:
+            ticket += "\n" + "*" * 40 + "\n"
+            ticket += "!!! NOTAS DEL CLIENTE !!!\n"
+            ticket += f"{notas_cliente.upper()}\n"
+            ticket += "*" * 40 + "\n"
             
         ticket += "=" * 40 + "\n\n\n"
         impresora_destino = NOMBRE_IMPRESORA_COCINA
@@ -284,6 +292,8 @@ def hardware_polling_loop():
                         iva_21 = payload.get("cuota_iva_21", 0.0)
                         base_21 = payload.get("base_imponible_21", 0.0)
                         
+                        notas_cliente = payload.get("notas_cliente", "")
+                        
                         fecha_str = datetime.now().strftime("%d/%m/%Y %H:%M")
                         linea = "-" * 40
                         ticket = ""
@@ -331,6 +341,12 @@ def hardware_polling_loop():
                                 cant = str(item.get("cantidad", 1))
                                 nomb = str(item.get("nombre", ""))
                                 ticket += f"[ {cant} ] {nomb.upper()}\n"
+                                
+                            if notas_cliente:
+                                ticket += "\n" + "*" * 40 + "\n"
+                                ticket += "!!! NOTAS DEL CLIENTE !!!\n"
+                                ticket += f"{notas_cliente.upper()}\n"
+                                ticket += "*" * 40 + "\n"
                                 
                             ticket += "=" * 40 + "\n\n\n"
                             impresora_destino = NOMBRE_IMPRESORA_COCINA

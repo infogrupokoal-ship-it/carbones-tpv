@@ -34,6 +34,7 @@ def push_local_data():
             for it in p.items:
                 prod_nombre = it.producto.nombre if it.producto else "Desconocido"
                 items_payload.append({
+                    "id": it.id,
                     "nombre": prod_nombre,
                     "producto_id": it.producto_id,
                     "cantidad": it.cantidad,
@@ -42,6 +43,7 @@ def push_local_data():
                 it.is_synced = True
                 
             payload.append({
+                "id": p.id,
                 "numero_ticket": p.numero_ticket,
                 "total": p.total,
                 "origen": p.origen,
@@ -80,7 +82,7 @@ def pull_remote_data():
             nuevos = data.get("nuevos_pedidos", [])
             for p_dict in nuevos:
                 # Verificación de idempotencia (Evitar duplicados ante caída parcial de internet)
-                existe = db.query(Pedido).filter_by(numero_ticket=p_dict['numero_ticket']).first()
+                existe = db.query(Pedido).filter_by(id=p_dict.get('id', p_dict['numero_ticket'])).first()
                 if existe:
                     logging.info(f"Ticket {p_dict['numero_ticket']} ya procesado antes. Omitiendo.")
                     continue
@@ -89,6 +91,7 @@ def pull_remote_data():
                 
                 # Insertar en BD Local como YA sincronizado (vino de internet)
                 p_local = Pedido(
+                    id=p_dict.get('id'), # Usamos el UUID original de la nube si viene
                     numero_ticket=p_dict['numero_ticket'],
                     total=p_dict['total'],
                     origen="WHATSAPP",

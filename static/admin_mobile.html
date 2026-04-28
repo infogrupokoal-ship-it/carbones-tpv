@@ -4,124 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Móvil - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #ff9800;
-            text-align: center;
-        }
-        .btn {
-            background-color: #ff9800;
-            color: #000;
-            border: none;
-            padding: 20px;
-            margin: 15px 0;
-            width: 100%;
-            max-width: 300px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(255, 152, 0, 0.3);
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2);
-        }
-        .btn-cajon {
-            background-color: #f44336;
-            color: white;
-            box-shadow: 0 4px 6px rgba(244, 67, 54, 0.3);
-        }
-        .btn-cajon:active {
-            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
-        }
+        body { user-select: none; -webkit-user-select: none; }
         #pin-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(17, 24, 39, 0.95);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             z-index: 1000;
-        }
-        .pin-input {
-            font-size: 2rem;
-            padding: 10px;
-            text-align: center;
-            width: 150px;
-            border-radius: 8px;
-            border: 2px solid #ff9800;
-            background-color: #222;
-            color: white;
-            margin-bottom: 20px;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-900 h-screen flex flex-col font-sans text-white">
 
+    <!-- Capa de Seguridad (PIN) -->
     <div id="pin-overlay">
-        <h2>Ingresa el PIN</h2>
-        <input type="password" id="pin" class="pin-input" pattern="[0-9]*" inputmode="numeric" maxlength="4">
-        <button class="btn" onclick="checkPin()">Acceder</button>
+        <div class="text-6xl mb-6">🔒</div>
+        <h2 class="text-3xl font-black mb-8 text-emerald-400">Acceso Responsable</h2>
+        <div class="bg-gray-800 p-6 rounded-3xl shadow-2xl flex flex-col items-center border border-gray-700">
+            <input type="password" id="pin" class="text-4xl p-4 text-center w-48 rounded-xl border-2 border-emerald-500 bg-gray-900 text-white mb-6 tracking-widest focus:outline-none focus:ring-4 focus:ring-emerald-500/50" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="••••">
+            <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl font-black text-2xl shadow-lg active:scale-95 transition-all w-full" onclick="checkPin()">DESBLOQUEAR</button>
+        </div>
     </div>
 
-    <h1>Control Móvil</h1>
+    <!-- Header -->
+    <div class="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-black text-emerald-400">📱 CONTROL MÓVIL</h1>
+        <div class="flex gap-2">
+            <button onclick="abrirCajaRemota()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md active:scale-95 transition-all">🔓 CAJÓN</button>
+        </div>
+    </div>
 
-    <button class="btn" onclick="pagarPedidoEfectivo()">Aceptar Pago en Efectivo</button>
-    <button class="btn btn-cajon" onclick="abrirCajon()">Abrir Cajón Mágico</button>
+    <!-- Contenido -->
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+        <h2 class="text-xl font-bold text-gray-400 mb-2">Pendientes de Cobro</h2>
+        <div id="caja-container" class="flex flex-col gap-4">
+            <div class="text-gray-500 font-bold text-lg text-center mt-10 italic">Cargando turnos...</div>
+        </div>
+    </div>
 
     <script>
-        // Muy básico para Fase 8, solo para disuadir. En producción real iría contra backend.
+        // Lógica de Acceso (PIN Fijo para demo, en prod usar backend)
+        const PIN_CORRECTO = "1234";
+        
         function checkPin() {
             const pin = document.getElementById('pin').value;
-            if (pin === "1234") { // Cambiar por PIN real
+            if (pin === PIN_CORRECTO) {
                 document.getElementById('pin-overlay').style.display = 'none';
+                localStorage.setItem('tpv_role', 'responsable');
+                localStorage.setItem('auth_user', 'admin_movil');
+                cargarPedidos();
+                setInterval(cargarPedidos, 5000);
             } else {
                 alert("PIN Incorrecto");
+                document.getElementById('pin').value = '';
             }
         }
 
-        async function abrirCajon() {
-            if (confirm("¿Estás seguro de abrir el cajón remoto?")) {
-                try {
-                    const res = await fetch("/api/hardware/enqueue", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ accion: "abrir_caja" })
-                    });
-                    const data = await res.json();
-                    if (data.status === "ok") {
-                        alert("Comando enviado al restaurante. El cajón se abrirá en breve.");
-                    } else {
-                        alert("Error enviando comando.");
-                    }
-                } catch (e) {
-                    alert("Error de conexión con el servidor.");
+        const API_URL = "http://" + window.location.host + "/api";
+
+        async function cargarPedidos() {
+            try {
+                const res = await fetch(`${API_URL}/pedidos?estado=ESPERANDO_PAGO`);
+                const turnos = await res.json();
+                
+                const container = document.getElementById('caja-container');
+                container.innerHTML = '';
+                
+                if(turnos.length === 0) {
+                    container.innerHTML = `<div class="text-gray-500 font-bold text-xl text-center mt-10">Sin cobros pendientes 👍</div>`;
+                    return;
                 }
+
+                for (let ped of turnos) {
+                    const r = await fetch(`${API_URL}/pedidos/${ped.id}/items`);
+                    ped.items = await r.json();
+                    
+                    let itemsHtml = ped.items.map(i => `<li class="text-base text-gray-300 border-b border-gray-700 py-2 flex justify-between"><span>${i.cantidad}x ${i.nombre}</span> <span class="font-bold">${(i.cantidad * i.precio).toFixed(2)}€</span></li>`).join('');
+                    
+                    container.innerHTML += `
+                        <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-xl border-l-4 ${ped.origen.includes('WHATSAPP') ? 'border-emerald-500' : 'border-yellow-500'}">
+                            <div class="p-4 flex justify-between items-center bg-gray-900 border-b border-gray-700">
+                                <span class="font-black text-3xl text-white">${ped.numero_ticket}</span>
+                                <span class="font-bold text-sm uppercase tracking-wider text-gray-400">${ped.origen}</span>
+                            </div>
+                            <div class="p-4">
+                                <ul class="mb-4">${itemsHtml}</ul>
+                                <div class="flex justify-between items-center mb-4 bg-gray-900 p-3 rounded-xl border border-gray-700">
+                                    <span class="font-bold text-gray-400">Total:</span>
+                                    <span class="font-black text-emerald-400 text-3xl">${ped.total.toFixed(2)}€</span>
+                                </div>
+                                <button onclick="cobrarTKT(${ped.id})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-xl font-black text-xl shadow-lg active:scale-95 transition-all">💸 CONFIRMAR</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                console.error("Error cargando pedidos:", e);
             }
         }
 
-        function pagarPedidoEfectivo() {
-            const pedidoId = prompt("Ingresa el ID del pedido a marcar como pagado en efectivo:");
-            if (pedidoId) {
-                // Aquí iría la lógica contra el backend para marcar pedido como pagado.
-                // Pendiente integración completa en Fase 8.
-                alert(`Lógica para marcar el pedido ${pedidoId} en efectivo a implementar.`);
+        async function cobrarTKT(pedId, metodo = "EFECTIVO") {
+            try {
+                await fetch(`${API_URL}/pedidos/${pedId}/cobrar`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ metodo_pago: metodo })
+                });
+                
+                // El backend ya encola los comandos de impresión y cajón,
+                // solo necesitamos recargar la vista
+                cargarPedidos();
+            } catch(e) {
+                alert("Error al confirmar cobrar: " + e);
+            }
+        }
+
+        async function abrirCajaRemota() {
+            try {
+                const res = await fetch('/api/hardware/enqueue', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'admin_movil'})
+                });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    // Feedback visual sutil (opcional)
+                    console.log('Cajón abierto');
+                } else {
+                    console.log('Error encolando acción:', data.msj);
+                }
+            } catch(e) {
+                alert('Error de red al intentar abrir caja');
             }
         }
     </script>

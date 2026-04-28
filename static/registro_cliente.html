@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi Perfil - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { user-select: none; -webkit-user-select: none; }
+        .tab-active { border-bottom: 4px solid #facc15; font-weight: 900; color: #1f2937; }
+        .product-card:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800 pb-32">
+
+    <!-- Navbar -->
+    <div class="bg-emerald-700 text-white p-4 shadow-md flex items-center justify-between sticky top-0 z-50">
+        <h1 class="text-xl font-black">🍗 Carbones y Pollos</h1>
+        <button onclick="logout()" class="text-emerald-200 text-sm font-bold">Cerrar Sesión</button>
+    </div>
+
+    <!-- Login/Registro View -->
+    <div id="view-auth" class="p-6 mt-10">
+        <div class="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 max-w-sm mx-auto">
+            <h2 class="text-2xl font-black text-gray-800 mb-2">Bienvenido/a</h2>
+            <p class="text-gray-500 mb-6 text-sm">Ingresa tu número de teléfono para acceder a tu perfil y hacer pedidos.</p>
+            
+            <label class="block text-gray-700 font-bold mb-2">Teléfono Móvil</label>
+            <input type="tel" id="input-telefono" class="w-full border-2 border-gray-200 rounded-xl p-4 text-xl mb-4 focus:outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. 600123456" pattern="[0-9]*" inputmode="numeric">
+            
+            <label class="block text-gray-700 font-bold mb-2">Nombre (Opcional)</label>
+            <input type="text" id="input-nombre" class="w-full border-2 border-gray-200 rounded-xl p-4 text-lg mb-6 focus:outline-none focus:border-emerald-500 transition-colors" placeholder="¿Cómo te llamamos?">
+
+            <button onclick="login()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl p-4 rounded-xl shadow-lg active:scale-95 transition-all">ENTRAR</button>
+        </div>
+    </div>
+
+    <!-- Dashboard B2C View -->
+    <div id="view-dashboard" class="hidden max-w-2xl mx-auto">
+        <!-- Tarjeta Perfil -->
+        <div class="p-4 bg-white shadow-sm mb-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-black text-gray-800">¡Hola, <span id="dash-nombre">Amigo</span>!</h2>
+                    <p class="text-sm text-gray-500">Puntos: <span id="dash-puntos" class="font-bold text-emerald-600">0</span></p>
+                </div>
+                <div>
+                    <span id="dash-nivel" class="inline-block bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs uppercase tracking-wider shadow-sm">BRONCE</span>
+                </div>
+            </div>
+            
+            <!-- Estado de Pedido Activo -->
+            <div id="active-order-status" class="mt-4 hidden bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-indigo-500 font-bold uppercase tracking-widest mb-1">Pedido en curso</p>
+                    <p class="text-lg font-black text-indigo-900" id="active-order-ticket">#0000</p>
+                </div>
+                <div class="text-right">
+                    <span id="active-order-state" class="bg-indigo-600 text-white font-bold px-3 py-1 rounded-full text-sm animate-pulse">PREPARANDO</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegación por Pestañas (Tabs) -->
+        <div class="flex overflow-x-auto bg-white shadow-sm border-b border-gray-200 sticky top-[60px] z-40" id="category-tabs">
+            <!-- JS populate -->
+        </div>
+
+        <!-- Grid de Productos -->
+        <div class="p-4 grid grid-cols-2 md:grid-cols-3 gap-4" id="productos-grid">
+            <!-- JS populate -->
+        </div>
+
+        <!-- Mis Pedidos Recientes -->
+        <div class="p-4 mt-8 bg-white border-t border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Mis Pedidos Anteriores</h3>
+            <div id="historial-container" class="flex flex-col gap-3">
+                <p class="text-gray-500 italic">No tienes pedidos recientes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrito Flotante Persistente -->
+    <div id="floating-cart" class="hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] z-50 transition-transform">
+        <div class="bg-yellow-400 p-4 flex justify-between items-center cursor-pointer rounded-t-2xl" onclick="toggleCartDetails()">
+            <div class="font-black text-xl text-gray-900">🛒 <span id="cart-count" class="bg-gray-900 text-yellow-400 px-3 py-1 rounded-full text-lg ml-1 shadow-sm">0</span></div>
+            <div class="font-black text-2xl text-emerald-800" id="cart-total">0.00 €</div>
+        </div>
+        <div id="cart-details" class="hidden bg-white p-4 max-h-[50vh] overflow-y-auto">
+            <div id="cart-items" class="mb-4"></div>
+            <div class="mb-4">
+                <p class="text-sm font-bold text-gray-700 mb-1">Notas para cocina / Dirección:</p>
+                <textarea id="cart-notes" class="w-full border-2 border-gray-200 rounded-xl p-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Ej: Sin cebolla. Reparto a Calle Falsa 123..."></textarea>
+            <div class="flex gap-2">
+                <button onclick="realizarPedido(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg p-4 rounded-xl shadow-lg active:scale-95 transition-all">PAGO ONLINE 💳</button>
+                <button onclick="realizarPedido(false)" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-black text-lg p-4 rounded-xl shadow-lg active:scale-95 transition-all">PAGO EN LOCAL 🏠</button>
+            </div>
+    </div>
+
+    <!-- Modal de Reseña -->
+    <div id="review-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center text-gray-900 px-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100">
+            <h2 class="text-2xl font-black mb-4">Valorar Pedido <span id="review-ticket-number" class="text-emerald-600"></span></h2>
+            
+            <div class="flex justify-center gap-2 mb-6 text-4xl cursor-pointer" id="star-rating-container">
+                <span onclick="setRating(1)" class="star text-gray-300 hover:text-yellow-400">★</span>
+                <span onclick="setRating(2)" class="star text-gray-300 hover:text-yellow-400">★</span>
+                <span onclick="setRating(3)" class="star text-gray-300 hover:text-yellow-400">★</span>
+                <span onclick="setRating(4)" class="star text-gray-300 hover:text-yellow-400">★</span>
+                <span onclick="setRating(5)" class="star text-gray-300 hover:text-yellow-400">★</span>
+            </div>
+            
+            <input type="hidden" id="review-rating" value="0">
+            <input type="hidden" id="review-pedido-id" value="">
+            
+            <textarea id="review-comentario" class="w-full p-3 mb-6 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-sm font-medium outline-none resize-none h-24" placeholder="¿Qué te ha parecido?"></textarea>
+            
+            <div class="flex gap-4">
+                <button onclick="submitReview()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 p-4 rounded-xl font-black text-xl shadow-lg transition">ENVIAR</button>
+                <button onclick="closeReviewModal()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-600 p-4 rounded-xl font-bold text-xl transition">X</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal QR Pago Local -->
+    <div id="qr-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center text-gray-900 px-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100">
+            <h2 class="text-xl font-black mb-2 text-gray-800">Muestra este código en caja</h2>
+            <p class="text-sm text-gray-500 mb-6">Pedido <span id="qr-ticket-number" class="font-bold text-indigo-600"></span></p>
+            
+            <div id="qr-code-container" class="flex justify-center items-center p-4 bg-white border-4 border-indigo-100 rounded-2xl mb-6 shadow-inner mx-auto w-48 h-48"></div>
+            
+            <button onclick="closeQRModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl font-bold text-xl transition">CERRAR</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const API_URL = "http://" + window.location.host + "/api";
+        let currentClienteId = localStorage.getItem("b2c_cliente_id");
+        
+        // Catálogo Local
+        let productosData = [];
+        let categoriasData = [];
+        let currentCategoriaId = null;
+        
+        // Carrito
+        let cart = [];
+
+        // Comprobar si hay token en la URL (Magic Link)
+        const urlParams = new URLSearchParams(window.location.search);
+        const magicToken = urlParams.get('token');
+        const magicClienteId = urlParams.get('cliente_id');
+        if(magicToken && magicClienteId) {
+            localStorage.setItem("b2c_cliente_id", magicClienteId);
+            currentClienteId = magicClienteId;
+            // Limpiamos URL
+            window.history.replaceState({}, document.title, "/static/registro_cliente.html");
+        }
+
+        async function init() {
+            if (currentClienteId) {
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                await loadDashboard();
+                await loadCatalog();
+                updateCartUI();
+            } else {
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('floating-cart').classList.add('hidden');
+                document.getElementById('view-auth').classList.remove('hidden');
+            }
+        }
+
+        async function login() {
+            const telefono = document.getElementById('input-telefono').value.trim();
+            const nombre = document.getElementById('input-nombre').value.trim();
+
+            if (!telefono || telefono.length < 9) {
+                alert("Por favor, introduce un teléfono válido.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/b2c/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telefono, nombre })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem("b2c_cliente_id", data.cliente_id);
+                    localStorage.setItem("tpv_name", data.nombre || "Cliente");
+                    currentClienteId = data.cliente_id;
+                    init();
+                } else {
+                    alert("Error al iniciar sesión");
+                }
+            } catch (e) {
+                alert("Error de conexión: " + e);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("b2c_cliente_id");
+            localStorage.removeItem("tpv_name");
+            currentClienteId = null;
+            cart = [];
+            init();
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_URL}/b2c/me/${currentClienteId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('dash-nombre').innerText = data.nombre || "Amigo";
+                    document.getElementById('dash-puntos').innerText = data.puntos;
+                    document.getElementById('dash-nivel').innerText = data.nivel;
+
+                    // Revisar pedidos activos (PENDIENTE o EN_PREPARACION)
+                    const activeOrder = data.historial.find(p => p.estado === 'ESPERANDO_PAGO' || p.estado === 'EN_PREPARACION');
+                    const activeDiv = document.getElementById('active-order-status');
+                    if (activeOrder) {
+                        activeDiv.classList.remove('hidden');
+                        document.getElementById('active-order-ticket').innerText = activeOrder.numero_ticket;
+                        document.getElementById('active-order-state').innerText = activeOrder.estado.replace('_', ' ');
+                        if(activeOrder.estado === 'ESPERANDO_PAGO') {
+                            document.getElementById('active-order-state').innerHTML += ` <button onclick="pagarOnline(${activeOrder.id})" class="ml-2 text-xs bg-indigo-900 text-white px-2 py-1 rounded">PAGAR</button>`;
+                        } else if (activeOrder.estado === 'EN_PREPARACION') {
+                            document.getElementById('active-order-state').innerHTML += ` <br><button onclick="openQRModal('${activeOrder.id}', '${activeOrder.numero_ticket}')" class="mt-2 w-full text-xs bg-indigo-900 text-white px-2 py-2 rounded font-black">VER QR EN CAJA</button>`;
+                        }
+                    } else {
+                        activeDiv.classList.add('hidden');
+                    }
+
+                    // Historial
+                    const container = document.getElementById('historial-container');
+                    container.innerHTML = '';
+                    const oldOrders = data.historial.filter(p => p.estado === 'LISTO' || p.estado === 'CANCELADO');
+                    if (oldOrders.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500 italic text-sm py-2">No tienes pedidos anteriores.</p>';
+                    } else {
+                        oldOrders.forEach(p => {
+                            container.innerHTML += `
+                                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 flex justify-between items-center text-sm">
+                                    <div>
+                                        <p class="font-bold text-gray-800">${p.numero_ticket} <span class="font-normal text-xs text-gray-400">(${p.fecha})</span></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-black text-emerald-600 mb-1">${p.total.toFixed(2)}€</p>
+                                        ${p.estado === 'LISTO' ? `<button onclick="openReviewModal(${p.id}, '${p.numero_ticket}')" class="text-[10px] bg-yellow-400 text-gray-900 font-bold py-1 px-2 rounded">VALORAR</button>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Error cargando dashboard:", e);
+            }
+        }
+
+        async function loadCatalog() {
+            try {
+                const resCats = await fetch(`${API_URL}/categorias`);
+                categoriasData = await resCats.json();
+                
+                const resProds = await fetch(`${API_URL}/productos`);
+                productosData = await resProds.json();
+                
+                renderTabs();
+                if(categoriasData.length > 0) {
+                    selectCategoria(categoriasData[0].id);
+                }
+            } catch (e) {
+                console.error("Error cargando catálogo:", e);
+            }
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = '';
+            categoriasData.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-3 text-sm text-gray-500 hover:text-gray-900 transition-colors ${c.id === currentCategoriaId ? 'tab-active' : 'font-semibold'}`;
+                btn.innerText = c.nombre;
+                btn.onclick = () => selectCategoria(c.id);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectCategoria(id) {
+            currentCategoriaId = id;
+            renderTabs();
+            
+            const container = document.getElementById('productos-grid');
+            container.innerHTML = '';
+            
+            const filtered = productosData.filter(p => p.categoria_id === id && p.is_active);
+            filtered.forEach(p => {
+                const outOfStock = (p.stock_actual <= 0 && p.categoria_id !== null); // Simplificado
+                
+                container.innerHTML += `
+                    <div class="product-card bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex flex-col justify-between ${outOfStock ? 'opacity-50 grayscale' : ''}" onclick="${outOfStock ? '' : `addToCart(${p.id}, '${p.nombre}', ${p.precio})`}">
+                        <div>
+                            ${p.url_imagen ? `<img src="${p.url_imagen}" class="w-full h-24 object-cover rounded-xl mb-2" onerror="this.style.display='none'">` : `<div class="w-full h-24 bg-gray-100 rounded-xl mb-2 flex items-center justify-center text-3xl">🍽️</div>`}
+                            <h4 class="font-bold text-gray-800 leading-tight mb-1 text-sm">${p.nombre}</h4>
+                            ${p.descripcion ? `<p class="text-xs text-gray-400 leading-tight line-clamp-2">${p.descripcion}</p>` : ''}
+                        </div>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="font-black text-emerald-600">${p.precio.toFixed(2)}€</span>
+                            <button class="bg-yellow-400 text-gray-900 w-8 h-8 rounded-full font-black text-lg flex justify-center items-center ${outOfStock ? 'hidden' : ''}">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addToCart(id, nombre, precio) {
+            const existing = cart.find(i => i.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, nombre, precio, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function toggleCartDetails() {
+            const details = document.getElementById('cart-details');
+            details.classList.toggle('hidden');
+        }
+
+        function updateCartUI() {
+            const floatingCart = document.getElementById('floating-cart');
+            if (cart.length > 0) {
+                floatingCart.classList.remove('hidden');
+            } else {
+                floatingCart.classList.add('hidden');
+            }
+
+            let total = 0;
+            let count = 0;
+            const itemsContainer = document.getElementById('cart-items');
+            itemsContainer.innerHTML = '';
+
+            cart.forEach((item, index) => {
+                total += item.precio * item.qty;
+                count += item.qty;
+                itemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <div class="text-sm font-bold text-gray-800">${item.nombre}</div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeQty(${index}, -1)" class="bg-gray-200 w-6 h-6 rounded-full font-bold text-gray-600">-</button>
+                            <span class="font-black text-emerald-600">${item.qty}</span>
+                            <button onclick="changeQty(${index}, 1)" class="bg-gray-200 w-6 h-6 rounded-full font-bold text-gray-600">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('cart-count').innerText = count;
+            document.getElementById('cart-total').innerText = total.toFixed(2) + ' €';
+        }
+
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        async function realizarPedido(pagoOnline) {
+            if(cart.length === 0) return;
+            
+            const notas = document.getElementById('cart-notes').value;
+            const estado_inicial = pagoOnline ? "ESPERANDO_PAGO" : "EN_PREPARACION";
+            const payload = {
+                items: cart.map(i => ({ producto_id: i.id, cantidad: i.qty })),
+                origen: "B2C_MOBILE",
+                estado_inicial: estado_inicial,
+                notas_cliente: `(B2C Web) ${notas}`
+            };
+
+            try {
+                // Hay que asegurar que el endpoint asigne el cliente logueado
+                const res = await fetch(`${API_URL}/pedidos?cliente_id=${currentClienteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    cart = [];
+                    updateCartUI();
+                    toggleCartDetails();
+                    if (pagoOnline) {
+                        alert("¡Pedido registrado! Te redirigiremos a la pasarela de pago.");
+                        pagarOnline(data.pedido_id);
+                    } else {
+                        alert("¡Pedido enviado a cocina! Deberás abonarlo al recogerlo en el local.");
+                        loadDashboard();
+                    }
+                } else {
+                    alert("Error registrando el pedido.");
+                }
+            } catch (e) {
+                alert("Error de red.");
+            }
+        }
+
+        async function pagarOnline(pedidoId) {
+            try {
+                const res = await fetch(`${API_URL}/b2c/checkout/${pedidoId}`, { method: 'POST' });
+                if (res.ok) {
+                    const data = await res.json();
+                    window.location.href = data.url; // Redirigir a Stripe
+                } else {
+                    alert("Error iniciando el pago seguro.");
+                }
+            } catch (e) {
+                alert("Error de red.");
+            }
+        }
+
+        // Modales de Review
+        function openReviewModal(pedidoId, ticketNum) {
+            document.getElementById('review-pedido-id').value = pedidoId;
+            document.getElementById('review-ticket-number').innerText = ticketNum;
+            setRating(5);
+            document.getElementById('review-modal').classList.remove('hidden');
+        }
+        
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+        }
+        
+        function setRating(val) {
+            document.getElementById('review-rating').value = val;
+            const stars = document.querySelectorAll('#star-rating-container .star');
+            stars.forEach((s, idx) => s.className = idx < val ? "star text-yellow-400" : "star text-gray-300 hover:text-yellow-400");
+        }
+        
+        async function submitReview() {
+            const pedidoId = document.getElementById('review-pedido-id').value;
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comentario = document.getElementById('review-comentario').value;
+            try {
+                await fetch(`${API_URL}/b2c/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pedido_id: parseInt(pedidoId), cliente_id: parseInt(currentClienteId), rating, comentario })
+                });
+                closeReviewModal();
+                loadDashboard();
+            } catch (e) {}
+        }
+
+        // Modal QR
+        let qrCodeInstance = null;
+        function openQRModal(pedidoId, ticketNum) {
+            document.getElementById('qr-ticket-number').innerText = ticketNum;
+            const container = document.getElementById('qr-code-container');
+            container.innerHTML = ''; // Clear old QR
+            
+            // Generar nuevo QR
+            qrCodeInstance = new QRCode(container, {
+                text: JSON.stringify({ action: "PAY_LOCAL", pedido_id: pedidoId, ticket: ticketNum }),
+                width: 160,
+                height: 160,
+                colorDark : "#4f46e5", // Indigo-600
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('qr-modal').classList.remove('hidden');
+        }
+        
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        init();
+    </script>
+</body>
+</html>

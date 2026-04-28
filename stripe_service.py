@@ -17,7 +17,7 @@ def generar_enlace_pago(pedido_id: int, total: float, items_resumen: str):
         if not STRIPE_API_KEY or STRIPE_API_KEY == "sk_test_123":
             logging.warning("Usando API_KEY de Stripe por defecto. El pago será de prueba.")
         
-        domain_url = os.environ.get("DOMAIN_URL", "http://localhost:5001")
+        domain_url = os.environ.get("DOMAIN_URL", "http://127.0.0.1:8000")
         
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -33,8 +33,8 @@ def generar_enlace_pago(pedido_id: int, total: float, items_resumen: str):
                 'quantity': 1,
             }],
             mode='payment',
-            success_url=f"{domain_url}/pago_completado?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{domain_url}/pago_cancelado",
+            success_url=f"{domain_url}/api/b2c/webhook_success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{domain_url}/static/registro_cliente.html",
             metadata={
                 'pedido_id': str(pedido_id)
             }

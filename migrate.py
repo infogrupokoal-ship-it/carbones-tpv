@@ -1,4 +1,4 @@
-﻿import sqlite3
+import sqlite3
 import sys
 
 conn = sqlite3.connect('tpv_data.sqlite')
@@ -26,8 +26,17 @@ commands = [
     "ALTER TABLE productos ADD COLUMN remote_id INTEGER;",
     "ALTER TABLE categorias ADD COLUMN remote_id INTEGER;",
     "ALTER TABLE movimientos_stock ADD COLUMN is_synced BOOLEAN DEFAULT 0;",
-    "ALTER TABLE movimientos_stock ADD COLUMN remote_id INTEGER;"
+    "ALTER TABLE movimientos_stock ADD COLUMN remote_id INTEGER;",
+    "ALTER TABLE productos ADD COLUMN is_addon BOOLEAN DEFAULT 0;",
+    "ALTER TABLE pedidos ADD COLUMN stripe_session_id VARCHAR;",
+    "ALTER TABLE pedidos ADD COLUMN notas_cliente VARCHAR;"
 ]
+
+try:
+    c.execute("ALTER TABLE productos ADD COLUMN alergenos VARCHAR")
+    print("Columna 'alergenos' añadida a productos.")
+except Exception as e:
+    pass
 
 for cmd in commands:
     try:

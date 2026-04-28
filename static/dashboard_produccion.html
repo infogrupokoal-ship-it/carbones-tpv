@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Producción - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+
+    <!-- Navbar -->
+    <div class="bg-gray-900 text-white p-4 shadow-md flex items-center justify-between sticky top-0 z-50">
+        <h1 class="text-xl font-black">📊 Dashboard Producción & Ventas</h1>
+        <button onclick="location.href='admin_mobile.html'" class="text-gray-300 text-sm font-bold hover:text-white">← Volver al Admin</button>
+    </div>
+
+    <div class="p-4 md:p-8 max-w-7xl mx-auto">
+        <!-- Resumen KPI -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Ventas Hoy</p>
+                <p class="text-3xl font-black text-emerald-600" id="kpi-ventas">0.00€</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Coste Mermas</p>
+                <p class="text-3xl font-black text-red-500" id="kpi-mermas">0.00€</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Pedidos B2C</p>
+                <p class="text-3xl font-black text-indigo-600" id="kpi-pedidos">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Valoración Media</p>
+                <p class="text-3xl font-black text-yellow-500" id="kpi-rating">0.0 ★</p>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-black mb-4 text-gray-800">Ventas por Hora</h3>
+                <canvas id="chart-ventas-hora" height="200"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-black mb-4 text-gray-800">Top Pollos Asados</h3>
+                <canvas id="chart-top-pollos" height="200"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-black mb-4 text-gray-800">Top Pizzas</h3>
+                <canvas id="chart-top-pizzas" height="200"></canvas>
+            </div>
+        </div>
+        
+        <!-- IA Insights y Reviews -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- AI Panel -->
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-800 p-6 rounded-2xl shadow-lg text-white lg:col-span-1">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-black">🧠 Asistente IA</h3>
+                    <button onclick="generarInsightsIA()" id="btn-ia" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs font-bold transition-all">Analizar Ahora</button>
+                </div>
+                <div id="ia-content" class="bg-white/10 p-4 rounded-xl border border-white/20 text-sm leading-relaxed min-h-[150px]">
+                    <p class="text-indigo-200 italic">Pulsa "Analizar Ahora" para que la IA lea las valoraciones y el flujo de ventas para sugerir niveles de producción de hoy.</p>
+                </div>
+            </div>
+
+            <!-- Últimas Reseñas -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-2">
+                <h3 class="text-lg font-black mb-4 text-gray-800">Feedback de Clientes</h3>
+                <div id="reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                    <!-- JS populate -->
+                    <p class="text-gray-400 italic">Cargando valoraciones...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://" + window.location.host + "/api";
+        
+        let chartVentas, chartPollos, chartPizzas;
+
+        async function initDashboard() {
+            try {
+                // Endpoint para obtener stats globales (hay que crearlo en main.py)
+                const res = await fetch(`${API_URL}/b2c/dashboard_stats`);
+                if(res.ok) {
+                    const data = await res.json();
+                    
+                    document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
+                    document.getElementById('kpi-mermas').innerText = data.kpis.coste_mermas.toFixed(2) + '€';
+                    document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_b2c;
+                    document.getElementById('kpi-rating').innerText = data.kpis.avg_rating.toFixed(1) + ' ★';
+                    
+                    renderCharts(data.charts);
+                    renderReviews(data.reviews);
+                }
+            } catch(e) {
+                console.error("Error loading dashboard", e);
+            }
+        }
+
+        function renderCharts(chartsData) {
+            const ctx1 = document.getElementById('chart-ventas-hora').getContext('2d');
+            if(chartVentas) chartVentas.destroy();
+            chartVentas = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: chartsData.horas.labels,
+                    datasets: [{
+                        label: 'Ventas (€)',
+                        data: chartsData.horas.data,
+                        borderColor: '#059669',
+                        backgroundColor: '#10b98122',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            const ctx2 = document.getElementById('chart-top-pollos').getContext('2d');
+            if(chartPollos) chartPollos.destroy();
+            chartPollos = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: chartsData.pollos.labels,
+                    datasets: [{
+                        label: 'Unidades',
+                        data: chartsData.pollos.data,
+                        backgroundColor: '#facc15',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            const ctx3 = document.getElementById('chart-top-pizzas').getContext('2d');
+            if(chartPizzas) chartPizzas.destroy();
+            chartPizzas = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: chartsData.pizzas.labels,
+                    datasets: [{
+                        label: 'Unidades',
+                        data: chartsData.pizzas.data,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        function renderReviews(reviews) {
+            const cont = document.getElementById('reviews-container');
+            cont.innerHTML = '';
+            if(reviews.length === 0) {
+                cont.innerHTML = '<p class="text-gray-400 italic">No hay valoraciones recientes.</p>';
+                return;
+            }
+            
+            reviews.forEach(r => {
+                let stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                cont.innerHTML += `
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-black text-gray-800">${r.cliente_nombre || 'Anónimo'}</span>
+                                <span class="text-xs text-gray-500 ml-2">${r.fecha}</span>
+                            </div>
+                            <span class="text-yellow-400 text-lg">${stars}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">"${r.comentario || 'Sin comentarios.'}"</p>
+                    </div>
+                `;
+            });
+        }
+
+        async function generarInsightsIA() {
+            const btn = document.getElementById('btn-ia');
+            const content = document.getElementById('ia-content');
+            
+            btn.innerText = "Analizando...";
+            btn.disabled = true;
+            content.innerHTML = '<p class="text-indigo-200 animate-pulse">La IA está procesando los datos de ventas y valoraciones...</p>';
+            
+            try {
+                const res = await fetch(`${API_URL}/b2c/ia_insights`);
+                if(res.ok) {
+                    const data = await res.json();
+                    content.innerHTML = `
+                        <p class="font-bold text-white mb-2">💡 Resumen de Valoraciones:</p>
+                        <p class="text-indigo-100 text-sm mb-4">"${data.resumen_reviews}"</p>
+                        <div class="h-px w-full bg-white/20 mb-4"></div>
+                        <p class="font-bold text-white mb-2">📈 Sugerencia de Producción:</p>
+                        <p class="text-indigo-100 text-sm font-black text-yellow-300">"${data.sugerencia_produccion}"</p>
+                    `;
+                } else {
+                    content.innerHTML = '<p class="text-red-300">Error generando insights.</p>';
+                }
+            } catch(e) {
+                content.innerHTML = '<p class="text-red-300">Error de conexión con la IA.</p>';
+            }
+            
+            btn.innerText = "Actualizar";
+            btn.disabled = false;
+        }
+
+        // Refrescar cada 60s
+        initDashboard();
+        setInterval(initDashboard, 60000);
+    </script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import sys
 
 HOSTNAME = '113.30.148.104'
 USERNAME = 'root'
-PASSWORD = '633660438gK123'
+PASSWORD = '633660438Gk123'
 REMOTE_PATH = '/root/carbones_y_pollos_tpv'
 LOCAL_PATH = 'd:\\proyecto\\carbones_y_pollos_tpv'
 
@@ -17,27 +17,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 pip install google-generativeai requests
 
-# Parche de Migración Base de Datos SQLite Remota
-python3 -c "
-import sqlite3
-import os
-db_path = 'tpv_data.sqlite'
-if os.path.exists(db_path):
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-    cur.execute('PRAGMA table_info(pedidos)')
-    columns = [col[1] for col in cur.fetchall()]
-    new_cols = ['base_imponible_10', 'cuota_iva_10', 'base_imponible_21', 'cuota_iva_21']
-    for col in new_cols:
-        if col not in columns:
-            cur.execute(f'ALTER TABLE pedidos ADD COLUMN {{col}} FLOAT DEFAULT 0.0')
-    conn.commit()
-    conn.close()
-"
+# Eliminar DB antigua para forzar creacion con UUIDs
+rm -f tpv_data.sqlite
 
 # Start server
 nohup python3 main.py > server.log 2>&1 &
-echo "Carbones TPV deployed, db patched, and restarted successfully on port 5001."
+
+# Wait for server to create DB, then seed
+sleep 3
+python3 fractional_seeder.py
+
+echo "Carbones TPV deployed, db recreated with UUIDs, seeded, and restarted successfully on port 5001."
 """
 
 try:

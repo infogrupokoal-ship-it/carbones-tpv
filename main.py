@@ -15,7 +15,7 @@ import os
 import requests
 # from ai_engine import procesar_mensaje_whatsapp
 
-from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock, ReporteZ
+from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock, ReporteZ, Cliente
 
 app = FastAPI(title="Cargones y Pollos TPV API")
 
@@ -45,7 +45,7 @@ def startup_event():
 
 # Pydantic Schemas
 class ItemCrear(BaseModel):
-    producto_id: int
+    producto_id: str
     cantidad: int
 
 class PedidoCrear(BaseModel):
@@ -53,11 +53,18 @@ class PedidoCrear(BaseModel):
     origen: str = "QUIOSCO"
     estado_inicial: str = "ESPERANDO_PAGO"
     cubiertos_qty: int = 0
+    notas_cliente: Optional[str] = None
 
 class ProduccionCrear(BaseModel):
-    producto_id: int
+    producto_id: str
     cantidad: int
     descripcion: str = "Producción manual"
+
+class ReviewCrear(BaseModel):
+    pedido_id: Optional[str] = None
+    cliente_id: Optional[str] = None
+    rating: int
+    comentario: Optional[str] = None
 
 class CheckoutRequest(BaseModel):
     metodo_pago: str = "EFECTIVO" # EFECTIVO, TARJETA, MAQUINA
@@ -67,7 +74,24 @@ class UbicacionRequest(BaseModel):
     lon: float
     distancia_metros: Optional[float] = None
 
+import base64
+from fastapi.responses import RedirectResponse
 # --- ENDPOINTS REST ---
+
+@app.get("/api/auth/magic_login")
+def magic_login(token: str, db: Session = Depends(get_db)):
+    try:
+        wa_id = base64.b64decode(token).decode('utf-8')
+        cliente = db.query(Cliente).filter(Cliente.wa_id == wa_id).first()
+        if not cliente:
+            raise HTTPException(status_code=404, detail="Cliente no encontrado")
+        
+        # Redirigimos al B2C pasándole el token y el id de cliente
+        response = RedirectResponse(url=f"/static/registro_cliente.html?token={token}&cliente_id={cliente.id}")
+        response.set_cookie(key="b2c_token", value=token, httponly=False) # Simplificado para JS
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Token inválido")
 
 @app.get("/api/productos")
 def listar_productos(db: Session = Depends(get_db)):
@@ -95,11 +119,10 @@ def listar_categorias(db: Session = Depends(get_db)):
     return cats
 
 @app.post("/api/pedidos")
-def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
+def crear_pedido(pedido: PedidoCrear, cliente_id: Optional[str] = None, db: Session = Depends(get_db)):
     from models import Cliente
     
     # Intento buscar cliente si viene origen KIOSKO_TELEFONO por ejemplo, o si el request.origen trae "WHATSAPP-telefono"
-    # Por el momento simplificado (origen lo manejará el front-end si pide telefono: KIOSKO-604...)
     telefono_asociado = None
     if "-" in pedido.origen:
         origen_base, telefono_asociado = pedido.origen.split("-", 1)
@@ -108,22 +131,27 @@ def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
         
     cliente = None
     descuento_aplicado = 0.0
-    if telefono_asociado:
+    
+    if cliente_id:
+        cliente = db.query(Cliente).get(cliente_id)
+    elif telefono_asociado:
         cliente = db.query(Cliente).filter(Cliente.telefono == telefono_asociado).first()
         if not cliente:
             cliente = Cliente(telefono=telefono_asociado, nivel_fidelidad="BRONCE")
             db.add(cliente)
             db.flush()
-        else:
-            if cliente.nivel_fidelidad == "PLATA": descuento_aplicado = 0.05
-            elif cliente.nivel_fidelidad == "ORO": descuento_aplicado = 0.10
+            
+    if cliente:
+        if cliente.nivel_fidelidad == "PLATA": descuento_aplicado = 0.05
+        elif cliente.nivel_fidelidad == "ORO": descuento_aplicado = 0.10
         
     nuevo_pedido = Pedido(
         numero_ticket=f"T-{(db.query(Pedido).count() % 100) + 1:02d}", 
         origen=origen_base, 
         estado=pedido.estado_inicial,
         cliente_id=cliente.id if cliente else None,
-        cubiertos_qty=pedido.cubiertos_qty
+        cubiertos_qty=pedido.cubiertos_qty,
+        notas_cliente=pedido.notas_cliente
     )
     db.add(nuevo_pedido)
     db.flush()
@@ -197,6 +225,34 @@ def crear_pedido(pedido: PedidoCrear, db: Session = Depends(get_db)):
     nuevo_pedido.cuota_iva_10 = round(total_iva_10 - nuevo_pedido.base_imponible_10, 2)
     nuevo_pedido.base_imponible_21 = round(total_iva_21 / 1.21, 2)
     nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
+    
+    # Send to kitchen immediately if it's local payment
+    if nuevo_pedido.estado == "EN_PREPARACION" and origen_base == "B2C_MOBILE":
+        from models import HardwareCommand
+        import json
+        
+        items_payload = []
+        for it in pedido.items:
+            prod_obj = db.query(Producto).get(it.producto_id)
+            if prod_obj:
+                items_payload.append({"nombre": prod_obj.nombre, "cantidad": it.cantidad, "precio": prod_obj.precio * it.cantidad})
+                
+        payload = {
+            "numero_ticket": nuevo_pedido.numero_ticket,
+            "origen": nuevo_pedido.origen,
+            "total": total,
+            "items": items_payload,
+            "base_imponible_10": nuevo_pedido.base_imponible_10,
+            "cuota_iva_10": nuevo_pedido.cuota_iva_10,
+            "base_imponible_21": nuevo_pedido.base_imponible_21,
+            "cuota_iva_21": nuevo_pedido.cuota_iva_21,
+            "notas_cliente": nuevo_pedido.notas_cliente,
+            "tipo": "cocina"
+        }
+        db.add(HardwareCommand(accion="imprimir", origen="b2c_local", payload=json.dumps(payload)))
+        payload["tipo"] = "cliente"
+        db.add(HardwareCommand(accion="imprimir", origen="b2c_local", payload=json.dumps(payload)))
+
     db.commit()
     return {"status": "ok", "pedido_id": nuevo_pedido.id, "ticket": nuevo_pedido.numero_ticket, "total": total, "descuento": descuento_aplicado}
 
@@ -205,10 +261,40 @@ def listar_pedidos(estado: Optional[str] = None, db: Session = Depends(get_db)):
     query = db.query(Pedido)
     if estado:
         query = query.filter(Pedido.estado == estado)
-    return query.order_by(Pedido.fecha.desc()).all()
+    pedidos = query.order_by(Pedido.fecha.desc()).all()
+    
+    out = []
+    for p in pedidos:
+        items_out = []
+        for it in p.items:
+            prod = db.query(Producto).get(it.producto_id)
+            if prod:
+                items_out.append({
+                    "id": it.id,
+                    "cantidad": it.cantidad,
+                    "precio_unitario": it.precio_unitario,
+                    "producto": {
+                        "id": prod.id,
+                        "nombre": prod.nombre,
+                        "alergenos": prod.alergenos,
+                        "is_addon": prod.is_addon
+                    }
+                })
+        
+        out.append({
+            "id": p.id,
+            "numero_ticket": p.numero_ticket,
+            "fecha": p.fecha.isoformat(),
+            "estado": p.estado,
+            "total": p.total,
+            "origen": p.origen,
+            "notas_cliente": p.notas_cliente,
+            "items": items_out
+        })
+    return out
 
 @app.get("/api/pedidos/{pedido_id}/items")
-def ver_pedido_items(pedido_id: int, db: Session = Depends(get_db)):
+def ver_pedido_items(pedido_id: str, db: Session = Depends(get_db)):
     items = db.query(ItemPedido).options(joinedload(ItemPedido.pedido)).filter(ItemPedido.pedido_id == pedido_id).all()
     out = []
     for it in items:
@@ -222,12 +308,37 @@ def ver_pedido_items(pedido_id: int, db: Session = Depends(get_db)):
     return out
 
 @app.post("/api/pedidos/{pedido_id}/estado")
-def actualizar_estado(pedido_id: int, estado: str, db: Session = Depends(get_db)):
-    from models import Cliente
+def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)):
+    from models import Cliente, HardwareCommand, Producto, ItemPedido
+    import json
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
         raise HTTPException(404, "Pedido no encontrado")
+        
+    estado_anterior = pedido.estado
     pedido.estado = estado
+    
+    # Enviar a cocina si acaba de ser confirmado el pago en caja local
+    if estado == "EN_PREPARACION" and estado_anterior in ["ESPERANDO_PAGO", "ESPERANDO_PAGO_LOCAL"]:
+        items_payload = []
+        for it in pedido.items:
+            prod_obj = db.query(Producto).get(it.producto_id)
+            if prod_obj:
+                items_payload.append({"nombre": prod_obj.nombre, "cantidad": it.cantidad, "precio": prod_obj.precio * it.cantidad})
+        
+        payload = {
+            "numero_ticket": pedido.numero_ticket,
+            "origen": pedido.origen,
+            "total": pedido.total,
+            "items": items_payload,
+            "base_imponible_10": pedido.base_imponible_10,
+            "cuota_iva_10": pedido.cuota_iva_10,
+            "base_imponible_21": pedido.base_imponible_21,
+            "cuota_iva_21": pedido.cuota_iva_21,
+            "notas_cliente": pedido.notas_cliente,
+            "tipo": "cocina"
+        }
+        db.add(HardwareCommand(accion="imprimir", origen="caja_confirmacion", payload=json.dumps(payload)))
     
     # Acciones extra si el pedido esta listo y viene de whatsapp -> Avisar
     if estado == "LISTO" and pedido.cliente_id:
@@ -239,7 +350,7 @@ def actualizar_estado(pedido_id: int, estado: str, db: Session = Depends(get_db)
     return {"status": "ok", "nuevo_estado": pedido.estado}
 
 @app.post("/api/pedidos/{pedido_id}/ubicacion")
-def actualizar_ubicacion(pedido_id: int, ubi: UbicacionRequest, db: Session = Depends(get_db)):
+def actualizar_ubicacion(pedido_id: str, ubi: UbicacionRequest, db: Session = Depends(get_db)):
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
         raise HTTPException(404, "Pedido no encontrado")
@@ -253,7 +364,7 @@ def actualizar_ubicacion(pedido_id: int, ubi: UbicacionRequest, db: Session = De
     return {"status": "ok", "msj": "Ubicación actualizada en tiempo real"}
 
 @app.post("/api/pedidos/{pedido_id}/cobrar")
-def cobrar_pedido(pedido_id: int, request: CheckoutRequest, db: Session = Depends(get_db)):
+def cobrar_pedido(pedido_id: str, request: CheckoutRequest, db: Session = Depends(get_db)):
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
         raise HTTPException(404, "Pedido no encontrado")
@@ -280,7 +391,8 @@ def cobrar_pedido(pedido_id: int, request: CheckoutRequest, db: Session = Depend
             "base_imponible_10": pedido.base_imponible_10,
             "cuota_iva_10": pedido.cuota_iva_10,
             "base_imponible_21": pedido.base_imponible_21,
-            "cuota_iva_21": pedido.cuota_iva_21
+            "cuota_iva_21": pedido.cuota_iva_21,
+            "notas_cliente": pedido.notas_cliente
         }
         
         # 1. Comando abrir caja
@@ -382,7 +494,7 @@ def balance_inventario_hoy(db: Session = Depends(get_db)):
     return balance
 
 class AjusteInventario(BaseModel):
-    producto_id: int
+    producto_id: str
     cantidad_ajuste: float
     descripcion: str = "Ajuste manual"
     tipo: str = "AJUSTE" # PRODUCCION_MANANA, PRODUCCION_TARDE, MERMA, SOBRANTE_DIA_ANTERIOR
@@ -652,7 +764,7 @@ def hw_poll(db: Session = Depends(get_db)):
     return {"status": "ok", "comandos": out}
 
 @app.post("/api/hardware/ack/{cmd_id}")
-def hw_ack(cmd_id: int, db: Session = Depends(get_db)):
+def hw_ack(cmd_id: str, db: Session = Depends(get_db)):
     """(Edge) La tablet confirma que ejecutó la acción."""
     cmd = db.query(HardwareCommand).filter(HardwareCommand.id == cmd_id).first()
     if cmd:
@@ -734,7 +846,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         session = event['data']['object']
         pedido_id_str = session.get('metadata', {}).get('pedido_id')
         if pedido_id_str:
-            pedido_id = int(pedido_id_str)
+            pedido_id = pedido_id_str
             pedido = db.query(Pedido).get(pedido_id)
             if pedido:
                 pedido.estado = "PAGADO"
@@ -867,6 +979,279 @@ def obtener_historico_cierres():
         return resultado
     finally:
         db.close()
+
+# --- API B2C (CLIENTES MÓVILES) ---
+from pydantic import BaseModel
+import stripe_service
+
+class B2CAuthRequest(BaseModel):
+    telefono: str
+    nombre: str = None
+
+@app.post("/api/b2c/auth")
+def b2c_auth(req: B2CAuthRequest, db: Session = Depends(get_db)):
+    cliente = db.query(Cliente).filter(Cliente.telefono == req.telefono).first()
+    if not cliente:
+        cliente = Cliente(telefono=req.telefono, nombre=req.nombre)
+        db.add(cliente)
+        db.commit()
+        db.refresh(cliente)
+    return {"status": "ok", "cliente_id": cliente.id, "nombre": cliente.nombre, "nivel": cliente.nivel_fidelidad}
+
+@app.get("/api/b2c/me/{cliente_id}")
+def b2c_me(cliente_id: str, db: Session = Depends(get_db)):
+    cliente = db.query(Cliente).get(cliente_id)
+    if not cliente:
+        raise HTTPException(404, "Cliente no encontrado")
+    
+    pedidos = db.query(Pedido).filter(Pedido.cliente_id == cliente_id).order_by(Pedido.fecha.desc()).limit(5).all()
+    historial = []
+    for p in pedidos:
+        historial.append({
+            "id": p.id,
+            "numero_ticket": p.numero_ticket,
+            "fecha": p.fecha.strftime("%d/%m/%Y"),
+            "total": p.total,
+            "estado": p.estado
+        })
+        
+    return {
+        "id": cliente.id,
+        "nombre": cliente.nombre,
+        "telefono": cliente.telefono,
+        "nivel": cliente.nivel_fidelidad,
+        "puntos": cliente.visitas * 10, # Sistema simple de puntos
+        "historial": historial
+    }
+
+@app.post("/api/b2c/checkout/{pedido_id}")
+def b2c_checkout(pedido_id: str, db: Session = Depends(get_db)):
+    pedido = db.query(Pedido).get(pedido_id)
+    if not pedido:
+        raise HTTPException(404, "Pedido no encontrado")
+    
+    if pedido.estado != "ESPERANDO_PAGO":
+        raise HTTPException(400, "El pedido no está pendiente de pago")
+
+    # Generar resumen de items
+    nombres_items = []
+    for it in pedido.items:
+        prod = db.query(Producto).get(it.producto_id)
+        if prod:
+            nombres_items.append(f"{it.cantidad}x {prod.nombre}")
+    resumen = ", ".join(nombres_items)
+
+    url = stripe_service.generar_enlace_pago(pedido.id, pedido.total, resumen)
+    if not url:
+        raise HTTPException(500, "Error generando enlace de Stripe")
+        
+    return {"url": url}
+
+@app.get("/api/b2c/webhook_success")
+def b2c_pago_exitoso(session_id: str, db: Session = Depends(get_db)):
+    import stripe
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+        pedido_id_str = session.metadata.get('pedido_id')
+        if not pedido_id_str:
+            return HTMLResponse("<h1>Error: Pedido no encontrado en la sesión de Stripe</h1>")
+            
+        pedido_id = pedido_id_str
+        pedido = db.query(Pedido).get(pedido_id)
+        
+        if pedido and pedido.estado == "ESPERANDO_PAGO":
+            pedido.estado = "EN_PREPARACION"
+            pedido.metodo_pago = "TARJETA (ONLINE)"
+            pedido.stripe_session_id = session_id
+            
+            # Encolar tickets
+            items = []
+            for db_it in pedido.items:
+                prod = db.query(Producto).get(db_it.producto_id)
+                items.append({"nombre": prod.nombre if prod else "Desconocido", "cantidad": db_it.cantidad, "precio": db_it.precio_unitario * db_it.cantidad})
+                
+            payload = {
+                "numero_ticket": pedido.numero_ticket,
+                "origen": pedido.origen,
+                "total": pedido.total,
+                "items": items,
+                "base_imponible_10": pedido.base_imponible_10,
+                "cuota_iva_10": pedido.cuota_iva_10,
+                "base_imponible_21": pedido.base_imponible_21,
+                "cuota_iva_21": pedido.cuota_iva_21,
+                "notas_cliente": pedido.notas_cliente
+            }
+            
+            import json
+            # No abrimos caja porque es pago online
+            # Imprimir cocina
+            payload["tipo"] = "cocina"
+            db.add(HardwareCommand(accion="imprimir", origen="b2c_online", payload=json.dumps(payload)))
+            # Imprimir cliente
+            payload["tipo"] = "cliente"
+            db.add(HardwareCommand(accion="imprimir", origen="b2c_online", payload=json.dumps(payload)))
+            
+            db.commit()
+            
+        return HTMLResponse(f"<h1>¡Pago Completado!</h1><p>Tu pedido {pedido.numero_ticket if pedido else ''} ya se está preparando en cocina.</p><br><a href='/'>Volver al inicio</a>")
+    except Exception as e:
+        return HTMLResponse(f"<h1>Error validando el pago: {e}</h1>")
+
+
+@app.post("/api/b2c/reviews")
+def crear_review(review_data: ReviewCrear, db: Session = Depends(get_db)):
+    from models import Review
+    nueva_review = Review(
+        pedido_id=review_data.pedido_id,
+        cliente_id=review_data.cliente_id,
+        rating=review_data.rating,
+        comentario=review_data.comentario
+    )
+    db.add(nueva_review)
+    db.commit()
+    return {"status": "ok", "msj": "Review guardada"}
+
+@app.get("/api/b2c/dashboard_stats")
+def get_dashboard_stats(db: Session = Depends(get_db)):
+    from models import Pedido, MovimientoStock, Review, ItemPedido, Producto, Cliente
+    import datetime
+    
+    hoy = datetime.date.today()
+    pedidos_hoy = db.query(Pedido).filter(Pedido.fecha >= hoy).all()
+    
+    ventas_hoy = sum(p.total for p in pedidos_hoy if p.estado == "LISTO" or p.estado == "EN_PREPARACION")
+    pedidos_b2c = sum(1 for p in pedidos_hoy if p.origen == "B2C_MOBILE")
+    
+    mermas_hoy = db.query(MovimientoStock).filter(MovimientoStock.fecha >= hoy, MovimientoStock.tipo == "MERMA").all()
+    # Aproximación de coste de mermas: buscar el precio del producto y descontar un 30% como coste
+    coste_mermas = 0
+    for m in mermas_hoy:
+        prod = db.query(Producto).get(m.producto_id)
+        if prod:
+            coste_mermas += abs(m.cantidad) * (prod.precio * 0.3)
+            
+    reviews = db.query(Review).order_by(Review.fecha.desc()).limit(20).all()
+    avg_rating = 0
+    if reviews:
+        avg_rating = sum(r.rating for r in reviews) / len(reviews)
+        
+    # Gráficos
+    horas = [0]*24
+    for p in pedidos_hoy:
+        if p.estado in ["LISTO", "EN_PREPARACION"]:
+            horas[p.fecha.hour] += p.total
+            
+    # Reducir horas para el gráfico a las horas de apertura típicas (ej. 10 a 22)
+    labels_horas = [f"{i}:00" for i in range(10, 23)]
+    data_horas = [horas[i] for i in range(10, 23)]
+    
+    # Top Productos
+    prod_counts = {}
+    for p in pedidos_hoy:
+        if p.estado in ["LISTO", "EN_PREPARACION"]:
+            for it in p.items:
+                prod_counts[it.producto_id] = prod_counts.get(it.producto_id, 0) + it.cantidad
+                
+    pollos_counts = {}
+    pizzas_counts = {}
+    from models import Categoria
+    for pid, count in prod_counts.items():
+        prod = db.query(Producto).get(pid)
+        if prod and prod.categoria_id:
+            cat = db.query(Categoria).get(prod.categoria_id)
+            if cat:
+                if "Pollo" in cat.nombre:
+                    pollos_counts[pid] = count
+                elif "Pizza" in cat.nombre:
+                    pizzas_counts[pid] = count
+
+    def get_top(counts):
+        top_ids = sorted(counts, key=counts.get, reverse=True)[:5]
+        labels = []
+        data = []
+        for pid in top_ids:
+            prod = db.query(Producto).get(pid)
+            labels.append(prod.nombre if prod else f"Prod #{pid}")
+            data.append(counts[pid])
+        return {"labels": labels, "data": data}
+
+    # Formatear reviews
+    formatted_reviews = []
+    for r in reviews:
+        cliente_nombre = "Anónimo"
+        if r.cliente_id:
+            c = db.query(Cliente).get(r.cliente_id)
+            if c and c.nombre:
+                cliente_nombre = c.nombre
+        formatted_reviews.append({
+            "cliente_nombre": cliente_nombre,
+            "rating": r.rating,
+            "comentario": r.comentario,
+            "fecha": r.fecha.strftime("%d/%m %H:%M")
+        })
+
+    return {
+        "kpis": {
+            "ventas_hoy": ventas_hoy,
+            "coste_mermas": coste_mermas,
+            "pedidos_b2c": pedidos_b2c,
+            "avg_rating": avg_rating
+        },
+        "charts": {
+            "horas": {
+                "labels": labels_horas,
+                "data": data_horas
+            },
+            "pollos": get_top(pollos_counts),
+            "pizzas": get_top(pizzas_counts)
+        },
+        "reviews": formatted_reviews
+    }
+
+@app.get("/api/b2c/ia_insights")
+def get_ia_insights(db: Session = Depends(get_db)):
+    from models import Review, Pedido, Producto, ItemPedido
+    import datetime
+    
+    # Reseñas
+    reviews = db.query(Review).order_by(Review.fecha.desc()).limit(10).all()
+    avg = sum(r.rating for r in reviews) / len(reviews) if reviews else 5.0
+    
+    # Análisis de Alérgenos y Complementos de HOY
+    hoy = datetime.date.today()
+    pedidos_hoy = db.query(Pedido).filter(Pedido.fecha >= hoy).all()
+    
+    alergenos_detectados = set()
+    complementos_vendidos = 0
+    
+    for p in pedidos_hoy:
+        for it in p.items:
+            prod = db.query(Producto).get(it.producto_id)
+            if prod:
+                if prod.alergenos:
+                    for al in prod.alergenos.split(","):
+                        alergenos_detectados.add(al.strip().lower())
+                if prod.is_addon:
+                    complementos_vendidos += it.cantidad
+                    
+    # Simularemos la respuesta de la IA por ahora combinando todo
+    if avg < 4.0:
+        resumen = "Los clientes se han quejado recientemente. Recomiendo revisar los procesos de despacho en picos de demanda."
+        sugerencia = "Para hoy, reduce la producción anticipada de patatas para que no se enfríen."
+    else:
+        resumen = "Las valoraciones son excelentes. Destacan especialmente la rapidez del servicio."
+        sugerencia = "Sigue con la cuota habitual de 50 pollos por turno."
+        
+    if alergenos_detectados:
+        sugerencia += f" ⚠️ ¡ATENCIÓN COCINA! Hoy hay demanda de menús con alergias reportadas ({', '.join(alergenos_detectados)}). Cuidado con la contaminación cruzada."
+        
+    if complementos_vendidos > 10:
+        sugerencia += f" 📈 Alto volumen de complementos hoy ({complementos_vendidos} vendidos). Asegura el stock de salsas y extras en la zona de emplatado."
+        
+    return {
+        "resumen_reviews": resumen,
+        "sugerencia_produccion": sugerencia
+    }
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

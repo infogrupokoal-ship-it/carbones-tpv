@@ -1,0 +1,9 @@
+fastapi==0.95.2
+pydantic<2
+uvicorn==0.22.0
+sqlalchemy
+jinja2
+python-multipart
+requests
+apscheduler
+pytz

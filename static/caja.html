@@ -104,14 +104,8 @@
                     body: JSON.stringify({ metodo_pago: metodo })
                 });
                 
-                // Si es efectivo y estamos en modo cloud remoto, enviamos orden de abrir cajón
-                if (metodo === "EFECTIVO") {
-                    await fetch('/api/hardware/enqueue', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'app_admin'})
-                    }).catch(e => console.log("Cajón remoto no configurado o no disponible"));
-                }
+                // El backend ya encola el comando de abrir caja e imprimir ticket de cocina y cliente
+                // al procesar el cobro. No es necesario enviarlo de nuevo aquí.
                 
                 cargarPedidos();
             } catch(e) {

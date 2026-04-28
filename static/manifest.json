@@ -8,9 +8,10 @@
   "theme_color": "#facc15",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "./icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDS - Cocina Carbones y Pollos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --text-light: #e0e0e0;
+            --text-muted: #888;
+            --accent: #ff9800;
+            --danger: #f44336;
+            --success: #4caf50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+            border-bottom: 2px solid #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clock {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .order-card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 12px;
+            min-width: 320px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .order-header {
+            background-color: #2c2c2c;
+            padding: 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-id {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .order-time {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .order-body {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .item {
+            font-size: 18px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item .qty {
+            font-weight: 800;
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
+        .notes {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+            border: 1px solid var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+
+        .order-footer {
+            padding: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .btn-ready {
+            width: 100%;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-ready:active {
+            transform: scale(0.98);
+        }
+
+        .btn-ready:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>KDS Cocina</div>
+        <div class="clock" id="clock">00:00:00</div>
+    </header>
+    
+    <div class="main-container" id="orders-container">
+        <!-- JS inyectará los pedidos aquí -->
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function fetchPedidos() {
+            try {
+                const response = await fetch('/api/pedidos');
+                const pedidos = await response.json();
+                renderPedidos(pedidos.filter(p => p.estado === 'EN_PREPARACION' || p.estado === 'PENDIENTE'));
+            } catch (error) {
+                console.error("Error fetching pedidos:", error);
+            }
+        }
+
+        function renderPedidos(pedidos) {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = '';
+            
+            pedidos.forEach(pedido => {
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                
+                let itemsHtml = '';
+                if(pedido.items) {
+                    pedido.items.forEach(item => {
+                        let alergenosHtml = '';
+                        if (item.producto.alergenos) {
+                            alergenosHtml = `<span style="color:var(--danger); font-size:12px; font-weight:bold; margin-left:8px;">⚠️ Alérgenos: ${item.producto.alergenos}</span>`;
+                        }
+                        
+                        let addonBadge = '';
+                        if (item.producto.is_addon) {
+                            addonBadge = `<span style="background-color:var(--accent); color:#000; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px;">EXTRA</span>`;
+                        }
+                        
+                        itemsHtml += `
+                            <div class="item" style="flex-direction: column; align-items: flex-start;">
+                                <div><span class="qty">${item.cantidad}x</span> ${addonBadge} ${item.producto ? item.producto.nombre : 'Item'}</div>
+                                ${alergenosHtml}
+                            </div>
+                        `;
+                    });
+                }
+
+                let notesHtml = '';
+                if (pedido.notas_cliente) {
+                    notesHtml = `<div class="notes">⚠️ NOTA: ${pedido.notas_cliente}</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-id">#${pedido.numero_ticket || pedido.id.substring(0,6)}</span>
+                        <span class="order-time">${new Date(pedido.fecha).toLocaleTimeString().substring(0,5)}</span>
+                    </div>
+                    <div class="order-body">
+                        ${itemsHtml}
+                        ${notesHtml}
+                    </div>
+                    <div class="order-footer">
+                        <button class="btn-ready" onclick="marcarListo('${pedido.id}')">MARCAR LISTO</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function marcarListo(id) {
+            try {
+                await fetch(`/api/pedidos/${id}/estado?estado=LISTO`, {
+                    method: 'POST'
+                });
+                fetchPedidos();
+            } catch (error) {
+                alert("Error al marcar como listo");
+            }
+        }
+
+        setInterval(fetchPedidos, 5000);
+        fetchPedidos();
+    </script>
+</body>
+</html>
