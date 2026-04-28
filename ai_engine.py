@@ -1,8 +1,10 @@
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 from sqlalchemy.orm import Session
 from models import Producto, Cliente
 
+load_dotenv()
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", "YOUR_GEMINI_KEY"))
 model_name = "models/gemini-2.0-flash" 
 

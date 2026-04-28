@@ -12,6 +12,9 @@ from datetime import datetime
 import json
 import logging
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 import requests
 # from ai_engine import procesar_mensaje_whatsapp
 
@@ -41,7 +44,12 @@ def get_db():
 @app.on_event("startup")
 def startup_event():
     Base.metadata.create_all(bind=engine)
-    # El seeding se hara externamente mediante fractional_seeder.py
+    # Seeding automatico al arrancar (Critico para entornos efimeros como Render)
+    try:
+        import fractional_seeder
+        fractional_seeder.seed()
+    except Exception as e:
+        print("Error durante el auto-seeding:", e)
 
 # Pydantic Schemas
 class ItemCrear(BaseModel):
@@ -1367,24 +1375,42 @@ def get_ia_insights(db: Session = Depends(get_db)):
                 if prod.is_addon:
                     complementos_vendidos += it.cantidad
                     
-    # Simularemos la respuesta de la IA por ahora combinando todo
-    if avg < 4.0:
-        resumen = "Los clientes se han quejado recientemente. Recomiendo revisar los procesos de despacho en picos de demanda."
-        sugerencia = "Para hoy, reduce la producción anticipada de patatas para que no se enfríen."
-    else:
-        resumen = "Las valoraciones son excelentes. Destacan especialmente la rapidez del servicio."
-        sugerencia = "Sigue con la cuota habitual de 50 pollos por turno."
+    try:
+        import google.generativeai as genai
+        import json
         
-    if alergenos_detectados:
-        sugerencia += f" ⚠️ ¡ATENCIÓN COCINA! Hoy hay demanda de menús con alergias reportadas ({', '.join(alergenos_detectados)}). Cuidado con la contaminación cruzada."
+        # Asume que genai.configure() ya ha cargado la key globalmente o usa .env
+        genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", "YOUR_GEMINI_KEY"))
+        model = genai.GenerativeModel("models/gemini-2.0-flash")
         
-    if complementos_vendidos > 10:
-        sugerencia += f" 📈 Alto volumen de complementos hoy ({complementos_vendidos} vendidos). Asegura el stock de salsas y extras en la zona de emplatado."
+        prompt = f"""
+        Eres el analista de datos y chef experto del restaurante 'Carbones y Pollos'.
+        Tienes los siguientes datos del turno actual:
+        - Valoración media de los clientes recientes: {avg:.1f}/5.0
+        - Alérgenos requeridos en los pedidos de hoy: {', '.join(alergenos_detectados) if alergenos_detectados else 'Ninguno detectado'}
+        - Complementos extra vendidos hoy: {complementos_vendidos}
         
-    return {
-        "resumen_reviews": resumen,
-        "sugerencia_produccion": sugerencia
-    }
+        Basándote en estos datos, genera un análisis corto en formato JSON con exactamente estas dos claves:
+        - "resumen_reviews": Un resumen analítico corto de cómo perciben los clientes el servicio (basado en el {avg:.1f}/5.0).
+        - "sugerencia_produccion": Una recomendación directa y profesional a los cocineros en base a los alérgenos, el volumen de complementos y las ventas actuales. Sé específico y motivador.
+
+        Devuelve SOLO código JSON válido, sin formato Markdown alrededor (sin ```json), listo para ser parseado por json.loads().
+        """
+        
+        response = model.generate_content(prompt)
+        ai_data = json.loads(response.text.strip())
+        
+        return {
+            "resumen_reviews": ai_data.get("resumen_reviews", "Análisis no disponible."),
+            "sugerencia_produccion": ai_data.get("sugerencia_produccion", "Continúa el servicio con normalidad.")
+        }
+        
+    except Exception as e:
+        # Fallback en caso de error de API o Parsing
+        return {
+            "resumen_reviews": f"Error conectando con Gemini: {str(e)[:50]}",
+            "sugerencia_produccion": "Servicio de IA temporalmente inactivo. Sigue los protocolos manuales."
+        }
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
