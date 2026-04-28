@@ -125,3 +125,15 @@ class HardwareCommand(Base):
     fecha_creacion = Column(DateTime, default=datetime.now)
     fecha_ejecucion = Column(DateTime, nullable=True)
 
+class ReporteZ(Base):
+    __tablename__ = "reportes_z"
+    id = Column(Integer, primary_key=True, index=True)
+    fecha_cierre = Column(DateTime, default=datetime.now)
+    total_efectivo = Column(Float, default=0.0)
+    total_tarjeta = Column(Float, default=0.0)
+    total_caja = Column(Float, default=0.0)
+    pollos_vendidos = Column(Integer, default=0)
+    coste_mermas = Column(Float, default=0.0) # Perdida estimada
+    resumen_texto = Column(String) # Backup de lo que se envia por WA
+
+

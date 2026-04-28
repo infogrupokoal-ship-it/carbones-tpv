@@ -132,3 +132,5 @@ Render está en la nube y no puede comunicarse directamente vía USB/Red LAN con
 *   **Motivo:** Código obsoleto y redundante que apuntaba a una IP errónea local en lugar de la arquitectura Render oficial.
 
 **RESUMEN OPERATIVO DEFINITIVO:** La Nube (Render) piensa y cobra. Tu Local (`local_printer_bridge.py`) obedece a la Nube y mueve el hardware físico. Todo el código base es coherente, único y centralizado.
+A n y d e s k   I D :   1 5 1 8 4 8 8 7 8 0  
+ 
