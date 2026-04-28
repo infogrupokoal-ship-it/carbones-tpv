@@ -38,48 +38,62 @@ async def pagina_instalacion():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Instalación del Puente TPV</title>
+        <title>Instalación TPV y Puertas</title>
         <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #111827; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-            .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; width: 100%; text-align: center; }
+            .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; width: 100%; text-align: center; margin-bottom: 20px; }
             h1 { color: #ef4444; }
+            h2 { color: #8b5cf6; margin-top: 0; }
             p { font-size: 16px; line-height: 1.5; color: #4b5563; }
-            .code-box { background: #1f2937; color: #10b981; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 20px 0; word-break: break-all; user-select: all; cursor: pointer; position: relative;}
-            .copy-btn { background: #3b82f6; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
+            .code-box { background: #1f2937; color: #10b981; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 20px 0; word-break: break-all; user-select: all; cursor: pointer; position: relative; text-align: left;}
+            .copy-btn { background: #3b82f6; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
             .copy-btn:hover { background: #2563eb; }
+            .copy-btn.purple { background: #8b5cf6; }
+            .copy-btn.purple:hover { background: #7c3aed; }
             .success { color: #16a34a; font-weight: bold; margin-top: 15px; display: none; }
             .step { background: #e0e7ff; color: #3730a3; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; font-size: 15px;}
         </style>
     </head>
     <body>
         <div class="card">
-            <h1>⚙️ Instalador Final (Android)</h1>
-            <p>Estás conectado a la red local del ordenador principal.</p>
-            
-            <div class="step">
-                <strong>Paso 1:</strong> Pulsa el botón azul para copiar el comando en la memoria de la tablet.
-            </div>
-            
-            <div class="code-box" id="codigoTerminal">pkill -f local_printer_bridge; cd ~/carbones-tpv || cd /storage/emulated/0/Download/carbones_y_pollos_tpv; git pull origin master; python local_printer_bridge.py</div>
-            
-            <button class="copy-btn" onclick="copiarCodigo()">1️⃣ COPIAR COMANDO DE INSTALACIÓN</button>
-            <div id="msgCopiado" class="success">✅ ¡Copiado! Ahora pégalo en Termux.</div>
+            <h1>⚙️ 1. Instalador TPV (Principal)</h1>
+            <p>Pulsa el botón azul para copiar el comando, pégalo en Termux y dale a Enter para instalar el puente del TPV.</p>
+            <div class="code-box" id="codigoInstalador">pkg update -y; pkg install -y git python; git clone https://github.com/infogrupokoal-ship-it/carbones-tpv.git ~/carbones-tpv; cd ~/carbones-tpv && git pull origin master && pip install fastapi uvicorn requests pydantic && python local_printer_bridge.py</div>
+            <button class="copy-btn" onclick="copiarCodigo('codigoInstalador', 'msgInstalador')">📥 COPIAR COMANDO DE INSTALACIÓN</button>
+            <div id="msgInstalador" class="success">✅ ¡Copiado! Ahora pégalo en Termux.</div>
+        </div>
 
-            <div class="step">
-                <strong>Paso 2:</strong> Cierra el navegador y abre la aplicación <b>Termux</b> (pantalla negra).<br><br>
-                <strong>Paso 3:</strong> Mantén pulsado el dedo sobre la pantalla negra, selecciona <b>Pegar</b>, y pulsa Enter.<br><br>
-                <strong>Paso 4:</strong> Descarga <b>Termux:Boot</b> de la PlayStore y ábrela 1 sola vez para darle permisos. Todo será automático a partir de ahora.
-            </div>
+        <div class="card">
+            <h2>🚪 2. Puertas de Control Remoto (Antigravity)</h2>
+            <p>Ejecuta estos comandos en Termux uno a uno para habilitar el control remoto.</p>
+            
+            <div class="step"><strong>Paso A:</strong> Instalar Servidor SSH y configurar Contraseña</div>
+            <div class="code-box" id="codigoSSH">pkg install -y openssh && sshd && passwd</div>
+            <button class="copy-btn purple" onclick="copiarCodigo('codigoSSH', 'msgSSH')">🔑 COPIAR COMANDO SSH</button>
+            <div id="msgSSH" class="success">✅ ¡Copiado! Pégalo en Termux. (Te pedirá que escribas una contraseña dos veces).</div>
+
+            <div class="step"><strong>Paso B:</strong> Instalar Ngrok y crear el Túnel (Puerta Global)</div>
+            <div class="code-box" id="codigoNgrok">pkg install -y ngrok && ngrok tcp 8022</div>
+            <button class="copy-btn purple" onclick="copiarCodigo('codigoNgrok', 'msgNgrok')">🌐 COPIAR COMANDO NGROK</button>
+            <div id="msgNgrok" class="success">✅ ¡Copiado! Pégalo en Termux.</div>
+        </div>
+
+        <div class="card">
+            <h2>🚀 3. Auto-Arranque (Inmortal)</h2>
+            <p>Pega este comando para que el puente arranque solo siempre que enciendas la tablet.</p>
+            <div class="code-box" id="codigoArranque">mkdir -p ~/.termux/boot && echo "termux-wake-lock; cd ~/carbones-tpv; git pull origin master; nohup python local_printer_bridge.py > bridge.log 2>&1 &" > ~/.termux/boot/start.sh && chmod +x ~/.termux/boot/start.sh</div>
+            <button class="copy-btn" style="background:#059669;" onclick="copiarCodigo('codigoArranque', 'msgArranque')">⚡ COPIAR COMANDO ARRANQUE</button>
+            <div id="msgArranque" class="success">✅ ¡Copiado! Pégalo en Termux.</div>
         </div>
 
         <script>
-            function copiarCodigo() {
-                const texto = document.getElementById('codigoTerminal').innerText;
+            function copiarCodigo(idElemento, idMensaje) {
+                const texto = document.getElementById(idElemento).innerText;
                 navigator.clipboard.writeText(texto).then(() => {
-                    document.getElementById('msgCopiado').style.display = 'block';
-                    setTimeout(() => document.getElementById('msgCopiado').style.display = 'none', 3000);
+                    document.getElementById(idMensaje).style.display = 'block';
+                    setTimeout(() => document.getElementById(idMensaje).style.display = 'none', 3000);
                 }).catch(err => {
-                    alert('No se pudo copiar. Selecciona el texto oscuro manualmente y cópialo.');
+                    alert('No se pudo copiar automáticamente.');
                 });
             }
         </script>
