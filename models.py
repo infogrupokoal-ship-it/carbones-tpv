@@ -11,6 +11,15 @@ class Usuario(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)  # MVP password
     rol = Column(String) # ADMIN, MANANA, TARDE
+    fichajes = relationship("Fichaje", back_populates="usuario")
+
+class Fichaje(Base):
+    __tablename__ = "fichajes"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"))
+    tipo = Column(String) # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
+    fecha = Column(DateTime, default=datetime.now)
+    usuario = relationship("Usuario", back_populates="fichajes")
 
 class Categoria(Base):
     __tablename__ = "categorias"
@@ -47,6 +56,39 @@ class Producto(Base):
     
     categoria = relationship("Categoria", back_populates="productos")
     movimientos = relationship("MovimientoStock", back_populates="producto")
+    receta_items = relationship("Receta", back_populates="producto")
+
+class Proveedor(Base):
+    __tablename__ = "proveedores"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    nombre = Column(String, index=True)
+    telefono = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    dias_entrega = Column(String, nullable=True) # Ej: "Lunes, Jueves"
+    ingredientes = relationship("Ingrediente", back_populates="proveedor")
+
+class Ingrediente(Base):
+    __tablename__ = "ingredientes"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    nombre = Column(String, index=True)
+    unidad_medida = Column(String) # KG, UD, LITRO
+    stock_actual = Column(Float, default=0.0)
+    stock_minimo = Column(Float, default=0.0)
+    coste_unitario = Column(Float, default=0.0)
+    proveedor_id = Column(String(36), ForeignKey("proveedores.id"), nullable=True)
+    
+    proveedor = relationship("Proveedor", back_populates="ingredientes")
+    recetas = relationship("Receta", back_populates="ingrediente")
+
+class Receta(Base):
+    __tablename__ = "recetas"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    producto_id = Column(String(36), ForeignKey("productos.id"))
+    ingrediente_id = Column(String(36), ForeignKey("ingredientes.id"))
+    cantidad_necesaria = Column(Float, default=1.0)
+    
+    producto = relationship("Producto", back_populates="receta_items")
+    ingrediente = relationship("Ingrediente", back_populates="recetas")
     
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -56,6 +98,7 @@ class Cliente(Base):
     estado_registro = Column(String, default="COMPLETADO") # PENDIENTE_NOMBRE, COMPLETADO
     nombre = Column(String, nullable=True)
     nivel_fidelidad = Column(String, default="BRONCE") # BRONCE, PLATA, ORO
+    puntos_fidelidad = Column(Integer, default=0) # 1 punto = 1 euro
     visitas = Column(Integer, default=0)
     is_synced = Column(Boolean, default=False)
     remote_id = Column(String(36), nullable=True)
@@ -146,6 +189,11 @@ class ReporteZ(Base):
     total_efectivo = Column(Float, default=0.0)
     total_tarjeta = Column(Float, default=0.0)
     total_caja = Column(Float, default=0.0)
+    
+    # Arqueo Ciego
+    efectivo_declarado = Column(Float, default=0.0)
+    diferencia_arqueo = Column(Float, default=0.0)
+    
     pollos_vendidos = Column(Integer, default=0)
     coste_mermas = Column(Float, default=0.0) # Perdida estimada
     resumen_texto = Column(String) # Backup de lo que se envia por WA
