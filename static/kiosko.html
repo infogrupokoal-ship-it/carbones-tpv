@@ -439,7 +439,8 @@
             overlay.innerHTML = `
                 <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg text-center transform transition-all scale-100 mx-4 h-[90vh] overflow-y-auto">
                     <h2 class="text-3xl font-black mb-4">Introduce tu Teléfono</h2>
-                    <p class="text-gray-500 mb-6 font-medium text-lg">Acumula puntos y descuentos exclusivos.</p>
+                    <p class="text-gray-500 mb-2 font-medium text-lg">Acumula puntos y descuentos exclusivos.</p>
+                    <p class="text-emerald-600 mb-6 font-bold text-sm bg-emerald-50 py-2 rounded-lg inline-block px-4">Si ya pides por WhatsApp, usa ese mismo número.</p>
                     <input type="tel" id="telefono-input" class="w-full p-4 mb-4 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-3xl font-bold text-center outline-none" placeholder="600123456" />
                     
                     <h3 class="text-xl font-bold mb-2 text-gray-700">¿Cuántos Cubiertos? (0,20€/ud)</h3>
@@ -636,6 +637,79 @@
                 }, 6000);
             }
         }
+        
+        function abrirModalReview() {
+            const currentClienteId = localStorage.getItem("b2c_cliente_id") || "";
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center text-gray-900";
+            overlay.innerHTML = `
+                <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100 mx-4 h-[auto] max-h-[85vh] overflow-y-auto relative">
+                    <button onclick="this.closest('div.fixed').remove();" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-2xl">×</button>
+                    <h2 class="text-2xl font-black mb-2">Valora tu experiencia</h2>
+                    <p class="text-sm text-gray-500 mb-6 font-medium">Ayúdanos a mejorar cada día. ¿Qué te pareció nuestro servicio y la comida?</p>
+                    
+                    <div class="flex justify-center gap-2 mb-6" id="star-rating">
+                        <button onclick="setRating(1)" class="text-4xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
+                        <button onclick="setRating(2)" class="text-4xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
+                        <button onclick="setRating(3)" class="text-4xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
+                        <button onclick="setRating(4)" class="text-4xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
+                        <button onclick="setRating(5)" class="text-4xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
+                    </div>
+                    
+                    <textarea id="review-comentario" class="w-full p-4 mb-6 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-md font-medium outline-none resize-none h-24" placeholder="Ej. El pollo estaba increíble, pero faltó salsa..."></textarea>
+                    
+                    <button onclick="enviarReview(${currentClienteId ? currentClienteId : 'null'}, this.closest('div.fixed'))" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl font-black text-xl flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                        Enviar Valoración 🌟
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            window.currentRating = 5; // default
+            setRating(5);
+        }
+        
+        function setRating(val) {
+            window.currentRating = val;
+            const buttons = document.querySelectorAll('#star-rating button');
+            buttons.forEach((btn, index) => {
+                if(index < val) {
+                    btn.classList.remove('text-gray-300');
+                    btn.classList.add('text-yellow-400');
+                } else {
+                    btn.classList.add('text-gray-300');
+                    btn.classList.remove('text-yellow-400');
+                }
+            });
+        }
+        
+        async function enviarReview(clienteId, modalElement) {
+            const comentario = document.getElementById('review-comentario').value;
+            const rating = window.currentRating;
+            
+            try {
+                await fetch(`${API_URL}/b2c/reviews`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        cliente_id: clienteId,
+                        pedido_id: null,
+                        rating: rating,
+                        comentario: comentario
+                    })
+                });
+                modalElement.innerHTML = `
+                    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100 mx-4">
+                        <div class="text-6xl mb-4 animate-bounce">❤️</div>
+                        <h2 class="text-3xl font-black mb-2 text-emerald-600">¡Gracias!</h2>
+                        <p class="text-gray-500 font-bold">Tu opinión nos hace mejores.</p>
+                    </div>
+                `;
+                setTimeout(() => modalElement.remove(), 3000);
+            } catch(e) {
+                alert("Error enviando valoración.");
+            }
+        }
+
 
         let isSyncing = false;
         function iniciarSyncDaemon() {
@@ -765,6 +839,18 @@
         checkRole();
         initScreensaver();
         window.onload = initTPV;
+    </script>
+    
+    <!-- Floating Review Button for B2C -->
+    <button onclick="abrirModalReview()" id="btn-review-flotante" class="fixed bottom-6 left-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full p-4 shadow-2xl transition-transform hover:scale-110 active:scale-95 hidden z-40 flex items-center justify-center group border-4 border-emerald-400">
+        <span class="text-2xl mr-2 group-hover:animate-spin">🌟</span>
+        <span class="font-black text-lg">Danos tu Opinión</span>
+    </button>
+    <script>
+        // Only show if it's B2C Mobile flow
+        if (localStorage.getItem("tpv_role") === "cliente_b2c") {
+            document.getElementById('btn-review-flotante').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
