@@ -54,6 +54,7 @@ class PedidoCrear(BaseModel):
     estado_inicial: str = "ESPERANDO_PAGO"
     cubiertos_qty: int = 0
     notas_cliente: Optional[str] = None
+    canjear_puntos: bool = False
 
 class ProduccionCrear(BaseModel):
     producto_id: str
@@ -65,6 +66,14 @@ class ReviewCrear(BaseModel):
     cliente_id: Optional[str] = None
     rating: int
     comentario: Optional[str] = None
+
+class FichajeRequest(BaseModel):
+    pin: str
+    tipo: str # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
+
+class PedidoProveedorRequest(BaseModel):
+    ingrediente_id: str
+    cantidad: float
 
 class CheckoutRequest(BaseModel):
     metodo_pago: str = "EFECTIVO" # EFECTIVO, TARJETA, MAQUINA
@@ -117,6 +126,67 @@ def listar_categorias(db: Session = Depends(get_db)):
     if datetime.now().hour < 17:
         cats = [c for c in cats if c.nombre in ["Pollos Asados", "Guarniciones", "Bebidas"]]
     return cats
+
+# --- ENDPOINTS RRHH (Fichajes) ---
+@app.post("/api/rrhh/fichar")
+def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
+    from models import Usuario, Fichaje
+    user = db.query(Usuario).filter(Usuario.password == req.pin).first()
+    if not user:
+        raise HTTPException(status_code=403, detail="PIN incorrecto")
+        
+    fichaje = Fichaje(usuario_id=user.id, tipo=req.tipo)
+    db.add(fichaje)
+    db.commit()
+    return {"status": "ok", "msj": f"Fichaje ({req.tipo}) registrado para {user.username}", "fecha": fichaje.fecha.isoformat()}
+
+@app.get("/api/rrhh/fichajes")
+def listar_fichajes(db: Session = Depends(get_db)):
+    from models import Fichaje, Usuario
+    fichajes = db.query(Fichaje).order_by(Fichaje.fecha.desc()).limit(50).all()
+    out = []
+    for f in fichajes:
+        u = db.query(Usuario).get(f.usuario_id)
+        out.append({
+            "id": f.id,
+            "username": u.username if u else "Desconocido",
+            "tipo": f.tipo,
+            "fecha": f.fecha.strftime("%d/%m %H:%M")
+        })
+    return out
+
+# --- ENDPOINTS INVENTARIO (Proveedores) ---
+@app.get("/api/inventario")
+def listar_inventario(db: Session = Depends(get_db)):
+    from models import Ingrediente, Proveedor
+    ingredientes = db.query(Ingrediente).all()
+    out = []
+    for ing in ingredientes:
+        prov = db.query(Proveedor).get(ing.proveedor_id) if ing.proveedor_id else None
+        out.append({
+            "id": ing.id,
+            "nombre": ing.nombre,
+            "stock_actual": ing.stock_actual,
+            "stock_minimo": ing.stock_minimo,
+            "unidad": ing.unidad_medida,
+            "proveedor_nombre": prov.nombre if prov else "Sin Proveedor",
+            "proveedor_email": prov.email if prov else ""
+        })
+    return out
+
+@app.post("/api/inventario/pedido")
+def realizar_pedido_proveedor(req: PedidoProveedorRequest, db: Session = Depends(get_db)):
+    from models import Ingrediente, Proveedor
+    ing = db.query(Ingrediente).get(req.ingrediente_id)
+    if not ing: raise HTTPException(404, "Ingrediente no encontrado")
+    
+    prov = db.query(Proveedor).get(ing.proveedor_id)
+    print(f"-> [PROVEEDOR SIMULADO] Pedido de {req.cantidad} {ing.unidad_medida} de {ing.nombre} a {prov.nombre if prov else 'Desconocido'}")
+    
+    # Auto-replenish MVP
+    ing.stock_actual += req.cantidad
+    db.commit()
+    return {"status": "ok", "msj": f"Pedido enviado a {prov.nombre if prov else 'Proveedor'} y stock repuesto."}
 
 @app.post("/api/pedidos")
 def crear_pedido(pedido: PedidoCrear, cliente_id: Optional[str] = None, db: Session = Depends(get_db)):
@@ -198,6 +268,22 @@ def crear_pedido(pedido: PedidoCrear, cliente_id: Optional[str] = None, db: Sess
                 except:
                     pass
             
+        # Deducción de Ingredientes (Recetas)
+        from models import Receta, Ingrediente
+        recetas = db.query(Receta).filter(Receta.producto_id == prod.id).all()
+        for receta in recetas:
+            ing = db.query(Ingrediente).get(receta.ingrediente_id)
+            if ing:
+                ing.stock_actual -= (receta.cantidad_necesaria * item.cantidad)
+                
+                # FASE 4: Alerta Predictiva de Inventario (Ingredientes)
+                if ing.stock_minimo > 0 and ing.stock_actual <= ing.stock_minimo:
+                    alerta_ing = f"🚨 *ALERTA DE INGREDIENTE* 🚨\nEl ingrediente *{ing.nombre}* está bajo mínimo.\nStock actual: {ing.stock_actual} {ing.unidad_medida}\n¡Pide a tu proveedor!"
+                    try:
+                        requests.post(os.environ.get("WAHA_URL", "http://127.0.0.1:3000/api/sendText"), json={"chatId": "34604864187@c.us", "text": alerta_ing, "session": "default"}, timeout=2)
+                    except:
+                        pass
+                        
         coste_item = prod.precio * item.cantidad
         total += coste_item
         
@@ -216,6 +302,25 @@ def crear_pedido(pedido: PedidoCrear, cliente_id: Optional[str] = None, db: Sess
         # Descuentos reducen IVA propocionalmente
         total_iva_10 = total_iva_10 * (1 - descuento_aplicado)
         total_iva_21 = total_iva_21 * (1 - descuento_aplicado)
+        
+    # Pollos-Coins: Canjeo
+    if pedido.canjear_puntos and cliente and cliente.puntos_fidelidad >= 50:
+        descuento_puntos = (cliente.puntos_fidelidad // 50) * 5.0 # 50 puntos = 5 euros
+        if descuento_puntos > total:
+            descuento_puntos = total
+        
+        total -= descuento_puntos
+        cliente.puntos_fidelidad -= int((descuento_puntos / 5.0) * 50)
+        
+        # Reducir IVA proporcionalmente
+        if subtotal > 0:
+            proporcion_desc = descuento_puntos / subtotal
+            total_iva_10 -= total_iva_10 * proporcion_desc
+            total_iva_21 -= total_iva_21 * proporcion_desc
+            
+    # Pollos-Coins: Acumulación
+    if cliente:
+        cliente.puntos_fidelidad += int(total) # 1 punto por cada euro gastado
     
     nuevo_pedido.total = round(total, 2)
     nuevo_pedido.descuento_aplicado = descuento_aplicado
@@ -226,8 +331,8 @@ def crear_pedido(pedido: PedidoCrear, cliente_id: Optional[str] = None, db: Sess
     nuevo_pedido.base_imponible_21 = round(total_iva_21 / 1.21, 2)
     nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
     
-    # Send to kitchen immediately if it's local payment
-    if nuevo_pedido.estado == "EN_PREPARACION" and origen_base == "B2C_MOBILE":
+    # Send to kitchen immediately if it's already paid/confirmed
+    if nuevo_pedido.estado == "EN_PREPARACION":
         from models import HardwareCommand
         import json
         
@@ -309,7 +414,7 @@ def ver_pedido_items(pedido_id: str, db: Session = Depends(get_db)):
 
 @app.post("/api/pedidos/{pedido_id}/estado")
 def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)):
-    from models import Cliente, HardwareCommand, Producto, ItemPedido
+    from models import Cliente, HardwareCommand, Producto, ItemPedido, Receta, Ingrediente, MovimientoStock
     import json
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
@@ -345,6 +450,30 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
         c = db.query(Cliente).get(pedido.cliente_id)
         if c:
              print(f"-> [WEBHOOK SIMULADO] IA enviando WhatsApp a {c.telefono}: '¡Tu pedido {pedido.numero_ticket} ya está listo y caliente!'")
+             
+    # FASE X5: Algoritmo de deducción fraccional (Escandallos) y Gamificación (Pollos-Coins) al completar pedido
+    if estado == "COMPLETADO" and estado_anterior != "COMPLETADO":
+        for it in pedido.items:
+            recetas = db.query(Receta).filter(Receta.producto_id == it.producto_id).all()
+            for r in recetas:
+                ing = db.query(Ingrediente).get(r.ingrediente_id)
+                if ing:
+                    cantidad_a_restar = r.cantidad_necesaria * it.cantidad
+                    ing.stock_actual -= cantidad_a_restar
+                    # Registro opcional de merma/consumo
+                    # db.add(MovimientoStock(producto_id=None, cantidad=-cantidad_a_restar, tipo="CONSUMO_RECETA", origen_id=pedido.id, descripcion=f"Consumo de {ing.nombre} para {pedido.numero_ticket}"))
+
+        # Gamificación: Sumar Pollos-Coins (1€ = 1 Punto)
+        if pedido.cliente_id:
+            c = db.query(Cliente).get(pedido.cliente_id)
+            if c:
+                puntos_ganados = int(pedido.total)
+                c.puntos_fidelidad += puntos_ganados
+                c.visitas += 1
+                
+                # Nivel dinámico
+                if c.puntos_fidelidad >= 500: c.nivel_fidelidad = "ORO"
+                elif c.puntos_fidelidad >= 200: c.nivel_fidelidad = "PLATA"
              
     db.commit()
     return {"status": "ok", "nuevo_estado": pedido.estado}
@@ -918,12 +1047,16 @@ def pedir_proveedor(req: PedidoProveedorReq):
     except Exception as e:
         raise HTTPException(500, f"Error contactando al proveedor: {e}")
 
+class CierreZReq(BaseModel):
+    efectivo_declarado: float = None
+
 @app.post("/api/admin/trigger_cierre_z")
-def trigger_cierre_z_manual(db: Session = Depends(get_db)):
-    """Endpoint manual para forzar el Cierre Z (Ideal para pruebas o cierres anticipados)"""
+def trigger_cierre_z_manual(req: CierreZReq = None, db: Session = Depends(get_db)):
+    """Endpoint manual para forzar el Cierre Z (Ideal para pruebas o cierres anticipados, soporta Arqueo Ciego)"""
     try:
         import reporte_z
-        msg = reporte_z.generar_reporte_z()
+        ef_decl = req.efectivo_declarado if req else None
+        msg = reporte_z.generar_reporte_z(efectivo_declarado=ef_decl)
         reporte_z.enviar_whatsapp(msg)
         return {"status": "ok", "msj": "Cierre Z forzado ejecutado con éxito. WhatsApp enviado y mermas procesadas."}
     except Exception as e:
@@ -996,7 +1129,7 @@ def b2c_auth(req: B2CAuthRequest, db: Session = Depends(get_db)):
         db.add(cliente)
         db.commit()
         db.refresh(cliente)
-    return {"status": "ok", "cliente_id": cliente.id, "nombre": cliente.nombre, "nivel": cliente.nivel_fidelidad}
+    return {"status": "ok", "cliente_id": cliente.id, "nombre": cliente.nombre, "nivel": cliente.nivel_fidelidad, "puntos": cliente.puntos_fidelidad}
 
 @app.get("/api/b2c/me/{cliente_id}")
 def b2c_me(cliente_id: str, db: Session = Depends(get_db)):
@@ -1020,7 +1153,7 @@ def b2c_me(cliente_id: str, db: Session = Depends(get_db)):
         "nombre": cliente.nombre,
         "telefono": cliente.telefono,
         "nivel": cliente.nivel_fidelidad,
-        "puntos": cliente.visitas * 10, # Sistema simple de puntos
+        "puntos": cliente.puntos_fidelidad,
         "historial": historial
     }
 

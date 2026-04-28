@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalador TPV Termux</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: #fff; text-align: center; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-top: 20px; font-family: monospace; font-size: 18px; word-break: break-all; border: 1px solid #444; }
+        button { margin-top: 20px; padding: 15px 30px; font-size: 20px; background-color: #008CBA; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:active { background-color: #005f73; }
+        h1 { color: #008CBA; }
+    </style>
+</head>
+<body>
+    <h1>Instalador TPV Android</h1>
+    <p>1. Toca el botón de abajo para copiar el comando.</p>
+    <p>2. Abre la app <b>Termux</b> y pégalo.</p>
+    <div style="background-color: #008CBA; padding: 15px; margin-bottom: 30px; border-radius: 10px;">
+        <h2 style="color: white; margin-top: 0;">Paso Final: Arrancar TPV</h2>
+        <p style="color: white;">Si ya instalaste con éxito, pulsa aquí para encender:</p>
+        
+        <div class="box" id="codigo_arrancar1" style="background: #005f73;">cd ~/carbones_y_pollos_tpv && chmod +x *.sh && ./arrancar_tpv.sh && sshd</div>
+        <button onclick="copiar('codigo_arrancar1')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 1</button>
+
+        <h3 style="color: #ddd; margin-top: 20px;">Alternativas si da error de "No such file":</h3>
+        
+        <div class="box" id="codigo_arrancar2" style="background: #005f73;">bash ~/carbones_y_pollos_tpv/arrancar_tpv.sh</div>
+        <button onclick="copiar('codigo_arrancar2')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 2</button>
+
+        <div class="box" id="codigo_arrancar3" style="background: #005f73;">cd ~/storage/downloads/carbones_y_pollos_tpv && ./arrancar_tpv.sh</div>
+        <button onclick="copiar('codigo_arrancar3')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 3</button>
+    </div>
+
+    <h2 style="margin-top: 40px; color:#aaa;">Paso 1: Instalación (si no lo has hecho)</h2>
+    <div class="box" id="codigo1">pkg update -y && pkg install curl -y && curl -kL -o install.sh https://72dc3cba0a1466.lhr.life/deploy_tablet.sh && bash install.sh</div>
+    <button onclick="copiar('codigo1')">📋 Copiar Opción 1 (CURL Seguro)</button>
+
+    <h2 style="margin-top: 40px; color:#aaa;">Alternativas por si falla:</h2>
+    
+    <div class="box" id="codigo2">pkg update -y && pkg install wget -y && wget --no-check-certificate -O install.sh https://72dc3cba0a1466.lhr.life/deploy_tablet.sh && bash install.sh</div>
+    <button onclick="copiar('codigo2')">📋 Copiar Opción 2 (WGET)</button>
+
+    <div class="box" id="codigo3">pkg update -y && pkg install curl -y && curl -sO http://192.168.1.237/deploy_tablet.sh && bash deploy_tablet.sh</div>
+    <button onclick="copiar('codigo3')">📋 Copiar Opción 3 (IP Local Directa)</button>
+
+    <script>
+        function copiar(id) {
+            var comando = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(comando).then(function() {
+                alert("¡Comando copiado! Pégalo en Termux y pulsa Enter.");
+            }, function(err) {
+                alert("Error al copiar: " + err);
+            });
+        }
+    </script>
+</body>
+</html>

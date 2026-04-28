@@ -3,56 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instalador TPV Termux</title>
+    <title>Acceso - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; background-color: #121212; color: #fff; text-align: center; padding: 20px; }
-        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-top: 20px; font-family: monospace; font-size: 18px; word-break: break-all; border: 1px solid #444; }
-        button { margin-top: 20px; padding: 15px 30px; font-size: 20px; background-color: #008CBA; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:active { background-color: #005f73; }
-        h1 { color: #008CBA; }
+        body { background-color: #1a202c; color: #fff; }
+        .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
     </style>
 </head>
-<body>
-    <h1>Instalador TPV Android</h1>
-    <p>1. Toca el botón de abajo para copiar el comando.</p>
-    <p>2. Abre la app <b>Termux</b> y pégalo.</p>
-    <div style="background-color: #008CBA; padding: 15px; margin-bottom: 30px; border-radius: 10px;">
-        <h2 style="color: white; margin-top: 0;">Paso Final: Arrancar TPV</h2>
-        <p style="color: white;">Si ya instalaste con éxito, pulsa aquí para encender:</p>
-        
-        <div class="box" id="codigo_arrancar1" style="background: #005f73;">cd ~/carbones_y_pollos_tpv && chmod +x *.sh && ./arrancar_tpv.sh && sshd</div>
-        <button onclick="copiar('codigo_arrancar1')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 1</button>
-
-        <h3 style="color: #ddd; margin-top: 20px;">Alternativas si da error de "No such file":</h3>
-        
-        <div class="box" id="codigo_arrancar2" style="background: #005f73;">bash ~/carbones_y_pollos_tpv/arrancar_tpv.sh</div>
-        <button onclick="copiar('codigo_arrancar2')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 2</button>
-
-        <div class="box" id="codigo_arrancar3" style="background: #005f73;">cd ~/storage/downloads/carbones_y_pollos_tpv && ./arrancar_tpv.sh</div>
-        <button onclick="copiar('codigo_arrancar3')" style="background-color: white; color: #008CBA; font-weight: bold;">▶ Copiar Arranque 3</button>
+<body class="h-screen w-screen flex flex-col items-center justify-center">
+    
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-black text-yellow-400 drop-shadow-lg mb-2">🐔 Carbones <span class="text-white">y Pollos</span></h1>
+        <p class="text-xl text-gray-400">Selecciona el modo de operación</p>
     </div>
 
-    <h2 style="margin-top: 40px; color:#aaa;">Paso 1: Instalación (si no lo has hecho)</h2>
-    <div class="box" id="codigo1">pkg update -y && pkg install curl -y && curl -kL -o install.sh https://72dc3cba0a1466.lhr.life/deploy_tablet.sh && bash install.sh</div>
-    <button onclick="copiar('codigo1')">📋 Copiar Opción 1 (CURL Seguro)</button>
+    <div class="flex gap-6">
+        <!-- Modo Quiosko -->
+        <div onclick="selectMode('quiosko')" class="glass-panel p-8 rounded-3xl w-64 text-center cursor-pointer hover:bg-white/20 transition transform hover:scale-105 shadow-2xl">
+            <div class="text-6xl mb-4">🖥️</div>
+            <h2 class="text-2xl font-bold text-white mb-2">Modo Quiosko</h2>
+            <p class="text-sm text-gray-300">Autoservicio para clientes. Pedidos pendientes de pago en caja.</p>
+        </div>
 
-    <h2 style="margin-top: 40px; color:#aaa;">Alternativas por si falla:</h2>
-    
-    <div class="box" id="codigo2">pkg update -y && pkg install wget -y && wget --no-check-certificate -O install.sh https://72dc3cba0a1466.lhr.life/deploy_tablet.sh && bash install.sh</div>
-    <button onclick="copiar('codigo2')">📋 Copiar Opción 2 (WGET)</button>
+        <!-- Modo Responsable -->
+        <div onclick="openPinModal()" class="glass-panel p-8 rounded-3xl w-64 text-center cursor-pointer hover:bg-white/20 transition transform hover:scale-105 shadow-2xl">
+            <div class="text-6xl mb-4">🔑</div>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-2">Modo Responsable</h2>
+            <p class="text-sm text-gray-300">Gestión de cobros, comandas a cocina y dashboard.</p>
+        </div>
+    </div>
 
-    <div class="box" id="codigo3">pkg update -y && pkg install curl -y && curl -sO http://192.168.1.237/deploy_tablet.sh && bash deploy_tablet.sh</div>
-    <button onclick="copiar('codigo3')">📋 Copiar Opción 3 (IP Local Directa)</button>
+    <!-- PIN Modal -->
+    <div id="pin-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-gray-800 p-8 rounded-3xl w-80 text-center shadow-2xl border border-gray-700">
+            <h3 class="text-2xl font-bold text-yellow-400 mb-4">PIN de Acceso</h3>
+            <input type="password" id="pin-input" class="w-full text-center text-3xl p-3 rounded-xl bg-gray-900 text-white border border-gray-600 focus:border-yellow-400 outline-none mb-6" placeholder="****" maxlength="4">
+            
+            <div class="flex gap-3">
+                <button onclick="closePinModal()" class="flex-1 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-xl transition">Cancelar</button>
+                <button onclick="verifyPin()" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 rounded-xl transition shadow-lg">Entrar</button>
+            </div>
+            <p id="pin-error" class="text-red-400 mt-4 hidden font-bold">PIN incorrecto</p>
+        </div>
+    </div>
 
     <script>
-        function copiar(id) {
-            var comando = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(comando).then(function() {
-                alert("¡Comando copiado! Pégalo en Termux y pulsa Enter.");
-            }, function(err) {
-                alert("Error al copiar: " + err);
-            });
+        function selectMode(mode, name = 'Cliente') {
+            localStorage.setItem('tpv_role', mode);
+            localStorage.setItem('tpv_name', name);
+            window.location.href = 'static/kiosko.html';
         }
+
+        function openPinModal() {
+            document.getElementById('pin-modal').classList.remove('hidden');
+            document.getElementById('pin-modal').classList.add('flex');
+            document.getElementById('pin-input').focus();
+        }
+
+        function closePinModal() {
+            document.getElementById('pin-modal').classList.add('hidden');
+            document.getElementById('pin-modal').classList.remove('flex');
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-error').classList.add('hidden');
+        }
+
+        function verifyPin() {
+            const pin = document.getElementById('pin-input').value;
+            // PIN hardcodeado simple para el responsable
+            if(pin === '1234') {
+                selectMode('responsable', 'Admin');
+            } else {
+                document.getElementById('pin-error').classList.remove('hidden');
+            }
+        }
+        
+        // Enter key to verify PIN
+        document.getElementById('pin-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                verifyPin();
+            }
+        });
     </script>
 </body>
 </html>

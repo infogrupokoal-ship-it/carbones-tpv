@@ -9,7 +9,7 @@ WAHA_SESSION = os.environ.get("WAHA_SESSION", "carbones")
 WAHA_API_KEY = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
 TELEFONO_ADMIN = os.environ.get("TELEFONO_ADMIN", "34604864187")
 
-def generar_reporte_z():
+def generar_reporte_z(efectivo_declarado=None):
     hoy = datetime.datetime.now()
     fecha_hoy_str = hoy.strftime("%Y-%m-%d")
     fecha_hoy_display = hoy.strftime("%d/%m/%Y")
@@ -39,6 +39,13 @@ def generar_reporte_z():
             total_tarjeta += total
             
     total_caja = total_efectivo + total_tarjeta
+    
+    # Calcular Arqueo
+    diferencia_arqueo = 0.0
+    ef_decl = 0.0
+    if efectivo_declarado is not None:
+        ef_decl = efectivo_declarado
+        diferencia_arqueo = ef_decl - total_efectivo
     
     # Obtener IDs de categorías perecederas
     cursor.execute("SELECT id FROM categorias WHERE nombre IN ('Pollos Asados', 'Guarniciones')")
@@ -99,7 +106,11 @@ def generar_reporte_z():
     
     mensaje = f"🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
     mensaje += f"📅 Fecha: {fecha_hoy_display}\n\n"
-    mensaje += f"💰 Efectivo: {total_efectivo:.2f} €\n"
+    mensaje += f"💰 Efectivo Sistema: {total_efectivo:.2f} €\n"
+    if efectivo_declarado is not None:
+        mensaje += f"📝 Efectivo Declarado (Cajero): {ef_decl:.2f} €\n"
+        simbolo_dif = "✅" if diferencia_arqueo == 0 else ("🔴 FALTANTE" if diferencia_arqueo < 0 else "🔵 SOBRANTE")
+        mensaje += f"⚖️ Diferencia Arqueo: {diferencia_arqueo:.2f} € {simbolo_dif}\n"
     mensaje += f"💳 Tarjeta: {total_tarjeta:.2f} €\n"
     mensaje += f"------------------------\n"
     mensaje += f"📊 *TOTAL CAJA: {total_caja:.2f} €*\n\n"
@@ -113,15 +124,17 @@ def generar_reporte_z():
     # FASE 2/3 EXPANDIDA: AUDITORIA EN BASE DE DATOS
     # ---------------------------------------------
     try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO reportes_z (fecha_cierre, total_efectivo, total_tarjeta, total_caja, pollos_vendidos, coste_mermas, resumen_texto)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (hoy.strftime("%Y-%m-%d %H:%M:%S"), total_efectivo, total_tarjeta, total_caja, pollos_vendidos, coste_total_mermas, mensaje))
+            INSERT INTO reportes_z (fecha_cierre, total_efectivo, total_tarjeta, total_caja, efectivo_declarado, diferencia_arqueo, pollos_vendidos, coste_mermas, resumen_texto)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (hoy.strftime("%Y-%m-%d %H:%M:%S"), total_efectivo, total_tarjeta, total_caja, ef_decl, diferencia_arqueo, pollos_vendidos, coste_total_mermas, mensaje))
         conn.commit()
     except Exception as e:
         print(f"Nota: No se pudo guardar en reportes_z ({e}). Asegúrate de reiniciar el servidor para que cree la tabla.")
-
-    conn.close()
+    finally:
+        conn.close()
     
     return mensaje
 

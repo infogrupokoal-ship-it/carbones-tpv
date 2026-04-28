@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario ERP - Carbones y Pollos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #1a1d20; color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .table-dark { background-color: transparent; }
+        .alert-stock { border-left: 5px solid #dc3545; }
+        .ok-stock { border-left: 5px solid #198754; }
+        @keyframes pulse-bg {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+        .skeleton-loader {
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            animation: pulse-bg 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mt-3 px-4">
+            <li class="breadcrumb-item"><a href="dashboard_produccion.html" class="text-light text-decoration-none">🏠 Dashboard</a></li>
+            <li class="breadcrumb-item active text-warning" aria-current="page">📦 Inventario</li>
+        </ol>
+    </nav>
+    <div class="container mt-4">
+        <h2 class="mb-4">Gestión de Inventario (Supply Chain)</h2>
+        <div class="glass-panel">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Ingrediente</th>
+                        <th>Stock Actual</th>
+                        <th>Min. Requerido</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventario-list">
+                    <tr>
+                        <td><div class="skeleton-loader" style="width: 100%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 80%;"></div></td>
+                        <td><div class="skeleton-loader" style="height: 30px; width: 60px;"></div></td>
+                    </tr>
+                    <tr>
+                        <td><div class="skeleton-loader" style="width: 100%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
+                        <td><div class="skeleton-loader" style="width: 80%;"></div></td>
+                        <td><div class="skeleton-loader" style="height: 30px; width: 60px;"></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Pedido -->
+    <div class="modal fade text-dark" id="modalPedido" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Realizar Pedido a Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="proveedor-name" class="fw-bold text-primary"></p>
+                    <label>Cantidad a pedir:</label>
+                    <input type="number" id="pedido-cantidad" class="form-control" value="50">
+                    <input type="hidden" id="pedido-ingrediente-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="enviarPedido()">Enviar Orden (IA)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Speed Dial Flotante -->
+    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050;">
+        <button class="btn btn-warning rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 24px;" onclick="window.location.href='dashboard_produccion.html'" title="Volver al Dashboard">
+            ⬅️
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let modalPedido;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
+            loadInventario();
+        });
+
+        async function loadInventario() {
+            try {
+                const res = await fetch('/api/inventario');
+                const data = await res.json();
+                const tbody = document.getElementById('inventario-list');
+                tbody.innerHTML = "";
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📦</div>
+                        <h4>Inventario Vacío</h4>
+                        <p>No hay ingredientes registrados o no se pudieron cargar.</p>
+                    </td></tr>`;
+                    return;
+                }
+                
+                data.forEach(ing => {
+                    const isCritico = ing.stock_actual <= ing.stock_minimo;
+                    const rowClass = isCritico ? 'alert-stock' : 'ok-stock';
+                    const badgeClass = isCritico ? 'bg-danger' : 'bg-success';
+                    
+                    tbody.innerHTML += `<tr class="${rowClass}">
+                        <td class="fw-bold">${ing.nombre}</td>
+                        <td><span class="badge ${badgeClass} fs-6">${ing.stock_actual} ${ing.unidad}</span></td>
+                        <td>${ing.stock_minimo} ${ing.unidad}</td>
+                        <td>${ing.proveedor_nombre}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')">Pedir</button>
+                        </td>
+                    </tr>`;
+                });
+            } catch (e) {
+                console.error("Error al cargar el inventario", e);
+                document.getElementById('inventario-list').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-danger">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+                    <h4>Error de Conexión</h4>
+                    <p>No se pudo contactar con el servidor.</p>
+                </td></tr>`;
+            }
+        }
+
+        function abrirPedido(ingId, provName, ingName) {
+            document.getElementById('pedido-ingrediente-id').value = ingId;
+            document.getElementById('proveedor-name').innerText = `Pedido automático a: ${provName} (${ingName})`;
+            modalPedido.show();
+        }
+
+        async function enviarPedido() {
+            const ingId = document.getElementById('pedido-ingrediente-id').value;
+            const cant = parseFloat(document.getElementById('pedido-cantidad').value);
+            
+            const res = await fetch('/api/inventario/pedido', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ ingrediente_id: ingId, cantidad: cant })
+            });
+            const data = await res.json();
+            alert(data.msj);
+            modalPedido.hide();
+            loadInventario();
+        }
+    </script>
+</body>
+</html>

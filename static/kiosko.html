@@ -45,7 +45,10 @@
     <div class="w-full md:w-1/5 bg-gray-800 text-white flex flex-row md:flex-col pt-2 md:pt-4 shadow-2xl z-20 shrink-0 md:h-full overflow-x-auto md:overflow-x-hidden md:overflow-y-auto">
         <h2 class="hidden md:block text-3xl font-black text-center mb-6 text-yellow-400 drop-shadow-md">🐔 Cargones <br><span class="text-xl">y Pollos</span></h2>
         <div id="categorias-list" class="flex flex-row md:flex-col gap-2 px-2 md:px-4 pb-2 md:pb-4 flex-nowrap items-center w-[max-content] md:w-full">
-            <!-- Dinámico -->
+            <!-- Skeleton Categorias -->
+            <div class="h-12 bg-gray-700 rounded-xl w-32 md:w-full animate-pulse shrink-0"></div>
+            <div class="h-12 bg-gray-700 rounded-xl w-32 md:w-full animate-pulse shrink-0"></div>
+            <div class="h-12 bg-gray-700 rounded-xl w-32 md:w-full animate-pulse shrink-0"></div>
         </div>
         <div id="admin-buttons" class="hidden">
             <!-- Botones movidos a caja.html y dashboard -->
@@ -81,7 +84,11 @@
         </div>
         
         <div id="productos-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            <!-- Dinámico -->
+            <!-- Skeleton Grid -->
+            <div class="bg-gray-200 rounded-3xl h-48 md:h-56 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-3xl h-48 md:h-56 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-3xl h-48 md:h-56 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-3xl h-48 md:h-56 animate-pulse"></div>
         </div>
     </div>
 
@@ -259,6 +266,17 @@
             let validCategoryIds = categorias.filter(c => isTurnoNoche ? c.orden >= 10 : c.orden < 10).map(c => c.id);
             let filtered = catId ? productos.filter(p => p.categoria_id === catId) : productos.filter(p => validCategoryIds.includes(p.categoria_id));
             
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+                        <div class="text-7xl mb-4">🍗</div>
+                        <h3 class="text-3xl font-black mb-2">No hay productos</h3>
+                        <p class="text-lg font-bold">No hay productos disponibles en esta categoría o en este turno.</p>
+                    </div>
+                `;
+                return;
+            }
+
             filtered.forEach(p => {
                 const colorCat = p.categoria_id === 1 ? 'bg-orange-100 shadow-orange-200' : (p.categoria_id === 2 ? 'bg-yellow-100 shadow-yellow-200' : 'bg-blue-100 shadow-blue-200');
                 
@@ -437,13 +455,26 @@
             const overlay = document.createElement('div');
             overlay.className = "fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center text-gray-900";
             overlay.innerHTML = `
-                <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg text-center transform transition-all scale-100 mx-4 h-[90vh] overflow-y-auto">
-                    <h2 class="text-3xl font-black mb-4">Introduce tu Teléfono</h2>
-                    <p class="text-gray-500 mb-2 font-medium text-lg">Acumula puntos y descuentos exclusivos.</p>
-                    <p class="text-emerald-600 mb-6 font-bold text-sm bg-emerald-50 py-2 rounded-lg inline-block px-4">Si ya pides por WhatsApp, usa ese mismo número.</p>
-                    <input type="tel" id="telefono-input" class="w-full p-4 mb-4 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-3xl font-bold text-center outline-none" placeholder="600123456" />
+                <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg text-center transform transition-all scale-100 mx-4 h-[90vh] overflow-y-auto relative">
+                    <button onclick="this.closest('div.fixed').remove();" class="absolute top-4 right-6 text-gray-400 hover:text-gray-600 font-black text-3xl">&times;</button>
+                    <h2 class="text-3xl font-black mb-4">Identifícate</h2>
+                    <p class="text-gray-500 mb-2 font-medium text-lg">Acumula Pollos-Coins y canjea descuentos.</p>
                     
-                    <h3 class="text-xl font-bold mb-2 text-gray-700">¿Cuántos Cubiertos? (0,20€/ud)</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="tel" id="telefono-input" class="w-full p-4 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-2xl font-bold text-center outline-none" placeholder="Teléfono (Ej. 600123456)" />
+                        <button onclick="verificarPuntos(document.getElementById('telefono-input').value)" class="bg-emerald-100 text-emerald-700 border-2 border-emerald-500 font-bold px-4 rounded-xl hover:bg-emerald-200 transition">Verificar</button>
+                    </div>
+                    
+                    <div id="puntos-info" class="hidden bg-emerald-50 border-2 border-emerald-200 p-4 rounded-xl mb-4 text-left">
+                        <p class="font-bold text-emerald-800 text-lg">Hola <span id="puntos-nombre"></span>!</p>
+                        <p class="text-emerald-700">Tienes <span id="puntos-saldo" class="font-black text-xl"></span> Pollos-Coins.</p>
+                        <label class="flex items-center gap-2 mt-3 cursor-pointer hidden" id="canjear-container">
+                            <input type="checkbox" id="canjear-checkbox" class="w-6 h-6 text-emerald-600 rounded">
+                            <span class="font-bold text-gray-700">Canjear 50 coins por 5€ de descuento</span>
+                        </label>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold mb-2 text-gray-700 mt-6 border-t pt-6">¿Cuántos Cubiertos? (0,20€/ud)</h3>
                     <div class="flex items-center justify-center gap-4 mb-6">
                         <button onclick="document.getElementById('cubiertos-input').value = Math.max(0, parseInt(document.getElementById('cubiertos-input').value)-1)" class="bg-gray-200 w-12 h-12 rounded-xl font-bold text-2xl">-</button>
                         <input type="number" id="cubiertos-input" class="w-24 p-2 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-3xl font-bold text-center outline-none bg-gray-50 text-emerald-600" value="0" min="0" />
@@ -451,35 +482,85 @@
                     </div>
                     
                     <h3 class="text-xl font-bold mb-2 text-gray-700">Notas para cocina (Opcional)</h3>
-                    <textarea id="notas-input" class="w-full p-3 mb-6 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-lg font-medium outline-none resize-none h-24" placeholder="Ej. Sin sal, muy hecho, alergia al tomate..."></textarea>
+                    <textarea id="notas-input" class="w-full p-3 mb-6 border-4 border-gray-200 focus:border-yellow-400 rounded-xl text-lg font-medium outline-none resize-none h-20" placeholder="Ej. Sin sal, muy hecho..."></textarea>
 
                     <div class="flex gap-4">
-                        <button onclick="ejecutarCobro(document.getElementById('telefono-input').value, document.getElementById('cubiertos-input').value, document.getElementById('notas-input').value); this.closest('div.fixed').remove();" class="flex-1 bg-yellow-400 hover:bg-yellow-500 p-4 rounded-xl font-black text-xl hover:shadow-lg transition">ACEPTAR</button>
-                        <button onclick="ejecutarCobro('', document.getElementById('cubiertos-input').value, document.getElementById('notas-input').value); this.closest('div.fixed').remove();" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-600 p-4 rounded-xl font-bold text-xl transition">OMITIR</button>
+                        <button onclick="ejecutarCobro(document.getElementById('telefono-input').value, document.getElementById('cubiertos-input').value, document.getElementById('notas-input').value, document.getElementById('canjear-checkbox')?.checked); this.closest('div.fixed').remove();" class="flex-1 bg-yellow-400 hover:bg-yellow-500 p-4 rounded-xl font-black text-xl hover:shadow-lg transition">PAGAR PEDIDO</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(overlay);
             document.getElementById('telefono-input').focus();
         }
+
+        async function verificarPuntos(telefono) {
+            if(!telefono || telefono.length < 9) return alert("Introduce un teléfono válido");
+            try {
+                const res = await fetch(`${API_URL}/b2c/auth`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({telefono: telefono, nombre: "Cliente"})
+                });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    document.getElementById('puntos-info').classList.remove('hidden');
+                    document.getElementById('puntos-nombre').innerText = data.nombre || data.telefono;
+                    document.getElementById('puntos-saldo').innerText = data.puntos || 0;
+                    if(data.puntos >= 50) {
+                        document.getElementById('canjear-container').classList.remove('hidden');
+                    } else {
+                        document.getElementById('canjear-container').classList.add('hidden');
+                    }
+                }
+            } catch (e) {
+                console.error("Error verificando puntos", e);
+            }
+        }
         
-        function mostrarOpcionesPagoB2C(clienteId) {
+        async function mostrarOpcionesPagoB2C(clienteId) {
+            let puntos = 0;
+            try {
+                const res = await fetch(`${API_URL}/b2c/me/${clienteId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    puntos = data.puntos || 0;
+                }
+            } catch (e) {
+                console.warn("Could not fetch points");
+            }
+
             const overlay = document.createElement('div');
             overlay.className = "fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center text-gray-900";
+            
+            let canjearHtml = '';
+            if (puntos >= 50) {
+                canjearHtml = `
+                    <div class="bg-emerald-50 border-2 border-emerald-200 p-4 rounded-xl mb-4 text-left">
+                        <p class="text-emerald-700">Tienes <span class="font-black text-xl">${puntos}</span> Pollos-Coins.</p>
+                        <label class="flex items-center gap-2 mt-3 cursor-pointer">
+                            <input type="checkbox" id="canjear-b2c-checkbox" class="w-6 h-6 text-emerald-600 rounded">
+                            <span class="font-bold text-gray-700">Canjear 50 coins por 5€ de descuento</span>
+                        </label>
+                    </div>
+                `;
+            }
+
             overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100 mx-4 h-[85vh] overflow-y-auto">
+                <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-100 mx-4 h-[85vh] overflow-y-auto relative">
                     <h2 class="text-2xl font-black mb-4">Confirmar Pedido</h2>
                     
+                    ${canjearHtml}
+
                     <h3 class="text-md font-bold mb-2 text-gray-700 text-left">Notas para cocina (Opcional)</h3>
                     <textarea id="notas-b2c-input" class="w-full p-3 mb-6 border-4 border-gray-200 focus:border-emerald-400 rounded-xl text-sm font-medium outline-none resize-none h-20" placeholder="Alergias, modificaciones..."></textarea>
                     
                     <h3 class="text-lg font-black mb-4 border-t pt-4">¿Cómo prefieres pagar?</h3>
                     
-                    <button onclick="ejecutarCobroB2C(${clienteId}, 'TARJETA', document.getElementById('notas-b2c-input').value); this.closest('div.fixed').remove();" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-black text-xl mb-4 flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                    <button onclick="ejecutarCobroB2C('${clienteId}', 'TARJETA', document.getElementById('notas-b2c-input').value, document.getElementById('canjear-b2c-checkbox')?.checked); this.closest('div.fixed').remove();" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-black text-xl mb-4 flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
                         <span>💳</span> Pagar Ahora (Tarjeta)
                     </button>
                     
-                    <button onclick="ejecutarCobroB2C(${clienteId}, 'EFECTIVO', document.getElementById('notas-b2c-input').value); this.closest('div.fixed').remove();" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl font-black text-xl mb-6 flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                    <button onclick="ejecutarCobroB2C('${clienteId}', 'EFECTIVO', document.getElementById('notas-b2c-input').value, document.getElementById('canjear-b2c-checkbox')?.checked); this.closest('div.fixed').remove();" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl font-black text-xl mb-6 flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
                         <span>🏪</span> Pagar en Local
                     </button>
                     
@@ -489,7 +570,7 @@
             document.body.appendChild(overlay);
         }
         
-        async function ejecutarCobroB2C(clienteId, metodoPago, notas) {
+        async function ejecutarCobroB2C(clienteId, metodoPago, notas, canjearPuntos = false) {
             let total = 0;
             carrito.forEach(item => { total += item.precio * item.cantidad; });
 
@@ -499,6 +580,7 @@
                 cubiertos_qty: 0,
                 total: total,
                 notas_cliente: notas || "",
+                canjear_puntos: canjearPuntos,
                 fecha: new Date().toISOString()
             };
             
@@ -528,7 +610,7 @@
             }
         }
 
-        async function ejecutarCobro(telefono, cubiertos, notas) {
+        async function ejecutarCobro(telefono, cubiertos, notas, canjearPuntos = false) {
             const origenVal = telefono.trim() ? "KIOSKO-" + telefono.trim() : "KIOSKO";
             const qtyCubiertos = parseInt(cubiertos) || 0;
             
@@ -540,7 +622,9 @@
                 origen: origenVal,
                 cubiertos_qty: qtyCubiertos,
                 notas_cliente: notas || "",
+                canjear_puntos: canjearPuntos,
                 total: total,
+                estado_inicial: userRole === 'responsable' ? 'EN_PREPARACION' : 'ESPERANDO_PAGO',
                 fecha: new Date().toISOString()
             };
 

@@ -260,14 +260,31 @@
 
         async function forzarCierreZ() {
             if(!confirm("⚠️ ATENCIÓN: Vas a forzar un CIERRE Z ahora mismo.\n\nEsto enviará el reporte por WhatsApp, calculará las mermas del día vaciando el stock de los productos perecederos y generará un registro en la base de datos.\n\n¿Estás completamente seguro?")) return;
+            
+            let ef_decl_str = prompt("Arqueo Ciego:\n\nPor favor, cuenta el dinero de la caja registradora e introduce el EFECTIVO TOTAL (monedas y billetes) antes de continuar:\n(Usa punto para decimales, ej: 150.50)", "");
+            if (ef_decl_str === null) return; // Cancelado
+            
+            let ef_decl = null;
+            if (ef_decl_str.trim() !== "") {
+                ef_decl = parseFloat(ef_decl_str);
+                if(isNaN(ef_decl) || ef_decl < 0) {
+                    alert("⚠️ Monto de efectivo inválido. Se cancela el cierre Z.");
+                    return;
+                }
+            }
+
             try {
-                const res = await fetch('/api/admin/trigger_cierre_z', {method: 'POST'});
+                const res = await fetch('/api/admin/trigger_cierre_z', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ efectivo_declarado: ef_decl })
+                });
                 const data = await res.json();
                 if(data.status === 'ok') {
                     alert('✅ CIERRE Z EJECUTADO CORRECTAMENTE.\n\nSe ha enviado el WhatsApp y registrado el histórico en el Dashboard.');
                     cargarDatos();
                 } else {
-                    alert('❌ Error al ejecutar el Cierre Z.');
+                    alert('❌ Error al ejecutar el Cierre Z: ' + data.msj);
                 }
             } catch(e) {
                 alert('Error de conexión con el servidor.');

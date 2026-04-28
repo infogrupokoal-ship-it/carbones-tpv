@@ -12,7 +12,10 @@
     <!-- Navbar -->
     <div class="bg-gray-900 text-white p-4 shadow-md flex items-center justify-between sticky top-0 z-50">
         <h1 class="text-xl font-black">📊 Dashboard Producción & Ventas</h1>
-        <button onclick="location.href='admin_mobile.html'" class="text-gray-300 text-sm font-bold hover:text-white">← Volver al Admin</button>
+        <div class="flex items-center gap-4">
+            <button onclick="document.getElementById('modalArqueo').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 px-4 rounded-full shadow-lg transition-all">Cerrar Caja (Z)</button>
+            <button onclick="location.href='admin_mobile.html'" class="text-gray-300 text-sm font-bold hover:text-white">← Volver al Admin</button>
+        </div>
     </div>
 
     <div class="p-4 md:p-8 max-w-7xl mx-auto">
@@ -74,6 +77,35 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Empleados Activos -->
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="text-lg font-black mb-4 text-gray-800">Estado de Empleados (RRHH)</h3>
+            <div id="rrhh-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- JS populate -->
+                <p class="text-gray-400 italic col-span-full">Cargando estado...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Arqueo Ciego -->
+    <div id="modalArqueo" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100]">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md m-4 transform transition-all scale-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-black text-gray-800">Arqueo Ciego (Cierre Z)</h3>
+                <button onclick="document.getElementById('modalArqueo').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <p class="text-gray-600 mb-6">Por favor, cuenta el efectivo en caja e introdúcelo abajo. El sistema calculará la diferencia automáticamente y enviará el reporte.</p>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Efectivo Contado (€):</label>
+                <input type="number" id="efectivo_declarado" step="0.01" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-lg font-bold" placeholder="Ej: 345.50">
+            </div>
+            
+            <button onclick="ejecutarCierreZ()" id="btn-cierre" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all text-lg">Confirmar Cierre y Enviar</button>
+        </div>
     </div>
 
     <script>
@@ -95,6 +127,13 @@
                     
                     renderCharts(data.charts);
                     renderReviews(data.reviews);
+                }
+                
+                // Fetch Fichajes para Estado de Empleados
+                const resRRHH = await fetch(`${API_URL}/rrhh/fichajes`);
+                if(resRRHH.ok) {
+                    const dataRRHH = await resRRHH.json();
+                    renderRRHH(dataRRHH);
                 }
             } catch(e) {
                 console.error("Error loading dashboard", e);
@@ -178,6 +217,39 @@
             });
         }
 
+        function renderRRHH(fichajes) {
+            const cont = document.getElementById('rrhh-container');
+            cont.innerHTML = '';
+            
+            // Agrupar por usuario para obtener su último estado
+            const empleados = {};
+            fichajes.forEach(f => {
+                if (!empleados[f.username] || new Date(f.fecha) > new Date(empleados[f.username].fecha)) {
+                    empleados[f.username] = f;
+                }
+            });
+
+            if (Object.keys(empleados).length === 0) {
+                cont.innerHTML = '<p class="text-gray-400 italic col-span-full">No hay empleados registrados hoy.</p>';
+                return;
+            }
+
+            Object.values(empleados).forEach(f => {
+                let badgeClass = "bg-gray-200 text-gray-800";
+                if(f.tipo === "ENTRADA" || f.tipo === "FIN_PAUSA") badgeClass = "bg-green-100 text-green-800 border-green-200";
+                if(f.tipo === "SALIDA") badgeClass = "bg-red-100 text-red-800 border-red-200";
+                if(f.tipo === "INICIO_PAUSA") badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                
+                cont.innerHTML += `
+                    <div class="p-3 rounded-xl border ${badgeClass} text-center shadow-sm">
+                        <p class="font-bold text-sm truncate">${f.username}</p>
+                        <p class="text-xs mt-1 uppercase tracking-wide font-semibold">${f.tipo}</p>
+                        <p class="text-[10px] mt-1 opacity-75">${f.fecha}</p>
+                    </div>
+                `;
+            });
+        }
+
         async function generarInsightsIA() {
             const btn = document.getElementById('btn-ia');
             const content = document.getElementById('ia-content');
@@ -205,6 +277,39 @@
             }
             
             btn.innerText = "Actualizar";
+            btn.disabled = false;
+        }
+
+        async function ejecutarCierreZ() {
+            const btn = document.getElementById('btn-cierre');
+            const efDecl = parseFloat(document.getElementById('efectivo_declarado').value);
+            
+            if(isNaN(efDecl)) {
+                alert("Por favor introduce una cantidad válida.");
+                return;
+            }
+            
+            if(!confirm("¿Estás seguro de que deseas forzar el Cierre Z ahora?")) return;
+            
+            btn.innerText = "Cerrando...";
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(`${API_URL}/admin/trigger_cierre_z`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({efectivo_declarado: efDecl})
+                });
+                const data = await res.json();
+                alert(data.msj);
+                document.getElementById('modalArqueo').classList.add('hidden');
+                document.getElementById('efectivo_declarado').value = '';
+            } catch(e) {
+                alert("Error al ejecutar el cierre.");
+                console.error(e);
+            }
+            
+            btn.innerText = "Confirmar Cierre y Enviar";
             btn.disabled = false;
         }
 
