@@ -15,7 +15,7 @@ import os
 import requests
 # from ai_engine import procesar_mensaje_whatsapp
 
-from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock
+from models import Base, Categoria, Producto, Pedido, ItemPedido, MovimientoStock, ReporteZ
 
 app = FastAPI(title="Cargones y Pollos TPV API")
 
@@ -800,13 +800,22 @@ def pedir_proveedor(req: PedidoProveedorReq):
         headers["X-Api-Key"] = api_key
         
     try:
-        res = requests.post(f"{waha_url}/api/sendText", json=payload_envio, headers=headers, timeout=5)
-        if res.status_code in [200, 201]:
-            return {"status": "ok", "msj": "Pedido enviado correctamente por WhatsApp"}
-        else:
-            raise HTTPException(500, f"Error WAHA: {res.text}")
+        r = requests.post(f"{waha_url}/api/sendText", json=payload_envio, headers=headers, timeout=5)
+        r.raise_for_status()
+        return {"status": "ok", "msj": "Pedido enviado al proveedor por WhatsApp"}
     except Exception as e:
-        raise HTTPException(500, f"Error conexión WAHA: {str(e)}")
+        raise HTTPException(500, f"Error contactando al proveedor: {e}")
+
+@app.post("/api/admin/trigger_cierre_z")
+def trigger_cierre_z_manual(db: Session = Depends(get_db)):
+    """Endpoint manual para forzar el Cierre Z (Ideal para pruebas o cierres anticipados)"""
+    try:
+        import reporte_z
+        msg = reporte_z.generar_reporte_z()
+        reporte_z.enviar_whatsapp(msg)
+        return {"status": "ok", "msj": "Cierre Z forzado ejecutado con éxito. WhatsApp enviado y mermas procesadas."}
+    except Exception as e:
+        raise HTTPException(500, f"Error forzando Cierre Z: {str(e)}")
 
 # --- AUTOMATIZACIÓN NOCTURNA (Cron) ---
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -838,6 +847,26 @@ scheduler.add_job(job_mantenimiento, 'cron', day_of_week='sun', hour=3, minute=0
 def start_scheduler():
     scheduler.start()
     logging.info("Cron interno iniciado: Cierre Z (23:59) y Mantenimiento BD (Dom 03:00)")
+
+@app.get("/api/reportes/historico")
+def obtener_historico_cierres():
+    db: Session = SessionLocal()
+    try:
+        # Obtenemos los últimos 14 cierres, ordenados por fecha descendente
+        cierres = db.query(ReporteZ).order_by(ReporteZ.fecha_cierre.desc()).limit(14).all()
+        resultado = []
+        for c in cierres:
+            resultado.append({
+                "id": c.id,
+                "fecha": c.fecha_cierre.strftime("%Y-%m-%d %H:%M:%S"),
+                "total_caja": round(c.total_caja, 2),
+                "pollos_vendidos": c.pollos_vendidos,
+                "coste_mermas": round(c.coste_mermas, 2),
+                "resumen": c.resumen_texto
+            })
+        return resultado
+    finally:
+        db.close()
 
 # Montar frontend estático OBLIGATORIAMENTE al final
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

@@ -19,6 +19,7 @@
                 <p class="text-gray-500 font-bold mt-1">Usuario activo: <span id="lbl-user" class="text-emerald-600 uppercase"></span></p>
             </div>
             <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
+                <button onclick="forzarCierreZ()" class="bg-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold hover:bg-red-700 active:scale-95 transition shadow-[0_0_15px_rgba(220,38,38,0.5)] flex-1 md:flex-none text-sm md:text-base whitespace-nowrap">🚨 CIERRE Z</button>
                 <button onclick="abrirCajaRemota()" class="bg-indigo-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold active:scale-95 hover:bg-indigo-700 transition shadow-[0_0_15px_rgba(79,70,229,0.5)] flex-1 md:flex-none text-sm md:text-base whitespace-nowrap">🔓 ABRIR CAJA</button>
                 <button onclick="location.href='caja.html'" class="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold active:scale-95 transition flex-1 md:flex-none text-sm md:text-base whitespace-nowrap">💻 IR A LA CAJA</button>
                 <button onclick="cerrarSesion()" class="bg-red-100 text-red-600 px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold hover:bg-red-200 active:scale-95 transition w-full md:w-auto text-sm md:text-base mt-2 md:mt-0">Cerrar Sesión</button>
@@ -77,6 +78,26 @@
             <canvas id="salesChart" height="100"></canvas>
         </div>
 
+        <!-- AUDITORIA CIERRES Z -->
+        <div class="mt-8 bg-white p-8 rounded-3xl shadow-lg border-4 border-gray-200 mb-8">
+            <h2 class="text-2xl font-black text-gray-800 mb-4">📑 Auditoría de Cierres Z</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-left">
+                    <thead>
+                        <tr class="text-gray-500 text-sm border-b">
+                            <th class="py-2">Fecha y Hora</th>
+                            <th class="py-2">Total Caja</th>
+                            <th class="py-2 text-orange-500">Pollos Vendidos</th>
+                            <th class="py-2 text-red-500 font-bold">Coste Mermas (Pérdida)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historico-list" class="text-lg font-bold text-gray-800">
+                        <!-- Rellenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,6 +119,23 @@
             document.getElementById('fact-tarde').innerText = r_tarde.total_facturado.toFixed(2);
             
             actualizarGrafico(r_manana.total_facturado, r_tarde.total_facturado);
+            
+            // Cargar Histórico Cierres Z
+            try {
+                const r_hist = await fetch('/api/reportes/historico').then(res => res.json());
+                const tbHist = document.getElementById('historico-list');
+                tbHist.innerHTML = "";
+                r_hist.forEach(c => {
+                    tbHist.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50 transition">
+                            <td class="py-3 text-base font-medium text-gray-600">${c.fecha}</td>
+                            <td class="py-3 text-lg text-emerald-600 font-black">${c.total_caja.toFixed(2)} €</td>
+                            <td class="py-3 text-base text-orange-500 font-bold">${c.pollos_vendidos}</td>
+                            <td class="py-3 text-lg text-red-600 font-black">-${c.coste_mermas.toFixed(2)} €</td>
+                        </tr>
+                    `;
+                });
+            } catch(e) { console.error("Error cargando histórico", e); }
             
             // Cargar balance de hoy
             const balanceHoy = await fetch('/api/inventario/balance_hoy').then(res => res.json());
@@ -214,6 +252,22 @@
                     alert('Orden enviada. La caja se abrirá en la tienda en unos segundos.');
                 } else {
                     alert('Error encolando acción: ' + data.msj);
+                }
+            } catch(e) {
+                alert('Error de conexión con el servidor.');
+            }
+        }
+
+        async function forzarCierreZ() {
+            if(!confirm("⚠️ ATENCIÓN: Vas a forzar un CIERRE Z ahora mismo.\n\nEsto enviará el reporte por WhatsApp, calculará las mermas del día vaciando el stock de los productos perecederos y generará un registro en la base de datos.\n\n¿Estás completamente seguro?")) return;
+            try {
+                const res = await fetch('/api/admin/trigger_cierre_z', {method: 'POST'});
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    alert('✅ CIERRE Z EJECUTADO CORRECTAMENTE.\n\nSe ha enviado el WhatsApp y registrado el histórico en el Dashboard.');
+                    cargarDatos();
+                } else {
+                    alert('❌ Error al ejecutar el Cierre Z.');
                 }
             } catch(e) {
                 alert('Error de conexión con el servidor.');
