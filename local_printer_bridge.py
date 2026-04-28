@@ -58,7 +58,7 @@ async def pagina_instalacion():
         <div class="card">
             <h1>⚙️ 1. Instalador TPV (Principal)</h1>
             <p>Pulsa el botón azul para copiar el comando, pégalo en Termux y dale a Enter para instalar el puente del TPV.</p>
-            <div class="code-box" id="codigoInstalador">pkg update -y; pkg install -y git python; git clone https://github.com/infogrupokoal-ship-it/carbones-tpv.git ~/carbones-tpv; cd ~/carbones-tpv && git pull origin master && pip install fastapi uvicorn requests pydantic && python local_printer_bridge.py</div>
+            <div class="code-box" id="codigoInstalador">pkg update -y; pkg install -y git python; rm -rf ~/carbones-tpv; git clone https://github.com/infogrupokoal-ship-it/carbones-tpv.git ~/carbones-tpv; cd ~/carbones-tpv && pip install fastapi uvicorn requests pydantic && python local_printer_bridge.py</div>
             <button class="copy-btn" onclick="copiarCodigo('codigoInstalador', 'msgInstalador')">📥 COPIAR COMANDO DE INSTALACIÓN</button>
             <div id="msgInstalador" class="success">✅ ¡Copiado! Ahora pégalo en Termux.</div>
         </div>
@@ -72,9 +72,9 @@ async def pagina_instalacion():
             <button class="copy-btn purple" onclick="copiarCodigo('codigoSSH', 'msgSSH')">🔑 COPIAR COMANDO SSH</button>
             <div id="msgSSH" class="success">✅ ¡Copiado! Pégalo en Termux. (Te pedirá que escribas una contraseña dos veces).</div>
 
-            <div class="step"><strong>Paso B:</strong> Instalar Ngrok y crear el Túnel (Puerta Global)</div>
-            <div class="code-box" id="codigoNgrok">pkg install -y ngrok && ngrok tcp 8022</div>
-            <button class="copy-btn purple" onclick="copiarCodigo('codigoNgrok', 'msgNgrok')">🌐 COPIAR COMANDO NGROK</button>
+            <div class="step"><strong>Paso B:</strong> Crear el Túnel Global (Pinggy)</div>
+            <div class="code-box" id="codigoNgrok">ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:8022 a.pinggy.io</div>
+            <button class="copy-btn purple" onclick="copiarCodigo('codigoNgrok', 'msgNgrok')">🌐 COPIAR COMANDO TÚNEL</button>
             <div id="msgNgrok" class="success">✅ ¡Copiado! Pégalo en Termux.</div>
         </div>
 
