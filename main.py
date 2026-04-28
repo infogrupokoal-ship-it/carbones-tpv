@@ -120,19 +120,11 @@ def listar_productos(db: Session = Depends(get_db)):
             if parent and p.factor_stock > 0:
                 p.stock_actual = int(parent.stock_actual / p.factor_stock)
 
-    # Regla: No mostrar carta de bocadillos hasta las 17:00
-    if datetime.now().hour < 17:
-        categorias_manana = db.query(Categoria).filter(Categoria.nombre.in_(["Pollos Asados", "Guarniciones", "Bebidas"])).all()
-        ids_permitidos = [c.id for c in categorias_manana]
-        prods = [p for p in prods if p.categoria_id in ids_permitidos]
     return prods
 
 @app.get("/api/categorias")
 def listar_categorias(db: Session = Depends(get_db)):
     cats = db.query(Categoria).order_by(Categoria.orden).all()
-    # Regla: No mostrar carta de bocadillos hasta las 17:00
-    if datetime.now().hour < 17:
-        cats = [c for c in cats if c.nombre in ["Pollos Asados", "Guarniciones", "Bebidas"]]
     return cats
 
 # --- ENDPOINTS RRHH (Fichajes) ---
