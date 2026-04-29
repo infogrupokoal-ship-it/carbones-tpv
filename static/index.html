@@ -3,71 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inicio - Carbones y Pollos</title>
+    <title>Carbones y Pollos - Pedidos Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="theme-color" content="#1f2937">
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
 </head>
-<body class="bg-gray-900 h-[100dvh] flex items-center justify-center font-sans text-white">
+<body class="bg-gray-900 h-[100dvh] flex flex-col items-center justify-center font-sans text-white relative overflow-hidden">
 
-    <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border-2 border-gray-700 text-center">
-        <div class="text-7xl mb-6">🍗</div>
-        <h1 class="text-4xl font-black mb-2 text-yellow-400 tracking-tight">Carbones y Pollos</h1>
-        <p class="text-gray-400 font-bold mb-8">Selecciona el modo de inicio</p>
+    <!-- Fondo Decorativo -->
+    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-gradient-to-br from-red-900/40 via-gray-900 to-yellow-900/20 z-0"></div>
 
-        <div class="flex flex-col gap-4">
-            <!-- Modo Quiosko -->
-            <button onclick="startKiosk()" class="bg-blue-600 hover:bg-blue-500 p-5 rounded-2xl font-black text-2xl transition active:scale-95 shadow-lg flex flex-col items-center">
-                <span>🛒 MODO QUIOSKO</span>
-                <span class="text-sm font-normal text-blue-200 mt-1">Para clientes (Auto-Pedido)</span>
+    <!-- Contenedor Principal -->
+    <div class="z-10 bg-gray-800/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-[90%] max-w-md border border-gray-700/50 text-center flex flex-col items-center">
+        
+        <!-- Logo animado -->
+        <div class="relative w-32 h-32 mb-6">
+            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
+            <div class="text-7xl absolute inset-0 flex items-center justify-center animate-bounce shadow-black drop-shadow-2xl">🍗</div>
+        </div>
+
+        <h1 class="text-4xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 tracking-tight">Carbones y Pollos</h1>
+        <p class="text-gray-400 font-medium mb-10 text-sm">El auténtico sabor a leña de encina</p>
+
+        <div class="flex flex-col gap-4 w-full">
+            <!-- Botón B2C: Pedir Ahora -->
+            <button onclick="startB2C('ahora')" class="group relative overflow-hidden bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 p-4 rounded-2xl font-black text-xl text-gray-900 transition-all active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center gap-3">
+                <span class="text-3xl group-hover:scale-110 transition-transform">🛵</span>
+                <span>Pedir Ahora</span>
             </button>
 
-            <div class="border-t border-gray-600 my-4"></div>
-
-            <!-- Modo Responsable -->
-            <div id="responsable-form" class="bg-gray-700 p-4 rounded-2xl text-left border border-gray-600">
-                <h2 class="text-xl font-bold mb-4 text-center text-emerald-400">👨‍🍳 MODO RESPONSABLE</h2>
-                
-                <label class="block text-sm font-bold text-gray-300 mb-1">Tu Nombre</label>
-                <input id="nombreInput" type="text" placeholder="Ej: Carlos" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 mb-4 text-white font-bold outline-none focus:border-yellow-400">
-                
-                <label class="block text-sm font-bold text-gray-300 mb-1">Código de Acceso</label>
-                <input id="codigoInput" type="password" placeholder="****" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 mb-4 text-white font-bold outline-none focus:border-yellow-400 text-center text-2xl tracking-[0.5em]" inputmode="numeric">
-                
-                <button onclick="startResponsable()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-black text-xl transition active:scale-95 shadow-md">
-                    ENTRAR A CAJA
-                </button>
-            </div>
+            <!-- Botón B2C: Encargar para otro día -->
+            <button onclick="startB2C('encargo')" class="group bg-gray-700 hover:bg-gray-600 border border-gray-600 p-4 rounded-2xl font-black text-lg text-white transition-all active:scale-95 flex items-center justify-center gap-3">
+                <span class="text-2xl group-hover:scale-110 transition-transform">📅</span>
+                <span>Encargar para otro día</span>
+            </button>
+        </div>
+        
+        <!-- Footer Info -->
+        <div class="mt-8 text-xs text-gray-500 flex items-center gap-2">
+            <span>📍 C/ Falsa 123, Madrid</span>
+            <span>•</span>
+            <span>⭐ 4.9/5 en Reseñas</span>
         </div>
     </div>
 
+    <!-- Acceso Oculto Staff -->
+    <a href="setup.html" class="absolute bottom-4 right-4 text-gray-800 hover:text-gray-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+        ⚙️
+    </a>
+
     <script>
-        function startKiosk() {
-            localStorage.setItem('tpv_role', 'quiosko');
-            localStorage.setItem('tpv_name', 'Cliente');
-            window.location.href = 'kiosko.html';
-        }
-
-        function startResponsable() {
-            const nombre = document.getElementById('nombreInput').value.trim();
-            const codigo = document.getElementById('codigoInput').value.trim();
-
-            if (!nombre || !codigo) {
-                alert("Por favor, ingresa tu nombre y el código de acceso.");
-                return;
-            }
-
-            if (codigo === "1234" || codigo === "8888") {
-                localStorage.setItem('tpv_role', 'responsable');
-                localStorage.setItem('tpv_name', nombre);
-                window.location.href = 'dashboard_produccion.html'; // Redirigir directamente al panel de control total
-            } else {
-                alert("Código incorrecto.");
-            }
+        function startB2C(tipo) {
+            // Aseguramos que el dispositivo se reconozca como B2C (Cliente Online)
+            localStorage.setItem('tpv_device_mode', 'b2c');
+            localStorage.setItem('tpv_b2c_tipo', tipo); // 'ahora' o 'encargo'
+            
+            // Efecto visual y redirección
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+                window.location.href = 'kiosko.html';
+            }, 300);
         }
         
-        // Limpiar roles previos al cargar la pantalla de inicio
+        // Limpiar roles de staff si un cliente entra aquí accidentalmente
         window.onload = function() {
-            localStorage.removeItem('tpv_role');
-            localStorage.removeItem('tpv_name');
+            if (localStorage.getItem('tpv_device_mode') !== 'b2c') {
+                localStorage.removeItem('tpv_device_mode');
+                localStorage.removeItem('admin_token');
+            }
         }
     </script>
 </body>

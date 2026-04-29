@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Setup de Dispositivo - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="theme-color" content="#1f2937">
+</head>
+<body class="bg-gray-900 h-[100dvh] flex items-center justify-center font-sans text-white">
+
+    <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border-2 border-gray-700 text-center relative overflow-hidden">
+        
+        <!-- Estado Inicial: Login -->
+        <div id="login-section" class="transition-all duration-300">
+            <div class="text-6xl mb-6">🔒</div>
+            <h1 class="text-3xl font-black mb-2 text-yellow-400 tracking-tight">Acceso Staff</h1>
+            <p class="text-gray-400 text-sm mb-8">Introduce el PIN de administrador para configurar este dispositivo.</p>
+            
+            <input id="pinInput" type="password" placeholder="****" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-4 mb-6 text-white font-bold outline-none focus:border-yellow-400 text-center text-4xl tracking-[1em]" inputmode="numeric" maxlength="4">
+            
+            <button onclick="verificarPin()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-black text-xl transition active:scale-95 shadow-md">
+                DESBLOQUEAR
+            </button>
+        </div>
+
+        <!-- Estado Secundario: Selector de Modos -->
+        <div id="modes-section" class="hidden transition-all duration-300">
+            <h2 class="text-2xl font-black mb-2 text-emerald-400">Configurar Dispositivo</h2>
+            <p class="text-gray-400 text-sm mb-6">Selecciona el rol permanente para esta pantalla.</p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="setMode('kiosko_fisico', 'kiosko.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
+                    <div class="text-4xl">🛒</div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">TPV Pública (Kiosko)</h3>
+                        <p class="text-xs text-gray-400">Pantalla fija en tienda para clientes.</p>
+                    </div>
+                </button>
+
+                <button onclick="setMode('caja', 'caja.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
+                    <div class="text-4xl">💰</div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Teléfono de Cobro (Caja)</h3>
+                        <p class="text-xs text-gray-400">Para camareros tomando pedidos y cobrando.</p>
+                    </div>
+                </button>
+
+                <button onclick="setMode('cocina', 'cocina.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
+                    <div class="text-4xl">👨‍🍳</div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Monitor de Cocina</h3>
+                        <p class="text-xs text-gray-400">Pantalla para ver y aceptar pedidos entrantes.</p>
+                    </div>
+                </button>
+
+                <button onclick="setMode('admin', 'dashboard_produccion.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
+                    <div class="text-4xl">📈</div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Dashboard Admin</h3>
+                        <p class="text-xs text-gray-400">Control total y métricas.</p>
+                    </div>
+                </button>
+            </div>
+            
+            <button onclick="cerrarSesion()" class="mt-6 text-red-400 text-sm font-bold underline hover:text-red-300">
+                Salir sin guardar
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function verificarPin() {
+            const pin = document.getElementById('pinInput').value;
+            // PIN de ejemplo, esto en prod puede validarse contra el backend
+            if (pin === '1234' || pin === '8888') {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('modes-section').classList.remove('hidden');
+                localStorage.setItem('admin_token', 'true');
+            } else {
+                alert('PIN Incorrecto');
+                document.getElementById('pinInput').value = '';
+            }
+        }
+
+        function setMode(mode, targetUrl) {
+            localStorage.setItem('tpv_device_mode', mode);
+            // Resetear roles antiguos para evitar conflictos
+            localStorage.removeItem('tpv_role');
+            localStorage.removeItem('tpv_name');
+            
+            // Navegar a la página destino
+            window.location.replace(targetUrl);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('admin_token');
+            window.location.reload();
+        }
+
+        // Si ya está logueado, mostrar modos directamente
+        window.onload = () => {
+            if (localStorage.getItem('admin_token') === 'true') {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('modes-section').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

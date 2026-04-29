@@ -134,24 +134,29 @@
         let carrito = [];
 
         let fallosConexion = 0;
-        let userRole = 'quiosko';
-        let userName = 'Cliente';
+        let tpvDeviceMode = 'b2c';
+        let tpvB2cTipo = 'ahora';
 
         function checkRole() {
-            userRole = localStorage.getItem('tpv_role');
-            userName = localStorage.getItem('tpv_name');
+            tpvDeviceMode = localStorage.getItem('tpv_device_mode');
+            tpvB2cTipo = localStorage.getItem('tpv_b2c_tipo') || 'ahora';
             
-            if (!userRole) {
-                window.location.href = 'index.html';
-                return;
+            if (!tpvDeviceMode) {
+                tpvDeviceMode = 'b2c';
+                localStorage.setItem('tpv_device_mode', 'b2c');
             }
             
-            if (userRole === 'responsable') {
-                document.getElementById('admin-buttons').classList.remove('hidden');
-                document.getElementById('admin-buttons').classList.add('flex');
+            if (tpvDeviceMode === 'admin' || tpvDeviceMode === 'caja') {
+                document.getElementById('admin-buttons')?.classList.remove('hidden');
+                document.getElementById('admin-buttons')?.classList.add('flex');
             } else {
-                document.getElementById('admin-buttons').classList.add('hidden');
-                document.getElementById('admin-buttons').classList.remove('flex');
+                document.getElementById('admin-buttons')?.classList.add('hidden');
+                document.getElementById('admin-buttons')?.classList.remove('flex');
+            }
+            
+            if (tpvDeviceMode !== 'b2c') {
+                const revBtn = document.getElementById('btn-review-flotante');
+                if(revBtn) revBtn.classList.add('hidden');
             }
         }
 
@@ -442,7 +447,7 @@
         function solicitarTelefono() {
             if(carrito.length === 0) return alert("❌ Añade productos primero.");
             
-            const isB2C = localStorage.getItem("tpv_role") === "cliente_b2c";
+            const isB2C = tpvDeviceMode === "b2c";
             const currentClienteId = localStorage.getItem("b2c_cliente_id");
             
             if (isB2C && currentClienteId) {
@@ -624,7 +629,7 @@
                 notas_cliente: notas || "",
                 canjear_puntos: canjearPuntos,
                 total: total,
-                estado_inicial: userRole === 'responsable' ? 'EN_PREPARACION' : 'ESPERANDO_PAGO',
+                estado_inicial: tpvDeviceMode === 'caja' ? 'EN_PREPARACION' : 'ESPERANDO_PAGO',
                 fecha: new Date().toISOString()
             };
 
@@ -690,7 +695,7 @@
                 `;
                 document.body.appendChild(overlay);
                 
-                if (userRole === 'responsable') {
+                if (tpvDeviceMode === 'caja') {
                     document.getElementById('success-subtext').innerText = "Pedido guardado pendiente de cobro.";
                 } else {
                     document.getElementById('success-subtext').innerText = "Pasa por caja para pagarlo y que empiece a prepararse.";
@@ -698,7 +703,7 @@
 
                 const printPayload = {
                     numero_ticket: data.ticket,
-                    origen: userRole === 'responsable' ? "CAJA" : "KIOSKO LOCAL",
+                    origen: tpvDeviceMode === 'caja' ? "CAJA" : "KIOSKO LOCAL",
                     total: data.total,
                     items: carrito.map(c => ({ nombre: c.nombre, cantidad: c.cantidad, precio_unitario: c.precio }))
                 };
@@ -897,7 +902,7 @@
         }
 
         function initScreensaver() {
-            if (userRole !== 'quiosko') return; // Solo arrancar en modo quiosko
+            if (tpvDeviceMode !== 'kiosko_fisico') return; // Solo arrancar en modo quiosko
             
             window.onload = resetIdleTimer;
             window.onmousemove = resetIdleTimer;
@@ -932,7 +937,7 @@
     </button>
     <script>
         // Only show if it's B2C Mobile flow
-        if (localStorage.getItem("tpv_role") === "cliente_b2c") {
+        if (localStorage.getItem("tpv_device_mode") === "b2c") {
             document.getElementById('btn-review-flotante').classList.remove('hidden');
         }
     </script>
