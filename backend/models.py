@@ -183,3 +183,12 @@ class Review(Base):
     rating = Column(Integer)
     comentario = Column(Text)
     cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
+
+class Fichaje(Base):
+    __tablename__ = "fichajes"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"))
+    tipo = Column(String(20)) # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
+    fecha = Column(DateTime, default=datetime.utcnow)
+    
+    usuario = relationship("Usuario", backref="fichajes")

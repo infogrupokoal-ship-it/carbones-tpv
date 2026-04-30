@@ -8,6 +8,7 @@ from sqlalchemy import desc, func
 from ..database import get_db
 from ..models import Usuario, Fichaje
 from ..utils.logger import logger
+from ..utils.auth import verify_password
 
 router = APIRouter(prefix="/rrhh", tags=["Recursos Humanos"])
 
@@ -26,9 +27,12 @@ class FichajeResponse(BaseModel):
 @router.post("/fichar")
 async def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
     """Registra un evento de fichaje validando el PIN del usuario."""
-    user = db.query(Usuario).filter(Usuario.pin == req.pin).first()
+    
+    users = db.query(Usuario).filter(Usuario.is_active == True).all()
+    user = next((u for u in users if verify_password(req.pin, u.pin_hash)), None)
+    
     if not user:
-        logger.warning(f"Intento de fichaje con PIN inválido: {req.pin}")
+        logger.warning(f"Intento de fichaje con PIN inválido: ***{req.pin[-1]}")
         raise HTTPException(status_code=401, detail="PIN incorrecto")
     
     nuevo_fichaje = Fichaje(
