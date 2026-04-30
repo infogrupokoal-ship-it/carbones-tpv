@@ -5,93 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consola de Sistema | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0c0c0c; color: #a1a1aa; }
-        .terminal { font-family: 'JetBrains Mono', monospace; background: #000; border: 1px solid #27272a; border-radius: 0.5rem; }
-        .log-line { border-bottom: 1px solid #18181b; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        body { font-family: 'Inter', sans-serif; background: #080808; color: #71717a; overflow: hidden; height: 100vh; }
+        .terminal { font-family: 'JetBrains Mono', monospace; background: #000; border: 1px solid #18181b; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .log-line { padding: 0.25rem 1rem; border-left: 3px solid transparent; transition: all 0.2s; }
+        .log-line:hover { background: rgba(255,255,255,0.03); }
+        .log-line.info { border-left-color: #3b82f6; }
+        .log-line.error { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+        .log-line.warning { border-left-color: #f59e0b; }
+        .status-pill { background: #18181b; border: 1px solid #27272a; padding: 0.25rem 0.75rem; rounded-full: 9999px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-8">
+<body class="flex flex-col p-8 gap-8">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-                    <span class="status-dot bg-emerald-500 animate-pulse"></span>
-                    System Console <span class="text-zinc-600 font-normal">v4.0.0-pro</span>
-                </h1>
-                <p class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Trazabilidad Inmutable & Telemetría</p>
+    <header class="flex justify-between items-end">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="h-3 w-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
+                <h1 class="text-3xl font-black text-white tracking-tighter uppercase italic">System <span class="text-zinc-600 font-light">Audit</span></h1>
             </div>
-            <button onclick="window.location.href='/static/portal.html'" class="text-xs bg-zinc-900 text-zinc-300 px-4 py-2 rounded hover:bg-zinc-800 transition">VOLVER AL HUB</button>
-        </header>
+            <p class="text-xs font-bold text-zinc-500 uppercase tracking-[0.3em]">Gestión de Telemetría Enterprise v2.1</p>
+        </div>
+        <div class="flex gap-4">
+            <div class="status-pill text-zinc-400">SYNC: <span class="text-emerald-500">REAL-TIME</span></div>
+            <button onclick="location.href='/static/index.html'" class="bg-white text-black px-6 py-2 rounded-xl text-xs font-black uppercase hover:bg-zinc-200 transition">Portal Principal</button>
+        </div>
+    </header>
 
-        <!-- System Stats Bar -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                <p class="text-[10px] font-bold text-zinc-600 uppercase">Uptime</p>
-                <p class="text-lg font-bold text-white">99.98%</p>
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Stats Sidebar -->
+        <div class="space-y-6">
+            <div class="terminal p-6 space-y-6">
+                <div>
+                    <p class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Métricas Críticas</p>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <span class="text-xs font-bold text-zinc-400">Latencia DB</span>
+                            <span id="stat-latency" class="text-xl font-black text-white">--ms</span>
+                        </div>
+                        <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full w-[85%]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Carga del Núcleo</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-zinc-900/50 p-3 rounded-xl">
+                            <p class="text-[8px] font-black text-zinc-500 uppercase mb-1">CPU</p>
+                            <p id="stat-cpu" class="text-lg font-black text-white">--%</p>
+                        </div>
+                        <div class="bg-zinc-900/50 p-3 rounded-xl">
+                            <p class="text-[8px] font-black text-zinc-500 uppercase mb-1">RAM</p>
+                            <p id="stat-ram" class="text-lg font-black text-white">--%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-zinc-900">
+                    <button onclick="clearLogs()" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl text-[10px] font-black uppercase border border-red-500/20 hover:bg-red-500/20 transition">Limpiar Buffer Local</button>
+                </div>
             </div>
-            <div class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                <p class="text-[10px] font-bold text-zinc-600 uppercase">Hilos Activos</p>
-                <p class="text-lg font-bold text-white">12 / 64</p>
-            </div>
-            <div class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                <p class="text-[10px] font-bold text-zinc-600 uppercase">Latencia DB</p>
-                <p class="text-lg font-bold text-emerald-500">1.2ms</p>
-            </div>
-            <div class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                <p class="text-[10px] font-bold text-zinc-600 uppercase">Errores (24h)</p>
-                <p class="text-lg font-bold text-zinc-400">0</p>
+
+            <div class="terminal p-6 bg-blue-600/5 border-blue-600/20">
+                <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Ayuda Técnica</h3>
+                <p class="text-[10px] text-zinc-500 leading-relaxed">Los logs mostrados son un reflejo directo del archivo <code>tpv_system.log</code>. Use esta consola para diagnosticar fallos de hardware o red.</p>
             </div>
         </div>
 
-        <!-- Terminal View -->
-        <div class="terminal overflow-hidden flex flex-col h-[600px]">
-            <div class="bg-zinc-900 p-3 border-b border-zinc-800 flex justify-between items-center">
+        <!-- Terminal Output -->
+        <div class="lg:col-span-3 terminal flex flex-col overflow-hidden">
+            <div class="bg-zinc-900/50 p-4 border-b border-zinc-900 flex justify-between items-center">
                 <div class="flex gap-2">
-                    <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
-                    <div class="w-3 h-3 rounded-full bg-amber-500/20"></div>
-                    <div class="w-3 h-3 rounded-full bg-emerald-500/20"></div>
+                    <div class="w-3 h-3 rounded-full bg-zinc-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-zinc-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-zinc-800"></div>
                 </div>
-                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">live_audit_stream.log</span>
+                <div class="flex gap-4">
+                    <span id="log-count" class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">0 Líneas Cargadas</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="auto-scroll" checked class="accent-emerald-500">
+                        <span class="text-[10px] font-black text-zinc-500 uppercase">Auto-Scroll</span>
+                    </label>
+                </div>
             </div>
-            <div class="p-6 overflow-y-auto text-xs space-y-2" id="log-container">
-                <!-- Logs will be injected here -->
-                <div class="log-line py-1 flex gap-4">
-                    <span class="text-zinc-600">[2026-04-30 02:00:01]</span>
-                    <span class="text-emerald-500 font-bold">INFO</span>
-                    <span class="text-zinc-300">Sistema Enterprise v4.0 inicializado correctamente.</span>
-                </div>
-                <div class="log-line py-1 flex gap-4">
-                    <span class="text-zinc-600">[2026-04-30 02:02:54]</span>
-                    <span class="text-blue-500 font-bold">SEC</span>
-                    <span class="text-zinc-300">Seed de datos maestros ejecutado por @admin. 12 entidades creadas.</span>
-                </div>
-                <div class="log-line py-1 flex gap-4">
-                    <span class="text-zinc-600">[2026-04-30 02:03:05]</span>
-                    <span class="text-amber-500 font-bold">AUDIT</span>
-                    <span class="text-zinc-300">Actualización de Hub de Gestión detectada.</span>
-                </div>
+            <div id="log-display" class="flex-1 overflow-y-auto p-4 text-[11px] leading-relaxed no-scrollbar">
+                <!-- Logs injected here -->
+                <div class="animate-pulse py-10 text-center uppercase tracking-widest font-black text-zinc-800">Conectando con el stream de auditoría...</div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        async function fetchLogs() {
+        const display = document.getElementById('log-display');
+        const autoScroll = document.getElementById('auto-scroll');
+
+        async function updateTelemetry() {
             try {
-                const res = await fetch('/api/v1/analytics/audit', {
-                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-                });
-                if (res.ok) {
-                    const logs = await res.json();
-                    const container = document.getElementById('log-container');
-                    // Logic to append logs dynamically
-                }
+                const res = await fetch('/api/system/health');
+                const data = await res.json();
+                document.getElementById('stat-latency').innerText = `${data.latency_ms}ms`;
+                document.getElementById('stat-cpu').innerText = `${data.components.cpu_percent}%`;
+                document.getElementById('stat-ram').innerText = `${data.components.ram_percent}%`;
             } catch (e) {}
         }
-        setInterval(fetchLogs, 5000);
+
+        async function fetchLogs() {
+            try {
+                const res = await fetch('/api/system/logs?lines=200');
+                const data = await res.json();
+                
+                if (data.logs) {
+                    const html = data.logs.map(line => {
+                        let type = 'info';
+                        if (line.includes('[ERROR]')) type = 'error';
+                        if (line.includes('[WARNING]')) type = 'warning';
+                        
+                        // Parse timestamp and message
+                        const parts = line.split(' ');
+                        const time = parts[0] + ' ' + parts[1];
+                        const msg = line.substring(line.indexOf(']') + 2);
+
+                        return `
+                            <div class="log-line ${type}">
+                                <span class="text-zinc-600 font-bold">${time}</span>
+                                <span class="mx-2 opacity-50">|</span>
+                                <span class="text-white">${msg}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    display.innerHTML = html;
+                    document.getElementById('log-count').innerText = `${data.logs.length} Líneas Cargadas`;
+
+                    if (autoScroll.checked) {
+                        display.scrollTop = display.scrollHeight;
+                    }
+                }
+            } catch (e) {
+                display.innerHTML = `<div class="p-8 text-red-500 font-bold">ERROR DE CONEXIÓN CON EL BACKEND</div>`;
+            }
+        }
+
+        function clearLogs() {
+            display.innerHTML = '';
+        }
+
+        setInterval(fetchLogs, 2000);
+        setInterval(updateTelemetry, 5000);
+        fetchLogs();
+        updateTelemetry();
     </script>
 </body>
 </html>

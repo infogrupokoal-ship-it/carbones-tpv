@@ -234,7 +234,6 @@
 
             try {
                 const payload = {
-                    origen: "KIOSKO",
                     items: cart.map(item => ({ producto_id: item.id, cantidad: 1 })),
                     notas_cliente: "Pedido desde Kiosko Ultra-Pro"
                 };
