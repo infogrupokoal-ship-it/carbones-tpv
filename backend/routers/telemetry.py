@@ -1,70 +1,36 @@
-import os
-import time
-
-import psutil
 from fastapi import APIRouter, Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
-
-from ..config import settings
+from typing import List
 from ..database import get_db
+from ..models import LogOperativo
+from pydantic import BaseModel
+from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(prefix="/telemetry", tags=["Telemetría y Diagnóstico"])
 
+class LogSchema(BaseModel):
+    id: str
+    modulo: str
+    nivel: str
+    mensaje: str
+    detalles: str = None
+    fecha: datetime
 
-@router.get("/health")
-def health_check(db: Session = Depends(get_db)):
-    """
-    Diagnóstico completo del sistema: Base de datos, Hardware y Conectividad.
-    Ideal para dashboards de mantenimiento o sistemas de monitoreo externo.
-    """
-    start_time = time.time()
+    class Config:
+        from_attributes = True
 
-    # 1. Verificar Base de Datos
-    db_status = "DOWN"
-    try:
-        db.execute(text("SELECT 1"))
-        db_status = "UP"
-    except Exception as e:
-        db_status = f"ERROR: {str(e)}"
+@router.get("/logs", response_model=List[LogSchema])
+def get_system_logs(limit: int = 50, db: Session = Depends(get_db)):
+    """Retorna los últimos N logs operativos del sistema."""
+    logs = db.query(LogOperativo).order_by(LogOperativo.fecha.desc()).limit(limit).all()
+    return logs
 
-    # 2. Métricas del Host (Hardware)
-    cpu_usage = psutil.cpu_percent()
-    ram_usage = psutil.virtual_memory().percent
-    disk_usage = psutil.disk_usage("/").percent
-
-    # 3. Estado de Servicios Externos (Simulado/Rápido)
-    stripe_configured = bool(settings.STRIPE_SECRET_KEY)
-    waha_status = "NOT_CONFIGURED" if not settings.WAHA_URL else "CONFIGURED"
-
-    latency_ms = (time.time() - start_time) * 1000
-
+@router.get("/stats")
+def get_system_stats():
+    """Métricas básicas de hardware (Uso de CPU, RAM, etc)."""
+    import psutil
     return {
-        "status": "OPERATIONAL" if db_status == "UP" else "DEGRADED",
-        "timestamp": time.time(),
-        "latency_ms": round(latency_ms, 2),
-        "components": {
-            "database": db_status,
-            "cpu_percent": cpu_usage,
-            "ram_percent": ram_usage,
-            "disk_percent": disk_usage,
-            "stripe": "READY" if stripe_configured else "MISSING_KEYS",
-            "waha": waha_status,
-        },
-        "version": settings.VERSION,
+        "cpu": psutil.cpu_percent(),
+        "memory": psutil.virtual_memory().percent,
+        "disk": psutil.disk_usage('/').percent
     }
-
-
-@router.get("/logs")
-def get_recent_logs(lines: int = 100):
-    """Permite visualizar los últimos eventos del servidor para depuración rápida."""
-    log_path = "instance/server.log"
-    if not os.path.exists(log_path):
-        return {"error": "Archivo de logs no encontrado"}
-
-    try:
-        with open(log_path, "r") as f:
-            content = f.readlines()
-            return {"logs": content[-lines:]}
-    except Exception as e:
-        return {"error": str(e)}
