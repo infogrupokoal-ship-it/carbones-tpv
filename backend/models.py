@@ -35,6 +35,7 @@ class Categoria(Base):
     __tablename__ = "categorias"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nombre = Column(String(50), nullable=False)
+    is_active = Column(Boolean, default=True)
     productos = relationship("Producto", back_populates="categoria")
 
 class Producto(Base):
@@ -70,6 +71,7 @@ class Ingrediente(Base):
     stock_actual = Column(Float, default=0.0)
     stock_minimo = Column(Float, default=5.0)
     proveedor_id = Column(String(36), ForeignKey("proveedores.id"), nullable=True)
+    is_active = Column(Boolean, default=True)
     
     proveedor = relationship("Proveedor", back_populates="ingredientes")
     receta_items = relationship("RecetaItem", back_populates="ingrediente")
@@ -80,6 +82,7 @@ class Proveedor(Base):
     nombre = Column(String(100), nullable=False)
     email = Column(String(100))
     telefono = Column(String(20))
+    is_active = Column(Boolean, default=True)
     ingredientes = relationship("Ingrediente", back_populates="proveedor")
 
 class RecetaItem(Base):
@@ -156,6 +159,20 @@ class LogOperativo(Base):
     modulo = Column(String(50))
     mensaje = Column(Text)
 
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    accion = Column(String(100), nullable=False)
+    entidad = Column(String(50))
+    entidad_id = Column(String(36))
+    ip_origen = Column(String(50))
+    payload_previo = Column(Text, nullable=True)
+    payload_nuevo = Column(Text, nullable=True)
+    
+    usuario = relationship("Usuario", backref="auditorias")
+
 class ReporteZ(Base):
     __tablename__ = "reportes_z"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -194,3 +211,14 @@ class Fichaje(Base):
     fecha = Column(DateTime, default=datetime.utcnow)
     
     usuario = relationship("Usuario", backref="fichajes")
+
+class Merma(Base):
+    __tablename__ = "mermas"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    entidad_tipo = Column(String(20)) # PRODUCTO o INGREDIENTE
+    entidad_id = Column(String(36)) # ID de Producto o Ingrediente
+    cantidad = Column(Float, nullable=False)
+    motivo = Column(String(100)) # CADUCADO, ERROR_COCINA, ROTURA
+    coste_estimado = Column(Float, default=0.0)
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"))

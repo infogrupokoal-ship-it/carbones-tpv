@@ -220,3 +220,75 @@ def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db)):
         db.rollback()
         logger.error(f"Error en ajuste de stock: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno en ajuste de inventario")
+
+class MermaRequest(BaseModel):
+    entidad_tipo: str = Field(..., pattern="^(PRODUCTO|INGREDIENTE)$")
+    entidad_id: str
+    cantidad: float = Field(..., gt=0)
+    motivo: str = Field(..., pattern="^(CADUCIDAD|ROTURA|ERROR_COCINA|OTRO)$")
+    usuario_id: Optional[str] = None # En el futuro, sacar del token JWT
+
+@router.post("/merma", status_code=status.HTTP_201_CREATED)
+def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
+    """
+    Endpoint avanzado para gestión de desperdicios. 
+    Registra la merma calculando su coste asociado para Business Intelligence.
+    """
+    try:
+        from ..models import Merma
+        
+        coste_unitario_estimado = 0.0
+        nombre_entidad = ""
+        
+        if req.entidad_tipo == "PRODUCTO":
+            item = db.query(Producto).get(req.entidad_id)
+            if not item: raise HTTPException(404, "Producto no encontrado")
+            # Coste estimado basado en un % del precio o cálculo de ingredientes
+            coste_unitario_estimado = item.precio * 0.35 
+            item.stock_actual -= req.cantidad
+            nombre_entidad = item.nombre
+        else:
+            item = db.query(Ingrediente).get(req.entidad_id)
+            if not item: raise HTTPException(404, "Ingrediente no encontrado")
+            coste_unitario_estimado = item.coste_unitario or 0.0
+            item.stock_actual -= req.cantidad
+            nombre_entidad = item.nombre
+
+        coste_total_merma = coste_unitario_estimado * req.cantidad
+
+        # Registrar Merma Detallada
+        nueva_merma = Merma(
+            id=str(uuid.uuid4()),
+            entidad_tipo=req.entidad_tipo,
+            entidad_id=req.entidad_id,
+            cantidad=req.cantidad,
+            motivo=req.motivo,
+            coste_estimado=coste_total_merma,
+            usuario_id=req.usuario_id
+        )
+        db.add(nueva_merma)
+
+        # Reflejar en Movimientos de Stock
+        db.add(MovimientoStock(
+            id=str(uuid.uuid4()),
+            producto_id=req.entidad_id if req.entidad_tipo == "PRODUCTO" else None,
+            cantidad=-req.cantidad,
+            tipo="MERMA",
+            descripcion=f"Merma registrada: {req.motivo}"
+        ))
+
+        db.commit()
+        logger.warning(f"🚨 Merma Industrial Registrada: {req.cantidad}x {nombre_entidad} | Motivo: {req.motivo} | Coste: {coste_total_merma}€")
+        
+        return {
+            "status": "success", 
+            "message": f"Merma de {nombre_entidad} registrada.",
+            "impacto_financiero": coste_total_merma
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error registrando merma: {str(e)}")
+        raise HTTPException(status_code=500, detail="Fallo en registro de merma")
