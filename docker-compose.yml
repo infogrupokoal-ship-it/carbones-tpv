@@ -2,46 +2,18 @@ version: '3.8'
 
 services:
   tpv-backend:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: tpv_enterprise_backend
     ports:
-      - "127.0.0.1:8000:8000" # Limit binding to localhost for security (Nginx proxy)
+      - "8000:8000"
     volumes:
       - tpv_data:/data
       - ./instance/logs:/app/instance/logs
     environment:
       - DATABASE_URL=sqlite:////data/tpv_data.sqlite
       - ENVIRONMENT=production
-      # - SECRET_KEY=${SECRET_KEY} # Should be passed via .env file
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.2'
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
-    networks:
-      - tpv_network
+    restart: always
 
 volumes:
   tpv_data:
     driver: local
-
-networks:
-  tpv_network:
-    driver: bridge

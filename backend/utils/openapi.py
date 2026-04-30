@@ -1,35 +1,25 @@
-from fastapi import FastAPI
-from backend.config import settings
+from fastapi.openapi.utils import get_openapi
 
-def setup_openapi(app: FastAPI):
-    """Configuración profesional de la documentación de la API."""
+def custom_openapi(app):
     if app.openapi_schema:
         return app.openapi_schema
     
-    from fastapi.openapi.utils import get_openapi
-    
     openapi_schema = get_openapi(
-        title=settings.APP_NAME,
-        version=settings.APP_VERSION,
+        title="Carbones y Pollos - API Directiva Enterprise",
+        version="2.6.0",
         description="""
-        ## Ecosistema Enterprise Carbones y Pollos TPV
-        Esta API es el núcleo operativo de la cadena de asadores.
+        ## 🚀 Interfaz de Control de Operaciones
+        Esta API permite la integración total de terminales TPV, KDS de cocina, y el motor de inteligencia operacional Koal-AI.
         
-        ### Seguridad
-        - **OAuth2 / JWT**: Para acceso administrativo y de terminales.
-        - **PIN de Acceso**: Para personal de sala y cocina.
-        
-        ### Módulos Principales
-        * **Operaciones**: Gestión de pedidos en tiempo real.
-        * **Logística**: Control de stock fraccional y mermas.
-        * **BI & IA**: Analítica predictiva y asistente ejecutivo.
+        ### 🔒 Seguridad
+        Todos los endpoints están protegidos por middleware de auditoría y, opcionalmente, JWT.
         """,
         routes=app.routes,
     )
     
-    # Custom tags and descriptions
+    # Personalización estética de Swagger (Añadir logo/colores)
     openapi_schema["info"]["x-logo"] = {
-        "url": "/static/img/logo_enterprise.png"
+        "url": "https://grupokoal.com/assets/tpv_logo.png"
     }
     
     app.openapi_schema = openapi_schema

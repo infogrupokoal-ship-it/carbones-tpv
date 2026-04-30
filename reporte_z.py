@@ -1,7 +1,11 @@
-import sqlite3
+import base64
 import datetime
-import requests
 import os
+import sqlite3
+
+import requests
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 DB_PATH = "tpv_data.sqlite"
 WAHA_URL = os.environ.get("WAHA_URL", "http://113.30.148.104:3000")
@@ -9,14 +13,15 @@ WAHA_SESSION = os.environ.get("WAHA_SESSION", "carbones")
 WAHA_API_KEY = os.environ.get("WAHA_HTTP_API_KEY", "1060705b0a574d1fbc92fa10a2b5aca7")
 TELEFONO_ADMIN = os.environ.get("TELEFONO_ADMIN", "34604864187")
 
+
 def generar_reporte_z(efectivo_declarado=None):
     hoy = datetime.datetime.now()
     fecha_hoy_str = hoy.strftime("%Y-%m-%d")
     fecha_hoy_display = hoy.strftime("%d/%m/%Y")
-    
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Obtener pedidos pagados hoy
     query = """
         SELECT total, metodo_pago 
@@ -26,10 +31,10 @@ def generar_reporte_z(efectivo_declarado=None):
     """
     cursor.execute(query, (fecha_hoy_str,))
     pedidos = cursor.fetchall()
-    
+
     total_efectivo = 0.0
     total_tarjeta = 0.0
-    
+
     for row in pedidos:
         total = row[0]
         metodo = row[1]
@@ -37,65 +42,79 @@ def generar_reporte_z(efectivo_declarado=None):
             total_efectivo += total
         else:
             total_tarjeta += total
-            
+
     total_caja = total_efectivo + total_tarjeta
-    
+
     # Calcular Arqueo
     diferencia_arqueo = 0.0
     ef_decl = 0.0
     if efectivo_declarado is not None:
         ef_decl = efectivo_declarado
         diferencia_arqueo = ef_decl - total_efectivo
-    
+
     # Obtener IDs de categorías perecederas
-    cursor.execute("SELECT id FROM categorias WHERE nombre IN ('Pollos Asados', 'Guarniciones')")
+    cursor.execute(
+        "SELECT id FROM categorias WHERE nombre IN ('Pollos Asados', 'Guarniciones')"
+    )
     cat_ids = [row[0] for row in cursor.fetchall()]
-    
+
     # Obtener productos (para el conteo de mermas y pollos vendidos)
-    cursor.execute("SELECT id, nombre, stock_actual, categoria_id, precio FROM productos WHERE stock_base_id IS NULL")
+    cursor.execute(
+        "SELECT id, nombre, stock_actual, categoria_id, precio FROM productos WHERE stock_base_id IS NULL"
+    )
     productos = cursor.fetchall()
-    
+
     sobrantes_texto = ""
     pollos_vendidos = 0
     mermas_vaciadas = 0
     coste_total_mermas = 0.0
-    
+
     for p in productos:
         p_id, p_nombre, p_stock, p_cat_id, p_precio = p
-        
+
         # Si es Pollo Asado, calcular vendidos hoy
         if "Pollo" in p_nombre:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT SUM(cantidad) 
                 FROM movimientos_stock 
                 WHERE producto_id = ? 
                 AND tipo = 'VENTA' 
                 AND date(fecha) = ?
-            """, (p_id, fecha_hoy_str))
+            """,
+                (p_id, fecha_hoy_str),
+            )
             res_movs = cursor.fetchone()
             if res_movs and res_movs[0]:
                 pollos_vendidos += abs(res_movs[0])
-                
+
         # MAGIA FASE 3: Si es producto perecedero y tiene stock positivo, se convierte en merma/sobrante automáticamente
         if p_cat_id in cat_ids and p_stock > 0:
             merma_qty = p_stock
-            
+
             # Estimación de coste perdido (Asumimos que el coste es un 40% del precio de venta final)
             coste_estimado = merma_qty * (p_precio * 0.40)
             coste_total_mermas += coste_estimado
-            
-            sobrantes_texto += f"🗑 {p_nombre}: {merma_qty} uds. (-{coste_estimado:.2f}€)\n"
-            
+
+            sobrantes_texto += (
+                f"🗑 {p_nombre}: {merma_qty} uds. (-{coste_estimado:.2f}€)\n"
+            )
+
             # Registrar el movimiento de purga
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO movimientos_stock (producto_id, cantidad, tipo, descripcion, fecha)
                 VALUES (?, ?, 'SOBRANTE_DIA_ANTERIOR', 'Vaciado automático fin de día', ?)
-            """, (p_id, -merma_qty, hoy.strftime("%Y-%m-%d %H:%M:%S")))
-            
+            """,
+                (p_id, -merma_qty, hoy.strftime("%Y-%m-%d %H:%M:%S")),
+            )
+
             # Vaciar el stock
-            cursor.execute("UPDATE productos SET stock_actual = 0 WHERE id = ?", (p_id,))
+            cursor.execute(
+                "UPDATE productos SET stock_actual = 0 WHERE id = ?", (p_id,)
+            )
             mermas_vaciadas += 1
-            
+
         elif p_stock != 0 and p_cat_id not in cat_ids:
             # Productos no perecederos con stock (Bebidas, etc), se listan pero no se vacían
             sobrantes_texto += f"📦 {p_nombre}: {p_stock}\n"
@@ -103,54 +122,76 @@ def generar_reporte_z(efectivo_declarado=None):
     conn.commit()
 
     conn.close()
-    
-    mensaje = f"🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
+
+    mensaje = "🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
     mensaje += f"📅 Fecha: {fecha_hoy_display}\n\n"
     mensaje += f"💰 Efectivo Sistema: {total_efectivo:.2f} €\n"
     if efectivo_declarado is not None:
         mensaje += f"📝 Efectivo Declarado (Cajero): {ef_decl:.2f} €\n"
-        simbolo_dif = "✅" if diferencia_arqueo == 0 else ("🔴 FALTANTE" if diferencia_arqueo < 0 else "🔵 SOBRANTE")
+        simbolo_dif = (
+            "✅"
+            if diferencia_arqueo == 0
+            else ("🔴 FALTANTE" if diferencia_arqueo < 0 else "🔵 SOBRANTE")
+        )
         mensaje += f"⚖️ Diferencia Arqueo: {diferencia_arqueo:.2f} € {simbolo_dif}\n"
     mensaje += f"💳 Tarjeta: {total_tarjeta:.2f} €\n"
-    mensaje += f"------------------------\n"
+    mensaje += "------------------------\n"
     mensaje += f"📊 *TOTAL CAJA: {total_caja:.2f} €*\n\n"
     mensaje += f"🍗 Pollos Vendidos Hoy: {int(pollos_vendidos)}\n\n"
     if coste_total_mermas > 0:
         mensaje += f"🚨 *COSTE MERMAS HOY: -{coste_total_mermas:.2f} €*\n\n"
-    mensaje += f"📦 *INVENTARIO FINAL (SOBRANTES)*:\n"
+    mensaje += "📦 *INVENTARIO FINAL (SOBRANTES)*:\n"
     mensaje += sobrantes_texto if sobrantes_texto else "Sin sobrantes."
-    
+
     # ---------------------------------------------
     # FASE 2/3 EXPANDIDA: AUDITORIA EN BASE DE DATOS
     # ---------------------------------------------
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO reportes_z (fecha_cierre, total_efectivo, total_tarjeta, total_caja, efectivo_declarado, diferencia_arqueo, pollos_vendidos, coste_mermas, resumen_texto)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (hoy.strftime("%Y-%m-%d %H:%M:%S"), total_efectivo, total_tarjeta, total_caja, ef_decl, diferencia_arqueo, pollos_vendidos, coste_total_mermas, mensaje))
+        """,
+            (
+                hoy.strftime("%Y-%m-%d %H:%M:%S"),
+                total_efectivo,
+                total_tarjeta,
+                total_caja,
+                ef_decl,
+                diferencia_arqueo,
+                pollos_vendidos,
+                coste_total_mermas,
+                mensaje,
+            ),
+        )
         conn.commit()
     except Exception as e:
-        print(f"Nota: No se pudo guardar en reportes_z ({e}). Asegúrate de reiniciar el servidor para que cree la tabla.")
+        print(
+            f"Nota: No se pudo guardar en reportes_z ({e}). Asegúrate de reiniciar el servidor para que cree la tabla."
+        )
     finally:
         conn.close()
-    
+
     return mensaje
+
 
 def enviar_whatsapp(mensaje):
     payload = {
         "chatId": f"{TELEFONO_ADMIN}@c.us",
         "text": mensaje,
-        "session": WAHA_SESSION
+        "session": WAHA_SESSION,
     }
     headers = {"Content-Type": "application/json"}
     if WAHA_API_KEY:
         headers["X-Api-Key"] = WAHA_API_KEY
-        
+
     print(f"Enviando WhatsApp a {TELEFONO_ADMIN}...")
     try:
-        response = requests.post(f"{WAHA_URL}/api/sendText", json=payload, headers=headers, timeout=10)
+        response = requests.post(
+            f"{WAHA_URL}/api/sendText", json=payload, headers=headers, timeout=10
+        )
         if response.status_code in [200, 201]:
             print("WhatsApp enviado correctamente.")
         else:
@@ -158,7 +199,64 @@ def enviar_whatsapp(mensaje):
     except Exception as e:
         print(f"No se pudo contactar con WAHA: {e}")
 
+
+def generar_pdf_z(mensaje, fecha_str):
+    pdf_path = f"reporte_z_{fecha_str}.pdf"
+    c = canvas.Canvas(pdf_path, pagesize=letter)
+    c.setFont("Helvetica", 12)
+
+    y = 750
+    for linea in mensaje.split("\n"):
+        if y < 50:
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y = 750
+        c.drawString(50, y, linea)
+        y -= 20
+
+    c.save()
+    return pdf_path
+
+
+def enviar_whatsapp_pdf(pdf_path, caption=""):
+    try:
+        with open(pdf_path, "rb") as f:
+            file_data = base64.b64encode(f.read()).decode("utf-8")
+
+        payload = {
+            "chatId": f"{TELEFONO_ADMIN}@c.us",
+            "file": {
+                "mimetype": "application/pdf",
+                "filename": os.path.basename(pdf_path),
+                "data": file_data,
+            },
+            "caption": caption,
+            "session": WAHA_SESSION,
+        }
+        headers = {"Content-Type": "application/json"}
+        if WAHA_API_KEY:
+            headers["X-Api-Key"] = WAHA_API_KEY
+
+        print(f"Enviando PDF por WhatsApp a {TELEFONO_ADMIN}...")
+        response = requests.post(
+            f"{WAHA_URL}/api/sendFile", json=payload, headers=headers, timeout=15
+        )
+        if response.status_code in [200, 201]:
+            print("WhatsApp (PDF) enviado correctamente.")
+        else:
+            print(f"Error enviando WhatsApp (PDF): {response.text}")
+    except Exception as e:
+        print(f"No se pudo enviar PDF por WAHA: {e}")
+
+
 if __name__ == "__main__":
+    hoy_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     msg = generar_reporte_z()
     print(msg)
+
+    # Enviar mensaje de texto primero
     enviar_whatsapp(msg)
+
+    # Generar y enviar PDF
+    pdf_file = generar_pdf_z(msg, hoy_str)
+    enviar_whatsapp_pdf(pdf_file, caption=f"Reporte Z - {hoy_str}")

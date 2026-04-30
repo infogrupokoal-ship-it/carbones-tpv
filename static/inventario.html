@@ -4,171 +4,292 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario ERP - Carbones y Pollos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #1a1d20; color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            min-height: 100vh;
+        }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .table-dark { background-color: transparent; }
-        .alert-stock { border-left: 5px solid #dc3545; }
-        .ok-stock { border-left: 5px solid #198754; }
-        @keyframes pulse-bg {
-            0% { opacity: 0.6; }
-            50% { opacity: 0.3; }
-            100% { opacity: 0.6; }
-        }
-        .skeleton-loader {
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            animation: pulse-bg 1.5s infinite;
+        .animate-pulse-fast {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
-<body>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mt-3 px-4">
-            <li class="breadcrumb-item"><a href="dashboard_produccion.html" class="text-light text-decoration-none">🏠 Dashboard</a></li>
-            <li class="breadcrumb-item active text-warning" aria-current="page">📦 Inventario</li>
-        </ol>
-    </nav>
-    <div class="container mt-4">
-        <h2 class="mb-4">Gestión de Inventario (Supply Chain)</h2>
-        <div class="glass-panel">
-            <table class="table table-dark table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Ingrediente</th>
-                        <th>Stock Actual</th>
-                        <th>Min. Requerido</th>
-                        <th>Proveedor</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="inventario-list">
-                    <tr>
-                        <td><div class="skeleton-loader" style="width: 100%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 80%;"></div></td>
-                        <td><div class="skeleton-loader" style="height: 30px; width: 60px;"></div></td>
-                    </tr>
-                    <tr>
-                        <td><div class="skeleton-loader" style="width: 100%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 50%;"></div></td>
-                        <td><div class="skeleton-loader" style="width: 80%;"></div></td>
-                        <td><div class="skeleton-loader" style="height: 30px; width: 60px;"></div></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<body class="text-gray-100 font-sans pb-24">
 
-    <!-- Modal Pedido -->
-    <div class="modal fade text-dark" id="modalPedido" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Realizar Pedido a Proveedor</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!-- Navbar -->
+    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-40 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📦</span>
+                    <h1 class="text-xl font-black tracking-wider text-white">INVENTARIO <span class="text-emerald-400">PRO</span></h1>
                 </div>
-                <div class="modal-body">
-                    <p id="proveedor-name" class="fw-bold text-primary"></p>
-                    <label>Cantidad a pedir:</label>
-                    <input type="number" id="pedido-cantidad" class="form-control" value="50">
-                    <input type="hidden" id="pedido-ingrediente-id">
+                <div class="flex gap-3">
+                    <button onclick="loadInventario()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg active:scale-95">
+                        🔄 Actualizar
+                    </button>
+                    <a href="dashboard.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg active:scale-95">
+                        🏠 Dashboard
+                    </a>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="enviarPedido()">Enviar Orden (IA)</button>
-                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Filters -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button onclick="filterStock('all')" id="btn-filter-all" class="filter-btn bg-emerald-600 text-white px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg transition-all active:scale-95">Todo el Stock</button>
+            <button onclick="filterStock('low')" id="btn-filter-low" class="filter-btn bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all active:scale-95 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse-fast"></span> Stock Bajo
+            </button>
+            <button onclick="filterStock('ok')" id="btn-filter-ok" class="filter-btn bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all active:scale-95">Stock Óptimo</button>
+        </div>
+
+        <!-- Grid -->
+        <div id="inventario-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Loading Skeletons -->
+            <div class="glass-panel rounded-3xl p-6 animate-pulse">
+                <div class="h-6 bg-gray-700 rounded-full w-1/2 mb-4"></div>
+                <div class="h-10 bg-gray-700 rounded-xl mb-4"></div>
+                <div class="h-4 bg-gray-700 rounded-full w-3/4 mb-2"></div>
+                <div class="h-12 bg-gray-700 rounded-xl mt-6"></div>
+            </div>
+            <div class="glass-panel rounded-3xl p-6 animate-pulse">
+                <div class="h-6 bg-gray-700 rounded-full w-1/2 mb-4"></div>
+                <div class="h-10 bg-gray-700 rounded-xl mb-4"></div>
+                <div class="h-4 bg-gray-700 rounded-full w-3/4 mb-2"></div>
+                <div class="h-12 bg-gray-700 rounded-xl mt-6"></div>
             </div>
         </div>
     </div>
 
-    <!-- Speed Dial Flotante -->
-    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050;">
-        <button class="btn btn-warning rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 24px;" onclick="window.location.href='dashboard_produccion.html'" title="Volver al Dashboard">
-            ⬅️
-        </button>
+    <!-- Modal Pedido -->
+    <div id="modalPedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex-col justify-center items-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-panel rounded-3xl max-w-md w-full p-8 transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-white">Solicitar Pedido</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="bg-gray-800/50 p-4 rounded-2xl border border-gray-700 mb-6">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider mb-1">PROVEEDOR AUTOMÁTICO (IA)</p>
+                <p id="proveedor-name" class="text-lg font-bold text-emerald-400"></p>
+                <p id="ingrediente-name" class="text-gray-300 mt-2 font-medium"></p>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Cantidad a Solicitar</label>
+                <div class="flex items-center gap-4">
+                    <button onclick="adjCant(-10)" class="bg-gray-800 hover:bg-gray-700 text-white w-14 h-14 rounded-2xl font-black text-2xl flex items-center justify-center border border-gray-700 transition-all active:scale-95">-</button>
+                    <input type="number" id="pedido-cantidad" class="flex-1 bg-gray-900 border-2 border-emerald-500/50 text-white text-center rounded-2xl h-14 font-black text-2xl focus:outline-none focus:border-emerald-500" value="50">
+                    <button onclick="adjCant(10)" class="bg-gray-800 hover:bg-gray-700 text-white w-14 h-14 rounded-2xl font-black text-2xl flex items-center justify-center border border-gray-700 transition-all active:scale-95">+</button>
+                </div>
+                <input type="hidden" id="pedido-ingrediente-id">
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95">Cancelar</button>
+                <button onclick="enviarPedido()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-900/50 transition-all active:scale-95">Enviar Orden</button>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 border-l-4 border-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <span class="text-2xl">✅</span>
+        <div>
+            <p class="font-bold text-sm" id="toast-title">Notificación</p>
+            <p class="text-xs text-gray-400" id="toast-desc">Mensaje de éxito.</p>
+        </div>
+    </div>
+
     <script>
-        let modalPedido;
+        let allData = [];
+        let currentFilter = 'all';
 
         document.addEventListener("DOMContentLoaded", () => {
-            modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
             loadInventario();
         });
 
         async function loadInventario() {
             try {
-                const res = await fetch('/api/inventario');
-                const data = await res.json();
-                const tbody = document.getElementById('inventario-list');
-                tbody.innerHTML = "";
-                
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">
-                        <div style="font-size: 3rem; margin-bottom: 10px;">📦</div>
-                        <h4>Inventario Vacío</h4>
-                        <p>No hay ingredientes registrados o no se pudieron cargar.</p>
-                    </td></tr>`;
-                    return;
-                }
-                
-                data.forEach(ing => {
-                    const isCritico = ing.stock_actual <= ing.stock_minimo;
-                    const rowClass = isCritico ? 'alert-stock' : 'ok-stock';
-                    const badgeClass = isCritico ? 'bg-danger' : 'bg-success';
-                    
-                    tbody.innerHTML += `<tr class="${rowClass}">
-                        <td class="fw-bold">${ing.nombre}</td>
-                        <td><span class="badge ${badgeClass} fs-6">${ing.stock_actual} ${ing.unidad}</span></td>
-                        <td>${ing.stock_minimo} ${ing.unidad}</td>
-                        <td>${ing.proveedor_nombre}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')">Pedir</button>
-                        </td>
-                    </tr>`;
-                });
+                const res = await fetch('/api/ingredientes');
+                allData = await res.json();
+                renderGrid();
             } catch (e) {
                 console.error("Error al cargar el inventario", e);
-                document.getElementById('inventario-list').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-danger">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
-                    <h4>Error de Conexión</h4>
-                    <p>No se pudo contactar con el servidor.</p>
-                </td></tr>`;
+                document.getElementById('inventario-grid').innerHTML = `
+                    <div class="col-span-full glass-panel rounded-3xl p-10 text-center border-red-500/30">
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <h3 class="text-2xl font-black text-white mb-2">Error de Conexión</h3>
+                        <p class="text-gray-400">No se pudo contactar con el servidor. Verifica tu conexión.</p>
+                        <button onclick="loadInventario()" class="mt-6 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95">Reintentar</button>
+                    </div>
+                `;
             }
+        }
+
+        function filterStock(type) {
+            currentFilter = type;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-gray-800', 'text-gray-400');
+            });
+            
+            const activeBtn = document.getElementById(`btn-filter-${type}`);
+            activeBtn.classList.remove('bg-gray-800', 'text-gray-400');
+            activeBtn.classList.add('bg-emerald-600', 'text-white');
+
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('inventario-grid');
+            grid.innerHTML = "";
+
+            let filtered = allData;
+            if (currentFilter === 'low') {
+                filtered = allData.filter(ing => ing.stock_actual <= ing.stock_minimo);
+            } else if (currentFilter === 'ok') {
+                filtered = allData.filter(ing => ing.stock_actual > ing.stock_minimo);
+            }
+
+            if (!filtered || filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-panel rounded-3xl p-10 text-center border-gray-700">
+                        <div class="text-6xl mb-4">✨</div>
+                        <h3 class="text-2xl font-black text-white mb-2">No hay resultados</h3>
+                        <p class="text-gray-400">No hay ingredientes que coincidan con este filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(ing => {
+                const isCritico = ing.stock_actual <= ing.stock_minimo;
+                const borderClass = isCritico ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-gray-700';
+                const statusBadge = isCritico 
+                    ? `<span class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-black tracking-wider shadow-md flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> CRÍTICO</span>` 
+                    : `<span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-xs font-black tracking-wider">ÓPTIMO</span>`;
+                
+                const percentage = Math.min(100, Math.max(0, (ing.stock_actual / (ing.stock_minimo * 3)) * 100));
+                const barColor = isCritico ? 'bg-red-500' : 'bg-emerald-500';
+
+                grid.innerHTML += `
+                    <div class="glass-panel rounded-3xl p-6 flex flex-col justify-between ${borderClass} transition-all hover:-translate-y-1 hover:shadow-xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-black text-white leading-tight">${ing.nombre}</h3>
+                                ${statusBadge}
+                            </div>
+                            
+                            <div class="flex items-end gap-2 mb-6">
+                                <span class="text-4xl font-black ${isCritico ? 'text-red-400' : 'text-emerald-400'} leading-none">${ing.stock_actual}</span>
+                                <span class="text-gray-400 font-bold mb-1">${ing.unidad}</span>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="mb-4">
+                                <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+                                    <span>Stock Min: ${ing.stock_minimo}</span>
+                                    <span>Actual</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                                    <div class="${barColor} h-2.5 rounded-full transition-all duration-1000" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-800 mb-6">
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-1">Proveedor Asignado</p>
+                                <p class="text-sm text-gray-300 font-medium truncate">${ing.proveedor_nombre}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')" class="w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            🛒 Solicitar Pedido
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function adjCant(val) {
+            const input = document.getElementById('pedido-cantidad');
+            let current = parseInt(input.value) || 0;
+            current += val;
+            if (current < 1) current = 1;
+            input.value = current;
         }
 
         function abrirPedido(ingId, provName, ingName) {
             document.getElementById('pedido-ingrediente-id').value = ingId;
-            document.getElementById('proveedor-name').innerText = `Pedido automático a: ${provName} (${ingName})`;
-            modalPedido.show();
+            document.getElementById('proveedor-name').innerText = provName;
+            document.getElementById('ingrediente-name').innerText = `Pedido de: ${ingName}`;
+            document.getElementById('pedido-cantidad').value = 50;
+            
+            const modal = document.getElementById('modalPedido');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            // Trigger reflow
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95', 'opacity-0');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modalPedido');
+            const content = document.getElementById('modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function showToast(title, desc) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-desc').innerText = desc;
+            
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
         }
 
         async function enviarPedido() {
             const ingId = document.getElementById('pedido-ingrediente-id').value;
             const cant = parseFloat(document.getElementById('pedido-cantidad').value);
             
-            const res = await fetch('/api/inventario/pedido', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ ingrediente_id: ingId, cantidad: cant })
-            });
-            const data = await res.json();
-            alert(data.msj);
-            modalPedido.hide();
-            loadInventario();
+            try {
+                const res = await fetch('/api/ingredientes/pedido', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ingrediente_id: ingId, cantidad: cant })
+                });
+                const data = await res.json();
+                
+                closeModal();
+                showToast('Pedido Confirmado', data.msj);
+                
+                // Actualizar grid
+                loadInventario();
+            } catch(e) {
+                alert('Error al enviar orden');
+            }
         }
     </script>
 </body>

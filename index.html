@@ -2,87 +2,267 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso - Carbones y Pollos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- SEO & OpenGraph Meta Tags -->
+    <title>Carbones y Pollos - Asador Artesanal | Haz tu Pedido</title>
+    <meta name="description" content="El auténtico sabor del asado a leña de encina. Haz tu pedido para recoger o encarga para otro momento.">
+    <meta name="keywords" content="pollos asados, asador, leña de encina, comida para llevar, carbones y pollos">
+    <meta property="og:title" content="Carbones y Pollos - Asador Artesanal">
+    <meta property="og:description" content="El auténtico sabor del asado a leña de encina. Haz tu pedido y disfrútalo en casa.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?q=80&w=2070&auto=format&fit=crop">
+    <meta property="og:type" content="website">
+
+    <!-- PWA Meta Tags & Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#f59e0b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Carbones">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075977.png">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #1a202c; color: #fff; }
-        .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { font-family: 'Inter', sans-serif; background-color: #111827; overflow-x: hidden; }
+        .glass-panel { 
+            background: rgba(31, 41, 55, 0.7); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center">
-    
-    <div class="text-center mb-8">
-        <h1 class="text-5xl font-black text-yellow-400 drop-shadow-lg mb-2">🐔 Carbones <span class="text-white">y Pollos</span></h1>
-        <p class="text-xl text-gray-400">Selecciona el modo de operación</p>
+<body class="min-h-screen w-full flex flex-col items-center justify-center relative bg-[url('https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+    <!-- Overlay Oscuro -->
+    <div class="absolute inset-0 bg-gray-900/80 z-0"></div>
+
+    <div class="z-10 text-center mb-10 mt-10">
+        <div class="inline-block animate-float mb-4">
+            <span class="text-7xl drop-shadow-2xl">🔥🐔</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 drop-shadow-lg mb-4 tracking-tight">Carbones y Pollos</h1>
+        <p class="text-xl md:text-2xl text-gray-300 font-bold max-w-2xl mx-auto px-4">El auténtico sabor del asado a leña de encina. ¿Qué te apetece hoy?</p>
     </div>
 
-    <div class="flex gap-6">
-        <!-- Modo Quiosko -->
-        <div onclick="selectMode('quiosko')" class="glass-panel p-8 rounded-3xl w-64 text-center cursor-pointer hover:bg-white/20 transition transform hover:scale-105 shadow-2xl">
-            <div class="text-6xl mb-4">🖥️</div>
-            <h2 class="text-2xl font-bold text-white mb-2">Modo Quiosko</h2>
-            <p class="text-sm text-gray-300">Autoservicio para clientes. Pedidos pendientes de pago en caja.</p>
-        </div>
+    <!-- Opciones de Cliente -->
+    <div class="z-10 flex flex-col md:flex-row gap-6 px-4 w-full max-w-5xl justify-center items-stretch mb-16">
+        
+        <!-- Pedir Ahora -->
+        <button onclick="startB2C('ahora')" class="glass-panel group relative p-8 rounded-3xl text-left cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-gray-800 shadow-[0_0_40px_rgba(250,204,21,0.1)] hover:shadow-[0_0_60px_rgba(250,204,21,0.2)] flex-1 border-t-4 border-t-yellow-400">
+            <div class="absolute top-0 right-0 -mr-8 -mt-8 text-9xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform group-hover:rotate-12">🍗</div>
+            <div class="text-5xl mb-6 bg-yellow-400/20 w-20 h-20 rounded-2xl flex items-center justify-center text-yellow-400">⚡</div>
+            <h2 class="text-3xl font-black text-white mb-3">Pedir para <br/><span class="text-yellow-400">Recoger Ahora</span></h2>
+            <p class="text-gray-400 font-medium">Preparamos tu pedido inmediatamente. Tiempo estimado: 15-20 min.</p>
+        </button>
 
-        <!-- Modo Responsable -->
-        <div onclick="openPinModal()" class="glass-panel p-8 rounded-3xl w-64 text-center cursor-pointer hover:bg-white/20 transition transform hover:scale-105 shadow-2xl">
-            <div class="text-6xl mb-4">🔑</div>
-            <h2 class="text-2xl font-bold text-yellow-400 mb-2">Modo Responsable</h2>
-            <p class="text-sm text-gray-300">Gestión de cobros, comandas a cocina y dashboard.</p>
-        </div>
+        <!-- Encargar -->
+        <button onclick="openScheduleModal()" class="glass-panel group relative p-8 rounded-3xl text-left cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-gray-800 shadow-[0_0_40px_rgba(52,211,153,0.1)] hover:shadow-[0_0_60px_rgba(52,211,153,0.2)] flex-1 border-t-4 border-t-emerald-400">
+            <div class="absolute top-0 right-0 -mr-8 -mt-8 text-9xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform group-hover:-rotate-12">📅</div>
+            <div class="text-5xl mb-6 bg-emerald-400/20 w-20 h-20 rounded-2xl flex items-center justify-center text-emerald-400">🕒</div>
+            <h2 class="text-3xl font-black text-white mb-3">Encargar para <br/><span class="text-emerald-400">Otro Día u Hora</span></h2>
+            <p class="text-gray-400 font-medium">Asegura tu asado. Selecciona la fecha y hora exacta de recogida.</p>
+        </button>
+
+        <!-- Valorar -->
+        <button onclick="openReviewModal()" class="glass-panel group relative p-8 rounded-3xl text-left cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-gray-800 shadow-[0_0_40px_rgba(99,102,241,0.1)] hover:shadow-[0_0_60px_rgba(99,102,241,0.2)] flex-1 border-t-4 border-t-indigo-400">
+            <div class="absolute top-0 right-0 -mr-8 -mt-8 text-9xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform group-hover:scale-110">⭐</div>
+            <div class="text-5xl mb-6 bg-indigo-400/20 w-20 h-20 rounded-2xl flex items-center justify-center text-indigo-400">❤️</div>
+            <h2 class="text-3xl font-black text-white mb-3">Danos tu <br/><span class="text-indigo-400">Opinión</span></h2>
+            <p class="text-gray-400 font-medium">¿Te ha gustado? Valóranos y ayúdanos a mejorar nuestro servicio.</p>
+        </button>
+
     </div>
 
-    <!-- PIN Modal -->
-    <div id="pin-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-gray-800 p-8 rounded-3xl w-80 text-center shadow-2xl border border-gray-700">
-            <h3 class="text-2xl font-bold text-yellow-400 mb-4">PIN de Acceso</h3>
-            <input type="password" id="pin-input" class="w-full text-center text-3xl p-3 rounded-xl bg-gray-900 text-white border border-gray-600 focus:border-yellow-400 outline-none mb-6" placeholder="****" maxlength="4">
+    <!-- Staff Access Footer -->
+    <div class="z-10 fixed bottom-4 left-4">
+        <button onclick="openStaffModal()" class="text-gray-500 hover:text-white transition-colors duration-300 flex items-center gap-2 text-sm font-bold bg-black/50 px-4 py-2 rounded-full backdrop-blur-md border border-gray-700 hover:border-gray-500">
+            <span>🔒</span> Staff
+        </button>
+    </div>
+
+    <!-- Modal de Fecha/Hora para Encargo -->
+    <div id="schedule-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 backdrop-blur-md p-4">
+        <div class="bg-gray-800 p-8 rounded-3xl w-full max-w-md shadow-2xl border border-gray-700 relative">
+            <button onclick="closeScheduleModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-black">&times;</button>
+            <div class="text-5xl mb-4 text-center">📅</div>
+            <h3 class="text-3xl font-black text-emerald-400 mb-2 text-center">¿Cuándo lo quieres?</h3>
+            <p class="text-gray-400 mb-6 text-center font-medium">Indícanos la fecha y hora de recogida.</p>
             
-            <div class="flex gap-3">
-                <button onclick="closePinModal()" class="flex-1 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-xl transition">Cancelar</button>
-                <button onclick="verifyPin()" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 rounded-xl transition shadow-lg">Entrar</button>
-            </div>
+            <input type="datetime-local" id="schedule-date" class="w-full text-center text-xl p-4 rounded-xl bg-gray-900 text-white border-2 border-gray-600 focus:border-emerald-400 outline-none mb-6 cursor-pointer" required>
+            
+            <button onclick="confirmSchedule()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-black text-xl py-4 rounded-xl transition shadow-[0_0_20px_rgba(52,211,153,0.3)] hover:shadow-[0_0_30px_rgba(52,211,153,0.5)]">
+                Empezar Pedido
+            </button>
+            <p id="schedule-error" class="text-red-400 mt-4 hidden font-bold text-center">Por favor selecciona una fecha válida en el futuro.</p>
+        </div>
+    </div>
+
+    <!-- Modal Staff PIN -->
+    <div id="staff-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 backdrop-blur-md p-4">
+        <div class="bg-gray-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl border border-gray-700 relative">
+            <button onclick="closeStaffModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-black">&times;</button>
+            <h3 class="text-2xl font-black text-white mb-2">Acceso Staff</h3>
+            <p class="text-gray-400 mb-6 font-medium">Introduce el PIN maestro</p>
+            
+            <input type="password" id="pin-input" class="w-full text-center text-4xl tracking-[0.5em] p-4 rounded-xl bg-gray-900 text-white border-2 border-gray-600 focus:border-yellow-400 outline-none mb-6" placeholder="****" maxlength="4" inputmode="numeric">
+            
+            <button onclick="verifyPin()" class="w-full bg-white hover:bg-gray-200 text-gray-900 font-black text-xl py-4 rounded-xl transition shadow-lg">
+                Desbloquear
+            </button>
             <p id="pin-error" class="text-red-400 mt-4 hidden font-bold">PIN incorrecto</p>
         </div>
     </div>
 
+    <!-- Modal Reseñas (Básico, redirige a una UI de review real) -->
+    <div id="review-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 backdrop-blur-md p-4">
+        <div class="bg-gray-800 p-8 rounded-3xl w-full max-w-md shadow-2xl border border-gray-700 relative text-center">
+            <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-black">&times;</button>
+            <div class="text-5xl mb-4 text-center">🌟</div>
+            <h3 class="text-3xl font-black text-indigo-400 mb-2">Valora tu experiencia</h3>
+            <p class="text-gray-400 mb-6 font-medium">Selecciona tu puntuación (1-5 estrellas)</p>
+            
+            <div class="flex justify-center gap-2 mb-6 text-4xl cursor-pointer" id="stars-container">
+                <span onclick="rate(1)" class="hover:scale-125 transition">⭐</span>
+                <span onclick="rate(2)" class="hover:scale-125 transition">⭐</span>
+                <span onclick="rate(3)" class="hover:scale-125 transition">⭐</span>
+                <span onclick="rate(4)" class="hover:scale-125 transition">⭐</span>
+                <span onclick="rate(5)" class="hover:scale-125 transition">⭐</span>
+            </div>
+            
+            <textarea id="review-text" class="w-full p-4 mb-6 border-2 border-gray-600 focus:border-indigo-400 bg-gray-900 rounded-xl text-white outline-none resize-none h-24" placeholder="Cuéntanos más sobre tu asado..."></textarea>
+            
+            <button onclick="submitReview()" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-black text-xl py-4 rounded-xl transition shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                Enviar Opinión
+            </button>
+        </div>
+    </div>
+
     <script>
-        function selectMode(mode, name = 'Cliente') {
-            localStorage.setItem('tpv_role', mode);
-            localStorage.setItem('tpv_name', name);
+        // Set default minimum datetime to current local time for the schedule picker
+        window.onload = () => {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('schedule-date').min = now.toISOString().slice(0, 16);
+        };
+
+        // --- B2C Navigation ---
+        function startB2C(tipo) {
+            localStorage.setItem('tpv_device_mode', 'b2c');
+            localStorage.setItem('tpv_b2c_tipo', tipo); // 'ahora'
+            localStorage.removeItem('tpv_b2c_fecha');
             window.location.href = 'static/kiosko.html';
         }
 
-        function openPinModal() {
-            document.getElementById('pin-modal').classList.remove('hidden');
-            document.getElementById('pin-modal').classList.add('flex');
-            document.getElementById('pin-input').focus();
+        // --- Schedule Order ---
+        function openScheduleModal() {
+            document.getElementById('schedule-modal').classList.remove('hidden');
+            document.getElementById('schedule-modal').classList.add('flex');
+        }
+        function closeScheduleModal() {
+            document.getElementById('schedule-modal').classList.add('hidden');
+            document.getElementById('schedule-modal').classList.remove('flex');
+        }
+        function confirmSchedule() {
+            const dateVal = document.getElementById('schedule-date').value;
+            const errorEl = document.getElementById('schedule-error');
+            if(!dateVal) {
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            const selectedDate = new Date(dateVal);
+            if(selectedDate < new Date()) {
+                errorEl.innerText = "La fecha/hora debe ser en el futuro.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            localStorage.setItem('tpv_device_mode', 'b2c');
+            localStorage.setItem('tpv_b2c_tipo', 'encargo');
+            localStorage.setItem('tpv_b2c_fecha', selectedDate.toISOString());
+            window.location.href = 'static/kiosko.html';
         }
 
-        function closePinModal() {
-            document.getElementById('pin-modal').classList.add('hidden');
-            document.getElementById('pin-modal').classList.remove('flex');
+        // --- Staff PIN ---
+        function openStaffModal() {
+            document.getElementById('staff-modal').classList.remove('hidden');
+            document.getElementById('staff-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('pin-input').focus(), 100);
+        }
+        function closeStaffModal() {
+            document.getElementById('staff-modal').classList.add('hidden');
+            document.getElementById('staff-modal').classList.remove('flex');
             document.getElementById('pin-input').value = '';
             document.getElementById('pin-error').classList.add('hidden');
         }
-
         function verifyPin() {
             const pin = document.getElementById('pin-input').value;
-            // PIN hardcodeado simple para el responsable
-            if(pin === '1234') {
-                selectMode('responsable', 'Admin');
+            if(pin === '1234' || pin === '8888') {
+                localStorage.setItem('admin_token', 'true');
+                window.location.href = 'static/setup.html';
             } else {
                 document.getElementById('pin-error').classList.remove('hidden');
             }
         }
-        
-        // Enter key to verify PIN
         document.getElementById('pin-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                verifyPin();
-            }
+            if (e.key === 'Enter') verifyPin();
         });
+
+        // --- Reviews ---
+        let currentRating = 5;
+        function openReviewModal() {
+            document.getElementById('review-modal').classList.remove('hidden');
+            document.getElementById('review-modal').classList.add('flex');
+            rate(5);
+        }
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+            document.getElementById('review-modal').classList.remove('flex');
+        }
+        function rate(stars) {
+            currentRating = stars;
+            const starsEls = document.getElementById('stars-container').children;
+            for(let i=0; i<5; i++) {
+                if(i < stars) starsEls[i].style.opacity = '1';
+                else starsEls[i].style.opacity = '0.3';
+            }
+        }
+        async function submitReview() {
+            const text = document.getElementById('review-text').value;
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ rating: currentRating, comentario: text })
+                });
+                alert('¡Gracias por tu valoración!');
+                closeReviewModal();
+            } catch(e) {
+                alert('Error enviando la reseña. Inténtalo de nuevo más tarde.');
+            }
+        }
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Fallo en registro de ServiceWorker:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>

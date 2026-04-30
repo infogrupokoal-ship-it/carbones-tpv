@@ -2,109 +2,125 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Setup de Dispositivo - Carbones y Pollos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="theme-color" content="#1f2937">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | Carbones y Pollos</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+
+        .setup-container {
+            background: var(--card);
+            max-width: 600px;
+            width: 100%;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
+        .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        .header p { color: var(--text-muted); }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
+
+        .status { 
+            margin-top: 20px; padding: 15px; border-radius: 12px; font-size: 0.9rem; text-align: center;
+            display: none;
+        }
+        .status.success { background: rgba(16, 185, 129, 0.1); color: #10b981; display: block; }
+    </style>
 </head>
-<body class="bg-gray-900 h-[100dvh] flex items-center justify-center font-sans text-white">
-
-    <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border-2 border-gray-700 text-center relative overflow-hidden">
-        
-        <!-- Estado Inicial: Login -->
-        <div id="login-section" class="transition-all duration-300">
-            <div class="text-6xl mb-6">🔒</div>
-            <h1 class="text-3xl font-black mb-2 text-yellow-400 tracking-tight">Acceso Staff</h1>
-            <p class="text-gray-400 text-sm mb-8">Introduce el PIN de administrador para configurar este dispositivo.</p>
-            
-            <input id="pinInput" type="password" placeholder="****" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-4 mb-6 text-white font-bold outline-none focus:border-yellow-400 text-center text-4xl tracking-[1em]" inputmode="numeric" maxlength="4">
-            
-            <button onclick="verificarPin()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-black text-xl transition active:scale-95 shadow-md">
-                DESBLOQUEAR
-            </button>
+<body>
+    <div class="setup-container">
+        <div class="header">
+            <i class="fas fa-terminal"></i>
+            <h1>Setup Profesional</h1>
+            <p>Configura los parámetros centrales de tu TPV Enterprise</p>
         </div>
 
-        <!-- Estado Secundario: Selector de Modos -->
-        <div id="modes-section" class="hidden transition-all duration-300">
-            <h2 class="text-2xl font-black mb-2 text-emerald-400">Configurar Dispositivo</h2>
-            <p class="text-gray-400 text-sm mb-6">Selecciona el rol permanente para esta pantalla.</p>
-
-            <div class="flex flex-col gap-3">
-                <button onclick="setMode('kiosko_fisico', 'kiosko.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
-                    <div class="text-4xl">🛒</div>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">TPV Pública (Kiosko)</h3>
-                        <p class="text-xs text-gray-400">Pantalla fija en tienda para clientes.</p>
-                    </div>
-                </button>
-
-                <button onclick="setMode('caja', 'caja.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
-                    <div class="text-4xl">💰</div>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Teléfono de Cobro (Caja)</h3>
-                        <p class="text-xs text-gray-400">Para camareros tomando pedidos y cobrando.</p>
-                    </div>
-                </button>
-
-                <button onclick="setMode('cocina', 'cocina.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
-                    <div class="text-4xl">👨‍🍳</div>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Monitor de Cocina</h3>
-                        <p class="text-xs text-gray-400">Pantalla para ver y aceptar pedidos entrantes.</p>
-                    </div>
-                </button>
-
-                <button onclick="setMode('admin', 'dashboard_produccion.html')" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 p-4 rounded-2xl flex items-center gap-4 transition active:scale-95 text-left">
-                    <div class="text-4xl">📈</div>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Dashboard Admin</h3>
-                        <p class="text-xs text-gray-400">Control total y métricas.</p>
-                    </div>
-                </button>
-            </div>
-            
-            <button onclick="cerrarSesion()" class="mt-6 text-red-400 text-sm font-bold underline hover:text-red-300">
-                Salir sin guardar
-            </button>
+        <div class="form-group">
+            <label>URL de Sincronización Nube</label>
+            <input type="text" id="cloudUrl" placeholder="https://mi-asador.onrender.com" value="https://carbones-tpv.onrender.com">
         </div>
 
+        <div class="form-group">
+            <label>ID de Dispositivo (Tablet/Caja)</label>
+            <input type="text" id="deviceId" value="CAJA-PRINCIPAL-01">
+        </div>
+
+        <div class="form-group">
+            <label>Impresora Tickets (Nombre Windows/Android)</label>
+            <input type="text" id="printerTicket" value="POS-80">
+        </div>
+
+        <div class="form-group">
+            <label>Gemini AI Key</label>
+            <input type="password" id="aiKey" placeholder="Introduce tu API Key para activar Carbones AI">
+        </div>
+
+        <button class="btn-save" onclick="saveConfig()">GUARDAR Y REINICIAR</button>
+
+        <div id="statusMsg" class="status"></div>
     </div>
 
     <script>
-        function verificarPin() {
-            const pin = document.getElementById('pinInput').value;
-            // PIN de ejemplo, esto en prod puede validarse contra el backend
-            if (pin === '1234' || pin === '8888') {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('modes-section').classList.remove('hidden');
-                localStorage.setItem('admin_token', 'true');
-            } else {
-                alert('PIN Incorrecto');
-                document.getElementById('pinInput').value = '';
-            }
-        }
-
-        function setMode(mode, targetUrl) {
-            localStorage.setItem('tpv_device_mode', mode);
-            // Resetear roles antiguos para evitar conflictos
-            localStorage.removeItem('tpv_role');
-            localStorage.removeItem('tpv_name');
+        function saveConfig() {
+            const config = {
+                cloud_url: document.getElementById('cloudUrl').value,
+                device_id: document.getElementById('deviceId').value,
+                printer_ticket: document.getElementById('printerTicket').value,
+                ai_key: document.getElementById('aiKey').value
+            };
             
-            // Navegar a la página destino
-            window.location.replace(targetUrl);
-        }
-
-        function cerrarSesion() {
-            localStorage.removeItem('admin_token');
-            window.location.reload();
-        }
-
-        // Si ya está logueado, mostrar modos directamente
-        window.onload = () => {
-            if (localStorage.getItem('admin_token') === 'true') {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('modes-section').classList.remove('hidden');
-            }
+            // Simulación de guardado en localStorage o API de configuración
+            localStorage.setItem('tpv_config', JSON.stringify(config));
+            
+            const msg = document.getElementById('statusMsg');
+            msg.className = 'status success';
+            msg.innerHTML = '<i class="fas fa-check-circle"></i> Configuración guardada correctamente. Redirigiendo...';
+            
+            setTimeout(() => {
+                location.href = '/';
+            }, 2000);
         }
     </script>
 </body>

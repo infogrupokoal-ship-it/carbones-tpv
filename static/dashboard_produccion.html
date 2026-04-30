@@ -116,7 +116,7 @@
         async function initDashboard() {
             try {
                 // Endpoint para obtener stats globales (hay que crearlo en main.py)
-                const res = await fetch(`${API_URL}/b2c/dashboard_stats`);
+                const res = await fetch(`${API_URL}/admin/dashboard/kpis`);
                 if(res.ok) {
                     const data = await res.json();
                     

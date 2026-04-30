@@ -16,7 +16,7 @@ taskkill /F /IM python.exe /T 2>nul
 taskkill /IM uvicorn.exe /F /T 2>nul
 
 :: Iniciar la aplicacion de forma independiente en otra ventana
-start "Servidor TPV (NO CERRAR)" cmd /c "title Motor TPV Backend & color 0B & python main.py"
+start "Servidor TPV (NO CERRAR)" cmd /c "title Motor TPV Backend & color 0B & call venv\Scripts\activate & python main.py"
 
 echo Esperando a que el motor arranque...
 timeout /t 4 /nobreak >nul

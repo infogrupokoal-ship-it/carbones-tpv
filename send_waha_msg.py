@@ -21,16 +21,9 @@ Para mañana, esto es lo que debes tener en cuenta y lo que puedes decirme para 
 ¡El proyecto está casi a punto de caramelo! 🍗🔥
 """
 
-payload = {
-    "chatId": f"{PHONE}@c.us",
-    "text": mensaje,
-    "session": "default"
-}
+payload = {"chatId": f"{PHONE}@c.us", "text": mensaje, "session": "default"}
 
-headers = {
-    "Content-Type": "application/json",
-    "X-Api-Key": API_KEY
-}
+headers = {"Content-Type": "application/json", "X-Api-Key": API_KEY}
 
 try:
     print("Enviando reporte a WAHA...")

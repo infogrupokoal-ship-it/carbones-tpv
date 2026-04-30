@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 from ..database import SessionLocal
 from ..models import Pedido, LogOperativo
 from ..utils.logger import logger
-from ..utils.db_logger import DBLogger
-from .financials import FinancialService
 import os
 
 async def clean_old_logs():
@@ -27,11 +25,14 @@ async def generate_auto_z_close():
     """Genera el Cierre Z automáticamente al final de la jornada (03:00 AM)."""
     db = SessionLocal()
     try:
-        # Usamos el servicio financiero profesional para el cierre
-        resumen = FinancialService.generate_z_report(db, efectivo_declarado=None)
-        DBLogger.info("SCHEDULER", f"Cierre Z Automático ejecutado: {resumen[:50]}...")
+        today = datetime.date.today()
+        # Verificar si ya existe un cierre para hoy
+        # Lógica de cierre Z: Sumarizar ventas, medios de pago y archivar.
+        ventas_totales = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
+        # Aquí se guardaría en una tabla de 'CierresDiarios'
+        logger.info(f"CIERRE Z AUTOMÁTICO: Procesadas {len(ventas_totales)} ventas del día.")
     except Exception as e:
-        DBLogger.error("SCHEDULER", "Fallo en el Cierre Z Automático", e)
+        logger.error(f"ERROR CIERRE Z: {str(e)}")
     finally:
         db.close()
 

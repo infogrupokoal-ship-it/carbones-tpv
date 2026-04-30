@@ -16,7 +16,7 @@ endpoints = [
 ]
 
 def run_smoke_test():
-    print(f"[SEARCH] Iniciando Smoke Test en: {BASE_URL}")
+    print(f"🔍 Iniciando Smoke Test en: {BASE_URL}")
     print("-" * 50)
     
     all_passed = True
@@ -26,21 +26,21 @@ def run_smoke_test():
             response = requests.get(f"{BASE_URL}{ep['path']}", timeout=5)
             latency = time.time() - start_time
             
-            status = "[OK] PASSED" if response.status_code == ep['expected_status'] else "[FAIL] FAILED"
+            status = "✅ PASSED" if response.status_code == ep['expected_status'] else "❌ FAILED"
             if response.status_code != ep['expected_status']:
                 all_passed = False
             
             print(f"{status} | {ep['name']:<20} | Status: {response.status_code} | Latency: {latency:.4f}s")
             
         except Exception as e:
-            print(f"[ERROR]  | {ep['name']:<20} | Exception: {str(e)}")
+            print(f"❌ ERROR  | {ep['name']:<20} | Exception: {str(e)}")
             all_passed = False
 
     print("-" * 50)
     if all_passed:
-        print("RESULTADO: SISTEMA 100% OPERATIVO Y PROFESIONAL.")
+        print("🏆 RESULTADO: SISTEMA 100% OPERATIVO Y PROFESIONAL.")
     else:
-        print("ADVERTENCIA: SE DETECTARON FALLOS EN LA INFRAESTRUCTURA.")
+        print("⚠️ RESULTADO: SE DETECTARON FALLOS EN LA INFRAESTRUCTURA.")
         sys.exit(1)
 
 if __name__ == "__main__":

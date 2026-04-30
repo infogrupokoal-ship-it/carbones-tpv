@@ -2,79 +2,142 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Carbones y Pollos - Pedidos Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Hub | Carbones y Pollos</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="theme-color" content="#1f2937">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { -webkit-tap-highlight-color: transparent; }
+        body { background: #0f172a; color: white; font-family: 'Outfit', sans-serif; overflow: hidden; height: 100vh; }
+        
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .hub-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .hub-card:hover { transform: translateY(-10px) scale(1.02); border-color: #f59e0b; box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.3); }
+        
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .bg-animate {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-gray-900 h-[100dvh] flex flex-col items-center justify-center font-sans text-white relative overflow-hidden">
+<body>
+    <div class="bg-animate"></div>
 
-    <!-- Fondo Decorativo -->
-    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
-    <div class="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-gradient-to-br from-red-900/40 via-gray-900 to-yellow-900/20 z-0"></div>
-
-    <!-- Contenedor Principal -->
-    <div class="z-10 bg-gray-800/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-[90%] max-w-md border border-gray-700/50 text-center flex flex-col items-center">
-        
-        <!-- Logo animado -->
-        <div class="relative w-32 h-32 mb-6">
-            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
-            <div class="text-7xl absolute inset-0 flex items-center justify-center animate-bounce shadow-black drop-shadow-2xl">🍗</div>
-        </div>
-
-        <h1 class="text-4xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 tracking-tight">Carbones y Pollos</h1>
-        <p class="text-gray-400 font-medium mb-10 text-sm">El auténtico sabor a leña de encina</p>
-
-        <div class="flex flex-col gap-4 w-full">
-            <!-- Botón B2C: Pedir Ahora -->
-            <button onclick="startB2C('ahora')" class="group relative overflow-hidden bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 p-4 rounded-2xl font-black text-xl text-gray-900 transition-all active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center gap-3">
-                <span class="text-3xl group-hover:scale-110 transition-transform">🛵</span>
-                <span>Pedir Ahora</span>
-            </button>
-
-            <!-- Botón B2C: Encargar para otro día -->
-            <button onclick="startB2C('encargo')" class="group bg-gray-700 hover:bg-gray-600 border border-gray-600 p-4 rounded-2xl font-black text-lg text-white transition-all active:scale-95 flex items-center justify-center gap-3">
-                <span class="text-2xl group-hover:scale-110 transition-transform">📅</span>
-                <span>Encargar para otro día</span>
-            </button>
+    <!-- Header Profesional -->
+    <header class="p-8 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <i class="fas fa-fire-alt text-2xl text-slate-900"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black uppercase tracking-tighter">Carbones y Pollos</h1>
+                <p class="text-xs text-slate-400 font-bold tracking-widest uppercase">Enterprise OS v2.5</p>
+            </div>
         </div>
         
-        <!-- Footer Info -->
-        <div class="mt-8 text-xs text-gray-500 flex items-center gap-2">
-            <span>📍 C/ Falsa 123, Madrid</span>
-            <span>•</span>
-            <span>⭐ 4.9/5 en Reseñas</span>
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden md:block">
+                <p id="clock" class="text-xl font-black">00:00:00</p>
+                <p class="text-[10px] text-amber-500 font-bold uppercase">Sincronizado Cloud</p>
+            </div>
+            <button onclick="location.href='setup.html'" class="w-10 h-10 glass rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                <i class="fas fa-cog text-slate-400"></i>
+            </button>
         </div>
-    </div>
+    </header>
 
-    <!-- Acceso Oculto Staff -->
-    <a href="setup.html" class="absolute bottom-4 right-4 text-gray-800 hover:text-gray-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
-        ⚙️
-    </a>
+    <main class="grid-layout">
+        <!-- TPV VENTA -->
+        <div onclick="location.href='caja.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 transition-all">
+                <i class="fas fa-cash-register text-2xl text-blue-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Punto de Venta</h2>
+            <p class="text-sm text-slate-400">Gestión de comandas, cobros y tickets en tiempo real.</p>
+        </div>
+
+        <!-- KDS COCINA -->
+        <div onclick="location.href='cocina.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-all">
+                <i class="fas fa-utensils text-2xl text-orange-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Sistema Cocina</h2>
+            <p class="text-sm text-slate-400">Monitor de pedidos industrial con gestión de tiempos.</p>
+        </div>
+
+        <!-- DASHBOARD ADMIN -->
+        <div onclick="location.href='dashboard_produccion.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 transition-all">
+                <i class="fas fa-chart-line text-2xl text-emerald-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Business Intelligence</h2>
+            <p class="text-sm text-slate-400">Analítica de ventas, mermas e insights de IA.</p>
+        </div>
+
+        <!-- RRHH PORTAL -->
+        <div onclick="location.href='rrhh.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-500 transition-all">
+                <i class="fas fa-users text-2xl text-purple-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Portal Empleado</h2>
+            <p class="text-sm text-slate-400">Control de fichajes, horarios y gestión de personal.</p>
+        </div>
+
+        <!-- KIOSKO CLIENTE -->
+        <div onclick="location.href='kiosko.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-500 transition-all">
+                <i class="fas fa-tablet-alt text-2xl text-amber-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Kiosko Auto-Pedido</h2>
+            <p class="text-sm text-slate-400">Interfaz táctil para clientes con flujo de venta directa.</p>
+        </div>
+
+        <!-- STOCK / INVENTARIO -->
+        <div onclick="location.href='inventario.html'" class="hub-card glass rounded-[32px] p-8 group">
+            <div class="w-16 h-16 bg-slate-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-500 transition-all">
+                <i class="fas fa-boxes text-2xl text-slate-400 group-hover:text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Inventario Pro</h2>
+            <p class="text-sm text-slate-400">Control de materia prima, proveedores y mermas.</p>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-8 left-0 w-full text-center">
+        <div class="inline-flex items-center gap-3 glass px-6 py-3 rounded-full">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Todos los sistemas operativos - Local Node: 192.168.1.50</p>
+        </div>
+    </footer>
 
     <script>
-        function startB2C(tipo) {
-            // Aseguramos que el dispositivo se reconozca como B2C (Cliente Online)
-            localStorage.setItem('tpv_device_mode', 'b2c');
-            localStorage.setItem('tpv_b2c_tipo', tipo); // 'ahora' o 'encargo'
-            
-            // Efecto visual y redirección
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => {
-                window.location.href = 'kiosko.html';
-            }, 300);
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('clock').innerText = time;
         }
-        
-        // Limpiar roles de staff si un cliente entra aquí accidentalmente
-        window.onload = function() {
-            if (localStorage.getItem('tpv_device_mode') !== 'b2c') {
-                localStorage.removeItem('tpv_device_mode');
-                localStorage.removeItem('admin_token');
-            }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
         }
     </script>
 </body>

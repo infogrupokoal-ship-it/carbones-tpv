@@ -1,7 +1,8 @@
-import socket
 import concurrent.futures
+import socket
 import subprocess
 import sys
+
 
 def check_port(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -9,14 +10,17 @@ def check_port(ip):
     try:
         if s.connect_ex((ip, 8022)) == 0:
             return ip
-    except:
+    except Exception:
         pass
     finally:
         s.close()
     return None
 
+
 print("Buscando TPV Android en la red local (puerto 8022)...")
-ips_to_scan = [f"192.168.1.{i}" for i in range(1, 255)] + [f"192.168.0.{i}" for i in range(1, 255)]
+ips_to_scan = [f"192.168.1.{i}" for i in range(1, 255)] + [
+    f"192.168.0.{i}" for i in range(1, 255)
+]
 
 found_ips = []
 with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:
@@ -26,7 +30,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:
             found_ips.append(ip)
 
 if not found_ips:
-    print("Error: No se ha encontrado ninguna TPV Android con Termux abierto en el puerto 8022 en la red local.")
+    print(
+        "Error: No se ha encontrado ninguna TPV Android con Termux abierto en el puerto 8022 en la red local."
+    )
     sys.exit(1)
 
 target_ip = found_ips[0]

@@ -1,57 +1,55 @@
-import click
-import uuid
-from backend.database import SessionLocal
-from backend.models import Usuario, LogOperativo
-from backend.utils.auth import get_password_hash
-from backend.config import settings
-import sys
+import requests
+import os
+import time
+from datetime import datetime
 
-@click.group()
-def cli():
-    """TPV Carbones y Pollos - Enterprise CLI Control Plane"""
-    pass
+# CLI Maestro de Administración - Carbones y Pollos TPV
+# Diseñado para administradores de VPS
 
-@cli.command()
-@click.option('--username', prompt='Username', help='Admin username')
-@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True)
-@click.option('--rol', default='ADMIN', type=click.Choice(['ADMIN', 'MANAGER', 'STAFF']))
-def create_user(username, password, rol):
-    """Crea un nuevo usuario con credenciales seguras."""
-    db = SessionLocal()
+API_URL = "http://localhost:8000/api/admin"
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def get_stats():
     try:
-        hashed = get_password_hash(password)
-        user = Usuario(
-            id=str(uuid.uuid4()),
-            username=username,
-            password=hashed,
-            rol=rol
-        )
-        db.add(user)
-        db.commit()
-        click.echo(f"✅ Usuario {username} creado con éxito [{rol}]")
-    except Exception as e:
-        click.echo(f"❌ Error al crear usuario: {e}")
-    finally:
-        db.close()
+        res = requests.get(f"{API_URL}/dashboard/kpis", timeout=2)
+        if res.ok:
+            return res.json()
+    except:
+        return None
 
-@cli.command()
-def status():
-    """Diagnóstico rápido del estado del ecosistema."""
-    click.echo(f"--- TPV {settings.APP_NAME} v{settings.APP_VERSION} ---")
-    click.echo(f"Entorno: {os.getenv('ENVIRONMENT', 'development')}")
-    # Aquí se podrían añadir chequeos de DB, conectividad, etc.
-    click.echo("✅ Sistema operativo.")
+def main_loop():
+    while True:
+        data = get_stats()
+        clear()
+        
+        print("\033[93m" + "="*60)
+        print("    🔥 CARBONES Y POLLOS TPV - MONITOR DE SISTEMA 🔥")
+        print("="*60 + "\033[0m")
+        
+        if data:
+            kpis = data['kpis']
+            print(f"🕒 Hora: {datetime.now().strftime('%H:%M:%S')}    | 🔌 Estado: ONLINE")
+            print("-" * 60)
+            print(f"💰 VENTAS HOY:    \033[92m{kpis['ventas_hoy']:.2f}€\033[0m")
+            print(f"📦 PEDIDOS B2C:   \033[94m{kpis['pedidos_b2c']}\033[0m")
+            print(f"📉 MERMAS (EST):  \033[91m{kpis['coste_mermas']:.2f}€\033[0m")
+            print(f"⭐ RATING MEDIO:  \033[93m{kpis['avg_rating']}\033[0m")
+            print("-" * 60)
+            
+            print("\033[90mÚLTIMAS RESEÑAS:\033[0m")
+            for r in data['reviews'][:2]:
+                print(f"  • {r['cliente_nombre']}: {r['comentario'][:40]}...")
+        else:
+            print("\033[91m⚠️ ERROR: SERVIDOR BACKEND OFFLINE O NO ALCANZABLE\033[0m")
+            print(f"Intentando reconectar en 5 segundos...")
+        
+        print("\n\033[90mPresiona Ctrl+C para salir.\033[0m")
+        time.sleep(5)
 
-@cli.command()
-def logs():
-    """Muestra los últimos logs operativos del sistema."""
-    db = SessionLocal()
-    logs = db.query(LogOperativo).order_by(LogOperativo.fecha.desc()).limit(10).all()
-    for log in logs:
-        color = 'red' if log.nivel == 'ERROR' else 'green'
-        click.secho(f"[{log.fecha}] {log.modulo}: {log.mensaje}", fg=color)
-    db.close()
-
-if __name__ == '__main__':
-    import os
-    cli()
+if __name__ == "__main__":
+    try:
+        main_loop()
+    except KeyboardInterrupt:
+        print("\nCerrando monitor.")
