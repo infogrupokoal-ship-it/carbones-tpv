@@ -4,12 +4,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Ruta de la base de datos profesionalizada
-# En Render usamos el disco persistente montado en /data
-if os.path.exists("/data") or os.environ.get("RENDER"):
+# Priorizamos un disco persistente si existe, o usamos la carpeta 'instance'
+if os.path.exists("/data"):
     DB_PATH = "/data/tpv_data.sqlite"
 else:
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DB_PATH = os.path.join(BASE_DIR, "tpv_data.sqlite")
+    # Asegurar que el directorio instance existe (también se hace en main.py)
+    INSTANCE_DIR = os.path.join(os.getcwd(), "instance")
+    os.makedirs(INSTANCE_DIR, exist_ok=True)
+    DB_PATH = os.path.join(INSTANCE_DIR, "tpv_data.sqlite")
 
 SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DB_PATH}")
 
