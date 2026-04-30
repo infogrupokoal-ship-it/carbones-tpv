@@ -78,20 +78,27 @@ async def startup_event():
 @app.get("/health", tags=["Infraestructura"])
 @app.get("/api/health", tags=["Infraestructura"], include_in_schema=False)
 async def health_check() -> Dict[str, Any]:
+    """Monitor de salud profesional con telemetría básica."""
     try:
-        engine.connect().close()
+        # Validar conexión a DB
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
         db_status = "connected"
-    except Exception:
-        db_status = "disconnected"
+    except Exception as e:
+        logger.error(f"Health Check DB Error: {e}")
+        db_status = "error"
 
     mem = psutil.virtual_memory()
     return {
-        "status": "operational",
+        "status": "operational" if db_status == "connected" else "degraded",
         "timestamp": datetime.now().isoformat(),
+        "version": settings.APP_VERSION,
         "telemetry": {
             "database": db_status,
-            "cpu_percent": psutil.cpu_percent(),
-            "memory_usage": f"{mem.percent}%"
+            "cpu_usage": f"{psutil.cpu_percent()}%",
+            "memory_usage": f"{mem.percent}%",
+            "disk_free": f"{psutil.disk_usage('/').percent}%"
         }
     }
 

@@ -1,31 +1,33 @@
 import os
-
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-# Ruta de la base de datos profesionalizada
-# Priorizamos un disco persistente si existe, o usamos la carpeta 'instance'
-if os.path.exists("/data"):
-    DB_PATH = "/data/tpv_data.sqlite"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tpv_data.sqlite")
+
+# Normalización para Render (postgres:// -> postgresql://)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine_args = {
+    "pool_pre_ping": True,
+}
+
+if "sqlite" in DATABASE_URL:
+    engine_args["connect_args"] = {"check_same_thread": False}
 else:
-    # Asegurar que el directorio instance existe (también se hace en main.py)
-    INSTANCE_DIR = os.path.join(os.getcwd(), "instance")
-    os.makedirs(INSTANCE_DIR, exist_ok=True)
-    DB_PATH = os.path.join(INSTANCE_DIR, "tpv_data.sqlite")
+    # Optimización para PostgreSQL en producción
+    engine_args["pool_size"] = 10
+    engine_args["max_overflow"] = 20
 
-SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DB_PATH}")
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-
+engine = create_engine(DATABASE_URL, **engine_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
-
 def get_db():
-    """Dependency para obtener la sesión de la base de datos de forma segura."""
     db = SessionLocal()
     try:
         yield db

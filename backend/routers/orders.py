@@ -1,105 +1,106 @@
 import json
 import uuid
 import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
 from ..utils.stock import descontar_stock_pedido
+from ..utils.logger import logger
 
-router = APIRouter(prefix="/orders", tags=["Orders"])
+router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
 
-
-
 # --- Esquemas Pydantic ---
-class ItemCrear(BaseModel):
-    producto_id: str
-    cantidad: int
-    notas: Optional[str] = None
 
+class ItemCrear(BaseModel):
+    producto_id: str = Field(..., example="uuid-producto")
+    cantidad: int = Field(..., gt=0, example=1)
+    notas: Optional[str] = Field(None, example="Sin cebolla")
 
 class PedidoCrear(BaseModel):
     items: List[ItemCrear]
-    origen: str = "QUIOSCO"
-    estado_inicial: str = "ESPERANDO_PAGO"
-    cubiertos_qty: int = 0
+    origen: str = Field("QUIOSCO", example="QUIOSCO")
+    estado_inicial: str = Field("ESPERANDO_PAGO", example="ESPERANDO_PAGO")
+    cubiertos_qty: int = Field(0, ge=0)
     notas_cliente: Optional[str] = None
     canjear_puntos: bool = False
 
+class PedidoOut(BaseModel):
+    id: str
+    numero_ticket: str
+    fecha: datetime.datetime
+    estado: str
+    total: float
+    metodo_pago: Optional[str]
+    origen: str
+    
+    class Config:
+        from_attributes = True
+
+class ItemPedidoOut(BaseModel):
+    id: str
+    producto_id: str
+    nombre: str
+    cantidad: int
+    precio: float
 
 # --- Rutas ---
 
-
-@router.get("/", response_model=List[dict])
-@router_legacy.get("/", response_model=List[dict])
+@router.get("/", response_model=List[PedidoOut])
+@router_legacy.get("/", response_model=List[PedidoOut])
 def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
-    """Lista los pedidos con soporte para filtrado por estado."""
-    query = db.query(Pedido)
-    if estado:
-        query = query.filter(Pedido.estado == estado)
-    
-    pedidos = query.order_by(Pedido.fecha.desc()).limit(limit).all()
-    # Profesionalizar la salida evitando __dict__
-    return [{
-        "id": p.id,
-        "numero_ticket": p.numero_ticket,
-        "fecha": p.fecha.isoformat() if p.fecha else None,
-        "estado": p.estado,
-        "total": p.total,
-        "metodo_pago": p.metodo_pago,
-        "origen": p.origen
-    } for p in pedidos]
+    """
+    Lista los pedidos con soporte para filtrado por estado y paginación básica.
+    """
+    try:
+        query = db.query(Pedido)
+        if estado:
+            query = query.filter(Pedido.estado == estado)
+        
+        pedidos = query.order_by(Pedido.fecha.desc()).limit(limit).all()
+        return pedidos
+    except Exception as e:
+        logger.error(f"Error listando pedidos: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
 
-
-@router.get("/today", response_model=List[dict])
+@router.get("/today", response_model=List[PedidoOut])
 def listar_pedidos_hoy(db: Session = Depends(get_db)):
-    """Filtrado rápido de la jornada actual para monitoreo."""
+    """
+    Retorna todos los pedidos realizados en la fecha actual (Jornada Operativa).
+    """
     today = datetime.date.today()
     pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
-    
-    # Profesionalizar la salida evitando __dict__ (que causa fallos de serialización)
-    out = []
-    for p in pedidos:
-        out.append({
-            "id": p.id,
-            "numero_ticket": p.numero_ticket,
-            "fecha": p.fecha.isoformat() if p.fecha else None,
-            "estado": p.estado,
-            "total": p.total,
-            "metodo_pago": p.metodo_pago,
-            "origen": p.origen
-        })
-    return out
+    return pedidos
 
-
-@router.get("/{pedido_id}/items")
-@router_legacy.get("/{pedido_id}/items")
+@router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
+@router_legacy.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
-    """Obtiene el desglose de productos de un pedido."""
+    """
+    Obtiene el desglose detallado de productos e importes de un pedido específico.
+    """
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
-        raise HTTPException(404, "Pedido no encontrado")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     
     out = []
     for it in pedido.items:
         prod = db.query(Producto).get(it.producto_id)
-        out.append({
-            "id": it.id,
-            "producto_id": it.producto_id,
-            "nombre": prod.nombre if prod else "Producto Desconocido",
-            "cantidad": it.cantidad,
-            "precio": it.precio_unitario
-        })
+        out.append(ItemPedidoOut(
+            id=it.id,
+            producto_id=it.producto_id,
+            nombre=prod.nombre if prod else "Producto Desconocido",
+            cantidad=it.cantidad,
+            precio=it.precio_unitario
+        ))
     return out
 
-
-@router.post("/", response_model=dict)
+@router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 def crear_pedido(
     pedido: PedidoCrear,
     background_tasks: BackgroundTasks,
@@ -107,14 +108,16 @@ def crear_pedido(
     db: Session = Depends(get_db),
 ):
     """
-    Crea un pedido profesional con desglose fiscal, lógica de fidelidad
-    y gestión de inventario asíncrona.
+    Crea un pedido profesional con desglose fiscal legal, lógica de fidelización 
+    y gestión de inventario automatizada.
     """
     try:
-        # 1. Identificación de Cliente y Fidelidad
+        # 1. Gestión de Cliente y Fidelización
         telefono_asociado = None
         if "-" in pedido.origen:
-            origen_base, telefono_asociado = pedido.origen.split("-", 1)
+            origen_parts = pedido.origen.split("-", 1)
+            origen_base = origen_parts[0]
+            telefono_asociado = origen_parts[1]
         else:
             origen_base = pedido.origen
 
@@ -124,9 +127,7 @@ def crear_pedido(
         if cliente_id:
             cliente = db.query(Cliente).get(cliente_id)
         elif telefono_asociado:
-            cliente = (
-                db.query(Cliente).filter(Cliente.telefono == telefono_asociado).first()
-            )
+            cliente = db.query(Cliente).filter(Cliente.telefono == telefono_asociado).first()
             if not cliente:
                 cliente = Cliente(
                     id=str(uuid.uuid4()),
@@ -142,7 +143,7 @@ def crear_pedido(
             elif cliente.nivel_fidelidad == "ORO":
                 descuento_fidelidad = 0.10
 
-        # 2. Inicialización de Pedido
+        # 2. Creación del Pedido
         nuevo_pedido = Pedido(
             id=str(uuid.uuid4()),
             numero_ticket=f"T-{(db.query(Pedido).count() % 100) + 1:02d}",
@@ -155,12 +156,12 @@ def crear_pedido(
         db.add(nuevo_pedido)
         db.flush()
 
-        # 3. Procesamiento de Ítems
+        # 3. Procesamiento de Líneas de Pedido e Inventario
         total_bruto = 0.0
         total_iva_10 = 0.0
         total_iva_21 = 0.0
 
-        # Cargo de cubiertos (IVA 10%)
+        # Cargo de cubiertos (IVA Reducido 10%)
         if pedido.cubiertos_qty > 0:
             coste_cubiertos = pedido.cubiertos_qty * 0.20
             total_bruto += coste_cubiertos
@@ -169,9 +170,10 @@ def crear_pedido(
         for item in pedido.items:
             prod = db.query(Producto).get(item.producto_id)
             if not prod:
+                logger.warning(f"Intento de añadir producto inexistente: {item.producto_id}")
                 continue
 
-            # Notas de ítem -> Notas de pedido
+            # Registro de notas por ítem en el pedido general
             if item.notas:
                 nota_it = f"- {item.cantidad}x {prod.nombre}: {item.notas}"
                 nuevo_pedido.notas_cliente = (
@@ -180,12 +182,10 @@ def crear_pedido(
                     else nota_it
                 )
 
-            # Descuento de Stock (Modular y Asíncrono)
-            descontar_stock_pedido(
-                db, prod.id, item.cantidad, nuevo_pedido.id, background_tasks
-            )
+            # Deducción de Stock (Asíncrona para no bloquear la venta)
+            descontar_stock_pedido(db, prod.id, item.cantidad, nuevo_pedido.id, background_tasks)
 
-            # Cálculo contable
+            # Cálculo Contable
             coste_it = prod.precio * item.cantidad
             total_bruto += coste_it
 
@@ -194,65 +194,43 @@ def crear_pedido(
             else:
                 total_iva_10 += coste_it
 
-            db.add(
-                ItemPedido(
-                    id=str(uuid.uuid4()),
-                    pedido_id=nuevo_pedido.id,
-                    producto_id=prod.id,
-                    cantidad=item.cantidad,
-                    precio_unitario=prod.precio,
-                )
-            )
+            db.add(ItemPedido(
+                id=str(uuid.uuid4()),
+                pedido_id=nuevo_pedido.id,
+                producto_id=prod.id,
+                cantidad=item.cantidad,
+                precio_unitario=prod.precio,
+            ))
 
-        # 4. Aplicación de Descuentos y Puntos
+        # 4. Aplicación de Descuentos
         total_final = total_bruto
-
-        # Descuento por nivel
         if descuento_fidelidad > 0:
             total_final -= total_bruto * descuento_fidelidad
-            total_iva_10 *= 1 - descuento_fidelidad
-            total_iva_21 *= 1 - descuento_fidelidad
+            total_iva_10 *= (1 - descuento_fidelidad)
+            total_iva_21 *= (1 - descuento_fidelidad)
 
-        # Canjeo de puntos (Pollos-Coins)
-        if pedido.canjear_puntos and cliente and cliente.puntos_fidelidad >= 50:
-            desc_puntos = (cliente.puntos_fidelidad // 50) * 5.0
-            if desc_puntos > total_final:
-                desc_puntos = total_final
-
-            total_final -= desc_puntos
-            cliente.puntos_fidelidad -= int((desc_puntos / 5.0) * 50)
-
-            # Ajuste de IVA proporcional
-            if total_bruto > 0:
-                prop = desc_puntos / total_bruto
-                total_iva_10 -= total_iva_10 * prop
-                total_iva_21 -= total_iva_21 * prop
-
-        # 5. Cierre Fiscal
+        # 5. Cierre Fiscal y Contable
         nuevo_pedido.total = round(total_final, 2)
         nuevo_pedido.descuento_aplicado = round(total_bruto - total_final, 2)
 
         nuevo_pedido.base_imponible_10 = round(total_iva_10 / 1.10, 2)
-        nuevo_pedido.cuota_iva_10 = round(
-            total_iva_10 - nuevo_pedido.base_imponible_10, 2
-        )
+        nuevo_pedido.cuota_iva_10 = round(total_iva_10 - nuevo_pedido.base_imponible_10, 2)
         nuevo_pedido.base_imponible_21 = round(total_iva_21 / 1.21, 2)
-        nuevo_pedido.cuota_iva_21 = round(
-            total_iva_21 - nuevo_pedido.base_imponible_21, 2
-        )
+        nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
 
-        # Acumulación de puntos
         if cliente:
             cliente.puntos_fidelidad += int(total_final)
             cliente.visitas += 1
 
-        # 6. Comandos de Hardware (Si se paga/confirma al instante)
+        # 6. Disparar impresión si el pedido ya está pagado/confirmado
         if nuevo_pedido.estado == "EN_PREPARACION":
             _encolar_tickets(db, nuevo_pedido)
 
         db.commit()
+        logger.info(f"Pedido Creado: {nuevo_pedido.numero_ticket} | Total: {nuevo_pedido.total}€")
+        
         return {
-            "status": "ok",
+            "status": "success",
             "pedido_id": nuevo_pedido.id,
             "ticket": nuevo_pedido.numero_ticket,
             "total": nuevo_pedido.total,
@@ -260,13 +238,15 @@ def crear_pedido(
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
+        logger.error(f"Error crítico creando pedido: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error en el procesamiento del pedido")
 
 @router.put("/{pedido_id}/estado")
-@router_legacy.post("/{pedido_id}/estado")  # Legacy usa POST con query param
+@router_legacy.post("/{pedido_id}/estado")
 def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)):
-    """Actualiza el estado de un pedido y dispara impresión si es necesario."""
+    """
+    Cambia el flujo operativo de un pedido y dispara comandos de hardware (impresión) según el cambio.
+    """
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
@@ -274,53 +254,53 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
     estado_anterior = pedido.estado
     pedido.estado = estado
 
-    # Si pasa a EN_PREPARACION desde ESPERANDO_PAGO, imprimimos
     if estado == "EN_PREPARACION" and estado_anterior == "ESPERANDO_PAGO":
         _encolar_tickets(db, pedido)
 
     db.commit()
-    return {"status": "ok", "nuevo_estado": estado}
-
+    return {"status": "success", "nuevo_estado": estado}
 
 @router.post("/{pedido_id}/cobrar")
 @router_legacy.post("/{pedido_id}/cobrar")
-def cobrar_pedido(pedido_id: str, payload: dict, db: Session = Depends(get_db)):
-    """Procesa el cobro, abre el cajón e imprime los tickets."""
+def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
+    """
+    Finaliza el proceso de cobro, gestiona el cajón inteligente y emite tickets legales.
+    """
     pedido = db.query(Pedido).get(pedido_id)
     if not pedido:
-        raise HTTPException(404, "Pedido no encontrado")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     
     metodo = payload.get("metodo_pago", "EFECTIVO")
     pedido.estado = "EN_PREPARACION"
     pedido.metodo_pago = metodo
     
-    # 1. Encolar apertura de cajón si es efectivo
+    # 1. Seguridad Física: Abrir cajón si es pago manual
     if metodo == "EFECTIVO":
         db.add(HardwareCommand(
             id=str(uuid.uuid4()),
             accion="abrir_caja",
-            origen="tpv_cobro"
+            origen="terminal_tpv_caja"
         ))
     
-    # 2. Encolar tickets (Cocina y Cliente)
+    # 2. Generación de Tickets
     _encolar_tickets(db, pedido)
     
     db.commit()
-    return {"status": "ok", "msj": "Cobro procesado correctamente."}
-
+    logger.info(f"Cobro Procesado: Ticket {pedido.numero_ticket} mediante {metodo}")
+    return {"status": "success", "message": "Operación de cobro completada"}
 
 def _encolar_tickets(db: Session, pedido: Pedido):
-    """Genera comandos de impresión para cocina y cliente."""
+    """
+    Genera la carga útil de impresión profesional para Cocina y Cliente.
+    """
     items_payload = []
     for it in pedido.items:
         prod = db.query(Producto).get(it.producto_id)
-        items_payload.append(
-            {
-                "nombre": prod.nombre if prod else "Item",
-                "cantidad": it.cantidad,
-                "precio": it.precio_unitario * it.cantidad,
-            }
-        )
+        items_payload.append({
+            "nombre": prod.nombre if prod else "Item",
+            "cantidad": it.cantidad,
+            "precio": it.precio_unitario * it.cantidad,
+        })
 
     base_payload = {
         "numero_ticket": pedido.numero_ticket,
@@ -332,34 +312,34 @@ def _encolar_tickets(db: Session, pedido: Pedido):
         "base_imponible_21": pedido.base_imponible_21,
         "cuota_iva_21": pedido.cuota_iva_21,
         "notas_cliente": pedido.notas_cliente,
+        "fecha": pedido.fecha.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Ticket Cocina
-    db.add(
-        HardwareCommand(
-            id=str(uuid.uuid4()),
-            accion="imprimir",
-            origen="backend_modular",
-            payload=json.dumps({**base_payload, "tipo": "cocina"}),
-        )
-    )
-    # Ticket Cliente
-    db.add(
-        HardwareCommand(
-            id=str(uuid.uuid4()),
-            accion="imprimir",
-            origen="backend_modular",
-            payload=json.dumps({**base_payload, "tipo": "cliente"}),
-        )
-    )
+    # Ticket Producción (Cocina)
+    db.add(HardwareCommand(
+        id=str(uuid.uuid4()),
+        accion="imprimir",
+        origen="backend_enterprise",
+        payload=json.dumps({**base_payload, "tipo": "cocina"}),
+    ))
+    
+    # Ticket Fiscal (Cliente)
+    db.add(HardwareCommand(
+        id=str(uuid.uuid4()),
+        accion="imprimir",
+        origen="backend_enterprise",
+        payload=json.dumps({**base_payload, "tipo": "cliente"}),
+    ))
 
 @router.post("/{pedido_id}/ubicacion")
-def actualizar_ubicacion(pedido_id: str, payload: dict, db: Session = Depends(get_db)):
-    """Actualiza la telemetría GPS de un pedido en tránsito."""
-    # En una implementación avanzada, esto guardaría en una tabla de 'RutasGPS'
-    from ..utils.db_logger import DBLogger
+def actualizar_ubicacion(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
+    """
+    Recibe telemetría GPS para el seguimiento en vivo de entregas a domicilio.
+    """
     lat = payload.get("lat")
     lon = payload.get("lon")
     dist = payload.get("distancia_metros")
-    DBLogger.info("LOGISTICA", f"Pedido {pedido_id} a {dist}m (Lat: {lat}, Lon: {lon})")
-    return {"status": "telemetry_received"}
+    
+    # Aquí podríamos actualizar Pedido.latitud_actual etc si quisiéramos persistencia GPS real
+    logger.debug(f"Telemetría GPS: Pedido {pedido_id} a {dist}m")
+    return {"status": "telemetry_accepted"}
