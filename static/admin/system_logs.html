@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola de Sistema - Carbones y Pollos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --terminal-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #fbbf24;
+            --error-color: #ef4444;
+            --success-color: #22c55e;
+            --warn-color: #eab308;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 1rem 2rem;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .terminal {
+            flex: 1;
+            margin: 1.5rem;
+            background: var(--terminal-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .terminal-header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .terminal-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .log-entry { margin-bottom: 0.5rem; white-space: pre-wrap; }
+        .log-info { color: #38bdf8; }
+        .log-error { color: var(--error-color); font-weight: bold; }
+        .log-warn { color: var(--warn-color); }
+        .log-timestamp { color: #94a3b8; font-size: 0.8rem; margin-right: 0.75rem; }
+
+        .controls {
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            background: #334155;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover { background: #475569; }
+        button.primary { background: var(--accent-color); color: #000; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title">
+            <span>⚙️ Consola de Telemetría Real-Time</span>
+            <div id="status" class="status-badge">CONECTADO</div>
+        </div>
+        <div class="actions">
+            <button onclick="location.href='/dashboard.html'">Volver al Dashboard</button>
+        </div>
+    </header>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <span style="margin-left: 1rem; opacity: 0.5; font-size: 0.8rem;">root@tpv-enterprise:~/instance/server.log</span>
+        </div>
+        <div id="log-content" class="terminal-content">
+            <div class="log-entry"><span class="log-info">SISTEMA:</span> Iniciando monitoreo de logs remotos...</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="primary" onclick="refreshLogs()">Refrescar Logs</button>
+        <button onclick="clearTerminal()">Limpiar Pantalla</button>
+        <div style="flex: 1"></div>
+        <span id="last-update" style="font-size: 0.8rem; opacity: 0.6; align-self: center;">Última actualización: --:--:--</span>
+    </div>
+
+    <script>
+        async function refreshLogs() {
+            const content = document.getElementById('log-content');
+            try {
+                const response = await fetch('/api/system/logs?lines=50');
+                const data = await response.json();
+                
+                if (data.logs) {
+                    content.innerHTML = '';
+                    data.logs.forEach(line => {
+                        const div = document.createElement('div');
+                        div.className = 'log-entry';
+                        
+                        let className = 'log-info';
+                        if (line.includes('[ERROR]') || line.includes('CRITICAL')) className = 'log-error';
+                        if (line.includes('[WARNING]')) className = 'log-warn';
+                        
+                        div.innerHTML = `<span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span><span class="${className}">${line}</span>`;
+                        content.appendChild(div);
+                    });
+                    content.scrollTop = content.scrollHeight;
+                    document.getElementById('last-update').innerText = 'Última actualización: ' + new Date().toLocaleTimeString();
+                } else if (data.error) {
+                    content.innerHTML += `<div class="log-entry log-error">ERROR API: ${data.error}</div>`;
+                }
+            } catch (err) {
+                content.innerHTML += `<div class="log-entry log-error">FALLO DE CONEXIÓN: ${err.message}</div>`;
+            }
+        }
+
+        function clearTerminal() {
+            document.getElementById('log-content').innerHTML = '<div class="log-entry"><span class="log-info">TERMINAL:</span> Consola limpiada.</div>';
+        }
+
+        // Auto-refresh cada 5 segundos
+        setInterval(refreshLogs, 5000);
+        window.onload = refreshLogs;
+    </script>
+</body>
+</html>

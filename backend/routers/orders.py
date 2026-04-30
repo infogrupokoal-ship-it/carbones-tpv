@@ -46,6 +46,14 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
     return [p.__dict__ for p in pedidos]
 
 
+@router.get("/today", response_model=List[dict])
+def listar_pedidos_hoy(db: Session = Depends(get_db)):
+    """Filtrado rápido de la jornada actual para monitoreo."""
+    today = datetime.date.today()
+    pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
+    return [p.__dict__ for p in pedidos]
+
+
 @router.get("/{pedido_id}/items")
 @router_legacy.get("/{pedido_id}/items")
 def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
@@ -320,3 +328,14 @@ def _encolar_tickets(db: Session, pedido: Pedido):
             payload=json.dumps({**base_payload, "tipo": "cliente"}),
         )
     )
+
+@router.post("/{pedido_id}/ubicacion")
+def actualizar_ubicacion(pedido_id: str, payload: dict, db: Session = Depends(get_db)):
+    """Actualiza la telemetría GPS de un pedido en tránsito."""
+    # En una implementación avanzada, esto guardaría en una tabla de 'RutasGPS'
+    from ..utils.db_logger import DBLogger
+    lat = payload.get("lat")
+    lon = payload.get("lon")
+    dist = payload.get("distancia_metros")
+    DBLogger.info("LOGISTICA", f"Pedido {pedido_id} a {dist}m (Lat: {lat}, Lon: {lon})")
+    return {"status": "telemetry_received"}

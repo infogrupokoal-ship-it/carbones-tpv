@@ -28,7 +28,9 @@
                 <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
                 <span class="text-xs font-bold uppercase tracking-widest text-emerald-500">Live Data Sync</span>
             </div>
-            <button onclick="location.href='/'" class="h-12 w-12 glass-panel !p-0 flex items-center justify-center hover:bg-white/10 transition-all">🏠</button>
+            <button onclick="location.href='/'" class="h-12 w-12 glass-panel !p-0 flex items-center justify-center hover:bg-white/10 transition-all" title="Inicio">🏠</button>
+            <button onclick="location.href='/static/admin/system_logs.html'" class="h-12 w-12 glass-panel !p-0 flex items-center justify-center hover:bg-white/10 transition-all" title="Logs del Sistema">📜</button>
+            <button onclick="location.href='/static/admin/health.html'" class="h-12 w-12 glass-panel !p-0 flex items-center justify-center hover:bg-white/10 transition-all" title="Salud del Sistema">🩺</button>
         </div>
     </header>
 
@@ -156,7 +158,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch('/api/ai/chat', {
+                const res = await fetch('/api/admin/ai/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: msg })
