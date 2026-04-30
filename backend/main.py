@@ -20,7 +20,7 @@ from .config import settings
 from .database import Base, engine
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats
+    orders, telemetry, rrhh, webhooks, stats, admin_audit
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -112,7 +112,7 @@ async def health_check() -> Dict[str, Any]:
         "deployment": {
             "node": os.uname().nodename if hasattr(os, "uname") else "windows-dev",
             "uptime_sec": int(time.time() - psutil.boot_time()),
-            "build_marker": "INDUSTRIAL-ULTRA-2026-04-30"
+            "build_marker": "INDUSTRIAL-ULTRA-v3.1-SOFT-DELETES"
         },
         "telemetry": {
             "database": {
@@ -144,6 +144,7 @@ app.include_router(rrhh.router, prefix="/api", tags=["Personal"])
 app.include_router(hardware.router, prefix="/api", tags=["Hardware"])
 app.include_router(telemetry.router, prefix="/api/system", tags=["Mantenimiento"])
 app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
+app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
