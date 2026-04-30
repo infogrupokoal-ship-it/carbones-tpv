@@ -76,6 +76,7 @@ async def startup_event():
     asyncio.create_task(scheduler_loop())
 
 @app.get("/health", tags=["Infraestructura"])
+@app.get("/api/health", tags=["Infraestructura"], include_in_schema=False)
 async def health_check() -> Dict[str, Any]:
     try:
         engine.connect().close()

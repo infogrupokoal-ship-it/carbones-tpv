@@ -3,222 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kiosko de Auto-Pedido | Carbones y Pollos</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Kiosko Digital | Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
     <style>
-        :root {
-            --primary: #f59e0b;
-            --bg: #111827;
-            --surface: #1f2937;
-            --text: #ffffff;
+        body { background: #fdfdfd; color: #1e293b; overflow: hidden; }
+        .product-card {
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
-
-        /* Video de Fondo o Imagen Atractiva */
-        .hero {
-            height: 40vh;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(17,24,39,1)), url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=1000');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-        .hero h1 { font-size: 3.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -2px; margin-bottom: 10px; }
-        .hero p { font-size: 1.2rem; opacity: 0.8; }
-
-        /* Pantalla Toca para Empezar */
-        .start-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 1000; cursor: pointer;
-            transition: opacity 0.5s;
-        }
-        .start-overlay i { font-size: 5rem; color: var(--primary); margin-bottom: 20px; animation: bounce 2s infinite; }
-        .start-overlay h2 { font-size: 2rem; text-transform: uppercase; }
-
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
-
-        /* Grid de Selección */
-        .kiosk-grid {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            height: 60vh;
-            overflow-y: auto;
-        }
-        .kiosk-item {
-            background: var(--surface);
-            border-radius: 30px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            border: 2px solid transparent;
+        .product-card:active { transform: scale(0.95); background: #f8fafc; }
+        .category-tab {
+            padding: 1rem 2rem;
+            border-radius: 1.5rem;
+            font-weight: 800;
+            white-space: nowrap;
             transition: all 0.3s;
+            border: 2px solid transparent;
         }
-        .kiosk-item:active { transform: scale(0.95); border-color: var(--primary); }
-        .kiosk-item i { font-size: 3.5rem; color: var(--primary); }
-        .kiosk-item span { font-size: 1.5rem; font-weight: 700; }
-
-        /* Barra Inferior */
-        .kiosk-footer {
-            position: fixed; bottom: 0; width: 100%;
-            background: var(--surface); padding: 20px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
+        .category-tab.active {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
         }
-        .total-price { font-size: 2rem; font-weight: 900; color: var(--primary); }
-        .btn-order {
-            padding: 15px 40px; border-radius: 50px; background: var(--primary);
-            color: #000; font-weight: 900; font-size: 1.2rem; border: none; text-transform: uppercase;
+        .cart-panel {
+            background: white;
+            border-top: 1px solid #f1f5f9;
+            box-shadow: 0 -20px 40px rgba(0,0,0,0.05);
+            border-radius: 3rem 3rem 0 0;
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
-    <div class="start-overlay" id="overlay" onclick="this.style.opacity='0'; setTimeout(()=>this.remove(), 500)">
-        <i class="fas fa-hand-pointer"></i>
-        <h2>Toca para Empezar</h2>
-    </div>
+<body class="h-screen flex flex-col">
 
-    <div class="hero">
-        <h1>Carbones y Pollos</h1>
-        <p>El sabor artesanal a la leña de encina</p>
-    </div>
+    <!-- Header -->
+    <header class="p-8 flex justify-between items-center bg-white">
+        <div class="animate-in">
+            <h1 class="text-4xl font-black tracking-tighter leading-none">
+                CARBONES <span class="text-gradient">Y POLLOS</span>
+            </h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">BIENVENIDO AL SABOR AUTÉNTICO</p>
+        </div>
+        <div class="bg-slate-100 p-4 rounded-3xl text-xs font-black tracking-widest text-slate-500 border border-slate-200">
+            TURNO #82
+        </div>
+    </header>
 
-    <div class="kiosk-grid">
-        <div class="kiosk-item">
-            <i class="fas fa-drumstick-bite"></i>
-            <span>POLLO ENTERO</span>
-        </div>
-        <div class="kiosk-item">
-            <i class="fas fa-bowl-food"></i>
-            <span>PATATAS RACIÓN</span>
-        </div>
-        <div class="kiosk-item">
-            <i class="fas fa-bottle-water"></i>
-            <span>BEBIDAS</span>
-        </div>
-        <div class="kiosk-item">
-            <i class="fas fa-cookie-bite"></i>
-            <span>POSTRES</span>
-        </div>
-    </div>
+    <!-- Categories -->
+    <nav class="px-8 pb-4 flex gap-4 overflow-x-auto no-scrollbar animate-in" style="animation-delay: 0.1s;">
+        <button class="category-tab active">TODO</button>
+        <button class="category-tab bg-slate-100 text-slate-500">🔥 POLLOS</button>
+        <button class="category-tab bg-slate-100 text-slate-500">🍕 PIZZAS</button>
+        <button class="category-tab bg-slate-100 text-slate-500">🥤 BEBIDAS</button>
+        <button class="category-tab bg-slate-100 text-slate-500">🍰 POSTRES</button>
+    </nav>
 
-    <footer class="kiosk-footer">
-        <div class="total-price">12.50€</div>
-        <button class="btn-order">PEDIR AHORA</button>
-    </footer>
+    <!-- Product Grid -->
+    <main class="flex-1 overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-8 bg-[#fafafa] animate-in" style="animation-delay: 0.2s;" id="product-grid">
+        <!-- Loader -->
+        <div class="col-span-full py-40 text-center">
+            <p class="text-slate-400 font-bold animate-pulse">Preparando el menú para ti...</p>
+        </div>
+    </main>
+
+    <!-- Cart Summary -->
+    <div class="cart-panel p-10 animate-in" style="animation-delay: 0.3s;">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tu Selección</p>
+                <h2 class="text-3xl font-black text-slate-900" id="cart-count">0 PRODUCTOS</h2>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total a Pagar</p>
+                <h2 class="text-5xl font-black text-gradient leading-none" id="cart-total">0.00€</h2>
+            </div>
+        </div>
+        
+        <button onclick="enviarPedido()" class="btn-primary w-full !py-6 !text-2xl shadow-orange-500/30">
+            FINALIZAR PEDIDO
+        </button>
+    </div>
 
     <script>
-        let productos = [];
-        let carrito = [];
+        const API_URL = "/api";
+        let cart = [];
+        let total = 0;
+        let products = [];
 
-        async function init() {
+        async function loadProducts() {
             try {
-                const res = await fetch('/api/productos');
-                productos = await res.json();
-                renderGrid();
+                const res = await fetch(`${API_URL}/inventory/productos`);
+                products = await res.json();
+                renderProducts(products);
             } catch (e) {
-                console.error("Error cargando productos", e);
+                console.error("Kiosko Load Error", e);
             }
         }
 
-        function renderGrid() {
-            const grid = document.querySelector('.kiosk-grid');
-            grid.innerHTML = productos.map(p => `
-                <div class="kiosk-item" onclick="addToCart(${p.id})">
-                    <i class="${getIcon(p.nombre)}"></i>
-                    <span>${p.nombre}</span>
-                    <small>${p.precio.toFixed(2)}€</small>
+        function renderProducts(list) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = list.map(p => `
+                <div class="product-card p-6 flex flex-col cursor-pointer" onclick="addToCart('${p.id}', '${p.nombre}', ${p.precio})">
+                    <div class="h-40 bg-slate-100 rounded-[1.5rem] mb-6 overflow-hidden">
+                        <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=400'}" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-black text-slate-800 leading-tight mb-2">${p.nombre.toUpperCase()}</h3>
+                    <p class="text-xs text-slate-400 font-medium mb-6 flex-1">${p.descripcion || 'Especialidad de la casa'}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-black text-slate-900">${p.precio.toFixed(2)}€</span>
+                        <div class="bg-slate-900 text-white w-10 h-10 rounded-2xl flex items-center justify-center font-black shadow-lg shadow-slate-200">+</div>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function getIcon(name) {
-            const n = name.toLowerCase();
-            if (n.includes('pollo')) return 'fas fa-drumstick-bite';
-            if (n.includes('patata')) return 'fas fa-bowl-food';
-            if (n.includes('bebida') || n.includes('agua') || n.includes('cola')) return 'fas fa-bottle-water';
-            return 'fas fa-utensils';
+        function addToCart(id, name, price) {
+            cart.push({ id, name, price });
+            total += price;
+            updateUI();
         }
 
-        function addToCart(id) {
-            const p = productos.find(x => x.id === id);
-            carrito.push(p);
-            updateFooter();
-            
-            // Animación feedback
-            const item = event.currentTarget;
-            item.style.borderColor = 'var(--primary)';
-            setTimeout(() => item.style.borderColor = 'transparent', 300);
+        function updateUI() {
+            document.getElementById('cart-count').innerText = `${cart.length} ${cart.length === 1 ? 'PRODUCTO' : 'PRODUCTOS'}`;
+            document.getElementById('cart-total').innerText = `${total.toFixed(2)}€`;
         }
 
-        function updateFooter() {
-            const total = carrito.reduce((acc, p) => acc + p.precio, 0);
-            document.querySelector('.total-price').innerText = total.toFixed(2) + '€';
-        }
+        async function enviarPedido() {
+            if(cart.length === 0) {
+                alert("Selecciona algo rico antes de continuar 😉");
+                return;
+            }
 
-        async function checkout() {
-            if (carrito.length === 0) return;
-            
-            const btn = document.querySelector('.btn-order');
-            btn.innerText = "PROCESANDO...";
-            btn.disabled = true;
-
-            const payload = {
-                items: carrito.map(p => ({ producto_id: p.id, cantidad: 1 })),
-                origen: "KIOSKO_PRO",
-                total: carrito.reduce((acc, p) => acc + p.precio, 0)
-            };
+            if(!confirm("¿Deseas confirmar tu pedido?")) return;
 
             try {
-                const res = await fetch('/api/pedidos', {
+                const payload = {
+                    origen: "KIOSKO",
+                    items: cart.map(i => ({ producto_id: i.id, cantidad: 1 })),
+                    notas_cliente: "Pedido desde Kiosko Central"
+                };
+
+                const res = await fetch(`${API_URL}/orders`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
-                
-                if (data.status === 'ok') {
-                    showSuccess(data.ticket);
+
+                if(res.ok) {
+                    const order = await res.json();
+                    alert(`¡Pedido #T-${order.numero_ticket || order.id.slice(0,4)} enviado con éxito! \nPor favor, dirígete a caja para realizar el pago.`);
+                    cart = [];
+                    total = 0;
+                    updateUI();
+                } else {
+                    alert("Error enviando el pedido. Por favor, avisa al personal.");
                 }
             } catch (e) {
-                alert("Error al procesar el pedido");
-            } finally {
-                btn.innerText = "PEDIR AHORA";
-                btn.disabled = false;
+                alert("Error de conexión.");
             }
         }
 
-        function showSuccess(ticket) {
-            const overlay = document.createElement('div');
-            overlay.className = "start-overlay";
-            overlay.innerHTML = `
-                <i class="fas fa-check-circle" style="color: #10b981; animation: none;"></i>
-                <h2 style="font-size: 3rem;">TICKET: ${ticket}</h2>
-                <p style="margin-top: 20px;">Pasa por caja para recoger tu pedido</p>
-                <button class="btn-order" style="margin-top: 40px;" onclick="location.reload()">NUEVO PEDIDO</button>
-            `;
-            document.body.appendChild(overlay);
-        }
-
-        document.querySelector('.btn-order').onclick = checkout;
-
-        init();
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
+        loadProducts();
     </script>
 </body>
 </html>

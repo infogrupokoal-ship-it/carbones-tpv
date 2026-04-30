@@ -4,124 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Producción - Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
 </head>
-<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+<body class="bg-slate-900 min-h-screen text-slate-100 font-sans pb-20">
 
-    <!-- Navbar -->
-    <div class="bg-gray-900 text-white p-4 shadow-md flex items-center justify-between sticky top-0 z-50">
-        <h1 class="text-xl font-black">📊 Dashboard Producción & Ventas</h1>
+    <!-- Header -->
+    <nav class="bg-white/5 backdrop-blur-xl border-b border-white/10 p-6 sticky top-0 z-50 flex flex-wrap justify-between items-center gap-6">
         <div class="flex items-center gap-4">
-            <button onclick="document.getElementById('modalArqueo').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 px-4 rounded-full shadow-lg transition-all">Cerrar Caja (Z)</button>
-            <button onclick="location.href='admin_mobile.html'" class="text-gray-300 text-sm font-bold hover:text-white">← Volver al Admin</button>
+            <span class="text-3xl">📊</span>
+            <div>
+                <h1 class="text-2xl font-black text-white leading-tight">CONTROL OPERATIVO</h1>
+                <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Inteligencia de Negocio v4.1</p>
+            </div>
         </div>
-    </div>
+        <div class="flex items-center gap-3">
+            <button onclick="document.getElementById('modalArqueo').classList.remove('hidden')" class="btn-primary !py-2 !px-6 !rounded-full !text-sm">CIERRE Z</button>
+            <button onclick="location.href='index.html'" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full font-bold text-sm border border-white/10 transition-all active:scale-95">SALIR</button>
+        </div>
+    </nav>
 
-    <div class="p-4 md:p-8 max-w-7xl mx-auto">
-        <!-- Resumen KPI -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Ventas Hoy</p>
-                <p class="text-3xl font-black text-emerald-600" id="kpi-ventas">0.00€</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Coste Mermas</p>
-                <p class="text-3xl font-black text-red-500" id="kpi-mermas">0.00€</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Pedidos Hoy</p>
-                <p class="text-3xl font-black text-indigo-600" id="kpi-pedidos">0</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Valoración Media</p>
-                <p class="text-3xl font-black text-yellow-500" id="kpi-rating">0.0 ★</p>
-            </div>
-        </div>
-
-        <!-- Gráficos -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-black mb-4 text-gray-800">Ventas por Hora</h3>
-                <canvas id="chart-ventas-hora" height="200"></canvas>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-black mb-4 text-gray-800">Top Pollos Asados</h3>
-                <canvas id="chart-top-pollos" height="200"></canvas>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-black mb-4 text-gray-800">Top Pizzas</h3>
-                <canvas id="chart-top-pizzas" height="200"></canvas>
-            </div>
-        </div>
+    <main class="max-w-7xl mx-auto p-6 md:p-8 animate-in">
         
-        <!-- IA Insights y Reviews -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- AI Panel -->
-            <div class="bg-gradient-to-br from-indigo-600 to-purple-800 p-6 rounded-2xl shadow-lg text-white lg:col-span-1">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-black">🧠 Asistente IA</h3>
-                    <button onclick="generarInsightsIA()" id="btn-ia" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs font-bold transition-all">Analizar Ahora</button>
-                </div>
-                <div id="ia-content" class="bg-white/10 p-4 rounded-xl border border-white/20 text-sm leading-relaxed min-h-[150px]">
-                    <p class="text-indigo-200 italic">Pulsa "Analizar Ahora" para que la IA lea las valoraciones y el flujo de ventas para sugerir niveles de producción de hoy.</p>
-                </div>
+        <!-- KPI Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <div class="glass-panel !p-6 flex flex-col justify-between">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Ventas Brutas</p>
+                <p class="text-3xl font-black text-emerald-400" id="kpi-ventas">0.00€</p>
             </div>
+            <div class="glass-panel !p-6 flex flex-col justify-between">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Mermas / Pérdida</p>
+                <p class="text-3xl font-black text-red-400" id="kpi-mermas">0.00€</p>
+            </div>
+            <div class="glass-panel !p-6 flex flex-col justify-between">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Tickets Emitidos</p>
+                <p class="text-3xl font-black text-indigo-400" id="kpi-pedidos">0</p>
+            </div>
+            <div class="glass-panel !p-6 flex flex-col justify-between">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Rating Clientes</p>
+                <p class="text-3xl font-black text-yellow-400" id="kpi-rating">0.0 ★</p>
+            </div>
+        </div>
 
-            <!-- Últimas Reseñas -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-2">
-                <h3 class="text-lg font-black mb-4 text-gray-800">Feedback de Clientes</h3>
-                <div id="reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                    <p class="text-gray-400 italic">Cargando valoraciones...</p>
+        <!-- Main Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            <div class="lg:col-span-2 glass-panel">
+                <h3 class="text-lg font-black text-white mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    CURVA DE VENTAS (HOY)
+                </h3>
+                <canvas id="chart-ventas-hora" height="150"></canvas>
+            </div>
+            <div class="glass-panel bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/30">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                        <span>🧠</span> AI INSIGHTS
+                    </h3>
+                    <button onclick="generarInsightsIA()" id="btn-ia" class="text-[10px] font-black px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/10 transition-all uppercase">Actualizar</button>
+                </div>
+                <div id="ia-content" class="text-sm leading-relaxed text-slate-300 space-y-4">
+                    <p class="italic text-slate-500">Haz clic en actualizar para que la IA analice las métricas del día...</p>
                 </div>
             </div>
         </div>
-        
-        <!-- Empleados Activos -->
-        <div class="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-black mb-4 text-gray-800">Estado de Empleados (RRHH)</h3>
-            <div id="rrhh-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <p class="text-gray-400 italic col-span-full">Cargando estado...</p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Arqueo Ciego -->
-    <div id="modalArqueo" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100]">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md m-4 transform transition-all scale-100">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-black text-gray-800">Arqueo Ciego (Cierre Z)</h3>
-                <button onclick="document.getElementById('modalArqueo').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <p class="text-gray-600 mb-6">Por favor, cuenta el efectivo en caja e introdúcelo abajo. El sistema calculará la diferencia automáticamente y enviará el reporte.</p>
-            
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Efectivo Contado (€):</label>
-                <input type="number" id="efectivo_declarado" step="0.01" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-lg font-bold" placeholder="Ej: 345.50">
+        <!-- Bottom Grid: Inventory & Feedback -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass-panel">
+                <h3 class="text-lg font-black text-white mb-6">RE rendimiento de Productos</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Top Pollos</p>
+                        <canvas id="chart-top-pollos" height="200"></canvas>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Top Pizzas</p>
+                        <canvas id="chart-top-pizzas" height="200"></canvas>
+                    </div>
+                </div>
             </div>
             
-            <button onclick="ejecutarCierreZ()" id="btn-cierre" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all text-lg">Confirmar Cierre y Enviar</button>
+            <div class="glass-panel">
+                <h3 class="text-lg font-black text-white mb-6">FEEDBACK RECIENTE</h3>
+                <div id="reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-slate-500 italic">Cargando valoraciones...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Status -->
+        <div class="mt-10 glass-panel">
+            <h3 class="text-lg font-black text-white mb-6">EQUIPO EN TURNO</h3>
+            <div id="rrhh-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <p class="text-slate-500 italic col-span-full">Sincronizando portal RRHH...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Arqueo -->
+    <div id="modalArqueo" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center z-[100] p-4">
+        <div class="glass-panel max-w-md w-full !p-8 animate-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-white">ARQUEO CIEGO</h3>
+                <button onclick="document.getElementById('modalArqueo').classList.add('hidden')" class="text-slate-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">Declara el efectivo contado en el cajón físico. La IA detectará descuadres y notificará a gerencia automáticamente.</p>
+            
+            <div class="mb-8">
+                <label class="block text-slate-500 text-[10px] font-black uppercase tracking-widest mb-3">Efectivo Contado (€)</label>
+                <input type="number" id="efectivo_declarado" step="0.01" class="w-full bg-black/40 border-2 border-white/10 rounded-2xl p-4 text-3xl font-black text-white focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="0.00">
+            </div>
+            
+            <button onclick="ejecutarCierreZ()" id="btn-cierre" class="btn-primary w-full !text-lg !py-4">REALIZAR CIERRE Z</button>
         </div>
     </div>
 
     <script>
         const API_URL = "/api";
-        
         let chartVentas, chartPollos, chartPizzas;
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
         async function initDashboard() {
             try {
                 const res = await fetch(`${API_URL}/admin/dashboard/kpis`);
                 if(res.ok) {
                     const data = await res.json();
-                    
                     document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
                     document.getElementById('kpi-mermas').innerText = data.kpis.coste_mermas.toFixed(2) + '€';
                     document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_b2c;
                     document.getElementById('kpi-rating').innerText = data.kpis.avg_rating.toFixed(1) + ' ★';
-                    
                     renderCharts(data.charts);
                     renderReviews(data.reviews);
                 }
@@ -131,9 +149,7 @@
                     const dataRRHH = await resRRHH.json();
                     renderRRHH(dataRRHH);
                 }
-            } catch(e) {
-                console.error("Error loading dashboard", e);
-            }
+            } catch(e) { console.error("Load Error:", e); }
         }
 
         function renderCharts(chartsData) {
@@ -144,16 +160,35 @@
                 data: {
                     labels: chartsData.horas.labels,
                     datasets: [{
-                        label: 'Ventas (€)',
+                        label: 'Euros (€)',
                         data: chartsData.horas.data,
-                        borderColor: '#059669',
-                        backgroundColor: '#10b98122',
+                        borderColor: '#10b981',
+                        backgroundColor: (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
+                            gradient.addColorStop(0, '#10b98144');
+                            gradient.addColorStop(1, '#10b98100');
+                            return gradient;
+                        },
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fff'
                     }]
                 },
-                options: { responsive: true }
+                options: { 
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
+                }
             });
+
+            // Same for bars...
+            const barOptions = {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { display: false }, x: { grid: { display: false } } }
+            };
 
             const ctx2 = document.getElementById('chart-top-pollos').getContext('2d');
             if(chartPollos) chartPollos.destroy();
@@ -161,14 +196,9 @@
                 type: 'bar',
                 data: {
                     labels: chartsData.pollos.labels,
-                    datasets: [{
-                        label: 'Unidades',
-                        data: chartsData.pollos.data,
-                        backgroundColor: '#facc15',
-                        borderRadius: 4
-                    }]
+                    datasets: [{ data: chartsData.pollos.data, backgroundColor: '#f59e0b', borderRadius: 8 }]
                 },
-                options: { responsive: true }
+                options: barOptions
             });
 
             const ctx3 = document.getElementById('chart-top-pizzas').getContext('2d');
@@ -177,120 +207,72 @@
                 type: 'bar',
                 data: {
                     labels: chartsData.pizzas.labels,
-                    datasets: [{
-                        label: 'Unidades',
-                        data: chartsData.pizzas.data,
-                        backgroundColor: '#ef4444',
-                        borderRadius: 4
-                    }]
+                    datasets: [{ data: chartsData.pizzas.data, backgroundColor: '#ef4444', borderRadius: 8 }]
                 },
-                options: { responsive: true }
+                options: barOptions
             });
         }
 
         function renderReviews(reviews) {
             const cont = document.getElementById('reviews-container');
-            cont.innerHTML = '';
-            if(!reviews || reviews.length === 0) {
-                cont.innerHTML = '<p class="text-gray-400 italic">No hay valoraciones recientes.</p>';
-                return;
-            }
-            
-            reviews.forEach(r => {
-                let stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                cont.innerHTML += `
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="font-black text-gray-800">${r.cliente_nombre || 'Anónimo'}</span>
-                                <span class="text-xs text-gray-500 ml-2">${r.fecha}</span>
-                            </div>
-                            <span class="text-yellow-400 text-lg">${stars}</span>
-                        </div>
-                        <p class="text-gray-700 text-sm">"${r.comentario || 'Sin comentarios.'}"</p>
+            cont.innerHTML = reviews && reviews.length > 0 ? reviews.map(r => `
+                <div class="bg-white/5 border border-white/5 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-white text-xs">${r.cliente_nombre || 'Anónimo'}</span>
+                        <span class="text-yellow-400 text-xs">${'★'.repeat(r.rating)}</span>
                     </div>
-                `;
-            });
+                    <p class="text-slate-400 text-xs leading-relaxed italic">"${r.comentario || 'Sin comentario'}"</p>
+                </div>
+            `).join('') : '<p class="text-slate-600 italic">No hay feedback hoy.</p>';
         }
 
         function renderRRHH(fichajes) {
             const cont = document.getElementById('rrhh-container');
-            cont.innerHTML = '';
-            
             const empleados = {};
-            if(fichajes && fichajes.length > 0) {
-                fichajes.forEach(f => {
-                    if (!empleados[f.username]) {
-                        empleados[f.username] = f;
-                    }
-                });
-            }
-
-            if (Object.keys(empleados).length === 0) {
-                cont.innerHTML = '<p class="text-gray-400 italic col-span-full">No hay empleados registrados recientemente.</p>';
-                return;
-            }
-
-            Object.values(empleados).forEach(f => {
-                let badgeClass = "bg-gray-200 text-gray-800";
-                if(f.tipo === "ENTRADA" || f.tipo === "FIN_PAUSA") badgeClass = "bg-green-100 text-green-800 border-green-200";
-                if(f.tipo === "SALIDA") badgeClass = "bg-red-100 text-red-800 border-red-200";
-                if(f.tipo === "INICIO_PAUSA") badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+            fichajes.forEach(f => { if(!empleados[f.username]) empleados[f.username] = f; });
+            
+            cont.innerHTML = Object.values(empleados).map(f => {
+                let color = "text-slate-500";
+                if(f.tipo === "ENTRADA" || f.tipo === "FIN_PAUSA") color = "text-emerald-400";
+                if(f.tipo === "SALIDA") color = "text-red-400";
+                if(f.tipo === "INICIO_PAUSA") color = "text-yellow-400";
                 
-                cont.innerHTML += `
-                    <div class="p-3 rounded-xl border ${badgeClass} text-center shadow-sm">
-                        <p class="font-bold text-sm truncate">${f.username}</p>
-                        <p class="text-xs mt-1 uppercase tracking-wide font-semibold">${f.tipo}</p>
-                        <p class="text-[10px] mt-1 opacity-75">${f.fecha}</p>
+                return `
+                    <div class="bg-white/5 border border-white/5 p-4 rounded-2xl text-center">
+                        <p class="font-black text-white text-xs truncate mb-1">${f.username}</p>
+                        <p class="${color} text-[10px] font-black uppercase tracking-widest">${f.tipo}</p>
                     </div>
                 `;
-            });
+            }).join('') || '<p class="text-slate-600 col-span-full italic">Sin actividad de equipo.</p>';
         }
 
         async function generarInsightsIA() {
             const btn = document.getElementById('btn-ia');
             const content = document.getElementById('ia-content');
-            
-            btn.innerText = "Analizando...";
-            btn.disabled = true;
-            content.innerHTML = '<p class="text-indigo-200 animate-pulse">La IA está procesando los datos de ventas y valoraciones...</p>';
-            
+            btn.innerText = "...";
+            content.innerHTML = '<p class="text-indigo-300 animate-pulse text-xs">Gemini 1.5 Flash está analizando tus métricas operativas...</p>';
             try {
                 const res = await fetch(`${API_URL}/admin/ai_insights`);
-                if(res.ok) {
-                    const data = await res.json();
-                    content.innerHTML = `
-                        <p class="font-bold text-white mb-2">💡 Resumen de Valoraciones:</p>
-                        <p class="text-indigo-100 text-sm mb-4">"${data.resumen_reviews}"</p>
-                        <div class="h-px w-full bg-white/20 mb-4"></div>
-                        <p class="font-bold text-white mb-2">📈 Sugerencia de Producción:</p>
-                        <p class="text-indigo-100 text-sm font-black text-yellow-300">"${data.sugerencia_produccion}"</p>
-                    `;
-                } else {
-                    content.innerHTML = '<p class="text-red-300">Error generando insights.</p>';
-                }
-            } catch(e) {
-                content.innerHTML = '<p class="text-red-300">Error de conexión con la IA.</p>';
-            }
-            
-            btn.innerText = "Actualizar";
-            btn.disabled = false;
+                const data = await res.json();
+                content.innerHTML = `
+                    <div class="space-y-4 animate-in">
+                        <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
+                            <p class="text-indigo-300 font-bold text-[10px] uppercase mb-1">Análisis de Feedback</p>
+                            <p class="text-slate-300 text-xs">${data.resumen_reviews}</p>
+                        </div>
+                        <div class="bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
+                            <p class="text-purple-300 font-bold text-[10px] uppercase mb-1">Estrategia sugerida</p>
+                            <p class="text-slate-300 text-xs font-bold italic">"${data.sugerencia_produccion}"</p>
+                        </div>
+                    </div>
+                `;
+            } catch(e) { content.innerHTML = '<p class="text-red-400">Error en IA.</p>'; }
+            btn.innerText = "ACTUALIZAR";
         }
 
         async function ejecutarCierreZ() {
-            const btn = document.getElementById('btn-cierre');
             const efDecl = parseFloat(document.getElementById('efectivo_declarado').value);
-            
-            if(isNaN(efDecl)) {
-                alert("Por favor introduce una cantidad válida.");
-                return;
-            }
-            
-            if(!confirm("¿Estás seguro de que deseas forzar el Cierre Z ahora?")) return;
-            
-            btn.innerText = "Cerrando...";
-            btn.disabled = true;
-            
+            if(isNaN(efDecl) || !confirm("¿Confirmar Cierre de Caja Z?")) return;
             try {
                 const res = await fetch(`${API_URL}/admin/trigger_cierre_z`, {
                     method: 'POST',
@@ -299,19 +281,12 @@
                 });
                 const data = await res.json();
                 alert(data.msj);
-                document.getElementById('modalArqueo').classList.add('hidden');
-                document.getElementById('efectivo_declarado').value = '';
-            } catch(e) {
-                alert("Error al ejecutar el cierre.");
-                console.error(e);
-            }
-            
-            btn.innerText = "Confirmar Cierre y Enviar";
-            btn.disabled = false;
+                location.reload();
+            } catch(e) { alert("Fallo al cerrar"); }
         }
 
         initDashboard();
-        setInterval(initDashboard, 60000);
+        setInterval(initDashboard, 30000);
     </script>
 </body>
 </html>

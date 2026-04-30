@@ -3,36 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Maestros - Carbones y Pollos</title>
+    <title>Acceso Enterprise - Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
+    <style>
+        .login-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(40px);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 h-screen flex items-center justify-center font-sans">
-    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm border-4 border-yellow-400">
-        <div class="text-center mb-8">
-            <span class="text-6xl mb-4 block">🍗</span>
-            <h1 class="text-3xl font-black text-gray-800 tracking-tight">Acceso Empleados</h1>
+<body class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    
+    <div class="login-glow"></div>
+
+    <div class="glass-panel w-full max-w-md animate-in">
+        <div class="text-center mb-10">
+            <div class="inline-block p-4 rounded-3xl bg-white/5 border border-white/10 mb-6">
+                <span class="text-5xl">🍗</span>
+            </div>
+            <h1 class="text-4xl font-black text-white tracking-tighter">SISTEMA <span class="text-gradient">CLOUD</span></h1>
+            <p class="text-slate-400 font-medium mt-2">Acceso restringido para personal autorizado</p>
         </div>
-        <form id="login-form" class="flex flex-col gap-5">
+
+        <form id="login-form" class="space-y-6">
             <div>
-                <label class="font-bold text-gray-500">Usuario</label>
-                <input id="user" type="text" class="w-full bg-gray-100 p-4 rounded-xl font-bold text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 mt-1" required autocomplete="username">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Identificador de Usuario</label>
+                <input id="user" type="text" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:border-orange-500/50 transition-all" required autocomplete="username" placeholder="admin">
             </div>
             <div>
-                <label class="font-bold text-gray-500">Contraseña</label>
-                <input id="pass" type="password" class="w-full bg-gray-100 p-4 rounded-xl font-bold text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 mt-1" required autocomplete="current-password">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Clave de Acceso</label>
+                <input id="pass" type="password" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:border-orange-500/50 transition-all" required autocomplete="current-password" placeholder="••••••••">
             </div>
-            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-black text-2xl p-4 rounded-xl mt-4 active:scale-95 transition">ENTRAR</button>
+
+            <div id="error-msg" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-sm font-bold text-center">
+                ⚠️ Credenciales incorrectas o usuario inactivo.
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn-primary w-full !text-lg !py-4 shadow-orange-500/20">
+                INICIAR SESIÓN
+            </button>
         </form>
-        <p id="error" class="text-red-500 font-bold mt-4 text-center hidden">Credenciales incorrectas.</p>
+
+        <p class="mt-10 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+            &copy; 2026 Carbones y Pollos Enterprise
+        </p>
     </div>
 
     <script>
         const form = document.getElementById('login-form');
+        const btn = document.getElementById('btn-submit');
+        const error = document.getElementById('error-msg');
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            error.classList.add('hidden');
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
+
             const payload = { username: form.user.value, password: form.pass.value };
             try {
-                const r = await fetch('/api/login', {
+                const r = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
                     body: JSON.stringify(payload)
@@ -41,12 +78,16 @@
                     const data = await r.json();
                     localStorage.setItem('auth_user', data.username);
                     localStorage.setItem('auth_role', data.role);
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'index.html';
                 } else {
-                    document.getElementById('error').classList.remove('hidden');
+                    error.classList.remove('hidden');
+                    btn.innerText = "REINTENTAR";
+                    btn.disabled = false;
                 }
             } catch(ex) {
-                alert("Error de conexión");
+                alert("Error crítico de comunicación con el servidor.");
+                btn.innerText = "INICIAR SESIÓN";
+                btn.disabled = false;
             }
         });
     </script>

@@ -53,7 +53,20 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     """Filtrado rápido de la jornada actual para monitoreo."""
     today = datetime.date.today()
     pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
-    return [p.__dict__ for p in pedidos]
+    
+    # Profesionalizar la salida evitando __dict__ (que causa fallos de serialización)
+    out = []
+    for p in pedidos:
+        out.append({
+            "id": p.id,
+            "numero_ticket": p.numero_ticket,
+            "fecha": p.fecha.isoformat() if p.fecha else None,
+            "estado": p.estado,
+            "total": p.total,
+            "metodo_pago": p.metodo_pago,
+            "origen": p.origen
+        })
+    return out
 
 
 @router.get("/{pedido_id}/items")
