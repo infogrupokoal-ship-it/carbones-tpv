@@ -2,374 +2,191 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kiosko Ultra-Premium | Carbones y Pollos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Kiosk - Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
     <style>
-        :root {
-            --brand-primary: #f59e0b;
-            --brand-dark: #0f172a;
-            --zinc-950: #09090b;
-        }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: var(--zinc-950); 
-            color: #fafafa;
-            overflow: hidden;
-            height: 100vh;
-        }
-        
-        /* Header Glass */
-        .glass-header {
-            background: rgba(9, 9, 11, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Product Cards Gourmet */
-        .product-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
-        }
-        .product-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--brand-primary);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Categorías */
-        .category-tab {
-            padding: 1rem 2.5rem;
-            border-radius: 2rem;
-            font-weight: 800;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: all 0.4s ease;
-            background: rgba(255, 255, 255, 0.05);
-            color: #71717a;
-            border: 1px solid transparent;
-            white-space: nowrap;
-        }
-        .category-tab.active {
-            background: var(--brand-primary);
-            color: #000;
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
-            border-color: #fbbf24;
-        }
-
-        /* Cesta de Compra */
-        .cart-bar {
-            background: #000;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 3rem 3rem 0 0;
-            box-shadow: 0 -20px 60px rgba(0,0,0,0.4);
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Modal Glass */
-        .modal-glass {
-            background: rgba(9, 9, 11, 0.9);
-            backdrop-filter: blur(30px);
-        }
-
-        .price-tag {
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--brand-primary);
-        }
-
-        .badge-allergen {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        /* Animations */
-        .hover-lift { transition: transform 0.3s ease; }
-        .hover-lift:hover { transform: scale(1.05); }
+        body { font-family: 'Outfit', sans-serif; background: #0c0a09; }
+        .amber-glass { background: rgba(245, 158, 11, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(245, 158, 11, 0.1); }
+        .product-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #1c1917; border: 1px solid #292524; }
+        .product-card:hover { transform: translateY(-8px); border-color: #f59e0b; box-shadow: 0 20px 40px -20px rgba(245, 158, 11, 0.3); }
+        .btn-premium { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.5); }
+        .category-pill { transition: all 0.3s; border: 1px solid #292524; color: #78716c; }
+        .category-pill.active { background: #f59e0b; color: #0c0a09; border-color: #f59e0b; font-weight: 800; }
+        .cart-panel { background: rgba(12, 10, 9, 0.95); backdrop-filter: blur(20px); }
+        .custom-scrollbar::-webkit-scrollbar { width: 0px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.6s ease-out forwards; }
     </style>
 </head>
-<body class="flex flex-col animate__animated animate__fadeIn">
+<body class="text-stone-300 min-h-screen">
 
-    <!-- Header -->
-    <header class="glass-header p-6 flex justify-between items-center z-50">
-        <div class="flex items-center gap-6">
-            <div class="h-14 w-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-amber-500/20">🔥</div>
-            <div>
-                <h1 class="text-3xl font-black tracking-tighter uppercase italic text-white leading-none">
-                    CARBONES <span class="text-amber-500">Y POLLOS</span>
-                </h1>
-                <p class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] mt-1">Sabor Ancestral v3.1</p>
-            </div>
-        </div>
+    <!-- Header UI -->
+    <header class="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center bg-gradient-to-b from-[#0c0a09] to-transparent">
         <div class="flex items-center gap-4">
-            <div id="status-dot" class="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-full border border-white/5">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Cocina Activa</span>
+            <div class="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-2xl">🔥</div>
+            <div>
+                <h1 class="text-2xl font-black text-white tracking-tighter uppercase leading-none">Carbones <span class="text-amber-500">y Pollos</span></h1>
+                <p class="text-[9px] font-black text-amber-500/50 uppercase tracking-[0.4em] mt-1">Industrial Gourmet Experience</p>
             </div>
-            <button onclick="location.reload()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </button>
         </div>
+        <button onclick="toggleCart()" class="amber-glass px-6 py-3 rounded-2xl flex items-center gap-3 hover:bg-amber-500/10 transition-all">
+            <span class="text-xs font-black uppercase tracking-widest text-amber-500">Tu Pedido</span>
+            <span id="cart-count" class="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+        </button>
     </header>
 
-    <!-- Category Scroller -->
-    <nav class="px-8 py-6 flex gap-4 overflow-x-auto no-scrollbar" id="category-nav">
-        <!-- Injected via JS -->
-    </nav>
+    <main class="pt-32 px-6 pb-40 max-w-7xl mx-auto">
+        
+        <!-- Categories Horizontal -->
+        <div id="categories-container" class="flex gap-3 overflow-x-auto custom-scrollbar pb-8 mb-8 sticky top-28 z-40 bg-[#0c0a09]/80 backdrop-blur-md py-4">
+            <!-- Injected by JS -->
+        </div>
 
-    <!-- Product Grid -->
-    <main class="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8" id="product-grid">
-        <div class="col-span-full h-full flex flex-col items-center justify-center text-center py-40">
-            <div class="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-6"></div>
-            <p class="text-zinc-500 font-black uppercase tracking-[0.3em] text-xs">Preparando el fogón digital...</p>
+        <!-- Products Grid -->
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Loading State -->
+            <div class="lg:col-span-3 py-40 text-center">
+                <div class="inline-block animate-spin h-8 w-8 border-4 border-amber-500 border-t-transparent rounded-full mb-4"></div>
+                <p class="text-xs font-black uppercase tracking-widest text-stone-500">Preparando el fuego...</p>
+            </div>
         </div>
     </main>
 
-    <!-- Cart Bar -->
-    <div class="cart-bar p-8 z-50 transform translate-y-full transition-transform duration-500" id="cart-bar">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-6">
-                <div class="relative">
-                    <div class="h-16 w-16 bg-amber-500 rounded-2xl flex items-center justify-center text-3xl shadow-xl shadow-amber-500/20">🛒</div>
-                    <span id="cart-badge" class="absolute -top-2 -right-2 h-7 w-7 bg-white text-black rounded-full flex items-center justify-center text-xs font-black shadow-lg">0</span>
-                </div>
-                <div>
-                    <h3 class="text-xl font-black text-white" id="cart-title">CESTA DE PEDIDO</h3>
-                    <div class="flex gap-2" id="cart-preview-icons"></div>
-                </div>
+    <!-- Cart Overlay -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-500">
+        <div id="cart-content" class="absolute right-0 top-0 bottom-0 w-full max-w-md cart-panel shadow-2xl p-8 translate-x-full transition-all duration-500 flex flex-col">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-black text-white tracking-tighter uppercase">Carrito <span class="text-amber-500">Gourmet</span></h2>
+                <button onclick="toggleCart()" class="text-stone-500 hover:text-white transition-all">✕</button>
             </div>
 
-            <div class="flex items-center gap-10 w-full md:w-auto">
-                <div class="text-right">
-                    <p class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Subtotal (IVA incl.)</p>
-                    <h2 class="text-4xl font-black text-amber-500" id="cart-total">0.00€</h2>
-                </div>
-                <button onclick="checkout()" id="checkout-btn" class="bg-amber-500 hover:bg-white text-black px-12 py-5 rounded-2xl text-xl font-black shadow-2xl transition-all active:scale-95 disabled:opacity-30">
-                    FINALIZAR PEDIDO
-                </button>
+            <div id="cart-items" class="flex-1 overflow-y-auto space-y-6 custom-scrollbar">
+                <!-- Injected by JS -->
             </div>
-        </div>
-    </div>
 
-    <!-- Product Detail Modal -->
-    <div id="product-modal" class="fixed inset-0 z-[100] hidden modal-glass flex items-center justify-center p-4">
-        <div class="bg-zinc-900 w-full max-w-4xl rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl flex flex-col md:flex-row animate__animated animate__zoomIn">
-            <div class="flex-1 h-64 md:h-auto relative">
-                <img id="modal-img" src="" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent"></div>
-            </div>
-            <div class="flex-1 p-12 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <span id="modal-cat" class="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em]">CATEGORÍA</span>
-                        <button onclick="closeProductModal()" class="text-zinc-500 hover:text-white transition">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                    <h2 id="modal-title" class="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">PRODUCTO</h2>
-                    <p id="modal-desc" class="text-zinc-400 font-medium leading-relaxed mb-8">Descripción detallada del producto.</p>
-                    
-                    <div class="space-y-6 mb-8">
-                        <div>
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Alérgenos</p>
-                            <div id="modal-alergenos" class="flex flex-wrap gap-2"></div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Info Nutricional</p>
-                            <p id="modal-nutri" class="text-xs text-zinc-500 font-bold italic"></p>
-                        </div>
-                    </div>
+            <div class="pt-8 border-t border-stone-800 mt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xs font-black uppercase text-stone-500 tracking-widest">Total Estimado</span>
+                    <span id="cart-total" class="text-3xl font-black text-white">0.00€</span>
                 </div>
-
-                <div class="flex items-center justify-between pt-8 border-t border-white/5">
-                    <div class="text-3xl font-black text-amber-500" id="modal-price">0.00€</div>
-                    <button id="modal-add-btn" class="bg-amber-500 hover:bg-white text-black px-10 py-5 rounded-2xl text-lg font-black transition-all">AÑADIR A LA CESTA</button>
-                </div>
+                <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-black font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95">Finalizar Compra 🔥</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="success-modal" class="fixed inset-0 z-[200] hidden modal-glass flex items-center justify-center p-4">
-        <div class="bg-white rounded-[3rem] p-12 max-w-lg w-full text-center shadow-[0_50px_100px_rgba(245,158,11,0.2)] animate__animated animate__bounceIn">
-            <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-8 animate__animated animate__heartBeat animate__infinite">🍗</div>
-            <h2 class="text-4xl font-black text-black mb-4 italic">¡TU PEDIDO ESTÁ EN MARCHA!</h2>
-            <p class="text-zinc-600 mb-10 font-bold text-lg">Ticket <span id="success-ticket" class="text-amber-600 font-black">#---</span>. Avisaremos por pantalla cuando esté listo.</p>
-            <button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-3xl text-xl font-black hover:scale-105 transition-transform">NUEVO PEDIDO</button>
         </div>
     </div>
 
     <script>
-        let products = [];
         let cart = [];
-        let currentCategory = 'TODOS';
+        let products = [];
+        let activeCategory = 'all';
 
         async function init() {
             try {
-                const [pRes, cRes] = await Promise.all([
-                    fetch('/api/inventory/productos'),
-                    fetch('/api/inventory/categorias')
+                const [catRes, prodRes] = await Promise.all([
+                    fetch('/api/admin/categorias'),
+                    fetch('/api/admin/productos')
                 ]);
-                
-                products = await pRes.json();
-                const categories = await cRes.json();
-                
-                renderCategories(categories);
+                const cats = await catRes.json();
+                products = await prodRes.json();
+
+                renderCategories(cats);
                 renderProducts();
-            } catch (e) {
-                console.error("Fetch Error:", e);
-                document.getElementById('product-grid').innerHTML = `
-                    <div class="col-span-full py-40 text-center">
-                        <h2 class="text-2xl font-black text-red-500 mb-4">ERROR DE CONEXIÓN</h2>
-                        <button onclick="location.reload()" class="bg-white/10 px-8 py-4 rounded-xl text-white font-bold">REINTENTAR</button>
-                    </div>
-                `;
-            }
+            } catch (e) { console.error("Error init:", e); }
         }
 
-        function renderCategories(cats = []) {
-            const nav = document.getElementById('category-nav');
-            const uniqueCats = ['TODOS', ...cats.map(c => c.nombre.toUpperCase())];
-            
-            nav.innerHTML = uniqueCats.map(cat => `
-                <button onclick="filterCat('${cat}')" class="category-tab ${currentCategory === cat ? 'active' : ''}">
-                    ${cat}
-                </button>
+        function renderCategories(cats) {
+            const container = document.getElementById('categories-container');
+            const allHtml = `<button onclick="filterCat('all')" class="category-pill active whitespace-nowrap px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest" id="cat-all">Todos los platos</button>`;
+            container.innerHTML = allHtml + cats.map(c => `
+                <button onclick="filterCat('${c.id}')" class="category-pill whitespace-nowrap px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest" id="cat-${c.id}">${c.nombre}</button>
             `).join('');
         }
 
-        function filterCat(cat) {
-            currentCategory = cat;
-            renderCategories();
+        function filterCat(id) {
+            activeCategory = id;
+            document.querySelectorAll('.category-pill').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`cat-${id}`).classList.add('active');
             renderProducts();
         }
 
         function renderProducts() {
-            const grid = document.getElementById('product-grid');
-            const filtered = currentCategory === 'TODOS' 
-                ? products 
-                : products.filter(p => p.categoria.toUpperCase() === currentCategory);
-
-            grid.innerHTML = filtered.map(p => `
-                <div class="product-card p-6 flex flex-col group animate__animated animate__fadeInUp" onclick="showProduct('${p.id}')">
-                    <div class="h-64 rounded-[2rem] bg-zinc-800 mb-6 overflow-hidden relative">
-                        <img src="${p.imagen_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]">
-                        <div class="absolute top-4 right-4 price-tag px-4 py-2 rounded-xl font-black text-sm">
-                            ${p.precio.toFixed(2)}€
+            const grid = document.getElementById('products-grid');
+            const filtered = activeCategory === 'all' ? products : products.filter(p => p.categoria_id === activeCategory);
+            
+            grid.innerHTML = filtered.map((p, i) => `
+                <div class="product-card rounded-3xl p-4 animate-fade" style="animation-delay: ${i * 0.1}s">
+                    <div class="relative h-56 rounded-2xl overflow-hidden mb-6 group">
+                        <img src="${p.imagen_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                            <span class="bg-amber-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">${p.precio}€</span>
                         </div>
                     </div>
-                    <div class="flex-1 px-2">
-                        <span class="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1 block">${p.categoria}</span>
-                        <h3 class="text-xl font-black text-white uppercase italic leading-none mb-3">${p.nombre}</h3>
-                        <p class="text-xs text-zinc-500 font-medium line-clamp-2">${p.descripcion}</p>
-                    </div>
-                    <div class="mt-8 flex justify-between items-center px-2">
-                        <div class="flex gap-1">
-                            ${(p.alergenos || '').split(',').slice(0, 2).map(a => `
-                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
-                            `).join('')}
-                        </div>
-                        <button class="w-12 h-12 bg-amber-500 text-black rounded-2xl flex items-center justify-center font-black shadow-lg shadow-amber-500/10 group-hover:bg-white transition-colors">
-                            +
-                        </button>
-                    </div>
+                    <h3 class="text-xl font-black text-white mb-2 leading-tight">${p.nombre}</h3>
+                    <p class="text-xs text-stone-500 mb-6 line-clamp-2 leading-relaxed">${p.descripcion}</p>
+                    <button onclick="addToCart('${p.id}')" class="w-full py-4 border border-stone-800 hover:bg-amber-500 hover:text-black transition-all rounded-xl text-[10px] font-black uppercase tracking-widest">Añadir al Plato</button>
                 </div>
             `).join('');
         }
 
-        function showProduct(id) {
-            const p = products.find(prod => prod.id === id);
-            if (!p) return;
-
-            document.getElementById('modal-img').src = p.imagen_url;
-            document.getElementById('modal-title').innerText = p.nombre;
-            document.getElementById('modal-cat').innerText = p.categoria;
-            document.getElementById('modal-desc').innerText = p.descripcion;
-            document.getElementById('modal-price').innerText = `${p.precio.toFixed(2)}€`;
-            document.getElementById('modal-nutri').innerText = p.info_nutricional || "Información no disponible";
-            
-            const algContainer = document.getElementById('modal-alergenos');
-            const algs = (p.alergenos || "Ninguno").split(',');
-            algContainer.innerHTML = algs.map(a => `
-                <span class="badge-allergen px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest">${a.trim()}</span>
-            `).join('');
-
-            document.getElementById('modal-add-btn').onclick = () => {
-                addToCart(p);
-                closeProductModal();
-            };
-
-            document.getElementById('product-modal').classList.remove('hidden');
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            cart.push(prod);
+            updateCartUI();
+            if (document.getElementById('cart-overlay').classList.contains('opacity-0')) toggleCart();
         }
 
-        function closeProductModal() {
-            document.getElementById('product-modal').classList.add('hidden');
-        }
-
-        function addToCart(p) {
-            cart.push(p);
-            updateCart();
-            
-            // Show bar if hidden
-            document.getElementById('cart-bar').classList.remove('translate-y-full');
-            
-            // Animation
-            const badge = document.getElementById('cart-badge');
-            badge.classList.add('animate__animated', 'animate__bounce');
-            setTimeout(() => badge.classList.remove('animate__animated', 'animate__bounce'), 1000);
-        }
-
-        function updateCart() {
-            const total = cart.reduce((s, i) => s + i.price, 0);
-            document.getElementById('cart-total').innerText = `${total.toFixed(2)}€`;
-            document.getElementById('cart-badge').innerText = cart.length;
-            
-            const preview = document.getElementById('cart-preview-icons');
-            preview.innerHTML = cart.slice(-5).map(i => `
-                <div class="w-8 h-8 rounded-lg bg-zinc-800 border border-white/5 overflow-hidden">
-                    <img src="${i.imagen_url}" class="w-full h-full object-cover">
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const itemsCont = document.getElementById('cart-items');
+            itemsCont.innerHTML = cart.map((item, i) => `
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <img src="${item.imagen_url}" class="w-12 h-12 rounded-xl object-cover border border-stone-800">
+                        <div>
+                            <p class="text-xs font-black text-white uppercase">${item.nombre}</p>
+                            <p class="text-[10px] font-bold text-amber-500">${item.precio}€</p>
+                        </div>
+                    </div>
+                    <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-stone-700 hover:text-red-500 text-xs">✕</button>
                 </div>
             `).join('');
+
+            const total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            document.getElementById('cart-total').innerText = total.toFixed(2) + '€';
+        }
+
+        function toggleCart() {
+            const overlay = document.getElementById('cart-overlay');
+            const content = document.getElementById('cart-content');
+            overlay.classList.toggle('opacity-0');
+            overlay.classList.toggle('pointer-events-none');
+            content.classList.toggle('translate-x-full');
         }
 
         async function checkout() {
-            const btn = document.getElementById('checkout-btn');
-            btn.disabled = true;
-            btn.innerText = "ENVIANDO A COCINA...";
+            if (cart.length === 0) return alert("El carrito está vacío");
+            
+            const pedido = {
+                items: cart.map(item => ({ producto_id: item.id, cantidad: 1 })),
+                total: cart.reduce((acc, curr) => acc + curr.precio, 0),
+                metodo_pago: 'TARJETA'
+            };
 
             try {
-                const res = await fetch('/api/orders', {
+                const res = await fetch('/api/pedidos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        items: cart.map(i => ({ producto_id: i.id, cantidad: 1 })),
-                        notas_cliente: "Pedido de Kiosko Ultra"
-                    })
+                    body: JSON.stringify(pedido)
                 });
-
                 if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById('success-ticket').innerText = `#${data.id.slice(0, 6).toUpperCase()}`;
-                    document.getElementById('success-modal').classList.remove('hidden');
-                } else {
-                    alert("Error en el envío. Consulta con personal.");
+                    alert("🔥 Pedido enviado a cocina. ¡Disfruta!");
+                    cart = [];
+                    updateCartUI();
+                    toggleCart();
                 }
-            } catch (e) {
-                alert("Fallo de red. Reintenta.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "FINALIZAR PEDIDO";
-            }
+            } catch (e) { alert("Error al procesar el pedido."); }
         }
 
         init();

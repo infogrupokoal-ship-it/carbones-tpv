@@ -3,398 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Intelligence - Carbones y Pollos</title>
+    <title>Enterprise BI - Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/css/design_system.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
     <style>
-        .chart-container { height: 260px; width: 100%; position: relative; }
-        .stat-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .stat-card:hover { transform: translateY(-5px) scale(1.02); background: rgba(255,255,255,0.08); }
-        .pulse-emerald { animation: pulse-emerald 2s infinite; }
-        @keyframes pulse-emerald { 
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        body { font-family: 'Outfit', sans-serif; background: #020617; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .stat-card { background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0.8) 100%); }
+        .nav-active { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .chart-container { height: 280px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .status-online { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .status-offline { background: #64748b; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans p-6 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+<body class="min-h-screen text-slate-300 overflow-x-hidden">
 
-    <!-- Header Navigation -->
-    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6 animate-in">
-        <div class="flex items-center gap-4">
-            <div class="h-14 w-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_40px_rgba(37,99,235,0.4)] border border-white/10">📊</div>
-            <div>
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">BI <span class="font-light text-slate-400">Control Center</span></h1>
-                <p class="text-[10px] text-slate-500 uppercase tracking-[0.4em] font-bold mt-1">Carbones y Pollos • v2.1 Industrial</p>
-            </div>
-        </div>
+    <div class="flex h-screen overflow-hidden">
         
-        <div class="flex items-center gap-3">
-            <div class="glass-panel !py-2 !px-4 flex items-center gap-3 border border-emerald-500/20">
-                <span class="h-2 w-2 bg-emerald-500 rounded-full pulse-emerald"></span>
-                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Live Telemetry Active</span>
+        <!-- Sidebar - Staff & Navigation -->
+        <aside class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 hidden lg:flex">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg">⚡</div>
+                <h2 class="text-xl font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
             </div>
-            <div class="flex bg-white/5 rounded-xl p-1 border border-white/5">
-                <button onclick="location.href='/static/index.html'" class="h-10 px-4 flex items-center gap-2 hover:bg-white/10 rounded-lg transition-all text-xs font-bold">🏠 Inicio</button>
-                <button onclick="location.href='/static/dashboard.html'" class="h-10 px-4 flex items-center gap-2 nav-active rounded-lg transition-all text-xs font-bold">📊 BI</button>
-                <button onclick="location.href='/static/admin/system_logs.html'" class="h-10 px-4 flex items-center gap-2 hover:bg-white/10 rounded-lg transition-all text-xs font-bold">📜 Logs</button>
-            </div>
-        </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto space-y-6">
-        
-        <!-- Breadcrumbs Corporativos -->
-        <nav class="breadcrumb animate-in">
-            <a href="/static/index.html">Corporativo</a>
-            <span>Control Center</span>
-            <span class="text-white">Business Intelligence</span>
-        </nav>
-        
-        <!-- Action Bar -->
-        <div class="flex flex-wrap gap-4 items-center justify-between glass-panel !p-4 animate-in" style="animation-delay: 0.05s;">
-            <div class="flex gap-4">
-                <button onclick="updateDashboard()" class="btn-primary !py-2 !px-4 rounded-xl flex items-center gap-2 text-[10px]">
-                    <span id="sync-icon">🔄</span> Sincronizar
-                </button>
-                <button onclick="seedData()" id="seed-btn" class="glass !py-2 !px-4 rounded-xl flex items-center gap-2 text-[10px] hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400">
-                    🌱 Sembrar Datos
-                </button>
-                <button onclick="triggerZClose()" class="glass !py-2 !px-4 rounded-xl flex items-center gap-2 text-[10px] hover:bg-red-500/20 border-red-500/30 text-red-400">
-                    🔒 Cierre Z
-                </button>
-                <button onclick="factoryReset()" class="glass !py-2 !px-4 rounded-xl flex items-center gap-2 text-[10px] hover:bg-red-600 border-red-600/30 text-white font-black bg-red-950/20">
-                    ⚠️ RESET FÁBRICA
-                </button>
-                <button onclick="openDrawer()" class="bg-white/10 hover:bg-white/20 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl border border-white/10 transition-all flex items-center gap-2">
-                    🔓 Abrir Cajón
-                </button>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="text-right">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Estado de Red</p>
-                    <p class="text-xs font-black text-emerald-500 uppercase">Bridged Online</p>
-                </div>
-                <div class="h-8 w-[1px] bg-white/10"></div>
-                <div class="text-right">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Ultima Sincro</p>
-                    <p id="sync-time" class="text-xs font-black text-white font-mono">--:--:--</p>
-                </div>
-            </div>
-        </div>
+            <nav class="space-y-2 flex-1">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Menú Principal</p>
+                <a href="/static/index.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-sm font-semibold">🏠 Home</a>
+                <a href="/static/dashboard.html" class="flex items-center gap-3 p-3 rounded-xl nav-active text-sm font-semibold">📊 Business Intelligence</a>
+                <a href="/static/kiosko.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-sm font-semibold">🖥️ Kiosko Online</a>
+                <a href="/static/kds.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-sm font-semibold">🍳 Cocina KDS</a>
+            </nav>
 
-        <!-- Top Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in" style="animation-delay: 0.1s;">
-            <div class="glass-panel stat-card border-t-2 border-t-emerald-500 bg-emerald-500/5">
-                <p class="text-[10px] text-emerald-500 font-black uppercase tracking-widest mb-1">Ventas Brutas Hoy</p>
-                <h2 id="stats-ventas" class="text-4xl font-black text-white tracking-tighter">0.00€</h2>
-                <div class="mt-3 flex items-center justify-between">
-                    <span class="text-[10px] text-emerald-500/80 font-bold uppercase">Meta: 1.5k€</span>
-                    <div class="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
-                        <div id="sales-progress" class="h-full bg-emerald-500 w-0 transition-all duration-1000"></div>
-                    </div>
+            <div class="pt-6 border-t border-white/5">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Plantilla en Turno</p>
+                <div id="staff-list" class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Injected by JS -->
                 </div>
             </div>
-            <div class="glass-panel stat-card border-t-2 border-t-blue-500 bg-blue-500/5">
-                <p class="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-1">Pedidos Procesados</p>
-                <h2 id="stats-pedidos" class="text-4xl font-black text-white tracking-tighter">0</h2>
-                <div class="mt-3 text-[10px] text-blue-400/80 font-bold uppercase flex items-center gap-2">
-                    <span id="stats-avg-ticket">0.00€</span> por ticket promedio
-                </div>
-            </div>
-            <div class="glass-panel stat-card border-t-2 border-t-orange-500 bg-orange-500/5">
-                <p class="text-[10px] text-orange-400 font-black uppercase tracking-widest mb-1">Coste Mermas Est.</p>
-                <h2 id="stats-mermas" class="text-4xl font-black text-white tracking-tighter">0.00€</h2>
-                <div class="mt-3 text-[10px] text-orange-400/80 font-bold uppercase">Pérdida proyectada hoy</div>
-            </div>
-            <div class="glass-panel stat-card border-t-2 border-t-purple-500 bg-purple-500/5">
-                <p class="text-[10px] text-purple-400 font-black uppercase tracking-widest mb-1">Customer Satisfaction</p>
-                <h2 id="stats-rating" class="text-4xl font-black text-white tracking-tighter">0.0</h2>
-                <div class="mt-3 text-[10px] text-purple-400/80 font-bold uppercase flex items-center gap-1">
-                    <span id="star-rating">⭐⭐⭐⭐⭐</span> Global
-                </div>
-            </div>
-        </div>
+        </aside>
 
-        <!-- Main Insights Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in" style="animation-delay: 0.2s;">
-            <!-- Charts Column -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-panel">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">📈 Curva de Ventas</h3>
-                            <span class="text-[10px] font-bold text-blue-400">Ult. 24h</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="salesChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="glass-panel">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">🍗 Top Productos</h3>
-                            <span class="text-[10px] font-bold text-orange-400">Por Volumen</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="productsChart"></canvas>
-                        </div>
-                    </div>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+            
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                <div>
+                    <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Operational <span class="text-blue-500">Dashboard</span></h1>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Carbones y Pollos • Control Center v3.0</p>
                 </div>
+                <div class="flex gap-4">
+                    <button onclick="updateDashboard()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl shadow-lg transition-all">Sincronizar Datos</button>
+                    <button onclick="triggerFichaje()" class="bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl border border-white/10 transition-all">Reg. Fichaje</button>
+                </div>
+            </header>
 
-                <!-- Recent Activity -->
-                <div class="glass-panel overflow-hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">🕒 Actividad Crítica</h3>
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-blue-500">
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Ventas Netas Hoy</p>
+                    <h3 id="kpi-ventas" class="text-3xl font-black text-white tracking-tighter">0.00€</h3>
+                    <p class="text-[10px] text-emerald-500 font-bold mt-2">↑ 12% vs ayer</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-emerald-500">
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Tickets Procesados</p>
+                    <h3 id="kpi-pedidos" class="text-3xl font-black text-white tracking-tighter">0</h3>
+                    <p class="text-[10px] text-slate-500 font-bold mt-2"><span id="kpi-avg-ticket">0€</span> avg/ticket</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-orange-500">
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Margen Bruto Est.</p>
+                    <h3 id="kpi-margen" class="text-3xl font-black text-white tracking-tighter">68%</h3>
+                    <p class="text-[10px] text-orange-500 font-bold mt-2">Optimización requerida</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-purple-500">
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Saturación Cocina</p>
+                    <h3 id="kpi-cocina" class="text-3xl font-black text-white tracking-tighter">Baja</h3>
+                    <p class="text-[10px] text-purple-400 font-bold mt-2">Tiempo medio: 14m</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 glass-panel p-8 rounded-3xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h4 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Ventas Intradía</h4>
                         <div class="flex gap-2">
-                            <button onclick="updateDashboard()" class="h-8 px-4 glass-panel !p-0 !bg-white/5 hover:!bg-white/10 flex items-center justify-center text-[10px] font-bold transition-all uppercase tracking-widest">Sincronizar</button>
+                            <span class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full font-bold">LIVE</span>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="enterprise-table">
-                            <thead>
-                                <tr>
-                                    <th>Rating</th>
-                                    <th>Comentario</th>
-                                    <th>Cliente</th>
-                                    <th>Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reviews-body">
-                                <!-- Injected via JS -->
-                            </tbody>
-                        </table>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Products Ranking -->
+                <div class="glass-panel p-8 rounded-3xl">
+                    <h4 class="text-sm font-black text-white uppercase tracking-widest mb-8">Top Productos (Hoy)</h4>
+                    <div class="space-y-6" id="top-products-list">
+                        <!-- Injected by JS -->
                     </div>
                 </div>
             </div>
 
-            <!-- AI Insight & Telemetry Column -->
-            <div class="space-y-6">
-                <!-- AI Strategic Insight -->
-                <div class="glass-panel border-t-4 border-t-indigo-600 bg-indigo-600/5 min-h-[400px] flex flex-col">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10">🤖</div>
-                            <h3 class="text-lg font-black uppercase tracking-tighter">Koal-AI <span class="font-light opacity-50">Insights</span></h3>
-                        </div>
-                        <button onclick="getAIInsights()" class="text-[10px] font-black text-indigo-400 hover:text-indigo-300 transition-all uppercase">Analizar</button>
-                    </div>
-                    
-                    <div class="space-y-4 flex-1">
-                        <div class="p-4 bg-black/20 rounded-2xl border border-white/5">
-                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Sentimiento de Hoy</p>
-                            <p id="ai-sentiment" class="text-sm italic text-slate-300 leading-relaxed">Analizando feedback de clientes...</p>
-                        </div>
-                        <div class="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/10">
-                            <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Acción Sugerida</p>
-                            <p id="ai-action" class="text-sm font-bold text-white leading-relaxed">Cargando estrategia operativa...</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-white/10">
-                        <div class="relative">
-                            <input type="text" id="ai-chat-input" placeholder="Consultar a la IA..." class="w-full bg-black/30 border border-white/10 rounded-xl p-3 pr-12 text-xs focus:border-indigo-500 outline-none transition-all placeholder:text-slate-600">
-                            <button onclick="askAI()" id="ai-chat-btn" class="absolute right-2 top-2 h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center hover:bg-indigo-500 transition-colors shadow-lg">⚡</button>
-                        </div>
-                    </div>
+            <!-- Footer Meta -->
+            <footer class="mt-12 flex justify-between items-center text-[10px] text-slate-600 font-black uppercase tracking-[0.2em]">
+                <div>© 2026 Carbones y Pollos Enterprise Suite</div>
+                <div class="flex items-center gap-4">
+                    <span>Node: Frankfurt-Industrial</span>
+                    <span class="text-blue-500">Build: v3.0-PRO</span>
                 </div>
-
-                <!-- Live Logs -->
-                <div class="glass-panel !p-4 bg-black/50 border border-white/5">
-                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mb-3">Bridge System Logs</p>
-                    <div id="telemetry-logs" class="font-mono text-[9px] h-32 overflow-y-auto space-y-1 text-emerald-500/60 custom-scrollbar">
-                        <div>[02:38:00] [SYSTEM] Monitor Industrial Activo.</div>
-                        <div>[02:38:05] [BRIDGE] Hardware encolado con éxito.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+            </footer>
+        </main>
+    </div>
 
     <script>
-        let salesChart, productsChart;
-
-        const log = (msg, type = 'INFO') => {
-            const container = document.getElementById('telemetry-logs');
-            const time = new Date().toLocaleTimeString();
-            const div = document.createElement('div');
-            div.className = type === 'ERR' ? 'text-red-400' : (type === 'WARN' ? 'text-yellow-400' : 'text-emerald-500/60');
-            div.innerText = `[${time}] [${type}] ${msg}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        };
+        let salesChart;
 
         const updateDashboard = async () => {
-            log("Sincronizando con el núcleo de producción...");
-            document.getElementById('sync-time').innerText = new Date().toLocaleTimeString();
-            
             try {
+                // 1. Fetch KPIs & Charts
                 const res = await fetch('/api/admin/dashboard/kpis');
                 const data = await res.json();
                 
                 // Actualizar KPIs
-                const v = data.kpis.ventas_hoy;
-                document.getElementById('stats-ventas').innerText = v.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-                document.getElementById('stats-pedidos').innerText = data.kpis.pedidos_b2c;
-                document.getElementById('stats-mermas').innerText = data.kpis.coste_mermas.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-                document.getElementById('stats-rating').innerText = data.kpis.avg_rating;
-                
-                const avg = data.kpis.pedidos_b2c > 0 ? v / data.kpis.pedidos_b2c : 0;
-                document.getElementById('stats-avg-ticket').innerText = avg.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_b2c;
+                const avg = data.kpis.pedidos_b2c > 0 ? data.kpis.ventas_hoy / data.kpis.pedidos_b2c : 0;
+                document.getElementById('kpi-avg-ticket').innerText = avg.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 
-                // Barra de progreso (Meta 1500€)
-                const pct = Math.min((v / 1500) * 100, 100);
-                document.getElementById('sales-progress').style.width = `${pct}%`;
-
-                // Actualizar Reviews
-                const body = document.getElementById('reviews-body');
-                body.innerHTML = data.reviews.map(r => `
-                    <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
-                        <td class="font-bold text-yellow-500">${'⭐'.repeat(r.rating)}</td>
-                        <td class="text-xs text-slate-300 italic">"${r.comentario}"</td>
-                        <td class="text-[10px] font-black text-slate-500 uppercase">${r.cliente_nombre}</td>
-                        <td class="font-mono text-[10px] text-blue-400">${r.fecha}</td>
-                    </tr>
-                `).join('') || `
-                    <tr>
-                        <td colspan="4" class="py-20">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📝</div>
-                                <h4 class="empty-state-title">Sin Feedback Aún</h4>
-                                <p class="empty-state-desc">Las opiniones de tus clientes aparecerán aquí en tiempo real cuando califiquen el servicio.</p>
+                // Actualizar Top Productos (UI Gourmet)
+                const topList = document.getElementById('top-products-list');
+                topList.innerHTML = data.charts.pollos.labels.map((name, i) => `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-black text-slate-500 w-4">${i+1}</span>
+                            <span class="text-xs font-bold text-white">${name}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="h-1.5 w-20 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500" style="width: ${100 - (i*20)}%"></div>
                             </div>
-                        </td>
-                    </tr>
-                `;
+                            <span class="text-[10px] font-black text-blue-400">${data.charts.pollos.data[i]} ud</span>
+                        </div>
+                    </div>
+                `).join('');
 
-                // Actualizar Gráficos
-                updateCharts(data.charts);
-                log("Métricas de negocio actualizadas. Estado: NOMINAL.");
+                // Actualizar Gráfica
+                updateSalesChart(data.charts.horas);
 
-            } catch (e) {
-                log("Error en la sincronización de KPIs", 'ERR');
-                console.error(e);
-            }
+                // 2. Fetch Staff Status
+                const staffRes = await fetch('/api/rrhh/estado-plantilla');
+                const staff = await staffRes.json();
+                const staffList = document.getElementById('staff-list');
+                staffList.innerHTML = staff.map(u => `
+                    <div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center text-[10px] font-black">${u.username[0].toUpperCase()}</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">${u.full_name}</p>
+                                <p class="text-[9px] text-slate-500 uppercase">${u.rol}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="status-dot ${u.ultimo_estado !== 'OFFLINE' ? 'status-online' : 'status-offline'}"></span>
+                            <span class="text-[8px] font-black text-slate-600 mt-1">${u.ultima_hora || '--:--'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) { console.error("Error en Dashboard:", e); }
         };
 
-        const getAIInsights = async () => {
-            log("Solicitando auditoría estratégica a Koal-AI...");
-            try {
-                const res = await fetch('/api/admin/ai_insights');
-                const data = await res.json();
-                document.getElementById('ai-sentiment').innerText = data.resumen_reviews;
-                document.getElementById('ai-action').innerText = data.sugerencia_produccion;
-                log("Auditoría IA completada.");
-            } catch (e) {
-                log("Fallo en el núcleo de IA", 'ERR');
-            }
-        };
-
-        const triggerZClose = async () => {
-            if (!confirm("¿Seguro que deseas ejecutar el Cierre Z fiscal? Esto consolidará la jornada actual.")) return;
-            log("Protocolo de Cierre Z iniciado...", 'WARN');
-            try {
-                const res = await fetch('/api/admin/trigger_cierre_z', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ efectivo_declarado: 0 })
-                });
-                if (res.ok) {
-                    alert("Cierre Z completado. Reporte generado con éxito.");
-                    log("Cierre Z Finalizado correctamente.");
-                }
-            } catch (e) { log("Error en Cierre Z", 'ERR'); }
-        };
-
-        const seedData = async () => {
-            if (!confirm("¿Deseas inicializar la base de datos con datos profesionales de ejemplo?")) return;
-            log("Iniciando proceso de Seeding Industrial...", 'WARN');
-            try {
-                const res = await fetch('/api/admin/seed_production', { method: 'POST' });
-                const data = await res.json();
-                if (res.ok) {
-                    log(data.message, 'INFO');
-                    updateDashboard();
-                } else {
-                    log("Fallo en Seeding: " + data.detail, 'ERR');
-                }
-            } catch (e) { log("Error de conexión", 'ERR'); }
-        };
-
-        const factoryReset = async () => {
-            const confirmed = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ TODOS los pedidos, productos y categorías del sistema.\n\n¿Estás ABSOLUTAMENTE seguro?");
-            if (!confirmed) return;
+        const updateSalesChart = (chartData) => {
+            if (salesChart) salesChart.destroy();
+            const ctx = document.getElementById('salesChart').getContext('2d');
             
-            const secondConfirm = prompt("Escribe 'ELIMINAR TODO' para confirmar la destrucción de datos:");
-            if (secondConfirm !== 'ELIMINAR TODO') return;
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
-            log("INICIANDO DESTRUCCIÓN DE DATOS...", 'WARN');
-            try {
-                const res = await fetch('/api/admin/factory_reset', { method: 'POST' });
-                if (res.ok) {
-                    alert("Sistema reseteado a valores de fábrica. El sistema está ahora vacío.");
-                    log("SISTEMA VACÍO. Requiere nuevo sembrado.", 'INFO');
-                    updateDashboard();
-                }
-            } catch (e) { log("Error en reseteo", 'ERR'); }
-        };
-
-        const openDrawer = async () => {
-            log("Solicitando apertura de cajón remota...", 'WARN');
-            try {
-                const res = await fetch('/api/admin/abrir-cajon', { method: 'POST' });
-                if (res.ok) log("Cajón abierto. Evento auditado.", 'INFO');
-            } catch (e) { log("Error de hardware", 'ERR'); }
-        };
-
-        const setupCharts = () => {
-            const ctxSales = document.getElementById('salesChart').getContext('2d');
-            salesChart = new Chart(ctxSales, {
+            salesChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: 'Ventas (€)', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 9 } } } } }
-            });
-
-            const ctxProds = document.getElementById('productsChart').getContext('2d');
-            productsChart = new Chart(ctxProds, {
-                type: 'bar',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: '#f59e0b', borderRadius: 5 }] },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10, weight: 'bold' } } } } }
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Ventas (€)',
+                        data: chartData.data,
+                        borderColor: '#3b82f6',
+                        borderWidth: 4,
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#3b82f6',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                            ticks: { color: '#64748b', font: { size: 10, weight: 'bold' }, callback: v => v + '€' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }
+                        }
+                    }
+                }
             });
         };
 
-        const updateCharts = (charts) => {
-            salesChart.data.labels = charts.horas.labels;
-            salesChart.data.datasets[0].data = charts.horas.data;
-            salesChart.update();
+        const triggerFichaje = () => {
+            const pin = prompt("Introduce tu PIN de empleado:");
+            if (!pin) return;
+            const tipo = prompt("Tipo de fichaje (ENTRADA / SALIDA / PAUSA):", "ENTRADA");
+            if (!tipo) return;
 
-            productsChart.data.labels = charts.pollos.labels;
-            productsChart.data.datasets[0].data = charts.pollos.data;
-            productsChart.update();
-        };
-
-        const askAI = async () => {
-            const input = document.getElementById('ai-chat-input');
-            const msg = input.value.trim();
-            if (!msg) return;
-            log(`Consulta IA: ${msg.substring(0, 20)}...`);
-            input.value = 'Procesando...';
-            try {
-                const res = await fetch('/api/admin/ai/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: msg })
-                });
-                const data = await res.json();
-                document.getElementById('ai-sentiment').innerText = data.response;
-                input.value = '';
-            } catch (e) { log("Error de comunicación IA", 'ERR'); input.value = ''; }
+            fetch('/api/rrhh/fichar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin, tipo })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === 'success') {
+                    alert(`Fichaje confirmado: ${d.usuario} (${d.tipo}) a las ${d.hora}`);
+                    updateDashboard();
+                } else alert("Error: " + (d.detail || "PIN incorrecto"));
+            });
         };
 
         window.onload = () => {
-            setupCharts();
             updateDashboard();
-            getAIInsights();
             setInterval(updateDashboard, 60000);
         };
     </script>

@@ -18,7 +18,10 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from .config import settings
 from .database import Base, engine
-from .routers import admin, auth, hardware, inventory, orders, telemetry, rrhh, webhooks
+from .routers import (
+    admin, auth, hardware, inventory, 
+    orders, telemetry, rrhh, webhooks, stats
+)
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
 from .utils.openapi import custom_openapi
@@ -31,8 +34,8 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="### Sistema TPV de Alto Rendimiento\nEcosistema profesional para la gestión operativa, financiera e inteligente de Carbones y Pollos.",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
 )
 
 app.state.limiter = limiter

@@ -1,78 +1,86 @@
-from datetime import datetime
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, func
+from datetime import datetime
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any
+import uuid
 
 from ..database import get_db
 from ..models import Usuario, Fichaje
-from ..utils.logger import logger
 from ..utils.auth import verify_password
+from ..utils.logger import logger
 
 router = APIRouter(prefix="/rrhh", tags=["Recursos Humanos"])
 
-# --- Esquemas ---
 class FichajeRequest(BaseModel):
-    pin: str
-    tipo: str  # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
+    pin: str = Field(..., example="1234")
+    tipo: str = Field(..., example="ENTRADA") # ENTRADA, SALIDA, PAUSA
 
-class FichajeResponse(BaseModel):
-    username: str
+class FichajeOut(BaseModel):
+    id: str
+    usuario_nombre: str
     tipo: str
-    fecha: str
+    fecha: datetime
 
-# --- Endpoints ---
+    class Config:
+        from_attributes = True
 
 @router.post("/fichar")
-async def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
-    """Registra un evento de fichaje validando el PIN del usuario."""
+def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
+    """
+    Sistema de Control de Presencia: Registra entradas y salidas mediante PIN.
+    Garantiza el cumplimiento normativo y facilita el cálculo de nóminas operativas.
+    """
+    # Buscamos el usuario por el hash del PIN (simplificado para el ejemplo con comparación directa si no hay hash complejo)
+    # En un entorno real usaríamos verify_password
+    usuario = db.query(Usuario).filter(Usuario.is_active == True).all()
+    target_user = None
     
-    users = db.query(Usuario).filter(Usuario.is_active == True).all()
-    user = next((u for u in users if verify_password(req.pin, u.pin_hash)), None)
+    from ..utils.auth import get_password_hash # Para propósitos de demo
     
-    if not user:
-        logger.warning(f"Intento de fichaje con PIN inválido: ***{req.pin[-1]}")
-        raise HTTPException(status_code=401, detail="PIN incorrecto")
-    
+    for u in usuario:
+        # Aquí asumimos que el pin_hash se verifica contra el pin enviado
+        if verify_password(req.pin, u.pin_hash):
+            target_user = u
+            break
+            
+    if not target_user:
+        logger.warning(f"Intento de fichaje fallido con PIN incorrecto.")
+        raise HTTPException(status_code=401, detail="PIN incorrecto o usuario no activo")
+
     nuevo_fichaje = Fichaje(
-        usuario_id=user.id,
-        tipo=req.tipo,
-        fecha=datetime.now()
+        id=str(uuid.uuid4()),
+        usuario_id=target_user.id,
+        tipo=req.tipo.upper(),
+        fecha=datetime.utcnow()
     )
     db.add(nuevo_fichaje)
     db.commit()
     
-    logger.info(f"Fichaje registrado: {user.username} - {req.tipo}")
-    
+    logger.info(f"Fichaje registrado: {target_user.username} - {req.tipo}")
     return {
         "status": "success",
-        "msj": f"¡Hola {user.username}! {req.tipo} registrado correctamente.",
-        "username": user.username
+        "usuario": target_user.full_name or target_user.username,
+        "tipo": req.tipo,
+        "hora": nuevo_fichaje.fecha.strftime("%H:%M:%S")
     }
 
-@router.get("/fichajes", response_model=List[FichajeResponse])
-async def obtener_fichajes_recientes(limit: int = 10, db: Session = Depends(get_db)):
-    """Lista los últimos fichajes realizados en el sistema."""
-    fichajes = db.query(Fichaje).order_by(desc(Fichaje.fecha)).limit(limit).all()
+@router.get("/estado-plantilla")
+def obtener_estado_plantilla(db: Session = Depends(get_db)):
+    """
+    Retorna la lista de empleados y su último estado de fichaje hoy.
+    """
+    today = datetime.utcnow().date()
+    usuarios = db.query(Usuario).filter(Usuario.is_active == True).all()
     
-    return [
-        FichajeResponse(
-            username=f.usuario.username if f.usuario else "Desconocido",
-            tipo=f.tipo,
-            fecha=f.fecha.strftime("%d/%m %H:%M") if f.fecha else "--"
-        ) for f in fichajes
-    ]
-
-@router.get("/dashboard/stats")
-async def get_hr_stats(db: Session = Depends(get_db)):
-    """Estadísticas rápidas para el dashboard de RRHH."""
-    today = datetime.now().date()
-    empleados_activos = db.query(Usuario).filter(Usuario.is_active == True).count()
-    fichajes_hoy = db.query(Fichaje).filter(func.date(Fichaje.fecha) == today).count()
-    
-    return {
-        "empleados_totales": empleados_activos,
-        "fichajes_hoy": fichajes_hoy,
-        "puesto_critico": "Cocina" # Placeholder inteligente
-    }
+    resultado = []
+    for u in usuarios:
+        ultimo = db.query(Fichaje).filter(Fichaje.usuario_id == u.id).order_by(Fichaje.fecha.desc()).first()
+        resultado.append({
+            "username": u.username,
+            "full_name": u.full_name or u.username,
+            "rol": u.rol,
+            "ultimo_estado": ultimo.tipo if ultimo and ultimo.fecha.date() == today else "OFFLINE",
+            "ultima_hora": ultimo.fecha.strftime("%H:%M") if ultimo and ultimo.fecha.date() == today else None
+        })
+    return resultado
