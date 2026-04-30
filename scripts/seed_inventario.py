@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models import Ingrediente, Proveedor
+from backend.models import Ingrediente, Proveedor
 
 DB_PATH = "sqlite:///tpv_data.sqlite"
 engine = create_engine(DB_PATH, connect_args={"check_same_thread": False})

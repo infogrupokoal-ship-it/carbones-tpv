@@ -56,7 +56,7 @@ class ReportingService:
         )
         cat_ids = [c.id for c in perecederos]
 
-        productos = db.query(Producto).filter(Producto.stock_base_id == None).all()
+        productos = db.query(Producto).filter(Producto.stock_base_id.is_(None)).all()
 
         sobrantes_texto = ""
         pollos_vendidos = 0

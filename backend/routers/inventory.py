@@ -71,7 +71,7 @@ def listar_ingredientes(db: Session = Depends(get_db)):
 @router_productos.get("/")
 def listar_productos(db: Session = Depends(get_db)):
     """Lista productos para gestión de stock o venta."""
-    prods = db.query(Producto).filter(Producto.is_active == True).all()
+    prods = db.query(Producto).filter(Producto.is_active).all()
     return [p.__dict__ for p in prods]
 
 

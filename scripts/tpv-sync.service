@@ -1,0 +1,15 @@
+[Unit]
+Description=TPV Enterprise Sync Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/carbones_tpv
+EnvironmentFile=/opt/carbones_tpv/.env
+ExecStart=/opt/carbones_tpv/venv/bin/python /opt/carbones_tpv/sync_daemon.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -122,10 +122,13 @@
 
     <footer class="fixed bottom-8 left-0 w-full text-center">
         <div class="inline-flex items-center gap-3 glass px-6 py-3 rounded-full">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Todos los sistemas operativos - Local Node: 192.168.1.50</p>
+            <div id="status-indicator" class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <p id="status-text" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Todos los sistemas operativos - Local Node: 192.168.1.50</p>
         </div>
     </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
 
     <script>
         function updateClock() {
@@ -136,8 +139,55 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // 🌟 Enterprise Toast System
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 border-slate-700 text-white';
+            let icon = 'fa-info-circle text-blue-400';
+            
+            if (type === 'success') { bgClass = 'bg-emerald-900/90 border-emerald-700 text-white'; icon = 'fa-check-circle text-emerald-400'; }
+            if (type === 'error') { bgClass = 'bg-red-900/90 border-red-700 text-white'; icon = 'fa-exclamation-triangle text-red-400'; }
+            if (type === 'warning') { bgClass = 'bg-amber-900/90 border-amber-700 text-white'; icon = 'fa-exclamation-circle text-amber-400'; }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md transform transition-all duration-300 translate-x-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fas ${icon} text-lg"></i> <p class="text-sm font-semibold">${message}</p>`;
+            
+            container.appendChild(toast);
+            
+            // Animate In
+            setTimeout(() => { toast.classList.remove('translate-x-10', 'opacity-0'); }, 10);
+            
+            // Animate Out & Remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        };
+
+        // Network Status Monitoring
+        function updateNetworkStatus() {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            if (navigator.onLine) {
+                indicator.className = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
+                text.innerText = 'Todos los sistemas operativos - Sincronizado';
+                showToast('Conexión restaurada. Sincronizando...', 'success');
+            } else {
+                indicator.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
+                text.innerText = 'SISTEMA OFFLINE - MODO LOCAL ACTIVO';
+                showToast('Conexión perdida. Operando en caché local.', 'error');
+            }
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
+            navigator.serviceWorker.register('/sw.js').then(() => {
+                console.log('SW Enterprise Registrado');
+            }).catch(err => console.error('SW Error:', err));
         }
     </script>
 </body>

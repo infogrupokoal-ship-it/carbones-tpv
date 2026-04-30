@@ -7,7 +7,7 @@ def registrar_pedido_kiosko(db, cliente_id: int, items: list, origen: str = "WHA
     """
     Registra un pedido de comida en el sistema TPV.
     """
-    from models import ItemPedido, MovimientoStock, Pedido, Producto
+    from backend.models import ItemPedido, MovimientoStock, Pedido, Producto
 
     nuevo_pedido = Pedido(
         numero_ticket=f"WPP-{cliente_id}-{db.query(Pedido).count() + 1}",
@@ -89,7 +89,7 @@ def actualizar_stock_cocina(
     """
     Permite al personal de cocina añadir stock producido y actualizar información técnica.
     """
-    from models import MovimientoStock, Producto
+    from backend.models import MovimientoStock, Producto
 
     prod = db.query(Producto).get(producto_id)
     if not prod:

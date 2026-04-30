@@ -1,20 +1,18 @@
 import asyncio
-import logging
 import os
 import time
-import psutil
 from datetime import datetime
 from typing import Dict, Any
 
+import psutil
 from fastapi import FastAPI, Request
-# Asegurar que el directorio de instancia existe para logs y base de datos
-os.makedirs("instance", exist_ok=True)
-
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+
+# Asegurar directorios base (se crearán en startup para evitar E402)
 
 from .config import settings
 from .database import Base, engine
@@ -23,14 +21,6 @@ from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
 from .utils.openapi import custom_openapi
 from .services.scheduler import scheduler_loop
-
-# Configuración de logs profesional
-logging.basicConfig(
-    level=settings.LOG_LEVEL,
-    format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-    handlers=[logging.FileHandler("instance/server.log"), logging.StreamHandler()],
-)
-logger = logging.getLogger("TPV-Enterprise")
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -68,6 +58,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Server"] = "TPV-Enterprise-Engine"
         return response
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
+# Initialize Rate Limiter
+limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 app.add_middleware(SecurityHeadersMiddleware)
 
 @app.middleware("http")
@@ -99,6 +100,10 @@ if os.path.exists("static"):
 
 @app.on_event("startup")
 async def startup_event():
+    # Asegurar directorios base
+    os.makedirs("instance", exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
+    
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
     # Asignar esquema personalizado
     app.openapi = lambda: custom_openapi(app)

@@ -1,0 +1,11 @@
+[Unit]
+Description=TPV Automated Maintenance (Z-Close & Backup)
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/carbones_tpv
+EnvironmentFile=/opt/carbones_tpv/.env
+ExecStartPre=/opt/carbones_tpv/venv/bin/python /opt/carbones_tpv/reporte_z.py
+ExecStart=/opt/carbones_tpv/venv/bin/python /opt/carbones_tpv/scripts/backup_manager.py

@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer for TPV Automated Maintenance (Daily at 23:59)
+
+[Timer]
+# Ejecutar cada día a las 23:59
+OnCalendar=*-*-* 23:59:00
+Persistent=true
+Unit=tpv-maintenance.service
+
+[Install]
+WantedBy=timers.target

@@ -23,9 +23,12 @@ class DBLogger:
             
             # También logueamos a consola/archivo
             log_msg = f"[{module}] {message}"
-            if level == "INFO": logger.info(log_msg)
-            elif level == "WARN": logger.warning(log_msg)
-            elif level == "ERR": logger.error(log_msg)
+            if level == "INFO":
+                logger.info(log_msg)
+            elif level == "WARN":
+                logger.warning(log_msg)
+            elif level == "ERR":
+                logger.error(log_msg)
             
         except Exception as e:
             logger.error(f"FALLO CRÍTICO EN DBLogger: {str(e)}")

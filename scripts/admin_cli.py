@@ -16,7 +16,7 @@ def get_stats():
         res = requests.get(f"{API_URL}/dashboard/kpis", timeout=2)
         if res.ok:
             return res.json()
-    except:
+    except Exception:
         return None
 
 def main_loop():

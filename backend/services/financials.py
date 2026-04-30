@@ -65,7 +65,6 @@ class FinancialService:
     @staticmethod
     def get_financial_kpis(db: Session):
         """Calcula métricas de rentabilidad avanzada."""
-        today = datetime.date.today()
         # Aquí iría lógica compleja de costes de ingredientes vs ventas
         return {
             "gross_margin": 0.65, # Mock

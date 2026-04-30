@@ -15,6 +15,7 @@ class Usuario(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String, nullable=True)  # MVP password
     pin = Column(String(10), index=True, nullable=True)  # Para acceso rápido TPV
+    pin_hash = Column(String(128), nullable=True)      # Hash seguro para validación
     email = Column(String, nullable=True)
     rol = Column(String)  # ADMIN, MANANA, TARDE
     fichajes = relationship("Fichaje", back_populates="usuario")

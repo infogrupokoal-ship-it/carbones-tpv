@@ -4,7 +4,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from models import Cliente, Producto
+from backend.models import Cliente, Producto
 
 load_dotenv()
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", "YOUR_GEMINI_KEY"))
