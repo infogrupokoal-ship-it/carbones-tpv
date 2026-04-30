@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Any
+from pydantic import BaseModel, Field
 
 from ..database import get_db
 from ..models import Pedido, ItemPedido, Producto, Cliente, ReporteZ
@@ -126,6 +127,11 @@ def generar_cierre_z(req: CierreZRequest, db: Session = Depends(get_db)):
     db.add(reporte)
     try:
         db.commit()
+        
+        # Registrar Auditoría
+        from ..utils.audit import log_action
+        log_action(db, accion="CIERRE_Z", entidad="FINANZAS", entidad_id=reporte.id, payload_nuevo=f"Descuadre: {diferencia}")
+        
         return {
             "status": "success",
             "reporte_id": reporte.id,
