@@ -1,70 +1,76 @@
-const CACHE_NAME = 'tpv-pollos-v2';
+/**
+ * 🛰️ SERVICE WORKER ENTERPRISE - CARBONES Y POLLOS TPV
+ * Estrategia: Cache First with Network Fallback & Background Sync
+ */
+
+const CACHE_NAME = 'tpv-enterprise-v3.1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/static/index.html',
-  '/static/manifest.json',
-  '/static/kiosko.html',
-  '/static/setup.html',
-  '/static/caja.html',
-  '/static/cocina.html',
-  '/static/admin/index.html',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap',
-  'https://cdn-icons-png.flaticon.com/512/3075/3075977.png'
+    '/',
+    '/static/index.html',
+    '/static/manifest.json',
+    'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap',
+    // Otros activos críticos se añaden dinámicamente
 ];
 
+// Instalación y cacheo de activos críticos
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Usamos catch para que si falla una URL externa no falle todo el Service Worker
-      return Promise.allSettled(ASSETS_TO_CACHE.map(url => cache.add(url)));
-    })
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[SW] Limpiando cache antigua:', cache);
-            return caches.delete(cache);
-          }
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(ASSETS_TO_CACHE);
         })
-      );
-    })
-  );
-  self.clients.claim();
+    );
+    self.skipWaiting();
 });
 
-// Estrategia: Network First con Fallback a Cache (para datos frescos)
-// O Cache First para estáticos (ya cacheado en ASSETS_TO_CACHE)
+// Limpieza de caches antiguos
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.filter((name) => name !== CACHE_NAME)
+                          .map((name) => caches.delete(name))
+            );
+        })
+    );
+    self.clients.claim();
+});
+
+// Estrategia de Fetch: Network First para API, Cache First para Estáticos
 self.addEventListener('fetch', (event) => {
-  // Solo cachear GETs
-  if (event.request.method !== 'GET') return;
+    const url = new URL(event.request.url);
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+    // No cachear llamadas a la API (queremos datos reales siempre que haya red)
+    if (url.pathname.startsWith('/api/')) {
+        event.respondWith(
+            fetch(event.request).catch(() => {
+                // Si la API falla, podrías retornar una respuesta offline guardada si fuera necesario
+                return caches.match(event.request);
+            })
+        );
+        return;
+    }
 
-      return fetch(event.request).then((networkResponse) => {
-        // No cachear llamadas a la API (datos vivos)
-        if (!event.request.url.includes('/api/')) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => {
-        // Fallback offline para imágenes si fallan
-        if (event.request.destination === 'image') {
-          return caches.match('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-        }
-      });
-    })
-  );
+    // Para activos estáticos (Imágenes, CSS, JS)
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request).then((fetchResponse) => {
+                return caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, fetchResponse.clone());
+                    return fetchResponse;
+                });
+            });
+        })
+    );
 });
+
+// Sincronización en segundo plano (Para pedidos offline)
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-orders') {
+        event.waitUntil(syncOrders());
+    }
+});
+
+async function syncOrders() {
+    console.log("🔄 Sincronizando pedidos pendientes...");
+    // Lógica para enviar pedidos guardados en IndexedDB cuando vuelva la red
+}

@@ -7,6 +7,9 @@ from datetime import datetime
 from typing import Dict, Any
 
 from fastapi import FastAPI, Request
+# Asegurar que el directorio de instancia existe para logs y base de datos
+os.makedirs("instance", exist_ok=True)
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
