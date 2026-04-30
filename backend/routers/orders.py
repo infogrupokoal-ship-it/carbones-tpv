@@ -9,7 +9,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto, Tienda
+from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 
@@ -31,6 +31,13 @@ class PedidoCrear(BaseModel):
     notas_cliente: Optional[str] = None
     canjear_puntos: bool = False
 
+class ItemPedidoOut(BaseModel):
+    id: str
+    producto_id: str
+    nombre: str
+    cantidad: int
+    precio: float
+
 class PedidoOut(BaseModel):
     id: str
     numero_ticket: str
@@ -39,16 +46,11 @@ class PedidoOut(BaseModel):
     total: float
     metodo_pago: Optional[str]
     origen: str
+    notas_cliente: Optional[str]
+    items: List[ItemPedidoOut] = [] # Incluimos items para el listado de caja
     
     class Config:
         from_attributes = True
-
-class ItemPedidoOut(BaseModel):
-    id: str
-    producto_id: str
-    nombre: str
-    cantidad: int
-    precio: float
 
 # --- Rutas ---
 
@@ -57,6 +59,7 @@ class ItemPedidoOut(BaseModel):
 def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
     """
     Lista los pedidos con soporte para filtrado por estado y paginación básica.
+    Incluye el desglose de ítems para visualización directa en terminales de cobro.
     """
     try:
         query = db.query(Pedido)
@@ -64,7 +67,26 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
             query = query.filter(Pedido.estado == estado)
         
         pedidos = query.order_by(Pedido.fecha.desc()).limit(limit).all()
-        return pedidos
+        
+        # Mapeo manual para asegurar que los nombres de productos estén presentes
+        # (SQLAlchemy relationship podría no cargar el nombre si no está en ItemPedido)
+        results = []
+        for p in pedidos:
+            p_dict = PedidoOut.from_orm(p)
+            items_detailed = []
+            for it in p.items:
+                prod = db.query(Producto).get(it.producto_id)
+                items_detailed.append(ItemPedidoOut(
+                    id=it.id,
+                    producto_id=it.producto_id,
+                    nombre=prod.nombre if prod else "Item Descatalogado",
+                    cantidad=it.cantidad,
+                    precio=it.precio_unitario
+                ))
+            p_dict.items = items_detailed
+            results.append(p_dict)
+            
+        return results
     except Exception as e:
         logger.error(f"Error listando pedidos: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
@@ -76,7 +98,13 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     """
     today = datetime.date.today()
     pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
-    return pedidos
+    
+    results = []
+    for p in pedidos:
+        p_dict = PedidoOut.from_orm(p)
+        # Aquí no cargamos items detallados para ahorrar ancho de banda en dashboard
+        results.append(p_dict)
+    return results
 
 @router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 @router_legacy.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
@@ -131,6 +159,7 @@ def crear_pedido(
             if not cliente:
                 cliente = Cliente(
                     id=str(uuid.uuid4()),
+                    nombre=f"Cliente {telefono_asociado[-4:]}",
                     telefono=telefono_asociado,
                     nivel_fidelidad="BRONCE",
                 )
@@ -143,10 +172,6 @@ def crear_pedido(
             elif cliente.nivel_fidelidad == "ORO":
                 descuento_fidelidad = 0.10
 
-        # Obtener Tienda ID (por ahora la primera disponible como fallback)
-        tienda = db.query(Tienda).first()
-        tienda_id_actual = tienda.id if tienda else None
-
         # 2. Creación del Pedido
         nuevo_pedido = Pedido(
             id=str(uuid.uuid4()),
@@ -154,9 +179,9 @@ def crear_pedido(
             origen=origen_base,
             estado=pedido.estado_inicial,
             cliente_id=cliente.id if cliente else None,
-            tienda_id=tienda_id_actual,
             cubiertos_qty=pedido.cubiertos_qty,
             notas_cliente=pedido.notas_cliente,
+            tienda_id=db.query(Producto).first().tienda_id if db.query(Producto).first() else None
         )
         db.add(nuevo_pedido)
         db.flush()
@@ -335,16 +360,3 @@ def _encolar_tickets(db: Session, pedido: Pedido):
         origen="backend_enterprise",
         payload=json.dumps({**base_payload, "tipo": "cliente"}),
     ))
-
-@router.post("/{pedido_id}/ubicacion")
-def actualizar_ubicacion(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
-    """
-    Recibe telemetría GPS para el seguimiento en vivo de entregas a domicilio.
-    """
-    lat = payload.get("lat")
-    lon = payload.get("lon")
-    dist = payload.get("distancia_metros")
-    
-    # Aquí podríamos actualizar Pedido.latitud_actual etc si quisiéramos persistencia GPS real
-    logger.debug(f"Telemetría GPS: Pedido {pedido_id} a {dist}m")
-    return {"status": "telemetry_accepted"}
