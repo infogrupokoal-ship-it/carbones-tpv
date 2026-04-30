@@ -1,69 +1,83 @@
 /**
  * 🛰️ SERVICE WORKER ENTERPRISE - CARBONES Y POLLOS TPV
- * Estrategia: Cache First with Network Fallback & Background Sync
+ * Estrategia: Stale-While-Revalidate para estáticos & Network-First para API
  */
 
-const CACHE_NAME = 'tpv-enterprise-v3.1';
+const CACHE_NAME = 'tpv-enterprise-v4.1';
 const ASSETS_TO_CACHE = [
     '/',
     '/static/index.html',
     '/static/manifest.json',
     'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap',
-    // Otros activos críticos se añaden dinámicamente
 ];
 
-// Instalación y cacheo de activos críticos
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
     );
     self.skipWaiting();
 });
 
-// Limpieza de caches antiguos
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.filter((name) => name !== CACHE_NAME)
-                          .map((name) => caches.delete(name))
+                cacheNames.map((name) => {
+                    if (name !== CACHE_NAME) return caches.delete(name);
+                })
             );
         })
     );
     self.clients.claim();
 });
 
-// Estrategia de Fetch: Network First para API, Cache First para Estáticos
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // No cachear llamadas a la API (queremos datos reales siempre que haya red)
+    // Estrategia: Network-First con Fallback a Cache (Para API)
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(
-            fetch(event.request).catch(() => {
-                // Si la API falla, podrías retornar una respuesta offline guardada si fuera necesario
-                return caches.match(event.request);
-            })
+            fetch(event.request)
+                .then(response => {
+                    // Opcional: Cachear la última respuesta buena de la API
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match(event.request).then(response => {
+                        if (response) return response;
+                        return new Response(JSON.stringify({ error: "Offline Mode", offline: true }), {
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    });
+                })
         );
         return;
     }
 
-    // Para activos estáticos (Imágenes, CSS, JS)
+    // Estrategia: Stale-While-Revalidate (Para Estáticos)
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request).then((fetchResponse) => {
-                return caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, fetchResponse.clone());
-                    return fetchResponse;
-                });
+        caches.match(event.request).then((cachedResponse) => {
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200) {
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, networkResponse.clone());
+                    });
+                }
+                return networkResponse;
+            }).catch(() => {
+                // Manejo de errores de red en estáticos
+                console.log("Network fallida para activo estático:", event.request.url);
             });
+
+            // Retornar cache instantáneo si existe, de lo contrario esperar a la red
+            return cachedResponse || fetchPromise;
         })
     );
 });
 
-// Sincronización en segundo plano (Para pedidos offline)
+// Sync en segundo plano
 self.addEventListener('sync', (event) => {
     if (event.tag === 'sync-orders') {
         event.waitUntil(syncOrders());
@@ -71,6 +85,6 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncOrders() {
-    console.log("🔄 Sincronizando pedidos pendientes...");
-    // Lógica para enviar pedidos guardados en IndexedDB cuando vuelva la red
+    console.log("🔄 Background Sync: Transmitiendo pedidos pendientes a la nube...");
+    // Future: IndexedDB to Sync API
 }
