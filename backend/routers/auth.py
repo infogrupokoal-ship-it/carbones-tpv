@@ -1,58 +1,111 @@
+import datetime
+from typing import Dict, Any, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, Field
+
 from ..database import get_db
 from ..models import Usuario
 from ..utils.auth import verify_password, create_access_token, decode_access_token
-from pydantic import BaseModel
+from ..utils.logger import logger
 
-router = APIRouter(prefix="/auth", tags=["Autenticación"])
+router = APIRouter(prefix="/auth", tags=["Seguridad e Identidad"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
+# --- Esquemas de Datos ---
+
 class LoginRequest(BaseModel):
-    username: str
-    pin: str
+    username: str = Field(..., example="admin")
+    pin: str = Field(..., min_length=4, max_length=6, example="1234")
 
-class Token(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
     role: str
+    username: str
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+class UserProfile(BaseModel):
+    id: str
+    username: str
+    role: str = Field(..., alias="rol")
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+# --- Dependencias de Seguridad ---
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Usuario:
+    """
+    Validación de identidad centralizada mediante JWT. 
+    Verifica la integridad del token y la existencia del usuario en el sistema.
+    """
     payload = decode_access_token(token)
     if not payload:
+        logger.warning(f"Intento de acceso con token inválido o expirado.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
+            detail="La sesión ha expirado o es inválida. Por favor, identifíquese de nuevo.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
+    
     username: str = payload.get("sub")
     user = db.query(Usuario).filter(Usuario.username == username).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return user
-
-@router.post("/login", response_model=Token)
-async def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(Usuario).filter(Usuario.username == data.username).first()
     
-    # En la TPV usamos PIN, pero lo tratamos con la seguridad de una contraseña
-    if not user or not verify_password(data.pin, user.pin_hash):
+    if not user:
+        logger.error(f"Token válido para usuario inexistente: {username}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o PIN incorrecto",
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Identidad de usuario no encontrada."
         )
     
-    access_token = create_access_token(data={"sub": user.username, "role": user.rol})
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "role": user.rol
-    }
+    return user
 
-@router.get("/me")
+# --- Rutas de Autenticación ---
+
+@router.post("/login", response_model=TokenResponse)
+async def login(data: LoginRequest, db: Session = Depends(get_db)):
+    """
+    Punto de entrada seguro: Valida las credenciales del operador (PIN) 
+    y emite un token de acceso industrial cifrado.
+    """
+    user = db.query(Usuario).filter(Usuario.username == data.username).first()
+    
+    # En el contexto TPV, el PIN es la credencial principal del empleado
+    if not user or not verify_password(data.pin, user.pin_hash):
+        logger.warning(f"Fallo de autenticación: Usuario '{data.username}'")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario o código PIN incorrectos.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generar token con claims de rol para control de acceso en frontend
+    access_token = create_access_token(
+        data={"sub": user.username, "role": user.rol}
+    )
+    
+    logger.info(f"Sesión Iniciada: {user.username} (Rol: {user.rol})")
+    
+    return TokenResponse(
+        access_token=access_token,
+        role=user.rol,
+        username=user.username
+    )
+
+@router.get("/me", response_model=UserProfile)
 async def read_users_me(current_user: Usuario = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "username": current_user.username,
-        "rol": current_user.rol
-    }
+    """
+    Retorna el perfil del operador actual autenticado.
+    """
+    return current_user
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(current_user: Usuario = Depends(get_current_user)):
+    """
+    Finaliza la sesión del operador y registra el evento para auditoría.
+    """
+    logger.info(f"Sesión Cerrada: {current_user.username}")
+    return None

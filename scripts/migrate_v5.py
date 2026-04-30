@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.database import engine, Base, SessionLocal
 from backend.models import Tienda, Usuario
-from backend.utils.auth import get_pin_hash  # Ajustado a la ruta real detectada
+from backend.utils.auth import get_password_hash  # Corregido name
 
 def run_migration():
     print("🚀 INICIANDO MIGRACIÓN ENTERPRISE V5.0 (RUTAS CORREGIDAS)...")
@@ -41,7 +41,7 @@ def run_migration():
                 id=str(uuid.uuid4()),
                 username="admin",
                 full_name="CEO Admin Enterprise",
-                pin_hash=get_pin_hash("1234"),
+                pin_hash=get_password_hash("1234"),
                 rol="ADMIN",
                 tienda_id=store.id
             )
