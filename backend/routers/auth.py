@@ -63,6 +63,24 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     
     return user
 
+class RoleChecker:
+    """Validador de roles para endpoints protegidos."""
+    def __init__(self, allowed_roles: list):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: Usuario = Depends(get_current_user)) -> Usuario:
+        if current_user.rol not in self.allowed_roles:
+            logger.warning(f"Acceso denegado (RBAC): Usuario '{current_user.username}' (Rol: {current_user.rol}) intentó acceder a un recurso restringido.")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operación denegada: Privilegios insuficientes."
+            )
+        return current_user
+
+# Pre-configuraciones de roles
+require_admin = RoleChecker(["ADMIN"])
+require_manager = RoleChecker(["ADMIN", "MANAGER"])
+
 # --- Rutas de Autenticación ---
 
 @router.post("/login", response_model=TokenResponse)

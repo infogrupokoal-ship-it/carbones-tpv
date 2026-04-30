@@ -68,3 +68,26 @@ def get_recent_logs(lines: int = 100):
             return {"logs": content[-lines:]}
     except Exception as e:
         return {"error": str(e), "logs": []}
+
+@router.get("/audit")
+def get_audit_logs(limit: int = 50, db: Session = Depends(get_db)):
+    """
+    Obtiene el historial de auditoría de seguridad y operaciones críticas
+    (Cierres Z, Ajustes de Inventario, Inicio de Sesión, etc.).
+    """
+    from ..models import AuditLog
+    
+    logs = db.query(AuditLog).order_by(AuditLog.fecha.desc()).limit(limit).all()
+    out = []
+    for log in logs:
+        out.append({
+            "id": log.id,
+            "fecha": log.fecha.isoformat(),
+            "usuario": log.usuario.username if log.usuario else "SISTEMA",
+            "accion": log.accion,
+            "entidad": log.entidad,
+            "entidad_id": log.entidad_id,
+            "ip_origen": log.ip_origen
+        })
+    return out
+

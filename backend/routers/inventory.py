@@ -73,10 +73,11 @@ class ProduccionRequest(BaseModel):
 @router_legacy.get("/ingredientes", response_model=List[IngredienteOut])
 def listar_ingredientes(db: Session = Depends(get_db)):
     """
-    Obtiene el estado crítico del inventario de materia prima y suministros.
+    Obtiene el estado crítico del inventario de materia prima y suministros activos.
     """
     try:
-        ingredientes = db.query(Ingrediente).all()
+        # Respetar Soft Deletes
+        ingredientes = db.query(Ingrediente).filter(Ingrediente.is_active == True).all()
         out = []
         for ing in ingredientes:
             out.append(IngredienteOut(
@@ -99,7 +100,7 @@ def listar_productos(db: Session = Depends(get_db)):
     """
     Lista el catálogo de productos activos con su estado de stock actual y categoría.
     """
-    prods = db.query(Producto).filter(Producto.is_active).all()
+    prods = db.query(Producto).filter(Producto.is_active == True).all()
     out = []
     for p in prods:
         out.append(ProductoOut(
@@ -119,10 +120,10 @@ def listar_productos(db: Session = Depends(get_db)):
 @router.get("/categorias", response_model=List[CategoriaOut])
 def listar_categorias(db: Session = Depends(get_db)):
     """
-    Obtiene las categorías disponibles para el filtrado en el Kiosko.
+    Obtiene las categorías activas disponibles para el filtrado en el Kiosko.
     """
     from ..models import Categoria
-    cats = db.query(Categoria).all()
+    cats = db.query(Categoria).filter(Categoria.is_active == True).all()
     return cats
 
 @router.post("/produccion", status_code=status.HTTP_201_CREATED)
