@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from ..models import Pedido, ItemPedido
+from ..models import Pedido
 from datetime import datetime
 
 class OrderRepository:

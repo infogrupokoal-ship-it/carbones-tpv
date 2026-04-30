@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from ..models import Pedido, Producto
+from ..models import Pedido
 from datetime import datetime, timedelta
 
 class AnalyticsService:

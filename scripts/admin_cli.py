@@ -43,7 +43,7 @@ def main_loop():
                 print(f"  • {r['cliente_nombre']}: {r['comentario'][:40]}...")
         else:
             print("\033[91m⚠️ ERROR: SERVIDOR BACKEND OFFLINE O NO ALCANZABLE\033[0m")
-            print(f"Intentando reconectar en 5 segundos...")
+            print("Intentando reconectar en 5 segundos...")
         
         print("\n\033[90mPresiona Ctrl+C para salir.\033[0m")
         time.sleep(5)

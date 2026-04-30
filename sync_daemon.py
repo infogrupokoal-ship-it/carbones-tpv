@@ -2,7 +2,6 @@ import logging
 import os
 import time
 import signal
-import sys
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

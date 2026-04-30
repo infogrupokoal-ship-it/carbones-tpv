@@ -1,9 +1,8 @@
 import uuid
 import datetime
-import json
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from ..models import Pedido, ReporteZ, Producto, MovimientoStock
+from ..models import Pedido, ReporteZ
 from ..utils.logger import logger
 
 class FinancialService:

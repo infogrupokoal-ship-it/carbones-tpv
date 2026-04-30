@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /health
+Disallow: /metrics
+
+Sitemap: https://carbones-tpv.onrender.com/sitemap.xml

@@ -1,13 +1,10 @@
-import time
 import asyncio
 import datetime
-from sqlalchemy.orm import Session
 from ..database import SessionLocal
-from ..models import Pedido, LogOperativo
+from ..models import LogOperativo
 from ..utils.logger import logger
 from ..utils.db_logger import DBLogger
 from .financials import FinancialService
-import os
 
 async def clean_old_logs():
     """Elimina logs operativos de más de 30 días para ahorrar espacio."""

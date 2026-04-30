@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from ..repositories.order_repository import OrderRepository
-from ..models import Pedido, ItemPedido, HardwareCommand
+from ..models import Pedido, HardwareCommand
 import uuid
 from datetime import datetime
 

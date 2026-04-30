@@ -1,13 +1,12 @@
 import uuid
 import datetime
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from ..database import get_db
-from ..models import Producto, Categoria, Pedido, ReporteZ
-from ..config import settings
+from ..models import Producto, Pedido
 from ..services.financials import FinancialService
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger

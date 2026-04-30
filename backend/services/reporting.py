@@ -1,5 +1,3 @@
-import base64
-import json
 import logging
 import os
 import uuid
@@ -13,8 +11,6 @@ from sqlalchemy import func
 
 from ..models import (
     Categoria,
-    HardwareCommand,
-    Ingrediente,
     MovimientoStock,
     Pedido,
     Producto,
@@ -102,7 +98,7 @@ class ReportingService:
                 sobrantes_texto += f"📦 {p.nombre}: {p.stock_actual}\n"
 
         # 3. Formatear Mensaje
-        msg = f"🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
+        msg = "🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
         msg += f"📅 Fecha: {hoy.strftime('%d/%m/%Y')}\n\n"
         msg += f"💰 Efectivo Sistema: {total_efectivo:.2f} €\n"
         if efectivo_declarado is not None:
