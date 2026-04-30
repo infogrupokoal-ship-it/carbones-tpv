@@ -5,11 +5,16 @@ from backend.utils.auth import get_password_hash
 from backend.utils.logger import logger
 
 def seed_ultra_industrial():
-    print("🚀 Iniciando Sembrado ULTRA INDUSTRIAL...")
+    print("🚀 Iniciando Sembrado MEGA INDUSTRIAL v2.1...")
     db = SessionLocal()
     
     try:
-        # 1. Crear Tienda Central (Base del Multi-tenancy)
+        # 0. Limpiar datos previos para asegurar frescura (Opcional, pero recomendado para "vacio" fix)
+        # db.query(Producto).delete()
+        # db.query(Categoria).delete()
+        # db.commit()
+
+        # 1. Crear Tienda Central
         tienda = db.query(Tienda).filter_by(nombre="Carbones y Pollos Central").first()
         if not tienda:
             tienda = Tienda(
@@ -20,93 +25,145 @@ def seed_ultra_industrial():
             )
             db.add(tienda)
             db.commit()
-            print(f"✅ Tienda Central creada: {tienda.id}")
+            print(f"✅ Tienda Central: {tienda.id}")
 
-        # 2. Usuarios de Alta Jerarquía
+        # 2. Usuarios
         if not db.query(Usuario).filter_by(username="admin").first():
             admin = Usuario(
                 id=str(uuid.uuid4()),
                 username="admin",
-                full_name="Administrador de Sistema",
+                full_name="Gerente de Operaciones",
                 pin_hash=get_password_hash("1234"),
                 rol="ADMIN",
                 tienda_id=tienda.id
             )
             db.add(admin)
-            print("✅ Usuario ADMIN creado (PIN: 1234)")
+            print("✅ Usuario ADMIN: 1234")
 
-        # 3. Proveedores Estratégicos
-        p_avicola = Proveedor(id=str(uuid.uuid4()), nombre="Avícola Galega S.A.", email="pedidos@avicola.es")
-        p_bebidas = Proveedor(id=str(uuid.uuid4()), nombre="Bebidas del Sur", email="logistica@bebidas.com")
-        db.add_all([p_avicola, p_bebidas])
-        db.commit()
-
-        # 4. Categorías Profesionales
-        categorias = {
-            "pollos": Categoria(id=str(uuid.uuid4()), nombre="Pollos Asados"),
-            "combos": Categoria(id=str(uuid.uuid4()), nombre="Combos Familiares"),
-            "bebidas": Categoria(id=str(uuid.uuid4()), nombre="Bebidas y Refrescos"),
-            "postres": Categoria(id=str(uuid.uuid4()), nombre="Postres Artesanos")
-        }
-        db.add_all(categorias.values())
-        db.commit()
-
-        # 5. Catálogo de Productos con Imágenes Reales (Unsplash fallback)
-        productos = [
-            Producto(
-                id=str(uuid.uuid4()),
-                nombre="Pollo al Carbón (Entero)",
-                descripcion="Pollo de corral marinado 24h y asado a fuego lento.",
-                precio=14.90,
-                categoria_id=categorias["pollos"].id,
-                tienda_id=tienda.id,
-                stock_actual=100,
-                imagen_url="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600"
-            ),
-            Producto(
-                id=str(uuid.uuid4()),
-                nombre="Medio Pollo + Patatas",
-                descripcion="Ideal para una persona. Incluye ración de patatas fritas.",
-                precio=9.50,
-                categoria_id=categorias["pollos"].id,
-                tienda_id=tienda.id,
-                stock_actual=150,
-                imagen_url="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=600"
-            ),
-            Producto(
-                id=str(uuid.uuid4()),
-                nombre="Combo Familiar XL",
-                descripcion="2 Pollos enteros + 2 Raciones de Patatas + Bebida 2L.",
-                precio=34.90,
-                categoria_id=categorias["combos"].id,
-                tienda_id=tienda.id,
-                stock_actual=50,
-                imagen_url="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600"
-            ),
-            Producto(
-                id=str(uuid.uuid4()),
-                nombre="Cerveza Artesana Koal",
-                descripcion="Refrescante y lupulada, ideal para carnes asadas.",
-                precio=3.50,
-                categoria_id=categorias["bebidas"].id,
-                tienda_id=tienda.id,
-                stock_actual=200,
-                imagen_url="https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&q=80&w=600"
-            )
+        # 3. Categorías con Iconos Visuales (Simulados en el nombre para el Kiosko)
+        cat_data = [
+            ("Pollos Asados 🔥", "pollos"),
+            ("Combos Ahorro 🛍️", "combos"),
+            ("Complementos 🍟", "lados"),
+            ("Bebidas Frías 🥤", "bebidas"),
+            ("Postres Caseros 🍰", "postres")
         ]
-        db.add_all(productos)
-        db.commit()
+        
+        categorias = {}
+        for nombre, key in cat_data:
+            c = db.query(Categoria).filter_by(nombre=nombre).first()
+            if not c:
+                c = Categoria(id=str(uuid.uuid4()), nombre=nombre)
+                db.add(c)
+                db.commit()
+            categorias[key] = c
 
-        # 6. Materia Prima (Ingredientes)
-        ing_pollo = Ingrediente(id=str(uuid.uuid4()), nombre="Pollo Crudo (kg)", stock_actual=200, stock_minimo=40, unidad_medida="kg", proveedor_id=p_avicola.id)
-        db.add(ing_pollo)
-        db.commit()
+        # 4. Catálogo Ultra-Premium
+        productos_data = [
+            # POLLOS
+            {
+                "nombre": "Pollo al Carbón de Encina",
+                "desc": "Nuestro orgullo. Marinado 24h con 12 especias secretas y asado lentamente.",
+                "precio": 15.50,
+                "cat": "pollos",
+                "img": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Ninguno",
+                "nutri": "Proteínas: 25g, Grasas: 12g, Calorías: 210kcal por 100g"
+            },
+            {
+                "nombre": "Medio Pollo Gourmet",
+                "desc": "La mitad de nuestro pollo estrella, tierno y jugoso por dentro.",
+                "precio": 8.90,
+                "cat": "pollos",
+                "img": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Ninguno",
+                "nutri": "Proteínas: 25g, Calorías: 210kcal"
+            },
+            # COMBOS
+            {
+                "nombre": "Pack Familiar Koal",
+                "desc": "2 Pollos + 2 Patatas Grandes + Ensalada de la Casa + Bebida 2L.",
+                "precio": 38.00,
+                "cat": "combos",
+                "img": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Huevo (Salsas), Gluten (Pan)",
+                "nutri": "Ideal para 4-6 personas."
+            },
+            {
+                "nombre": "Combo Pareja",
+                "desc": "1 Pollo + Patatas Medianas + 2 Bebidas + 2 Postres.",
+                "precio": 24.50,
+                "cat": "combos",
+                "img": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Lactosa (Postre)",
+                "nutri": "Cena completa para dos."
+            },
+            # COMPLEMENTOS
+            {
+                "nombre": "Patatas Fritas 'Triple Cocción'",
+                "desc": "Patata agria seleccionada, cortada a mano y frita en tres tiempos.",
+                "precio": 4.50,
+                "cat": "lados",
+                "img": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Ninguno",
+                "nutri": "Energía pura."
+            },
+            {
+                "nombre": "Pimientos Asados al Carbón",
+                "desc": "Pimientos de temporada asados en la misma parrilla que el pollo.",
+                "precio": 5.90,
+                "cat": "lados",
+                "img": "https://images.unsplash.com/photo-1516824467205-aba65913550e?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Ninguno",
+                "nutri": "Fibra y sabor."
+            },
+            # BEBIDAS
+            {
+                "nombre": "Cerveza Artesana 'La Flama'",
+                "desc": "Rubia, ligera y con un toque ahumado. Elaborada para nosotros.",
+                "precio": 3.80,
+                "cat": "bebidas",
+                "img": "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Gluten",
+                "nutri": "Alcohol: 4.5%"
+            },
+            # POSTRES
+            {
+                "nombre": "Tarta de Queso Fluida",
+                "desc": "Nuestra tarta de queso al horno, cremosa y con base de galleta.",
+                "precio": 6.50,
+                "cat": "postres",
+                "img": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=800",
+                "alergenos": "Lactosa, Huevo, Gluten",
+                "nutri": "El capricho final."
+            }
+        ]
 
-        print("🚀 [SUCCESS] Sistema ULTRA INDUSTRIAL sembrado correctamente.")
+        for p_data in productos_data:
+            existing = db.query(Producto).filter_by(nombre=p_data["nombre"]).first()
+            if not existing:
+                p = Producto(
+                    id=str(uuid.uuid4()),
+                    nombre=p_data["nombre"],
+                    descripcion=p_data["desc"],
+                    precio=p_data["precio"],
+                    categoria_id=categorias[p_data["cat"]].id,
+                    tienda_id=tienda.id,
+                    stock_actual=100,
+                    imagen_url=p_data["img"],
+                    alergenos=p_data["alergenos"],
+                    info_nutricional=p_data["nutri"],
+                    is_active=True
+                )
+                db.add(p)
+        
+        db.commit()
+        print(f"✅ Catálogo de {len(productos_data)} productos sembrado.")
+        print("🚀 [SUCCESS] Mega Seeder Industrial Completado.")
 
     except Exception as e:
         db.rollback()
-        print(f"❌ [ERROR] Fallo en el sembrado: {e}")
+        print(f"❌ [ERROR] Sembrado fallido: {e}")
     finally:
         db.close()
 

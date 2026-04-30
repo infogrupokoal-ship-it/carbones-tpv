@@ -72,7 +72,12 @@ async def startup_event():
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
+    
+    # Asegurar esquemas y datos iniciales
     Base.metadata.create_all(bind=engine)
+    from .seeding import run_auto_seeding
+    run_auto_seeding()
+    
     asyncio.create_task(scheduler_loop())
 
 @app.get("/health", tags=["Infraestructura"])

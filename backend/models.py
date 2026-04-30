@@ -52,6 +52,8 @@ class Producto(Base):
     factor_stock = Column(Float, default=1.0) # Cuanto resta del padre (ej: 0.25 para 1/4 de pollo)
     
     imagen_url = Column(String(255))
+    alergenos = Column(String(255)) # Ej: "Gluten, Lactosa"
+    info_nutricional = Column(Text) # JSON o Texto detallado
     categoria_id = Column(String(36), ForeignKey("categorias.id"))
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     is_active = Column(Boolean, default=True)

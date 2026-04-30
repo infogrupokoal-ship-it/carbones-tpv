@@ -35,7 +35,9 @@ class ProductoOut(BaseModel):
     categoria: str = Field(..., alias="categoria_nombre")
     descripcion: Optional[str] = None
     stock_actual: float
-    imagen_url: Optional[str] = Field(..., alias="url_imagen")
+    imagen_url: Optional[str]
+    alergenos: Optional[str] = "Ninguno"
+    info_nutricional: Optional[str] = None
     is_active: bool
 
     class Config:
@@ -107,7 +109,9 @@ def listar_productos(db: Session = Depends(get_db)):
             categoria_nombre=p.categoria.nombre if p.categoria else "Sin Categoría",
             descripcion=p.descripcion,
             stock_actual=p.stock_actual,
-            url_imagen=p.url_imagen,
+            imagen_url=p.imagen_url,
+            alergenos=p.alergenos,
+            info_nutricional=p.info_nutricional,
             is_active=p.is_active
         ))
     return out

@@ -9,10 +9,11 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, MovimientoStock, Review, Usuario, ReporteZ, HardwareCommand
+from ..models import Producto, Pedido, ItemPedido, MovimientoStock, Review, Usuario, ReporteZ, HardwareCommand
 from ..services.reporting import ReportingService
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
+from scripts.seed_ultra import seed_ultra_industrial
 
 router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"])
 
@@ -199,53 +200,33 @@ async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
 @router.post("/seed_production", status_code=status.HTTP_201_CREATED)
 async def seed_production_data(db: Session = Depends(get_db)):
     """
-    Utilidad de Industrialización: Inicializa la base de datos con un set de 
-    datos profesionales para evitar entornos vacíos en el despliegue inicial.
+    Motor de Industrialización: Inicializa el ecosistema con datos premium.
+    Evita estados vacíos en producción garantizando un catálogo funcional.
     """
-    from ..models import Categoria, Producto, Usuario
-    from ..utils.auth import get_password_hash
-    
-    # Solo ejecutar si no hay productos
-    if db.query(Producto).count() > 0:
-        return {"status": "skipped", "message": "La base de datos ya contiene datos."}
-        
     try:
-        # Categorías
-        cat_pollos = Categoria(id=str(uuid.uuid4()), nombre="Pollos Asados", color="#f59e0b")
-        cat_combos = Categoria(id=str(uuid.uuid4()), nombre="Combos Familiares", color="#ef4444")
-        db.add_all([cat_pollos, cat_combos])
-        db.commit()
-        
-        # Productos
-        p1 = Producto(
-            id=str(uuid.uuid4()), 
-            nombre="Pollo al Carbón (Entero)", 
-            precio=14.50, 
-            categoria_id=cat_pollos.id, 
-            stock_actual=50,
-            imagen_url="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400"
-        )
-        p2 = Producto(
-            id=str(uuid.uuid4()), 
-            nombre="Combo Parrilla Koal", 
-            precio=29.90, 
-            categoria_id=cat_combos.id, 
-            stock_actual=20,
-            imagen_url="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400"
-        )
-        db.add_all([p1, p2])
-        
-        # Usuario Admin (si no existe)
-        if not db.query(Usuario).filter_by(username="admin").first():
-            admin = Usuario(id=str(uuid.uuid4()), username="admin", pin_hash=get_password_hash("1234"), rol="admin")
-            db.add(admin)
-            
-        db.commit()
-        return {"status": "success", "message": "Ecosistema de datos inicializado correctamente."}
+        # Ejecutamos la lógica centralizada del seeder ultra
+        seed_ultra_industrial()
+        return {"status": "success", "message": "Ecosistema de datos Ultra-Premium inicializado."}
     except Exception as e:
-        db.rollback()
         logger.error(f"Fallo en Seeding: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/factory_reset", status_code=status.HTTP_200_OK)
+async def factory_reset(db: Session = Depends(get_db)):
+    """
+    Comando de Emergencia: Limpia todo el catálogo y pedidos para un despliegue limpio.
+    ¡USAR CON PRECAUCIÓN!
+    """
+    try:
+        db.query(ItemPedido).delete()
+        db.query(Pedido).delete()
+        db.query(Producto).delete()
+        db.query(Categoria).delete()
+        db.commit()
+        return {"status": "success", "message": "Sistema reseteado a valores de fábrica."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(500, detail=str(e))
 
 @router.post("/abrir-cajon", status_code=status.HTTP_202_ACCEPTED)
 async def abrir_cajon_remoto(db: Session = Depends(get_db)):
