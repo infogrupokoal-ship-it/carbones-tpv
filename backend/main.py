@@ -104,7 +104,8 @@ async def health_check() -> Dict[str, Any]:
             "database": db_status,
             "cpu_usage": f"{psutil.cpu_percent()}%",
             "memory_usage": f"{mem.percent}%",
-            "disk_free": f"{psutil.disk_usage('/').percent}%"
+            "disk_free": f"{psutil.disk_usage('/').percent}%",
+            "last_audit_id": "ULTRA-SYNC-2026-04-30"
         }
     }
 
@@ -118,13 +119,13 @@ app.include_router(hardware.router, prefix="/api", tags=["Hardware"])
 app.include_router(telemetry.router, prefix="/api/system", tags=["Mantenimiento"])
 app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
 
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
-    try:
-        with open("static/index.html", "r", encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return "<h1>TPV Enterprise</h1><p>Interfaz no encontrada.</p>"
+    """Sirve la interfaz B2C Ultra-Premium desde la ubicación estática."""
+    path = "static/index.html"
+    if os.path.exists(path):
+        return FileResponse(path)
+    return HTMLResponse("<h1>TPV Enterprise</h1><p>Interfaz no encontrada. Despliegue en curso...</p>", status_code=404)
 
 @app.get("/sw.js", include_in_schema=False)
 async def get_sw():

@@ -32,10 +32,19 @@ class ProductoOut(BaseModel):
     id: str
     nombre: str
     precio: float
-    categoria_id: Optional[str]
+    categoria: str = Field(..., alias="categoria_nombre")
+    descripcion: Optional[str] = None
     stock_actual: float
-    url_imagen: Optional[str]
+    imagen_url: Optional[str] = Field(..., alias="url_imagen")
     is_active: bool
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+class CategoriaOut(BaseModel):
+    id: str
+    nombre: str
 
     class Config:
         from_attributes = True
@@ -86,10 +95,31 @@ def listar_ingredientes(db: Session = Depends(get_db)):
 @router_productos.get("/", response_model=List[ProductoOut])
 def listar_productos(db: Session = Depends(get_db)):
     """
-    Lista el catálogo de productos activos con su estado de stock actual.
+    Lista el catálogo de productos activos con su estado de stock actual y categoría.
     """
     prods = db.query(Producto).filter(Producto.is_active).all()
-    return prods
+    out = []
+    for p in prods:
+        out.append(ProductoOut(
+            id=p.id,
+            nombre=p.nombre,
+            precio=p.precio,
+            categoria_nombre=p.categoria.nombre if p.categoria else "Sin Categoría",
+            descripcion=p.descripcion,
+            stock_actual=p.stock_actual,
+            url_imagen=p.url_imagen,
+            is_active=p.is_active
+        ))
+    return out
+
+@router.get("/categorias", response_model=List[CategoriaOut])
+def listar_categorias(db: Session = Depends(get_db)):
+    """
+    Obtiene las categorías disponibles para el filtrado en el Kiosko.
+    """
+    from ..models import Categoria
+    cats = db.query(Categoria).all()
+    return cats
 
 @router.post("/produccion", status_code=status.HTTP_201_CREATED)
 @router_legacy.post("/produccion")
