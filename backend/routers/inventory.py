@@ -72,7 +72,16 @@ def listar_ingredientes(db: Session = Depends(get_db)):
 def listar_productos(db: Session = Depends(get_db)):
     """Lista productos para gestión de stock o venta."""
     prods = db.query(Producto).filter(Producto.is_active).all()
-    return [p.__dict__ for p in prods]
+    # Profesionalizar la salida evitando __dict__
+    return [{
+        "id": p.id,
+        "nombre": p.nombre,
+        "precio": p.precio,
+        "categoria": p.categoria,
+        "stock_actual": p.stock_actual,
+        "imagen_url": p.imagen_url,
+        "is_active": p.is_active
+    } for p in prods]
 
 
 @router.post("/produccion")

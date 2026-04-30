@@ -19,11 +19,13 @@ class Pedido(Base):
     total = Column(Float, nullable=False)
     base_imponible = Column(Float)
     iva_total = Column(Float)
-    metodo_pago = Column(String(20)) # EFECTIVO, TARJETA, STRIPE
+    metodo_pago = Column(String(20))
     estado = Column(String(20), default="PENDIENTE")
     cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"), nullable=True)
 
     items = relationship("ItemPedido", back_populates="pedido")
+    tienda = relationship("Tienda", back_populates="pedidos")
 
 class ItemPedido(Base):
     __tablename__ = "item_pedido"

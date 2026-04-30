@@ -17,8 +17,10 @@ class Producto(Base):
     precio = Column(Float, nullable=False)
     coste_estimado = Column(Float, default=0.0)
     categoria_id = Column(String(36), ForeignKey("categorias.id"))
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"), nullable=True)
     is_active = Column(Boolean, default=True)
     
     # Relaciones
     categoria = relationship("Categoria", back_populates="productos")
     receta_items = relationship("RecetaItem", back_populates="producto")
+    tienda = relationship("Tienda", back_populates="productos")

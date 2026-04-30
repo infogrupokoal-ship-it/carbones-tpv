@@ -1,3 +1,4 @@
+from .store import Tienda
 from .user import Usuario
 from .product import Categoria, Producto
 from .order import Cliente, Pedido, ItemPedido

@@ -45,7 +45,16 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
         query = query.filter(Pedido.estado == estado)
     
     pedidos = query.order_by(Pedido.fecha.desc()).limit(limit).all()
-    return [p.__dict__ for p in pedidos]
+    # Profesionalizar la salida evitando __dict__
+    return [{
+        "id": p.id,
+        "numero_ticket": p.numero_ticket,
+        "fecha": p.fecha.isoformat() if p.fecha else None,
+        "estado": p.estado,
+        "total": p.total,
+        "metodo_pago": p.metodo_pago,
+        "origen": p.origen
+    } for p in pedidos]
 
 
 @router.get("/today", response_model=List[dict])

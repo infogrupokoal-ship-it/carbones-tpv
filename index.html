@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbones y Pollos | El Sabor Auténtico del Carbón</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0c0c0c; color: #fff; }
+        .font-display { font-family: 'Playfair Display', serif; }
+        .hero-bg {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('hero_pollo_carbon_premium_1777514931017.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .btn-premium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-8 py-6 flex justify-between items-center bg-black/20 backdrop-blur-md">
+        <div class="text-2xl font-black tracking-tighter uppercase">
+            Carbones <span class="text-amber-500">y Pollos</span>
+        </div>
+        <div class="hidden md:flex gap-10 text-xs font-bold uppercase tracking-widest">
+            <a href="#nuestra-historia" class="hover:text-amber-500 transition">Nuestra Historia</a>
+            <a href="#menu" class="hover:text-amber-500 transition">El Menú</a>
+            <a href="#ubicaciones" class="hover:text-amber-500 transition">Ubicaciones</a>
+        </div>
+        <a href="/static/kiosko.html" class="btn-premium px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest">Pedir Online</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="h-screen hero-bg flex flex-col justify-center items-center text-center px-6">
+        <h2 class="text-amber-500 text-sm font-bold uppercase tracking-[0.5em] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">Artesanía en cada brasa</h2>
+        <h1 class="font-display text-6xl md:text-8xl mb-8 leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">El Pollo al Carbón<br><span class="text-white/90">que mereces.</span></h1>
+        <p class="max-w-2xl text-gray-400 text-lg mb-12 font-light animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-400">Seleccionamos los mejores ejemplares, marinados durante 24 horas y asados lentamente sobre carbón vegetal de encina. Una experiencia de sabor inigualable.</p>
+        <div class="flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500">
+            <a href="/static/kiosko.html" class="btn-premium px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm">Hacer un Pedido</a>
+            <a href="#menu" class="bg-white/5 border border-white/10 hover:bg-white/10 px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm transition">Ver la Carta</a>
+        </div>
+    </section>
+
+    <!-- Stats / Trust -->
+    <section class="py-24 bg-zinc-900/50 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">100%</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Natural</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">24h</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Marinado</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">+10k</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Clientes Felices</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">3</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Sucursales</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 bg-black border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-xl font-black uppercase">Carbones <span class="text-amber-500">y Pollos</span></div>
+            <div class="flex gap-8 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                <a href="/static/login.html" class="hover:text-white transition">Acceso Staff</a>
+                <a href="#" class="hover:text-white transition">Privacidad</a>
+                <a href="#" class="hover:text-white transition">Términos</a>
+            </div>
+            <div class="text-gray-700 text-[10px] uppercase tracking-widest">&copy; 2026 Carbones y Pollos Enterprise.</div>
+        </div>
+    </footer>
+
+</body>
+</html>
