@@ -51,7 +51,7 @@ def health_check(db: Session = Depends(get_db)):
             "stripe": "READY" if stripe_configured else "MISSING_KEYS",
             "waha": waha_status,
         },
-        "version": settings.VERSION,
+        "version": settings.APP_VERSION,
     }
 
 

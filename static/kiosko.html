@@ -5,73 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kiosko Ultra-Pro | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/design_system.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --brand-primary: #ff5f00;
+            --brand-primary: #f59e0b;
             --brand-dark: #0f172a;
+            --zinc-950: #09090b;
         }
         body { 
             font-family: 'Outfit', sans-serif; 
-            background: #f8fafc; 
-            color: var(--brand-dark);
+            background: var(--zinc-950); 
+            color: #fafafa;
             overflow: hidden;
             height: 100vh;
         }
+        
+        /* Header Glass */
         .glass-header {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(9, 9, 11, 0.8);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        /* Product Cards Gourmet */
         .product-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 2.5rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid #f1f5f9;
+            overflow: hidden;
         }
         .product-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+            background: rgba(255, 255, 255, 0.05);
             border-color: var(--brand-primary);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
         }
-        .category-pill {
+
+        /* Categorías con Contraste del 100% */
+        .category-tab {
             padding: 1rem 2.5rem;
             border-radius: 2rem;
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.4s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: #71717a;
+            border: 1px solid transparent;
             white-space: nowrap;
-            transition: all 0.3s;
-            background: white;
-            border: 2px solid transparent;
-            color: #64748b;
         }
-        .category-pill.active {
-            background: var(--brand-dark);
-            color: white;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+        .category-tab.active {
+            background: var(--brand-primary);
+            color: #000; /* Negro sobre naranja para legibilidad perfecta */
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+            border-color: #fbbf24;
         }
+        .category-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Cesta de Compra */
         .cart-bar {
-            background: var(--brand-dark);
+            background: #000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 3rem 3rem 0 0;
-            box-shadow: 0 -20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.4);
         }
-        .text-gradient-orange {
-            background: linear-gradient(135deg, #ff8a00 0%, #ff5f00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .order-loader {
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .loader {
             width: 48px;
             height: 48px;
             border: 5px solid #FFF;
             border-bottom-color: var(--brand-primary);
             border-radius: 50%;
             display: inline-block;
-            box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilo de los precios */
+        .price-tag {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--brand-primary);
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -79,69 +102,68 @@
     <!-- Hero Header -->
     <header class="glass-header p-8 flex justify-between items-center z-50">
         <div class="flex items-center gap-6">
-            <div class="h-16 w-16 bg-orange-600 rounded-3xl flex items-center justify-center text-3xl shadow-2xl shadow-orange-500/40">🔥</div>
+            <div class="h-16 w-16 bg-amber-500 rounded-3xl flex items-center justify-center text-3xl shadow-2xl shadow-amber-500/40">🔥</div>
             <div>
-                <h1 class="text-4xl font-black tracking-tighter leading-none uppercase italic">
-                    CARBONES <span class="text-gradient-orange">Y POLLOS</span>
+                <h1 class="text-4xl font-black tracking-tighter leading-none uppercase italic text-white">
+                    CARBONES <span class="text-amber-500">Y POLLOS</span>
                 </h1>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Kiosko de Auto-Pedido v3.0</p>
+                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] mt-2">Kiosko de Auto-Pedido v3.0</p>
             </div>
         </div>
         <div class="flex gap-4">
-            <div class="bg-slate-100 px-6 py-3 rounded-2xl text-xs font-bold text-slate-500 border border-slate-200">
-                MESA <span class="text-slate-900 font-black">#ONLINE</span>
+            <div class="bg-zinc-900 px-6 py-3 rounded-2xl text-xs font-bold text-zinc-400 border border-white/5">
+                MESA <span class="text-white font-black">#ONLINE</span>
             </div>
-            <button onclick="location.reload()" class="bg-white px-6 py-3 rounded-2xl text-xs font-bold text-slate-900 border border-slate-200 shadow-sm">REINICIAR</button>
+            <button onclick="location.reload()" class="bg-white/5 hover:bg-white/10 px-6 py-3 rounded-2xl text-xs font-bold text-white border border-white/10 transition">REINICIAR</button>
         </div>
     </header>
 
     <!-- Category Scroller -->
-    <nav class="px-8 py-6 flex gap-4 overflow-x-auto no-scrollbar bg-slate-50/50" id="category-nav">
+    <nav class="px-8 py-6 flex gap-4 overflow-x-auto no-scrollbar bg-black/20" id="category-nav">
         <!-- Injected via JS -->
     </nav>
 
     <!-- Main Menu Area -->
-    <main class="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 bg-[#fdfdfd]" id="product-grid">
-        <!-- Skeletons -->
+    <main class="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8" id="product-grid">
         <div class="col-span-full py-40 text-center space-y-4">
-            <span class="order-loader"></span>
-            <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Cocinando el menú digital...</p>
+            <span class="loader"></span>
+            <p class="text-zinc-500 font-bold uppercase tracking-widest text-xs">Cocinando el menú digital...</p>
         </div>
     </main>
 
     <!-- Cart Floating Bar -->
-    <div class="cart-bar p-10 z-50 transition-all duration-500 transform translate-y-0" id="cart-container">
+    <div class="cart-bar p-10 z-50" id="cart-container">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-8">
                 <div class="relative">
-                    <div class="h-20 w-20 bg-white/10 rounded-3xl flex items-center justify-center text-4xl">🛒</div>
-                    <span id="cart-badge" class="absolute -top-3 -right-3 h-8 w-8 bg-orange-600 rounded-full flex items-center justify-center text-sm font-black text-white shadow-lg border-4 border-[#0f172a]">0</span>
+                    <div class="h-20 w-20 bg-amber-500/10 rounded-3xl flex items-center justify-center text-4xl border border-amber-500/20">🛒</div>
+                    <span id="cart-badge" class="absolute -top-3 -right-3 h-8 w-8 bg-amber-500 rounded-full flex items-center justify-center text-sm font-black text-black shadow-lg">0</span>
                 </div>
                 <div>
                     <h3 class="text-2xl font-black text-white" id="cart-title">CESTA VACÍA</h3>
-                    <p class="text-slate-400 text-sm font-medium">Selecciona tus favoritos para empezar</p>
+                    <p class="text-zinc-500 text-sm font-medium">Selecciona tus favoritos para empezar</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-12 w-full md:w-auto">
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total del Pedido</p>
-                    <h2 class="text-5xl font-black text-white leading-none" id="cart-total">0.00€</h2>
+                    <p class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">Total del Pedido</p>
+                    <h2 class="text-5xl font-black text-amber-500 leading-none" id="cart-total">0.00€</h2>
                 </div>
-                <button onclick="checkout()" id="checkout-btn" class="bg-orange-600 hover:bg-orange-500 text-white px-12 py-6 rounded-3xl text-2xl font-black shadow-2xl shadow-orange-600/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale">
+                <button onclick="checkout()" id="checkout-btn" class="bg-amber-500 hover:bg-white text-black px-12 py-6 rounded-3xl text-2xl font-black shadow-2xl shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-30 disabled:grayscale">
                     PEDIR AHORA
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Pedido Exitoso -->
-    <div id="success-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-6">
-        <div class="bg-white rounded-[3rem] p-12 max-w-lg w-full text-center shadow-2xl scale-in">
-            <div class="h-24 w-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-8">✅</div>
-            <h2 class="text-4xl font-black text-slate-900 mb-4">¡PEDIDO RECIBIDO!</h2>
-            <p class="text-slate-500 mb-8 font-medium">Tu pedido <span id="order-number" class="text-orange-600 font-black">#---</span> ha sido enviado a cocina. Por favor, acércate a caja para confirmar el pago.</p>
-            <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-6 rounded-3xl text-xl font-black shadow-xl">ENTENDIDO</button>
+    <!-- Modal Success -->
+    <div id="success-modal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-6">
+        <div class="bg-zinc-900 rounded-[3rem] p-12 max-w-lg w-full text-center border border-white/5">
+            <div class="h-24 w-24 bg-emerald-500 text-black rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-2xl shadow-emerald-500/20">✓</div>
+            <h2 class="text-4xl font-black text-white mb-4 italic">¡MARCHANDO!</h2>
+            <p class="text-zinc-500 mb-8 font-medium">Tu pedido <span id="order-number" class="text-amber-500 font-black">#---</span> ya está en el fuego. Por favor, acércate a caja para confirmar.</p>
+            <button onclick="closeModal()" class="w-full bg-white text-black py-6 rounded-3xl text-xl font-black shadow-xl">ENTENDIDO</button>
         </div>
     </div>
 
@@ -152,20 +174,37 @@
 
         async function init() {
             try {
-                const res = await fetch('/api/inventory/productos');
-                products = await res.json();
-                renderCategories();
+                // Carga de categorías y productos en paralelo para máxima velocidad
+                const [prodRes, catRes] = await Promise.all([
+                    fetch('/api/inventory/productos'),
+                    fetch('/api/inventory/categorias')
+                ]);
+                
+                products = await prodRes.json();
+                const fetchedCats = await catRes.json();
+                
+                renderCategories(fetchedCats);
                 renderProducts();
             } catch (e) {
-                console.error("Error cargando kiosko:", e);
+                console.error("Kiosko Init Error:", e);
+                document.getElementById('product-grid').innerHTML = `
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-red-500 font-black uppercase tracking-widest mb-4 text-2xl">Error de Conexión</p>
+                        <button onclick="location.reload()" class="bg-white/10 px-8 py-4 rounded-2xl text-white font-bold border border-white/10">Reintentar</button>
+                    </div>
+                `;
             }
         }
 
-        function renderCategories() {
-            const categories = ['TODOS', ...new Set(products.map(p => p.categoria.toUpperCase()))];
+        function renderCategories(apiCats = []) {
+            // Usamos las categorías de la API o las extraemos de los productos si falla
+            const names = apiCats.length > 0 
+                ? ['TODOS', ...apiCats.map(c => c.nombre.toUpperCase())]
+                : ['TODOS', ...new Set(products.map(p => p.categoria.toUpperCase()))];
+            
             const nav = document.getElementById('category-nav');
-            nav.innerHTML = categories.map(cat => `
-                <button onclick="filterCategory('${cat}')" class="category-pill ${currentCategory === cat ? 'active' : ''}">
+            nav.innerHTML = names.map(cat => `
+                <button onclick="filterCategory('${cat}')" class="category-tab ${currentCategory === cat ? 'active' : ''}">
                     ${cat}
                 </button>
             `).join('');
@@ -183,26 +222,34 @@
                 ? products 
                 : products.filter(p => p.categoria.toUpperCase() === currentCategory);
 
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="col-span-full py-20 text-center text-zinc-600 font-black uppercase tracking-widest">No hay productos en esta categoría</p>';
+                return;
+            }
+
             grid.innerHTML = filtered.map(p => `
-                <div class="product-card p-8 flex flex-col group cursor-pointer" onclick="addToCart('${p.id}', '${p.nombre}', ${p.precio})">
-                    <div class="h-48 bg-slate-50 rounded-[2rem] mb-6 overflow-hidden relative">
+                <div class="product-card p-6 flex flex-col group cursor-pointer" onclick="addToCart('${p.id}', '${p.nombre}', ${p.precio})">
+                    <div class="h-56 bg-zinc-800 rounded-[2rem] mb-6 overflow-hidden relative">
                         <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=400'}" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-2xl font-black text-slate-900 shadow-sm border border-black/5">
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                        <div class="absolute top-4 right-4 price-tag px-4 py-2 rounded-2xl font-black text-sm">
                             ${p.precio.toFixed(2)}€
                         </div>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-black text-slate-800 leading-none mb-3 uppercase italic">${p.nombre}</h3>
-                        <p class="text-xs text-slate-400 font-medium leading-relaxed">${p.descripcion || 'Una explosión de sabor artesanal preparado al momento.'}</p>
-                    </div>
-                    <div class="mt-8 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="h-2 w-2 bg-emerald-500 rounded-full"></span>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Disponible</span>
+                    <div class="flex-1 px-2">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">${p.categoria}</span>
                         </div>
-                        <div class="bg-orange-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-black shadow-lg shadow-orange-500/20 group-hover:rotate-90 transition-transform">
-                            +
+                        <h3 class="text-xl font-black text-white leading-tight mb-2 uppercase tracking-tight">${p.nombre}</h3>
+                        <p class="text-xs text-zinc-500 font-medium leading-relaxed line-clamp-2">${p.descripcion || 'Especialidad de la casa preparada al carbón de encina.'}</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center px-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[9px] font-black text-zinc-600 uppercase tracking-widest">En Stock</span>
+                        </div>
+                        <div class="bg-amber-500 text-black w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg shadow-amber-500/10 group-hover:bg-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                         </div>
                     </div>
                 </div>
@@ -212,6 +259,11 @@
         function addToCart(id, name, price) {
             cart.push({ id, name, price });
             updateCart();
+            
+            // Efecto visual rápido
+            const badge = document.getElementById('cart-badge');
+            badge.classList.add('scale-150');
+            setTimeout(() => badge.classList.remove('scale-150'), 200);
         }
 
         function updateCart() {
@@ -226,16 +278,14 @@
 
         async function checkout() {
             if (cart.length === 0) return;
-
             const btn = document.getElementById('checkout-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "PROCESANDO...";
+            btn.innerText = "MARCHANDO...";
             btn.disabled = true;
 
             try {
                 const payload = {
                     items: cart.map(item => ({ producto_id: item.id, cantidad: 1 })),
-                    notas_cliente: "Pedido desde Kiosko Ultra-Pro"
+                    notas_cliente: "Pedido Online Kiosko Ultra"
                 };
 
                 const res = await fetch('/api/orders', {
@@ -251,12 +301,12 @@
                     cart = [];
                     updateCart();
                 } else {
-                    alert("Error en el sistema. Por favor contacta con el personal.");
+                    alert("¡Vaya! Hubo un problema al enviar a cocina. Inténtalo de nuevo.");
                 }
             } catch (e) {
-                alert("Error de red. Intenta de nuevo.");
+                alert("Error de conexión. Revisa el wifi del local.");
             } finally {
-                btn.innerText = originalText;
+                btn.innerText = "PEDIR AHORA";
                 btn.disabled = false;
             }
         }

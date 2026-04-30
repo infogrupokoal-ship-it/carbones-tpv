@@ -177,6 +177,76 @@ async def get_ai_insights(db: Session = Depends(get_db)):
             "sugerencia_produccion": "Seguir protocolos estándar de operación."
         }
 
+@router.post("/ai/chat")
+async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
+    """
+    Agente Conversacional Koal-AI: Proporciona soporte operativo e insights 
+    estratégicos mediante interacción en lenguaje natural.
+    """
+    try:
+        message = data.get("message", "")
+        if not message:
+            raise HTTPException(status_code=400, detail="Mensaje vacío")
+            
+        # Contexto del sistema para el agente
+        prompt = f"El usuario pregunta: {message}\nResponde como el asistente experto del TPV Carbones y Pollos."
+        response = await ask_asador_ai(prompt, user_role="staff")
+        return {"response": response.replace("Koal-AI:", "").strip()}
+    except Exception as e:
+        logger.error(f"Error en AI Chat: {e}")
+        return {"response": "Lo siento, mi conexión con el núcleo neuronal está inestable. ¿Puedes repetir?"}
+
+@router.post("/seed_production", status_code=status.HTTP_201_CREATED)
+async def seed_production_data(db: Session = Depends(get_db)):
+    """
+    Utilidad de Industrialización: Inicializa la base de datos con un set de 
+    datos profesionales para evitar entornos vacíos en el despliegue inicial.
+    """
+    from ..models import Categoria, Producto, Usuario
+    from ..utils.auth import get_password_hash
+    
+    # Solo ejecutar si no hay productos
+    if db.query(Producto).count() > 0:
+        return {"status": "skipped", "message": "La base de datos ya contiene datos."}
+        
+    try:
+        # Categorías
+        cat_pollos = Categoria(id=str(uuid.uuid4()), nombre="Pollos Asados", color="#f59e0b")
+        cat_combos = Categoria(id=str(uuid.uuid4()), nombre="Combos Familiares", color="#ef4444")
+        db.add_all([cat_pollos, cat_combos])
+        db.commit()
+        
+        # Productos
+        p1 = Producto(
+            id=str(uuid.uuid4()), 
+            nombre="Pollo al Carbón (Entero)", 
+            precio=14.50, 
+            categoria_id=cat_pollos.id, 
+            stock_actual=50,
+            imagen_url="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400"
+        )
+        p2 = Producto(
+            id=str(uuid.uuid4()), 
+            nombre="Combo Parrilla Koal", 
+            precio=29.90, 
+            categoria_id=cat_combos.id, 
+            stock_actual=20,
+            imagen_url="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400"
+        )
+        db.add_all([p1, p2])
+        
+        # Usuario Admin (si no existe)
+        if not db.query(Usuario).filter_by(username="admin").first():
+            admin = Usuario(id=str(uuid.uuid4()), username="admin", pin_hash=get_password_hash("1234"), rol="admin")
+            db.add(admin)
+            
+        db.commit()
+        return {"status": "success", "message": "Ecosistema de datos inicializado correctamente."}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Fallo en Seeding: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/abrir-cajon", status_code=status.HTTP_202_ACCEPTED)
 async def abrir_cajon_remoto(db: Session = Depends(get_db)):
     """

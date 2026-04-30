@@ -2,7 +2,7 @@
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <!-- Build Marker: 2026-04-30-02-38-00-ULTRA-STABLE -->
+    <!-- Build Marker: 2026-04-30-04-45-00-ULTRA-STABLE -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carbones y Pollos | Gastronomía de Fuego y Tradición</title>
     <meta name="description" content="El mejor pollo al carbón de la ciudad, marinado por 24 horas y asado lentamente con leña de encina.">
@@ -14,74 +14,107 @@
             --primary: #f59e0b;
             --primary-dark: #d97706;
             --zinc-950: #09090b;
+            --bg-creme: #fdfaf3;
         }
         body { 
             font-family: 'Outfit', sans-serif; 
             background-color: var(--zinc-950); 
             color: #fafafa;
+            margin: 0;
+            padding: 0;
         }
         .font-display { font-family: 'Playfair Display', serif; }
         
+        /* Glassmorphism Refinado */
         .glass {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Gradientes de Fuego */
         .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent),
-                        radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.05), transparent);
+            background: radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.12), transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.05), transparent 40%),
+                        var(--zinc-950);
         }
 
         .text-gradient {
-            background: linear-gradient(to right, #fff, #f59e0b);
+            background: linear-gradient(135deg, #ffffff 0%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .btn-glow {
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
-            transition: all 0.3s ease;
+        /* Botones de Alta Fidelidad */
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .btn-glow:hover {
-            box-shadow: 0 0 35px rgba(245, 158, 11, 0.4);
-            transform: translateY(-2px);
+        .btn-primary:hover {
+            box-shadow: 0 15px 45px rgba(245, 158, 11, 0.5);
+            transform: translateY(-3px) scale(1.02);
+            background: #fff;
         }
 
-        .image-reveal {
-            mask-image: linear-gradient(to bottom, black 80%, transparent);
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Mascaras de Imagen */
+        .image-glow {
+            filter: drop-shadow(0 0 50px rgba(245, 158, 11, 0.2));
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--zinc-950); }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; border: 2px solid var(--zinc-950); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* Fix para visibilidad de texto en Hero */
+        .hero-title-shadow {
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body class="overflow-x-hidden hero-gradient">
 
     <!-- Header / Nav -->
     <header class="fixed top-0 w-full z-50 transition-all duration-500 py-6 px-6 md:px-12" id="main-nav">
-        <nav class="max-w-7xl mx-auto flex justify-between items-center glass rounded-full px-8 py-4">
+        <nav class="max-w-7xl mx-auto flex justify-between items-center glass rounded-full px-8 py-3 border border-white/10 shadow-2xl">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center rotate-3 shadow-lg shadow-amber-500/20">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center rotate-3 shadow-lg shadow-amber-500/30">
                     <span class="text-black font-black text-xl">C</span>
                 </div>
-                <div class="text-xl font-extrabold tracking-tight hidden sm:block">
+                <div class="text-xl font-extrabold tracking-tighter uppercase">
                     CARBONES <span class="text-amber-500">Y POLLOS</span>
                 </div>
             </div>
             
-            <div class="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-wide uppercase text-white/70">
+            <div class="hidden lg:flex items-center gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-white/60">
                 <a href="#experiencia" class="hover:text-amber-500 transition-colors">Experiencia</a>
                 <a href="#la-carta" class="hover:text-amber-500 transition-colors">La Carta</a>
                 <a href="#encuéntranos" class="hover:text-amber-500 transition-colors">Locales</a>
             </div>
 
-            <div class="flex items-center gap-4">
-                <a href="/static/login.html" class="hidden md:block text-xs font-bold uppercase tracking-widest text-white/40 hover:text-white transition">Acceso</a>
-                <a href="/static/kiosko.html" class="btn-glow bg-amber-500 text-black px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider">
+            <div class="flex items-center gap-6">
+                <a href="/static/login.html" class="hidden md:block text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white transition">Acceso ERP</a>
+                <a href="/static/kiosko.html" class="btn-primary px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.15em]">
                     Pedir Ahora
                 </a>
             </div>
@@ -89,45 +122,50 @@
     </header>
 
     <!-- Main Hero -->
-    <main class="relative pt-32 pb-20 px-6 overflow-hidden">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-            <div class="flex-1 text-center lg:text-left z-10 animate__animated animate__fadeInLeft">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold uppercase tracking-[0.2em] mb-8">
+    <main class="relative pt-40 pb-32 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1 text-center lg:text-left z-10 animate__animated animate__fadeIn">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-[0.3em] mb-10 shadow-inner">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                     </span>
-                    Maestros del Braseado
+                    Maestros del Braseado Artesanal
                 </div>
-                <h1 class="font-display text-6xl md:text-8xl font-black mb-8 leading-[0.9] text-gradient">
-                    El Sabor Que <br> Nace del <span class="italic text-white">Fuego.</span>
+                <h1 class="font-display text-7xl md:text-9xl font-black mb-10 leading-[0.85] text-white hero-title-shadow">
+                    El Sabor Que <br> <span class="text-gradient italic">Nace del Fuego.</span>
                 </h1>
-                <p class="text-lg md:text-xl text-zinc-400 font-light max-w-xl mb-12 leading-relaxed">
-                    No es solo pollo asado. Es una liturgia de 24 horas de marinado secreto y una cocción lenta a fuego de encina que despierta memorias.
+                <p class="text-lg md:text-xl text-zinc-400 font-medium max-w-xl mb-14 leading-relaxed opacity-80">
+                    No es solo pollo asado. Es una liturgia de 24 horas de marinado secreto y una cocción lenta a fuego de encina que despierta memorias ancestrales.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
-                    <a href="/static/kiosko.html" class="btn-glow bg-white text-black px-10 py-5 rounded-full text-sm font-extrabold uppercase tracking-widest transition-all">
-                        Explorar Menú
+                <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+                    <a href="/static/kiosko.html" class="btn-primary px-12 py-6 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-center">
+                        Explorar Menú Digital
                     </a>
-                    <a href="#experiencia" class="glass px-10 py-5 rounded-full text-sm font-extrabold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10">
+                    <a href="#experiencia" class="btn-secondary px-12 py-6 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-center">
                         Nuestra Historia
                     </a>
                 </div>
             </div>
 
-            <div class="flex-1 relative animate__animated animate__fadeInRight">
-                <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/5">
-                    <img src="/static/hero_pollo_carbon_premium_1777514931017.png" alt="Pollo al Carbón Premium" class="w-full h-auto object-cover image-reveal">
+            <div class="flex-1 relative animate__animated animate__fadeInUp">
+                <div class="relative z-10 rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)]">
+                    <!-- Imagen Hero Ultra-Premium Generada -->
+                    <img src="/static/img/hero_pollo_ultra.png" 
+                         alt="Pollo al Carbón Premium" 
+                         class="w-full h-[600px] object-cover hover:scale-105 transition-transform duration-[2000ms] ease-out">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
                 </div>
-                <!-- Floating Elements -->
-                <div class="absolute -bottom-6 -left-6 glass p-6 rounded-2xl shadow-xl z-20 animate-bounce duration-[3000ms]">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-amber-500/20 rounded-xl">
-                            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                
+                <!-- Info Float Card -->
+                <div class="absolute -bottom-10 -left-10 glass-dark p-8 rounded-[2rem] shadow-2xl z-20 border border-white/10 animate__animated animate__pulse animate__infinite">
+                    <div class="flex items-center gap-5">
+                        <div class="p-4 bg-amber-500 rounded-2xl shadow-xl shadow-amber-500/20">
+                            <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
-                            <div class="text-xs font-bold text-white/40 uppercase tracking-tighter">Entrega Promedio</div>
-                            <div class="text-lg font-black">15 - 25 MIN</div>
+                            <div class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Tiempo de Entrega</div>
+                            <div class="text-2xl font-black text-white tracking-tighter">15 - 25 MIN</div>
                         </div>
                     </div>
                 </div>
@@ -135,74 +173,81 @@
         </div>
     </main>
 
-    <!-- Stats Section -->
-    <section class="py-20 border-y border-white/5 bg-zinc-900/30">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12">
+    <!-- Features Section -->
+    <section class="py-32 bg-black/40 border-y border-white/5 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-16 relative z-10">
             <div class="text-center group">
-                <div class="text-5xl font-display font-black text-amber-500 mb-2 group-hover:scale-110 transition-transform">100%</div>
-                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Carbón Vegetal</div>
+                <div class="text-6xl font-display font-black text-amber-500 mb-4 group-hover:scale-110 transition-transform">100%</div>
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Leña de Encina</div>
             </div>
             <div class="text-center group">
-                <div class="text-5xl font-display font-black text-amber-500 mb-2 group-hover:scale-110 transition-transform">24h</div>
-                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Marinado Lento</div>
+                <div class="text-6xl font-display font-black text-amber-500 mb-4 group-hover:scale-110 transition-transform">24h</div>
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Marinado Secreto</div>
             </div>
             <div class="text-center group">
-                <div class="text-5xl font-display font-black text-amber-500 mb-2 group-hover:scale-110 transition-transform">4.9/5</div>
-                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Customer Rating</div>
+                <div class="text-6xl font-display font-black text-amber-500 mb-4 group-hover:scale-110 transition-transform">4.9</div>
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Estrellas Google</div>
             </div>
             <div class="text-center group">
-                <div class="text-5xl font-display font-black text-amber-500 mb-2 group-hover:scale-110 transition-transform">∞</div>
-                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Sabor Inolvidable</div>
+                <div class="text-6xl font-display font-black text-amber-500 mb-4 group-hover:scale-110 transition-transform">∞</div>
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Pasión por el Fuego</div>
             </div>
         </div>
+        <!-- Fondo Decorativo -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none"></div>
     </section>
 
-    <!-- Live Status / Footer -->
-    <footer class="py-20 px-6 border-t border-white/5 bg-black">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-16">
+    <!-- Footer Corporativo -->
+    <footer class="py-24 px-6 border-t border-white/5 bg-zinc-950">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-20">
             <div class="max-w-xs">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-8 h-8 bg-amber-500 rounded-md flex items-center justify-center">
-                        <span class="text-black font-black text-lg">C</span>
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                        <span class="text-black font-black text-xl">C</span>
                     </div>
-                    <div class="text-lg font-bold tracking-tighter">CARBONES <span class="text-amber-500">Y POLLOS</span></div>
+                    <div class="text-xl font-black tracking-tighter">CARBONES <span class="text-amber-500">Y POLLOS</span></div>
                 </div>
-                <p class="text-sm text-zinc-500 leading-relaxed">
-                    Redefiniendo el concepto de TPV para la hostelería moderna. Eficiencia, diseño y sabor en un solo ecosistema.
+                <p class="text-sm text-zinc-500 font-medium leading-relaxed mb-10">
+                    Sabor artesanal, tecnología de vanguardia. Redefiniendo la experiencia del TPV inteligente para la hostelería moderna.
                 </p>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-amber-500 transition-colors group cursor-pointer">
+                        <svg class="w-5 h-5 text-white/40 group-hover:text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                    </div>
+                    <!-- Otros iconos aquí -->
+                </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-20">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-20">
                 <div>
-                    <h4 class="text-xs font-black uppercase tracking-[0.2em] mb-6 text-white">Navegación</h4>
-                    <ul class="space-y-4 text-sm text-zinc-500">
+                    <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-white">Navegación</h4>
+                    <ul class="space-y-5 text-sm text-zinc-500 font-bold">
                         <li><a href="/static/kiosko.html" class="hover:text-amber-500 transition">Kiosko Online</a></li>
                         <li><a href="/static/dashboard.html" class="hover:text-amber-500 transition">Dashboard BI</a></li>
-                        <li><a href="/telemetry.html" class="hover:text-amber-500 transition">Sistema</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-xs font-black uppercase tracking-[0.2em] mb-6 text-white">Corporativo</h4>
-                    <ul class="space-y-4 text-sm text-zinc-500">
-                        <li><a href="/static/admin/system_logs.html" class="hover:text-amber-500 transition">Consola Admin</a></li>
-                        <li><a href="#" class="hover:text-amber-500 transition">Franquicias</a></li>
-                        <li><a href="#" class="hover:text-amber-500 transition">Contacto</a></li>
+                    <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-white">Legal</h4>
+                    <ul class="space-y-5 text-sm text-zinc-500 font-bold">
+                        <li><a href="#" class="hover:text-amber-500 transition">Privacidad</a></li>
+                        <li><a href="#" class="hover:text-amber-500 transition">Cookies</a></li>
+                        <li><a href="#" class="hover:text-amber-500 transition">Términos</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
-        <div class="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-            <div class="text-[10px] font-bold text-zinc-700 uppercase tracking-widest">
-                &copy; 2026 Carbones y Pollos Enterprise S.A. | Todos los derechos reservados.
+        <div class="max-w-7xl mx-auto mt-24 pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-8">
+            <div class="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">
+                &copy; 2026 Carbones y Pollos Enterprise Group | Powered by Koal Ultra
             </div>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                    System Operational
+            <div class="flex items-center gap-10">
+                <div class="flex items-center gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                    <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
+                    Cloud Engine: Operational
                 </div>
                 <div class="text-[10px] font-bold text-zinc-800 uppercase tracking-widest">
-                    v2.1.0-ULTRA
+                    BUILD: INDUSTRIAL-ULTRA-2026-04-30
                 </div>
             </div>
         </div>
@@ -212,11 +257,11 @@
         window.addEventListener('scroll', function() {
             const nav = document.getElementById('main-nav');
             if (window.scrollY > 50) {
-                nav.classList.add('bg-black/60', 'backdrop-blur-xl', 'py-4');
-                nav.classList.remove('py-6');
+                nav.classList.add('py-4');
+                nav.children[0].classList.add('bg-black/80', 'backdrop-blur-2xl');
             } else {
-                nav.classList.remove('bg-black/60', 'backdrop-blur-xl', 'py-4');
-                nav.classList.add('py-6');
+                nav.classList.remove('py-4');
+                nav.children[0].classList.remove('bg-black/80', 'backdrop-blur-2xl');
             }
         });
     </script>

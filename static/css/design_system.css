@@ -73,3 +73,68 @@ body {
 .animate-in {
     animation: fadeIn 0.6s ease-out forwards;
 }
+
+/* 🧭 Breadcrumbs & Navigation */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary);
+}
+
+.breadcrumb span::before {
+    content: "/";
+    margin: 0 0.5rem;
+    opacity: 0.3;
+}
+
+/* 📭 Empty States */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    border: 2px dashed var(--glass-border);
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    max-width: 300px;
+    margin: 0 auto 1.5rem;
+}
+
+/* 📍 Active States */
+.nav-active {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--primary);
+    color: var(--primary) !important;
+}
