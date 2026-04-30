@@ -17,20 +17,19 @@ from ..models import (
     ReporteZ,
 )
 from ..config import settings
-
-logger = logging.getLogger("ReportingService")
-
+from ..utils.logger import logger
 
 class ReportingService:
     @staticmethod
-    def generar_cierre_z(db: Session, efectivo_declarado: float = None):
+    def generar_cierre_z(db: Session, efectivo_declarado: float = None) -> ReporteZ:
         """
-        Genera el reporte financiero del día, purga stock perecedero y envía notificaciones.
+        Consolida la jornada operativa: Calcula cierres de caja, purga stock perecedero
+        y genera el reporte fiscal oficial.
         """
         hoy = datetime.now()
         hoy_str = hoy.strftime("%Y-%m-%d")
 
-        # 1. Ventas por método de pago
+        # 1. Análisis de Ventas Netas
         pedidos_hoy = (
             db.query(Pedido)
             .filter(Pedido.estado != "ESPERANDO_PAGO")
@@ -38,95 +37,82 @@ class ReportingService:
             .all()
         )
 
-        total_efectivo = sum(
-            p.total for p in pedidos_hoy if p.metodo_pago == "EFECTIVO"
-        )
+        total_efectivo = sum(p.total for p in pedidos_hoy if p.metodo_pago == "EFECTIVO")
         total_tarjeta = sum(p.total for p in pedidos_hoy if p.metodo_pago != "EFECTIVO")
-        total_caja = total_efectivo + total_tarjeta
+        total_ventas = total_efectivo + total_tarjeta
 
-        diferencia_arqueo = 0.0
+        diferencia = 0.0
         if efectivo_declarado is not None:
-            diferencia_arqueo = efectivo_declarado - total_efectivo
+            diferencia = efectivo_declarado - total_efectivo
 
-        # 2. Gestión de Mermas y Pollos Vendidos
-        perecederos = (
-            db.query(Categoria)
-            .filter(Categoria.nombre.in_(["Pollos Asados", "Guarniciones"]))
-            .all()
-        )
+        # 2. Auditoría de Mermas y Rendimiento de Cocina
+        perecederos = db.query(Categoria).filter(Categoria.nombre.in_(["Pollos Asados", "Guarniciones"])).all()
         cat_ids = [c.id for c in perecederos]
 
-        productos = db.query(Producto).filter(Producto.stock_base_id.is_(None)).all()
+        productos = db.query(Producto).all()
 
         sobrantes_texto = ""
         pollos_vendidos = 0
         coste_total_mermas = 0.0
 
         for p in productos:
-            # Pollos vendidos (basado en movimientos de stock)
+            # Cálculo de unidades vendidas (Pollos)
             if "Pollo" in p.nombre:
                 ventas_p = (
                     db.query(func.sum(MovimientoStock.cantidad))
                     .filter(MovimientoStock.producto_id == p.id)
                     .filter(MovimientoStock.tipo == "VENTA")
                     .filter(func.date(MovimientoStock.fecha) == hoy_str)
-                    .scalar()
-                    or 0
+                    .scalar() or 0
                 )
                 pollos_vendidos += abs(int(ventas_p))
 
-            # Merma automática
+            # Proceso de Merma Automática (Auto-Mermas fin de jornada)
             if p.categoria_id in cat_ids and p.stock_actual > 0:
                 merma_qty = p.stock_actual
-                coste_estimado = merma_qty * (p.precio * 0.40)
+                coste_estimado = merma_qty * (p.precio * 0.40) # Valoración al 40% del PVP
                 coste_total_mermas += coste_estimado
 
                 sobrantes_texto += f"🗑 {p.nombre}: {merma_qty} uds. (-{coste_estimado:.2f}€)\n"
 
-                # Registrar purga
-                db.add(
-                    MovimientoStock(
-                        id=str(uuid.uuid4()),
-                        producto_id=p.id,
-                        cantidad=-merma_qty,
-                        tipo="SOBRANTE_DIA",
-                        descripcion="Vaciado automático fin de día",
-                    )
-                )
+                # Registrar purga en historial de stock
+                db.add(MovimientoStock(
+                    id=str(uuid.uuid4()),
+                    producto_id=p.id,
+                    cantidad=-merma_qty,
+                    tipo="SOBRANTE_DIA",
+                    descripcion="Cierre Z: Purgado automático de perecederos",
+                ))
                 p.stock_actual = 0
-            elif p.stock_actual != 0 and p.categoria_id not in cat_ids:
-                sobrantes_texto += f"📦 {p.nombre}: {p.stock_actual}\n"
+            elif p.stock_actual > 0:
+                sobrantes_texto += f"📦 {p.nombre}: {p.stock_actual} uds. en stock\n"
 
-        # 3. Formatear Mensaje
-        msg = "🐔 *CIERRE Z - CARBONES Y POLLOS* 🐔\n"
-        msg += f"📅 Fecha: {hoy.strftime('%d/%m/%Y')}\n\n"
-        msg += f"💰 Efectivo Sistema: {total_efectivo:.2f} €\n"
+        # 3. Construcción del Reporte Ejecutivo
+        msg = "🐔 *REPORTE CIERRE Z - ENTERPRISE* 🐔\n"
+        msg += f"📅 Jornada: {hoy.strftime('%d/%m/%Y')}\n\n"
+        msg += f"💰 Ventas Efectivo: {total_efectivo:.2f}€\n"
         if efectivo_declarado is not None:
-            msg += f"📝 Efectivo Declarado: {efectivo_declarado:.2f} €\n"
-            simbolo = (
-                "✅"
-                if diferencia_arqueo == 0
-                else ("🔴 FALTANTE" if diferencia_arqueo < 0 else "🔵 SOBRANTE")
-            )
-            msg += f"⚖️ Diferencia: {diferencia_arqueo:.2f} € {simbolo}\n"
-        msg += f"💳 Tarjeta: {total_tarjeta:.2f} €\n"
-        msg += "------------------------\n"
-        msg += f"📊 *TOTAL CAJA: {total_caja:.2f} €*\n\n"
-        msg += f"🍗 Pollos Vendidos: {pollos_vendidos}\n\n"
+            msg += f"📝 Declarado Caja: {efectivo_declarado:.2f}€\n"
+            status_icon = "✅" if diferencia == 0 else ("🔴 FALTANTE" if diferencia < 0 else "🔵 SOBRANTE")
+            msg += f"⚖️ Desajuste: {diferencia:.2f}€ {status_icon}\n"
+        msg += f"💳 Ventas Tarjeta: {total_tarjeta:.2f}€\n"
+        msg += "━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        msg += f"📊 *FACTURACIÓN TOTAL: {total_ventas:.2f}€*\n\n"
+        msg += f"🍗 Pollos Despachados: {pollos_vendidos}\n"
         if coste_total_mermas > 0:
-            msg += f"🚨 *COSTE MERMAS: -{coste_total_mermas:.2f} €*\n\n"
+            msg += f"🚨 Impacto Mermas: -{coste_total_mermas:.2f}€\n\n"
         msg += "📦 *INVENTARIO FINAL*:\n"
-        msg += sobrantes_texto if sobrantes_texto else "Sin sobrantes."
+        msg += sobrantes_texto if sobrantes_texto else "Sin stock remanente."
 
-        # 4. Persistir Reporte
+        # 4. Persistencia en Base de Datos
         nuevo_reporte = ReporteZ(
             id=str(uuid.uuid4()),
-            fecha_cierre=hoy,
+            fecha=hoy,
+            total_ventas=total_ventas,
             total_efectivo=total_efectivo,
             total_tarjeta=total_tarjeta,
-            total_caja=total_caja,
-            efectivo_declarado=efectivo_declarado or 0.0,
-            diferencia_arqueo=diferencia_arqueo,
+            efectivo_declarado=efectivo_declarado,
+            diferencia=diferencia,
             pollos_vendidos=pollos_vendidos,
             coste_mermas=coste_total_mermas,
             resumen_texto=msg,
@@ -134,15 +120,18 @@ class ReportingService:
         db.add(nuevo_reporte)
         db.commit()
 
-        # 5. Notificar vía WhatsApp (Opcional/Asíncrono recomendado)
+        # 5. Notificación Industrial
         ReportingService._notificar_whatsapp(msg)
 
         return nuevo_reporte
 
     @staticmethod
     def _notificar_whatsapp(mensaje: str):
-        """Envía el reporte a través del servicio WAHA."""
+        """Notificación vía WAHA a la gerencia."""
         try:
+            if not settings.WAHA_URL or not settings.ADMIN_WHATSAPP:
+                return
+            
             url = f"{settings.WAHA_URL}/api/sendText"
             payload = {
                 "chatId": settings.ADMIN_WHATSAPP,
@@ -151,25 +140,26 @@ class ReportingService:
             }
             requests.post(url, json=payload, timeout=10)
         except Exception as e:
-            logger.error(f"Error enviando WhatsApp de cierre: {e}")
+            logger.error(f"Fallo en notificación WhatsApp de cierre: {e}")
 
     @staticmethod
-    def generar_pdf_z(reporte: ReporteZ):
-        """Genera un archivo PDF para el reporte."""
-        filename = f"reporte_z_{reporte.fecha_cierre.strftime('%Y%m%d')}.pdf"
+    def generar_pdf_z(reporte: ReporteZ) -> str:
+        """Genera el documento PDF formal del Cierre Z."""
+        filename = f"cierre_z_{reporte.fecha.strftime('%Y%m%d_%H%M')}.pdf"
         filepath = os.path.join("instance", filename)
         os.makedirs("instance", exist_ok=True)
 
         c = canvas.Canvas(filepath, pagesize=letter)
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(100, 750, "CARBONES Y POLLOS - REPORTE Z")
-        c.setFont("Helvetica", 12)
+        c.drawString(100, 750, "REPORTE DE CIERRE FISCAL (Z)")
+        c.setFont("Helvetica", 10)
         
         y = 720
         for linea in reporte.resumen_texto.split("\n"):
-            c.drawString(100, y, linea.replace("*", "")) # Quitamos negritas de markdown
-            y -= 20
-            if y < 100:
+            clean_line = linea.replace("*", "").replace("━━━━━━━━━━━━━━━━━━━━━━━━", "--------------------")
+            c.drawString(100, y, clean_line)
+            y -= 15
+            if y < 50:
                 c.showPage()
                 y = 750
         

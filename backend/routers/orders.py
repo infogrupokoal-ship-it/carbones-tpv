@@ -9,7 +9,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
+from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto, Tienda
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 
@@ -143,6 +143,10 @@ def crear_pedido(
             elif cliente.nivel_fidelidad == "ORO":
                 descuento_fidelidad = 0.10
 
+        # Obtener Tienda ID (por ahora la primera disponible como fallback)
+        tienda = db.query(Tienda).first()
+        tienda_id_actual = tienda.id if tienda else None
+
         # 2. Creación del Pedido
         nuevo_pedido = Pedido(
             id=str(uuid.uuid4()),
@@ -150,6 +154,7 @@ def crear_pedido(
             origen=origen_base,
             estado=pedido.estado_inicial,
             cliente_id=cliente.id if cliente else None,
+            tienda_id=tienda_id_actual,
             cubiertos_qty=pedido.cubiertos_qty,
             notas_cliente=pedido.notas_cliente,
         )

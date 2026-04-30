@@ -3,50 +3,56 @@ import datetime
 from ..database import SessionLocal
 from ..models import LogOperativo
 from ..utils.logger import logger
-from ..utils.db_logger import DBLogger
-from .financials import FinancialService
+from ..services.reporting import ReportingService
 
 async def clean_old_logs():
-    """Elimina logs operativos de más de 30 días para ahorrar espacio."""
+    """
+    Higienización de Base de Datos: Elimina logs operativos con antigüedad superior 
+    a 30 días para mantener el rendimiento y optimizar el almacenamiento.
+    """
     db = SessionLocal()
     try:
         limite = datetime.datetime.now() - datetime.timedelta(days=30)
         num_deleted = db.query(LogOperativo).filter(LogOperativo.fecha < limite).delete()
         db.commit()
         if num_deleted > 0:
-            logger.info(f"MANTENIMIENTO: Se han purgado {num_deleted} registros de logs antiguos.")
+            logger.info(f"MANTENIMIENTO: Purga de auditoría completada ({num_deleted} registros eliminados).")
     except Exception as e:
-        logger.error(f"ERROR MANTENIMIENTO: {str(e)}")
+        logger.error(f"FALLO EN MANTENIMIENTO DE LOGS: {str(e)}")
     finally:
         db.close()
 
 async def generate_auto_z_close():
-    """Genera el Cierre Z automáticamente al final de la jornada (03:00 AM)."""
+    """
+    Cierre Autónomo de Jornada: Ejecuta el protocolo de Cierre Z a las 03:00 AM 
+    de forma desatendida si el personal olvidó realizarlo manualmente.
+    """
     db = SessionLocal()
     try:
-        # Usamos el servicio financiero profesional para el cierre
-        resumen = FinancialService.generate_z_report(db, efectivo_declarado=None)
-        DBLogger.info("SCHEDULER", f"Cierre Z Automático ejecutado: {resumen[:50]}...")
+        # Ejecutamos el cierre profesional (efectivo_declarado=None indica cierre automático)
+        reporte = ReportingService.generar_cierre_z(db, efectivo_declarado=None)
+        logger.info(f"SCHEDULER: Cierre Z Automático procesado (ID: {reporte.id})")
     except Exception as e:
-        DBLogger.error("SCHEDULER", "Fallo en el Cierre Z Automático", e)
+        logger.error(f"SCHEDULER: Error crítico en Cierre Z Automático: {str(e)}")
     finally:
         db.close()
 
 async def scheduler_loop():
-    """Bucle principal de tareas programadas en segundo plano."""
-    logger.info("INICIANDO SCHEDULER: Tareas de fondo activas.")
+    """
+    Motor de Tareas Programadas: Orquestador de procesos en segundo plano
+    para mantenimiento preventivo y consolidación de datos.
+    """
+    logger.info("SYSTEM: Motor de tareas programadas (Scheduler) activo.")
+    
     while True:
         now = datetime.datetime.now()
         
-        # Ejecutar mantenimiento a las 03:00 AM
+        # Ventana de mantenimiento nocturno (03:00 AM)
         if now.hour == 3 and now.minute == 0:
             await clean_old_logs()
             await generate_auto_z_close()
-            await asyncio.sleep(61) # Evitar re-ejecución en el mismo minuto
+            # Dormimos el tiempo suficiente para no repetir la ejecución en el mismo minuto
+            await asyncio.sleep(65)
             
-        # Tarea cada 10 minutos: Sincronización de stock crítica
-        if now.minute % 10 == 0 and now.second == 0:
-            # Lógica de sync con nube si fuera necesario
-            pass
-            
+        # Monitoreo de latencia de bucle (1 segundo)
         await asyncio.sleep(1)

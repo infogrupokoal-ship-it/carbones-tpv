@@ -23,7 +23,7 @@ class Usuario(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     username = Column(String(50), unique=True, index=True)
     full_name = Column(String(100))
-    pin_hash = Column(String(128)) # Hash del PIN de 4 dígitos
+    pin_hash = Column(String(128))
     rol = Column(String(20), default="CASHIER") # ADMIN, MANAGER, CASHIER
     is_active = Column(Boolean, default=True)
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
@@ -43,8 +43,14 @@ class Producto(Base):
     nombre = Column(String(100), nullable=False)
     descripcion = Column(String(255))
     precio = Column(Float, nullable=False)
-    impuesto = Column(Float, default=10.0) # 10.0 (Comida), 21.0 (Bebida/Alcohol)
+    impuesto = Column(Float, default=10.0)
+    
+    # Gestión de Stock Avanzada
     stock_actual = Column(Float, default=0.0)
+    stock_minimo = Column(Float, default=0.0)
+    stock_base_id = Column(String(36), ForeignKey("productos.id"), nullable=True) # Referencia al producto "Padre"
+    factor_stock = Column(Float, default=1.0) # Cuanto resta del padre (ej: 0.25 para 1/4 de pollo)
+    
     imagen_url = Column(String(255))
     categoria_id = Column(String(36), ForeignKey("categorias.id"))
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
@@ -52,17 +58,19 @@ class Producto(Base):
     
     categoria = relationship("Categoria", back_populates="productos")
     tienda = relationship("Tienda", back_populates="productos")
+    receta_items = relationship("RecetaItem", back_populates="producto")
 
 class Ingrediente(Base):
     __tablename__ = "ingredientes"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nombre = Column(String(100), nullable=False)
-    unidad_medida = Column(String(20), default="ud") # kg, l, ud
+    unidad_medida = Column(String(20), default="ud")
     stock_actual = Column(Float, default=0.0)
     stock_minimo = Column(Float, default=5.0)
     proveedor_id = Column(String(36), ForeignKey("proveedores.id"), nullable=True)
     
     proveedor = relationship("Proveedor", back_populates="ingredientes")
+    receta_items = relationship("RecetaItem", back_populates="ingrediente")
 
 class Proveedor(Base):
     __tablename__ = "proveedores"
@@ -72,6 +80,16 @@ class Proveedor(Base):
     telefono = Column(String(20))
     ingredientes = relationship("Ingrediente", back_populates="proveedor")
 
+class RecetaItem(Base):
+    __tablename__ = "receta_items"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    producto_id = Column(String(36), ForeignKey("productos.id"))
+    ingrediente_id = Column(String(36), ForeignKey("ingredientes.id"))
+    cantidad_necesaria = Column(Float, nullable=False)
+    
+    producto = relationship("Producto", back_populates="receta_items")
+    ingrediente = relationship("Ingrediente", back_populates="receta_items")
+
 # --- VENTAS & CONTABILIDAD ---
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -79,7 +97,7 @@ class Cliente(Base):
     telefono = Column(String(20), unique=True, index=True)
     nombre = Column(String(100))
     puntos_fidelidad = Column(Integer, default=0)
-    nivel_fidelidad = Column(String(20), default="BRONCE") # BRONCE, PLATA, ORO
+    nivel_fidelidad = Column(String(20), default="BRONCE")
     visitas = Column(Integer, default=0)
 
 class Pedido(Base):
@@ -90,15 +108,14 @@ class Pedido(Base):
     total = Column(Float, nullable=False)
     descuento_aplicado = Column(Float, default=0.0)
     
-    # Desglose Fiscal Legal (España)
     base_imponible_10 = Column(Float, default=0.0)
     cuota_iva_10 = Column(Float, default=0.0)
     base_imponible_21 = Column(Float, default=0.0)
     cuota_iva_21 = Column(Float, default=0.0)
     
-    metodo_pago = Column(String(20)) # EFECTIVO, TARJETA, BIZUM
-    estado = Column(String(20), default="ESPERANDO_PAGO") # PENDIENTE, EN_PREPARACION, COMPLETADO, CANCELADO
-    origen = Column(String(20), default="TPV") # TPV, WEB, APP, QUIOSCO
+    metodo_pago = Column(String(20))
+    estado = Column(String(20), default="ESPERANDO_PAGO")
+    origen = Column(String(20), default="TPV")
     
     notas_cliente = Column(Text)
     cubiertos_qty = Column(Integer, default=0)
@@ -124,16 +141,16 @@ class HardwareCommand(Base):
     __tablename__ = "hardware_commands"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     fecha = Column(DateTime, default=datetime.utcnow)
-    accion = Column(String(50)) # imprimir, abrir_caja
+    accion = Column(String(50))
     origen = Column(String(50))
-    payload = Column(Text, nullable=True) # JSON con datos de impresión
+    payload = Column(Text, nullable=True)
     procesado = Column(Boolean, default=False)
 
 class LogOperativo(Base):
     __tablename__ = "logs_operativos"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     fecha = Column(DateTime, default=datetime.utcnow)
-    nivel = Column(String(20)) # INFO, WARNING, ERROR
+    nivel = Column(String(20))
     modulo = Column(String(50))
     mensaje = Column(Text)
 
@@ -146,6 +163,9 @@ class ReporteZ(Base):
     total_tarjeta = Column(Float)
     efectivo_declarado = Column(Float, nullable=True)
     diferencia = Column(Float, default=0.0)
+    pollos_vendidos = Column(Integer, default=0)
+    coste_mermas = Column(Float, default=0.0)
+    resumen_texto = Column(Text)
 
 class MovimientoStock(Base):
     __tablename__ = "movimientos_stock"
@@ -153,5 +173,13 @@ class MovimientoStock(Base):
     fecha = Column(DateTime, default=datetime.utcnow)
     producto_id = Column(String(36), ForeignKey("productos.id"), nullable=True)
     cantidad = Column(Float)
-    tipo = Column(String(20)) # VENTA, MERMA, PRODUCCION, ENTRADA_PROVEEDOR, SOBRANTE_DIA
+    tipo = Column(String(20))
     descripcion = Column(String(255))
+
+class Review(Base):
+    __tablename__ = "reviews"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    rating = Column(Integer)
+    comentario = Column(Text)
+    cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)

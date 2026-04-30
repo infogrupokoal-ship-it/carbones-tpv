@@ -1,28 +1,31 @@
 import logging
 import os
-
 import requests
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
-from ..models import Ingrediente, MovimientoStock, Producto, Receta
-
-logger = logging.getLogger("StockUtils")
-
+from ..models import Ingrediente, MovimientoStock, Producto, RecetaItem
+from ..utils.logger import logger
 
 def enviar_alerta_whatsapp(mensaje: str):
-    """Envía una alerta de stock vía WhatsApp de forma asíncrona."""
+    """
+    Despacha alertas críticas de inventario al canal de administración.
+    """
     try:
-        waha_url = os.environ.get("WAHA_URL", "http://127.0.0.1:3000/api/sendText")
-        chat_id = os.environ.get("ADMIN_WHATSAPP", "34604864187@c.us")
+        # Recuperar configuración de entorno con valores por defecto seguros
+        waha_url = os.environ.get("WAHA_URL")
+        chat_id = os.environ.get("ADMIN_WHATSAPP")
+        
+        if not waha_url or not chat_id:
+            return
+
         requests.post(
-            waha_url,
+            f"{waha_url}/api/sendText",
             json={"chatId": chat_id, "text": mensaje, "session": "default"},
             timeout=5,
         )
     except Exception as e:
-        logger.error(f"Error enviando alerta WhatsApp: {e}")
-
+        logger.error(f"Fallo en despacho de alerta WhatsApp: {e}")
 
 def descontar_stock_pedido(
     db: Session,
@@ -32,56 +35,65 @@ def descontar_stock_pedido(
     background_tasks: BackgroundTasks,
 ):
     """
-    Gestiona el descuento de stock fraccional y de ingredientes.
-    Activa alertas si se llega al stock mínimo.
+    Motor de Gestión de Existencias:
+    1. Procesa deducciones jerárquicas (Hijos -> Padre).
+    2. Ejecuta explosión de materiales (Recetas -> Ingredientes).
+    3. Monitorea niveles críticos y dispara alertas preventivas.
     """
     prod = db.query(Producto).get(producto_id)
     if not prod:
         return
 
-    # 1. Lógica de Stock Fraccional (Hijos que restan de un Padre común)
+    # --- 1. Lógica de Stock Jerárquico (Pue: 1/4 Pollo resta 0.25 del Padre 'Pollo Entero') ---
     if prod.stock_base_id:
         parent = db.query(Producto).get(prod.stock_base_id)
         if parent:
             cantidad_a_restar = cantidad * prod.factor_stock
             parent.stock_actual -= cantidad_a_restar
-            db.add(
-                MovimientoStock(
-                    producto_id=parent.id,
-                    cantidad=-cantidad_a_restar,
-                    tipo="VENTA",
-                    origen_id=pedido_id,
-                    descripcion=f"Venta (Hijo: {prod.nombre})",
-                )
-            )
+            
+            db.add(MovimientoStock(
+                producto_id=parent.id,
+                cantidad=-cantidad_a_restar,
+                tipo="VENTA",
+                descripcion=f"Venta Indirecta (Hijo: {prod.nombre})",
+            ))
 
+            # Alerta de Stock Crítico en Producto Base
             if parent.stock_minimo > 0 and parent.stock_actual <= parent.stock_minimo:
-                msg = f"🚨 *ALERTA STOCK* 🚨\n*{parent.nombre}* está en {parent.stock_actual}.\n¡Reponer!"
+                msg = f"🚨 *STOCK CRÍTICO*: {parent.nombre} en {parent.stock_actual} uds. ¡Reponer producción!"
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
     else:
+        # Venta Directa
         prod.stock_actual -= cantidad
-        db.add(
-            MovimientoStock(
-                producto_id=prod.id,
-                cantidad=-cantidad,
-                tipo="VENTA",
-                origen_id=pedido_id,
-                descripcion="Venta Directa",
-            )
-        )
+        db.add(MovimientoStock(
+            producto_id=prod.id,
+            cantidad=-cantidad,
+            tipo="VENTA",
+            descripcion=f"Venta Directa: {prod.nombre}",
+        ))
 
         if prod.stock_minimo > 0 and prod.stock_actual <= prod.stock_minimo:
-            msg = f"🚨 *ALERTA STOCK* 🚨\n*{prod.nombre}* está en {prod.stock_actual}.\n¡Hacer pedido!"
+            msg = f"🚨 *ALERTA STOCK*: {prod.nombre} bajo mínimos ({prod.stock_actual} uds)."
             background_tasks.add_task(enviar_alerta_whatsapp, msg)
 
-    # 2. Lógica de Recetas (Descuento de Materia Prima)
-    recetas = db.query(Receta).filter(Receta.producto_id == prod.id).all()
-    for receta in recetas:
-        ing = db.query(Ingrediente).get(receta.ingrediente_id)
+    # --- 2. Explosión de Receta (Descuento de Materia Prima / Ingredientes) ---
+    for item_receta in prod.receta_items:
+        ing = item_receta.ingrediente
         if ing:
-            cantidad_ing = receta.cantidad_necesaria * cantidad
-            ing.stock_actual -= cantidad_ing
+            demanda_total = item_receta.cantidad_necesaria * cantidad
+            ing.stock_actual -= demanda_total
 
+            # Auditoría de consumo de materia prima
+            db.add(MovimientoStock(
+                producto_id=None,
+                cantidad=-demanda_total,
+                tipo="CONSUMO_RECETA",
+                descripcion=f"Consumo por venta de {prod.nombre} (ID Pedido: {pedido_id[:8]})"
+            ))
+
+            # Alerta de Suministros
             if ing.stock_minimo > 0 and ing.stock_actual <= ing.stock_minimo:
-                msg = f"🚨 *ALERTA INGREDIENTE* 🚨\n*{ing.nombre}* bajo mínimo: {ing.stock_actual} {ing.unidad_medida}."
+                msg = f"🛒 *AVISO PROVEEDOR*: {ing.nombre} en niveles críticos ({ing.stock_actual} {ing.unidad_medida})."
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
+
+    # El commit se gestiona en el router para asegurar atomicidad de la transacción.

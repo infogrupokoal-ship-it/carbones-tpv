@@ -9,7 +9,7 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, MovimientoStock, Review, Usuario, Fichaje, ReporteZ, HardwareCommand
+from ..models import Producto, Pedido, MovimientoStock, Review, Usuario, ReporteZ, HardwareCommand
 from ..services.reporting import ReportingService
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger

@@ -3,126 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbones y Pollos - Enterprise TPV</title>
-    <!-- Tailwind CSS -->
+    <title>Carbones y Pollos | El Sabor Auténtico del Carbón</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Design System -->
-    <link rel="stylesheet" href="/static/css/design_system.css">
-    <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        .hero-glow {
-            position: absolute;
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 60%;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
+        body { font-family: 'Inter', sans-serif; background-color: #0c0c0c; color: #fff; }
+        .font-display { font-family: 'Playfair Display', serif; }
+        .hero-bg {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('hero_pollo_carbon_premium_1777514931017.png');
+            background-size: cover;
+            background-position: center;
         }
-        .nav-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2.5rem;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
+        .btn-premium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-card i {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s;
-        }
-        .nav-card:hover i {
-            transform: scale(1.2) rotate(5deg);
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-x-hidden">
-    
-    <div class="hero-glow"></div>
+<body class="overflow-x-hidden">
 
-    <!-- Header Section -->
-    <header class="text-center mb-12 animate-in">
-        <div class="inline-block p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 mb-6">
-            <img src="/static/icon.png" alt="Logo" class="w-20 h-20">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-8 py-6 flex justify-between items-center bg-black/20 backdrop-blur-md">
+        <div class="text-2xl font-black tracking-tighter uppercase">
+            Carbones <span class="text-amber-500">y Pollos</span>
         </div>
-        <h1 class="text-5xl md:text-7xl font-black mb-2 tracking-tighter">
-            <span class="text-white">CARBONES Y</span>
-            <span class="text-gradient">POLLOS</span>
-        </h1>
-        <p class="text-slate-400 text-lg md:text-xl font-medium tracking-wide">ENTERPRISE CLOUD SYSTEM v4.1</p>
-    </header>
-
-    <!-- Navigation Grid -->
-    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl animate-in" style="animation-delay: 0.1s;">
-        
-        <a href="/static/caja.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">💰</span>
-            <h3 class="text-2xl font-bold mb-2">Punto de Venta</h3>
-            <p class="text-slate-400 text-sm">Ventas rápidas, cobros y arqueo diario.</p>
-        </a>
-
-        <a href="/static/cocina.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">👨‍🍳</span>
-            <h3 class="text-2xl font-bold mb-2">Cocina & Monitor</h3>
-            <p class="text-slate-400 text-sm">Gestión de comandas y tiempos de preparación.</p>
-        </a>
-
-        <a href="/static/inventario.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">📦</span>
-            <h3 class="text-2xl font-bold mb-2">Inventario Pro</h3>
-            <p class="text-slate-400 text-sm">Control de stock, mermas y proveedores.</p>
-        </a>
-
-        <a href="/static/dashboard_produccion.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">📊</span>
-            <h3 class="text-2xl font-bold mb-2">Control Directivo</h3>
-            <p class="text-slate-400 text-sm">Métricas en tiempo real e inteligencia IA.</p>
-        </a>
-
-        <a href="/static/rrhh.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">👥</span>
-            <h3 class="text-2xl font-bold mb-2">Gestión de Personal</h3>
-            <p class="text-slate-400 text-sm">Fichaje por PIN y control de turnos.</p>
-        </a>
-
-        <a href="/static/admin_mobile.html" class="glass-panel nav-card">
-            <span class="text-4xl mb-4">⚙️</span>
-            <h3 class="text-2xl font-bold mb-2">Configuración</h3>
-            <p class="text-slate-400 text-sm">Ajustes del sistema y mantenimiento.</p>
-        </a>
-
-    </main>
-
-    <!-- Footer / Status -->
-    <footer class="mt-16 text-center text-slate-500 text-sm animate-in" style="animation-delay: 0.2s;">
-        <div class="flex items-center justify-center gap-4 mb-4">
-            <span class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
-                Servidor Cloud: Operativo
-            </span>
-            <span class="w-px h-4 bg-white/10"></span>
-            <span class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
-                Hardware Local: Sincronizado
-            </span>
+        <div class="hidden md:flex gap-10 text-xs font-bold uppercase tracking-widest">
+            <a href="#nuestra-historia" class="hover:text-amber-500 transition">Nuestra Historia</a>
+            <a href="#menu" class="hover:text-amber-500 transition">El Menú</a>
+            <a href="#ubicaciones" class="hover:text-amber-500 transition">Ubicaciones</a>
         </div>
-        <p>&copy; 2026 Grupo Koal Technology. Todos los derechos reservados.</p>
+        <a href="/static/kiosko.html" class="btn-premium px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest">Pedir Online</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="h-screen hero-bg flex flex-col justify-center items-center text-center px-6">
+        <h2 class="text-amber-500 text-sm font-bold uppercase tracking-[0.5em] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">Artesanía en cada brasa</h2>
+        <h1 class="font-display text-6xl md:text-8xl mb-8 leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">El Pollo al Carbón<br><span class="text-white/90">que mereces.</span></h1>
+        <p class="max-w-2xl text-gray-400 text-lg mb-12 font-light animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-400">Seleccionamos los mejores ejemplares, marinados durante 24 horas y asados lentamente sobre carbón vegetal de encina. Una experiencia de sabor inigualable.</p>
+        <div class="flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500">
+            <a href="/static/kiosko.html" class="btn-premium px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm">Hacer un Pedido</a>
+            <a href="#menu" class="bg-white/5 border border-white/10 hover:bg-white/10 px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm transition">Ver la Carta</a>
+        </div>
+    </section>
+
+    <!-- Stats / Trust -->
+    <section class="py-24 bg-zinc-900/50 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">100%</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Natural</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">24h</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Marinado</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">+10k</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Clientes Felices</p>
+            </div>
+            <div>
+                <p class="text-4xl font-display text-amber-500 mb-2">3</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Sucursales</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 bg-black border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-xl font-black uppercase">Carbones <span class="text-amber-500">y Pollos</span></div>
+            <div class="flex gap-8 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                <a href="/static/login.html" class="hover:text-white transition">Acceso Staff</a>
+                <a href="#" class="hover:text-white transition">Privacidad</a>
+                <a href="#" class="hover:text-white transition">Términos</a>
+            </div>
+            <div class="text-gray-700 text-[10px] uppercase tracking-widest">&copy; 2026 Carbones y Pollos Enterprise.</div>
+        </div>
     </footer>
 
-    <script>
-        // Registrar Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log("SW Registered"))
-                .catch(err => console.log("SW Error", err));
-        }
-    </script>
 </body>
 </html>
