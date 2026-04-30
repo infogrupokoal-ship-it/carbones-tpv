@@ -94,6 +94,12 @@ async def health_check() -> Dict[str, Any]:
         "status": "operational" if db_status == "connected" else "degraded",
         "timestamp": datetime.now().isoformat(),
         "version": settings.APP_VERSION,
+        "environment": os.environ.get("ENVIRONMENT", "development"),
+        "deployment": {
+            "node": os.uname().nodename if hasattr(os, "uname") else "windows-dev",
+            "uptime_sec": int(time.time() - psutil.boot_time()),
+            "build_type": "industrial-ultra"
+        },
         "telemetry": {
             "database": db_status,
             "cpu_usage": f"{psutil.cpu_percent()}%",

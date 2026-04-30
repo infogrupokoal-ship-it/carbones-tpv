@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     # APP METADATA
     APP_NAME: str = Field(default="Carbones y Pollos TPV Enterprise")
-    APP_VERSION: str = Field(default="2.0.0-pro")
+    APP_VERSION: str = Field(default="2.1.0-ultra-stable")
     DEBUG: bool = Field(default=True)
     SECRET_KEY: str = Field(default="tpv_ultra_secret_key_change_me_in_production")
     
