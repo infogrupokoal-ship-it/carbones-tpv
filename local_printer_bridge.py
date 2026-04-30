@@ -24,7 +24,7 @@ except ImportError:
         "Advertencia: No se encontraron librerías de impresión de Windows. Usa 'pip install pypiwin32'"
     )
 
-app = FastAPI(title="Cargones y Pollos - Puente de Impresión Local")
+app = FastAPI(title="Carbones y Pollos - Puente de Impresión Local")
 
 app.add_middleware(
     CORSMiddleware,
