@@ -30,7 +30,7 @@
                 <p class="text-3xl font-black text-red-500" id="kpi-mermas">0.00€</p>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Pedidos B2C</p>
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Pedidos Hoy</p>
                 <p class="text-3xl font-black text-indigo-600" id="kpi-pedidos">0</p>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
@@ -72,7 +72,6 @@
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-2">
                 <h3 class="text-lg font-black mb-4 text-gray-800">Feedback de Clientes</h3>
                 <div id="reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                    <!-- JS populate -->
                     <p class="text-gray-400 italic">Cargando valoraciones...</p>
                 </div>
             </div>
@@ -82,7 +81,6 @@
         <div class="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <h3 class="text-lg font-black mb-4 text-gray-800">Estado de Empleados (RRHH)</h3>
             <div id="rrhh-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- JS populate -->
                 <p class="text-gray-400 italic col-span-full">Cargando estado...</p>
             </div>
         </div>
@@ -115,7 +113,6 @@
 
         async function initDashboard() {
             try {
-                // Endpoint para obtener stats globales (hay que crearlo en main.py)
                 const res = await fetch(`${API_URL}/admin/dashboard/kpis`);
                 if(res.ok) {
                     const data = await res.json();
@@ -129,7 +126,6 @@
                     renderReviews(data.reviews);
                 }
                 
-                // Fetch Fichajes para Estado de Empleados
                 const resRRHH = await fetch(`${API_URL}/rrhh/fichajes`);
                 if(resRRHH.ok) {
                     const dataRRHH = await resRRHH.json();
@@ -195,7 +191,7 @@
         function renderReviews(reviews) {
             const cont = document.getElementById('reviews-container');
             cont.innerHTML = '';
-            if(reviews.length === 0) {
+            if(!reviews || reviews.length === 0) {
                 cont.innerHTML = '<p class="text-gray-400 italic">No hay valoraciones recientes.</p>';
                 return;
             }
@@ -221,16 +217,17 @@
             const cont = document.getElementById('rrhh-container');
             cont.innerHTML = '';
             
-            // Agrupar por usuario para obtener su último estado
             const empleados = {};
-            fichajes.forEach(f => {
-                if (!empleados[f.username] || new Date(f.fecha) > new Date(empleados[f.username].fecha)) {
-                    empleados[f.username] = f;
-                }
-            });
+            if(fichajes && fichajes.length > 0) {
+                fichajes.forEach(f => {
+                    if (!empleados[f.username]) {
+                        empleados[f.username] = f;
+                    }
+                });
+            }
 
             if (Object.keys(empleados).length === 0) {
-                cont.innerHTML = '<p class="text-gray-400 italic col-span-full">No hay empleados registrados hoy.</p>';
+                cont.innerHTML = '<p class="text-gray-400 italic col-span-full">No hay empleados registrados recientemente.</p>';
                 return;
             }
 
@@ -259,7 +256,7 @@
             content.innerHTML = '<p class="text-indigo-200 animate-pulse">La IA está procesando los datos de ventas y valoraciones...</p>';
             
             try {
-                const res = await fetch(`${API_URL}/b2c/ia_insights`);
+                const res = await fetch(`${API_URL}/admin/ai_insights`);
                 if(res.ok) {
                     const data = await res.json();
                     content.innerHTML = `
@@ -313,7 +310,6 @@
             btn.disabled = false;
         }
 
-        // Refrescar cada 60s
         initDashboard();
         setInterval(initDashboard, 60000);
     </script>

@@ -1,55 +1,74 @@
 from datetime import datetime
-
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import desc, func
 
 from ..database import get_db
-from ..models import Usuario  # Asumiendo que Usuario tiene los campos necesarios o crearemos Shift
+from ..models import Usuario, Fichaje
+from ..utils.logger import logger
 
 router = APIRouter(prefix="/rrhh", tags=["Recursos Humanos"])
-router_legacy = APIRouter(prefix="/personal", tags=["Legacy Personal"])
 
-# --- Esquemas Pydantic ---
-class ShiftIn(BaseModel):
-    usuario_id: str
-    accion: str  # "ENTRADA", "SALIDA"
+# --- Esquemas ---
+class FichajeRequest(BaseModel):
+    pin: str
+    tipo: str  # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
 
-class UserStats(BaseModel):
+class FichajeResponse(BaseModel):
     username: str
-    total_pedidos: int
-    total_recaudado: float
+    tipo: str
+    fecha: str
 
-# NOTA: Para una implementación real de RRHH, deberíamos tener una tabla 'Shifts' o 'Fichajes'.
-# Por ahora, implementaremos la lógica básica de control de presencia.
+# --- Endpoints ---
 
 @router.post("/fichar")
-@router_legacy.post("/fichar")
-def registrar_fichaje(req: ShiftIn, db: Session = Depends(get_db)):
-    """Registra la entrada o salida de un empleado."""
-    user = db.query(Usuario).get(req.usuario_id)
+async def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
+    """Registra un evento de fichaje validando el PIN del usuario."""
+    user = db.query(Usuario).filter(Usuario.pin == req.pin).first()
     if not user:
-        raise HTTPException(404, "Empleado no encontrado")
+        logger.warning(f"Intento de fichaje con PIN inválido: {req.pin}")
+        raise HTTPException(status_code=401, detail="PIN incorrecto")
     
-    # En un sistema profesional, esto guardaría en una tabla 'asistencia'
-    # Por ahora simulamos el log
-    print(f"-> [RRHH] {user.username} ha registrado: {req.accion} a las {datetime.now()}")
+    nuevo_fichaje = Fichaje(
+        usuario_id=user.id,
+        tipo=req.tipo,
+        fecha=datetime.now()
+    )
+    db.add(nuevo_fichaje)
+    db.commit()
     
-    return {"status": "ok", "empleado": user.username, "accion": req.accion, "hora": datetime.now().isoformat()}
+    logger.info(f"Fichaje registrado: {user.username} - {req.tipo}")
+    
+    return {
+        "status": "success",
+        "msj": f"¡Hola {user.username}! {req.tipo} registrado correctamente.",
+        "username": user.username
+    }
 
-@router.get("/dashboard")
-def stats_personal(db: Session = Depends(get_db)):
-    """Obtiene estadísticas de rendimiento del personal."""
-    # Simulación de datos para el dashboard profesional
-    usuarios = db.query(Usuario).all()
-    stats = []
-    for u in usuarios:
-        stats.append({
-            "id": u.id,
-            "username": u.username,
-            "rol": u.rol,
-            "ventas_hoy": 150.0, # Placeholder
-            "pedidos_hoy": 12,    # Placeholder
-            "estado": "ACTIVO"
-        })
-    return stats
+@router.get("/fichajes", response_model=List[FichajeResponse])
+async def obtener_fichajes_recientes(limit: int = 10, db: Session = Depends(get_db)):
+    """Lista los últimos fichajes realizados en el sistema."""
+    fichajes = db.query(Fichaje).order_by(desc(Fichaje.fecha)).limit(limit).all()
+    
+    return [
+        FichajeResponse(
+            username=f.usuario.username if f.usuario else "Desconocido",
+            tipo=f.tipo,
+            fecha=f.fecha.strftime("%d/%m %H:%M") if f.fecha else "--"
+        ) for f in fichajes
+    ]
+
+@router.get("/dashboard/stats")
+async def get_hr_stats(db: Session = Depends(get_db)):
+    """Estadísticas rápidas para el dashboard de RRHH."""
+    today = datetime.now().date()
+    empleados_activos = db.query(Usuario).filter(Usuario.is_active == True).count()
+    fichajes_hoy = db.query(Fichaje).filter(func.date(Fichaje.fecha) == today).count()
+    
+    return {
+        "empleados_totales": empleados_activos,
+        "fichajes_hoy": fichajes_hoy,
+        "puesto_critico": "Cocina" # Placeholder inteligente
+    }

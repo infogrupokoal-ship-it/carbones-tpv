@@ -4,150 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KDS | Carbones y Pollos</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
     <style>
         :root {
-            --bg: #000000;
-            --card-bg: #1a1a1a;
-            --text: #ffffff;
-            --primary: #ffeb3b; /* Amarillo para máxima visibilidad */
-            --accent: #ff5722;
-            --success: #4caf50;
-            --border: #333333;
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --primary: #f59e0b;
+            --urgent: #ef4444;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 15px; height: 100vh; display: flex; flex-direction: column; }
-
-        header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding-bottom: 15px; border-bottom: 2px solid var(--border); margin-bottom: 20px;
-        }
-        .timer { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
-
-        /* Grid de Pedidos */
-        .kds-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
+        body { background: var(--bg); }
         .kds-card {
             background: var(--card-bg);
-            border: 2px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid #1e293b;
+            border-radius: 1.5rem;
             display: flex;
             flex-direction: column;
-            animation: slideIn 0.3s ease;
+            transition: all 0.3s;
         }
-        .kds-card.priority { border-color: var(--accent); }
-
-        .card-header {
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.05);
-        }
-        .ticket-num { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
-        .elapsed { font-size: 0.9rem; font-weight: 700; }
-
-        .card-body { padding: 15px; flex: 1; }
-        .order-item {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 5px;
-        }
-        .qty { color: var(--primary); font-weight: 700; margin-right: 10px; }
-
-        .card-footer { padding: 10px; }
-        .done-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .done-btn:active { transform: scale(0.98); background: #388e3c; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Efecto urgente */
-        .urgent { animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { box-shadow: 0 0 5px var(--accent); } to { box-shadow: 0 0 20px var(--accent); } }
+        .kds-card.urgent { border-color: var(--urgent); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .kds-card.waiting { border-color: var(--primary); }
     </style>
 </head>
-<body>
-    <header>
-        <h1>CONTROL DE COCINA</h1>
-        <div class="timer" id="clock">00:00:00</div>
-        <div style="display:flex; gap: 20px; align-items:center;">
-            <span><i class="fas fa-circle" style="color:var(--success)"></i> ONLINE</span>
-            <button style="background:none; border:1px solid #555; color:white; padding:5px 10px; border-radius:5px;">LOGOUT</button>
+<body class="p-4 h-screen flex flex-col text-white overflow-hidden">
+    
+    <!-- Navbar KDS -->
+    <header class="flex justify-between items-center mb-6 bg-slate-900/50 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <span class="text-4xl">👨‍🍳</span>
+            <div>
+                <h1 class="text-2xl font-black leading-tight tracking-tighter">MONITOR DE COCINA</h1>
+                <p class="text-xs font-bold text-slate-400 tracking-widest uppercase">Sistema de Producción v4.1</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-3xl font-black text-yellow-400 font-mono" id="clock">00:00:00</div>
+            <div class="flex items-center justify-end gap-2 text-[10px] font-bold text-emerald-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                SISTEMA OPERATIVO
+            </div>
         </div>
     </header>
 
-    <div class="kds-grid" id="kdsGrid">
-        <!-- Ejemplo de Pedido -->
-        <div class="kds-card urgent">
-            <div class="card-header">
-                <span class="ticket-num">#T-48</span>
-                <span class="elapsed">14:22 MIN</span>
-            </div>
-            <div class="card-body">
-                <div class="order-item">
-                    <span><span class="qty">2</span> POLLO ENTERO</span>
-                </div>
-                <div class="order-item">
-                    <span><span class="qty">1</span> PATATAS RACIÓN</span>
-                </div>
-                <div class="order-item" style="color:var(--accent); font-size: 1rem;">
-                    <i class="fas fa-sticky-note"></i> "Sin mucha sal las patatas"
-                </div>
-            </div>
-            <div class="card-footer">
-                <button class="done-btn">COMPLETAR</button>
-            </div>
+    <!-- Orders Grid -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-1 overflow-y-auto pb-10" id="kds-grid">
+        <!-- Loader / No Orders -->
+        <div class="col-span-full py-20 text-center glass-panel">
+            <h3 class="text-2xl font-black text-slate-500">Sincronizando comanda...</h3>
         </div>
-
-        <div class="kds-card">
-            <div class="card-header">
-                <span class="ticket-num">#T-49</span>
-                <span class="elapsed">03:15 MIN</span>
-            </div>
-            <div class="card-body">
-                <div class="order-item">
-                    <span><span class="qty">1</span> MEDIO POLLO</span>
-                </div>
-                <div class="order-item">
-                    <span><span class="qty">2</span> CERVEZA ESPECIAL</span>
-                </div>
-            </div>
-            <div class="card-footer">
-                <button class="done-btn">COMPLETAR</button>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script>
-        // Reloj en tiempo real
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
+        const API_URL = "/api";
 
-        // Aquí iría el polling a /api/orders?estado=EN_PREPARACION
+        function updateClock() {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('es-ES', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch(`${API_URL}/orders?estado=EN_PREPARACION`);
+                const orders = await res.json();
+                renderOrders(orders);
+            } catch (e) {
+                console.error("KDS Error:", e);
+            }
+        }
+
+        function renderOrders(orders) {
+            const grid = document.getElementById('kds-grid');
+            if(!orders || orders.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-40 text-center flex flex-col items-center">
+                        <span class="text-8xl mb-6 opacity-20">🔥</span>
+                        <h3 class="text-3xl font-black text-slate-600">COCINA DESPEJADA</h3>
+                        <p class="text-slate-500 mt-2 font-medium">No hay pedidos pendientes de preparación.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = orders.map(order => {
+                const mins = Math.floor((new Date() - new Date(order.fecha)) / 60000);
+                const isUrgent = mins > 15;
+                
+                return `
+                    <div class="kds-card ${isUrgent ? 'urgent' : 'waiting'} animate-in">
+                        <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">TICKET</p>
+                                <p class="text-3xl font-black text-white">#${order.numero_ticket || order.id.slice(0,4)}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black ${isUrgent ? 'text-red-400' : 'text-yellow-400'} uppercase tracking-widest">TIEMPO</p>
+                                <p class="text-2xl font-black ${isUrgent ? 'text-red-400' : 'text-white'}">${mins}m</p>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1">
+                            <ul class="space-y-4">
+                                ${order.items.map(i => `
+                                    <li class="flex items-start gap-4">
+                                        <span class="bg-slate-800 text-yellow-400 font-black px-3 py-1 rounded-lg text-xl">${i.cantidad}</span>
+                                        <div class="flex-1">
+                                            <p class="text-xl font-bold leading-tight">${i.nombre.toUpperCase()}</p>
+                                            ${i.notas ? `<p class="text-sm text-yellow-500/80 italic mt-1 font-medium">⚠️ ${i.notas}</p>` : ''}
+                                        </div>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <button onclick="completarPedido('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-xl shadow-lg shadow-emerald-900/20 active:scale-95 transition-all">
+                                COMPLETADO
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function completarPedido(orderId) {
+            try {
+                await fetch(`${API_URL}/orders/${orderId}/completar`, { method: 'POST' });
+                fetchOrders();
+            } catch (e) {
+                alert("Error al completar");
+            }
+        }
+
+        setInterval(fetchOrders, 5000);
+        fetchOrders();
     </script>
 </body>
 </html>

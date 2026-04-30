@@ -4,78 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caja Maestra - Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { user-select: none; -webkit-user-select: none; }</style>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
+    <style>
+        body { user-select: none; -webkit-user-select: none; }
+        .ticket-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: white;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col font-sans">
+<body class="bg-slate-900 h-screen flex flex-col font-sans">
     
-    <!-- Navbar Sup -->
-    <div class="bg-emerald-700 p-5 border-b border-gray-200 flex justify-between items-center shadow-md">
-        <h1 class="text-3xl font-black text-white">💰 TPV MAESTRA - COBROS</h1>
-        <div class="flex gap-4">
-            <button onclick="abrirCajaRemota()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] active:scale-95 transition-all">🔓 ABRIR CAJA</button>
-            <button onclick="location.href='index.html'" class="bg-emerald-900 hover:bg-emerald-800 text-white px-5 py-3 rounded-xl font-bold text-lg shadow-md active:scale-95 transition-all">Ver Menú Público</button>
-            <button onclick="location.href='dashboard.html'" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-5 py-3 rounded-xl font-black text-lg shadow-md active:scale-95 transition-all">Ir al Dashboard</button>
+    <!-- Header -->
+    <nav class="bg-white/5 backdrop-blur-md border-b border-white/10 p-4 md:p-6 flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <span class="text-3xl">💰</span>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-white leading-tight">CAJA MAESTRA</h1>
+                <p class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Terminal de Cobros v4.1</p>
+            </div>
         </div>
-    </div>
+        <div class="flex items-center gap-3">
+            <button onclick="abrirCajaRemota()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl font-bold text-sm border border-white/10 transition-all active:scale-95">🔓 ABRIR CAJÓN</button>
+            <button onclick="location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl font-bold text-sm border border-white/10 transition-all active:scale-95">🏠 INICIO</button>
+        </div>
+    </nav>
 
-    <!-- Contenido -->
-    <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-        <h2 class="text-2xl font-bold text-gray-700 mb-2">Turnos Esperando Pago</h2>
-        <div id="caja-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="text-gray-500 font-bold text-xl ml-2 italic">Cargando turnos...</div>
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></span>
+                PEDIDOS POR COBRAR
+            </h2>
+            <div id="status-badge" class="px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black border border-emerald-500/30">CONECTADO</div>
+        </div>
+
+        <div id="caja-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Skeleton placeholder -->
+            <div class="glass-panel h-64 flex items-center justify-center">
+                <p class="text-slate-500 font-bold animate-pulse">Sincronizando con Kiosko...</p>
+            </div>
         </div>
     </div>
 
     <script>
-        if(!localStorage.getItem('auth_user')) {
-            window.location.href = 'login.html';
-        }
-        
         const API_URL = "/api";
-
         let fallosConexion = 0;
+
         async function cargarPedidos() {
             try {
-                // Traer los que el quiosco dejó ESPERANDO_PAGO
-                const res = await fetch(`${API_URL}/pedidos?estado=ESPERANDO_PAGO`);
+                const res = await fetch(`${API_URL}/orders?estado=ESPERANDO_PAGO`);
                 const turnos = await res.json();
                 
                 fallosConexion = 0;
                 document.getElementById('error-conexion')?.remove();
+                document.getElementById('status-badge').innerText = "CONECTADO";
+                document.getElementById('status-badge').className = "px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black border border-emerald-500/30";
 
                 const container = document.getElementById('caja-container');
                 container.innerHTML = '';
                 
-                if(turnos.length === 0) {
-                    container.innerHTML = `<div class="text-gray-500 font-bold text-2xl col-span-3">Nadie está esperando para pagar. 👍</div>`;
+                if(!turnos || turnos.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full py-20 text-center glass-panel">
+                            <span class="text-6xl mb-4 block">✅</span>
+                            <h3 class="text-2xl font-black text-white">¡Todo al día!</h3>
+                            <p class="text-slate-400 mt-2">No hay clientes esperando para pagar en este momento.</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                for (let ped of turnos) {
-                    const r = await fetch(`${API_URL}/pedidos/${ped.id}/items`);
-                    ped.items = await r.json();
-                    
-                    let itemsHtml = ped.items.map(i => `<li class="text-lg font-medium text-gray-600 border-b py-1">${i.cantidad}x ${i.nombre}</li>`).join('');
+                turnos.forEach(ped => {
+                    let itemsHtml = ped.items.map(i => `
+                        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                            <span class="font-bold text-slate-800">${i.cantidad}x ${i.nombre}</span>
+                            <span class="text-slate-500 font-medium">${(i.precio * i.cantidad).toFixed(2)}€</span>
+                        </div>
+                    `).join('');
                     
                     container.innerHTML += `
-                        <div class="bg-white rounded-3xl overflow-hidden shadow-xl border-4 ${ped.origen.includes('WHATSAPP') ? 'border-emerald-400' : 'border-yellow-400'}">
-                            <div class="${ped.origen.includes('WHATSAPP') ? 'bg-emerald-400 text-white' : 'bg-yellow-400 text-gray-900'} p-4 flex justify-between items-center">
-                                <span class="font-black text-4xl">${ped.numero_ticket}</span>
-                                <span class="font-bold text-xl uppercase tracking-widest">${ped.origen.includes('WHATSAPP') ? '📱 WHATSAPP' : '🖥️ KIOSKO'}</span>
-                            </div>
-                            <div class="p-6">
-                                <ul class="mb-4 max-h-40 overflow-y-auto">${itemsHtml}</ul>
-                                ${ped.notas_cliente ? `<div class="bg-yellow-50 text-yellow-800 p-3 rounded-xl text-sm font-bold border border-yellow-200 mb-4 whitespace-pre-wrap">${ped.notas_cliente}</div>` : ''}
-                                <div class="flex justify-between items-center mb-6">
-                                    <span class="font-bold text-gray-500 text-xl">A Pagar:</span>
-                                    <span class="font-black text-emerald-600 text-4xl">${ped.total.toFixed(2)}€</span>
+                        <div class="ticket-card animate-in">
+                            <div class="bg-slate-100 p-6 flex justify-between items-center border-b-2 border-dashed border-slate-200">
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">TICKET #</p>
+                                    <p class="text-4xl font-black text-slate-900">${ped.numero_ticket || ped.id.slice(0,4)}</p>
                                 </div>
-                                <button onclick="cobrarTKT(${ped.id})" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-5 rounded-xl font-black text-2xl shadow-lg active:scale-95 transition-all">💸 CONFIRMAR PAGO</button>
+                                <div class="text-right">
+                                    <span class="px-3 py-1 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">${ped.origen}</span>
+                                    <p class="text-xs text-slate-400 mt-1">${new Date(ped.fecha).toLocaleTimeString()}</p>
+                                </div>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col">
+                                <div class="flex-1 mb-6">
+                                    ${itemsHtml}
+                                </div>
+                                
+                                ${ped.notas_cliente ? `
+                                    <div class="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100 italic text-sm text-yellow-800">
+                                        "${ped.notas_cliente}"
+                                    </div>
+                                ` : ''}
+
+                                <div class="flex justify-between items-end mb-6">
+                                    <span class="font-bold text-slate-400 text-sm">TOTAL A COBRAR</span>
+                                    <span class="font-black text-slate-900 text-5xl leading-none">${ped.total.toFixed(2)}<span class="text-2xl ml-1">€</span></span>
+                                </div>
+
+                                <button onclick="cobrarTKT('${ped.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-5 rounded-2xl font-black text-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                                    CONFIRMAR COBRO
+                                </button>
                             </div>
                         </div>
                     `;
-                }
+                });
             } catch(e) {
                 console.error(e);
                 fallosConexion++;
@@ -83,50 +134,36 @@
             }
         }
 
-        function mostrarErrorConexion() {
-            if(!document.getElementById('error-conexion')) {
-                const overlay = document.createElement('div');
-                overlay.id = 'error-conexion';
-                overlay.className = "fixed inset-0 bg-red-900 bg-opacity-95 z-[999] flex flex-col items-center justify-center text-white";
-                overlay.innerHTML = `
-                    <div class="text-9xl mb-4">🔌</div>
-                    <h1 class="text-5xl font-black mb-4 text-center">TPV DESCONECTADO</h1>
-                    <p class="text-2xl font-bold text-center px-4 max-w-2xl">Asegúrate de haber encendido el TPV en Termux.</p>
-                `;
-                document.body.appendChild(overlay);
+        async function cobrarTKT(pedId) {
+            if(!confirm("¿Confirmar cobro en EFECTIVO?")) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/orders/${pedId}/cobrar`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ metodo_pago: 'EFECTIVO' })
+                });
+                if(res.ok) {
+                    cargarPedidos();
+                } else {
+                    alert("Error al procesar el pago");
+                }
+            } catch(e) {
+                alert("Fallo de red");
             }
         }
 
-        async function cobrarTKT(pedId, metodo = "EFECTIVO") {
-            try {
-                await fetch(`${API_URL}/pedidos/${pedId}/cobrar`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ metodo_pago: metodo })
-                });
-                
-                // El backend ya encola el comando de abrir caja e imprimir ticket de cocina y cliente
-                // al procesar el cobro. No es necesario enviarlo de nuevo aquí.
-                
-                cargarPedidos();
-            } catch(e) {
-                alert("Error al confirmar cobrar: " + e);
-            }
+        function mostrarErrorConexion() {
+            document.getElementById('status-badge').innerText = "DESCONECTADO";
+            document.getElementById('status-badge').className = "px-4 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-black border border-red-500/30";
         }
 
         async function abrirCajaRemota() {
             try {
-                const res = await fetch('/api/hardware/enqueue', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({accion: 'abrir_caja', origen: localStorage.getItem('auth_user') || 'app_admin'})
-                });
-                const data = await res.json();
-                if(data.status !== 'ok') {
-                    console.log('Error encolando acción:', data.msj);
-                }
+                await fetch('/api/admin/abrir-cajon', { method: 'POST' });
+                alert("Comando de apertura enviado.");
             } catch(e) {
-                console.log('Error de red al intentar abrir caja');
+                console.log('Error abriendo caja');
             }
         }
 

@@ -3,191 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Hub | Carbones y Pollos</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap">
+    <title>Carbones y Pollos - Enterprise TPV</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0f172a">
     <style>
-        body { background: #0f172a; color: white; font-family: 'Outfit', sans-serif; overflow: hidden; height: 100vh; }
-        
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        
-        .hub-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .hub-card:hover { transform: translateY(-10px) scale(1.02); border-color: #f59e0b; box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.3); }
-        
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .bg-animate {
-            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
+        .hero-glow {
+            position: absolute;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
             z-index: -1;
+            pointer-events: none;
         }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .nav-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .nav-card i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+        .nav-card:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
     </style>
 </head>
-<body>
-    <div class="bg-animate"></div>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-x-hidden">
+    
+    <div class="hero-glow"></div>
 
-    <!-- Header Profesional -->
-    <header class="p-8 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <i class="fas fa-fire-alt text-2xl text-slate-900"></i>
-            </div>
-            <div>
-                <h1 class="text-2xl font-black uppercase tracking-tighter">Carbones y Pollos</h1>
-                <p class="text-xs text-slate-400 font-bold tracking-widest uppercase">Enterprise OS v2.5</p>
-            </div>
+    <!-- Header Section -->
+    <header class="text-center mb-12 animate-in">
+        <div class="inline-block p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 mb-6">
+            <img src="/static/icon.png" alt="Logo" class="w-20 h-20">
         </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="text-right hidden md:block">
-                <p id="clock" class="text-xl font-black">00:00:00</p>
-                <p class="text-[10px] text-amber-500 font-bold uppercase">Sincronizado Cloud</p>
-            </div>
-            <button onclick="location.href='setup.html'" class="w-10 h-10 glass rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
-                <i class="fas fa-cog text-slate-400"></i>
-            </button>
-        </div>
+        <h1 class="text-5xl md:text-7xl font-black mb-2 tracking-tighter">
+            <span class="text-white">CARBONES Y</span>
+            <span class="text-gradient">POLLOS</span>
+        </h1>
+        <p class="text-slate-400 text-lg md:text-xl font-medium tracking-wide">ENTERPRISE CLOUD SYSTEM v4.1</p>
     </header>
 
-    <main class="grid-layout">
-        <!-- TPV VENTA -->
-        <div onclick="location.href='caja.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 transition-all">
-                <i class="fas fa-cash-register text-2xl text-blue-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Punto de Venta</h2>
-            <p class="text-sm text-slate-400">Gestión de comandas, cobros y tickets en tiempo real.</p>
-        </div>
+    <!-- Navigation Grid -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl animate-in" style="animation-delay: 0.1s;">
+        
+        <a href="caja.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">💰</span>
+            <h3 class="text-2xl font-bold mb-2">Punto de Venta</h3>
+            <p class="text-slate-400 text-sm">Ventas rápidas, cobros y arqueo diario.</p>
+        </a>
 
-        <!-- KDS COCINA -->
-        <div onclick="location.href='cocina.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-all">
-                <i class="fas fa-utensils text-2xl text-orange-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Sistema Cocina</h2>
-            <p class="text-sm text-slate-400">Monitor de pedidos industrial con gestión de tiempos.</p>
-        </div>
+        <a href="cocina.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">👨‍🍳</span>
+            <h3 class="text-2xl font-bold mb-2">Cocina & Monitor</h3>
+            <p class="text-slate-400 text-sm">Gestión de comandas y tiempos de preparación.</p>
+        </a>
 
-        <!-- DASHBOARD ADMIN -->
-        <div onclick="location.href='dashboard_produccion.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 transition-all">
-                <i class="fas fa-chart-line text-2xl text-emerald-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Business Intelligence</h2>
-            <p class="text-sm text-slate-400">Analítica de ventas, mermas e insights de IA.</p>
-        </div>
+        <a href="inventario.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">📦</span>
+            <h3 class="text-2xl font-bold mb-2">Inventario Pro</h3>
+            <p class="text-slate-400 text-sm">Control de stock, mermas y proveedores.</p>
+        </a>
 
-        <!-- RRHH PORTAL -->
-        <div onclick="location.href='rrhh.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-500 transition-all">
-                <i class="fas fa-users text-2xl text-purple-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Portal Empleado</h2>
-            <p class="text-sm text-slate-400">Control de fichajes, horarios y gestión de personal.</p>
-        </div>
+        <a href="dashboard_produccion.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">📊</span>
+            <h3 class="text-2xl font-bold mb-2">Control Directivo</h3>
+            <p class="text-slate-400 text-sm">Métricas en tiempo real e inteligencia IA.</p>
+        </a>
 
-        <!-- KIOSKO CLIENTE -->
-        <div onclick="location.href='kiosko.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-500 transition-all">
-                <i class="fas fa-tablet-alt text-2xl text-amber-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Kiosko Auto-Pedido</h2>
-            <p class="text-sm text-slate-400">Interfaz táctil para clientes con flujo de venta directa.</p>
-        </div>
+        <a href="rrhh.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">👥</span>
+            <h3 class="text-2xl font-bold mb-2">Gestión de Personal</h3>
+            <p class="text-slate-400 text-sm">Fichaje por PIN y control de turnos.</p>
+        </a>
 
-        <!-- STOCK / INVENTARIO -->
-        <div onclick="location.href='inventario.html'" class="hub-card glass rounded-[32px] p-8 group">
-            <div class="w-16 h-16 bg-slate-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-500 transition-all">
-                <i class="fas fa-boxes text-2xl text-slate-400 group-hover:text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2">Inventario Pro</h2>
-            <p class="text-sm text-slate-400">Control de materia prima, proveedores y mermas.</p>
-        </div>
+        <a href="admin_mobile.html" class="glass-panel nav-card">
+            <span class="text-4xl mb-4">⚙️</span>
+            <h3 class="text-2xl font-bold mb-2">Configuración</h3>
+            <p class="text-slate-400 text-sm">Ajustes del sistema y mantenimiento.</p>
+        </a>
+
     </main>
 
-    <footer class="fixed bottom-8 left-0 w-full text-center">
-        <div class="inline-flex items-center gap-3 glass px-6 py-3 rounded-full">
-            <div id="status-indicator" class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <p id="status-text" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Todos los sistemas operativos - Local Node: 192.168.1.50</p>
+    <!-- Footer / Status -->
+    <footer class="mt-16 text-center text-slate-500 text-sm animate-in" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-center gap-4 mb-4">
+            <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
+                Servidor Cloud: Operativo
+            </span>
+            <span class="w-px h-4 bg-white/10"></span>
+            <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
+                Hardware Local: Sincronizado
+            </span>
         </div>
+        <p>&copy; 2026 Grupo Koal Technology. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Global Toast Container -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
-
     <script>
-        function updateClock() {
-            const now = new Date();
-            const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('clock').innerText = time;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // 🌟 Enterprise Toast System
-        window.showToast = function(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            let bgClass = 'bg-slate-800 border-slate-700 text-white';
-            let icon = 'fa-info-circle text-blue-400';
-            
-            if (type === 'success') { bgClass = 'bg-emerald-900/90 border-emerald-700 text-white'; icon = 'fa-check-circle text-emerald-400'; }
-            if (type === 'error') { bgClass = 'bg-red-900/90 border-red-700 text-white'; icon = 'fa-exclamation-triangle text-red-400'; }
-            if (type === 'warning') { bgClass = 'bg-amber-900/90 border-amber-700 text-white'; icon = 'fa-exclamation-circle text-amber-400'; }
-
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md transform transition-all duration-300 translate-x-10 opacity-0 ${bgClass}`;
-            toast.innerHTML = `<i class="fas ${icon} text-lg"></i> <p class="text-sm font-semibold">${message}</p>`;
-            
-            container.appendChild(toast);
-            
-            // Animate In
-            setTimeout(() => { toast.classList.remove('translate-x-10', 'opacity-0'); }, 10);
-            
-            // Animate Out & Remove
-            setTimeout(() => {
-                toast.classList.add('translate-x-10', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        };
-
-        // Network Status Monitoring
-        function updateNetworkStatus() {
-            const indicator = document.getElementById('status-indicator');
-            const text = document.getElementById('status-text');
-            if (navigator.onLine) {
-                indicator.className = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
-                text.innerText = 'Todos los sistemas operativos - Sincronizado';
-                showToast('Conexión restaurada. Sincronizando...', 'success');
-            } else {
-                indicator.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
-                text.innerText = 'SISTEMA OFFLINE - MODO LOCAL ACTIVO';
-                showToast('Conexión perdida. Operando en caché local.', 'error');
-            }
-        }
-
-        window.addEventListener('online', updateNetworkStatus);
-        window.addEventListener('offline', updateNetworkStatus);
-
+        // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => {
-                console.log('SW Enterprise Registrado');
-            }).catch(err => console.error('SW Error:', err));
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log("SW Registered"))
+                .catch(err => console.log("SW Error", err));
         }
     </script>
 </body>

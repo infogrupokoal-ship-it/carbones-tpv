@@ -1,17 +1,19 @@
 from fastapi import APIRouter
-from .endpoints import auth, orders, admin
+from .endpoints import auth, orders, inventory
 
 api_router = APIRouter()
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
+api_router.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
 
-# Registro modular de dominios Enterprise
-api_router.include_router(auth.router, prefix="/auth", tags=["Seguridad y Acceso"])
-api_router.include_router(orders.router, prefix="/orders", tags=["Ventas y Transacciones"])
-api_router.include_router(admin.router, prefix="/admin", tags=["Gobernanza y Sistema"])
-
-@api_router.get("/status", tags=["Salud"])
-def get_api_status():
+# Endpoint de Analíticas consolidado
+@api_router.get("/analytics/kpis", tags=["analytics"])
+def get_kpis():
+    # Mock data pro para el dashboard hasta conectar DB real
     return {
-        "api_v1": "active",
-        "protocol": "enterprise-industrial",
-        "auth_engine": "bcrypt-jwt"
+        "total_ventas": 1240.50,
+        "numero_pedidos": 84,
+        "margen_promedio": 68.4,
+        "coste_materia_prima": 392.10,
+        "tendencia": "up"
     }
