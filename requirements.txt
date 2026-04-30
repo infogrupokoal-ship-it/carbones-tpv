@@ -19,4 +19,5 @@ google-generativeai==0.8.5
 slowapi==0.1.9
 psycopg2-binary==2.9.9
 bcrypt==4.0.1
+reportlab==4.1.0
 pypiwin32==223; sys_platform == 'win32'

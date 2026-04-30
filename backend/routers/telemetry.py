@@ -58,13 +58,13 @@ def health_check(db: Session = Depends(get_db)):
 @router.get("/logs")
 def get_recent_logs(lines: int = 100):
     """Permite visualizar los últimos eventos del servidor para depuración rápida."""
-    log_path = "instance/server.log"
+    log_path = "logs/tpv_system.log"
     if not os.path.exists(log_path):
-        return {"error": "Archivo de logs no encontrado"}
+        return {"error": f"Archivo de logs no encontrado en {log_path}", "logs": []}
 
     try:
-        with open(log_path, "r") as f:
+        with open(log_path, "r", encoding="utf-8") as f:
             content = f.readlines()
             return {"logs": content[-lines:]}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e), "logs": []}
