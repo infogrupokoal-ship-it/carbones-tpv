@@ -1,0 +1,75 @@
+/* 🎨 Carbones y Pollos Enterprise Design System v2.0 */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@300;500;900&display=swap');
+
+:root {
+    --bg: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --primary: #f59e0b;
+    --primary-hover: #d97706;
+    --accent: #orange-500;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --shadow-pro: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glass-panel {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-pro);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+    border-color: rgba(245, 158, 11, 0.2);
+    transform: translateY(-5px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    color: #0f172a;
+    font-weight: 800;
+    padding: 1rem 2rem;
+    border-radius: 1.25rem;
+    transition: all 0.2s;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}

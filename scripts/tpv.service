@@ -1,0 +1,28 @@
+[Unit]
+Description=Gunicorn instance to serve TPV Carbones y Pollos Enterprise
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/carbones_tpv
+Environment="PATH=/opt/carbones_tpv/venv/bin"
+EnvironmentFile=/opt/carbones_tpv/.env
+
+# Ejecutar con Gunicorn + Uvicorn workers para máximo rendimiento
+ExecStart=/opt/carbones_tpv/venv/bin/gunicorn \
+    --workers 4 \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:8000 \
+    --access-logfile /var/log/tpv/access.log \
+    --error-logfile /var/log/tpv/error.log \
+    main:app
+
+Restart=always
+RestartSec=5
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

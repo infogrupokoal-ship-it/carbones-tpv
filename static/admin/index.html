@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Carbones y Pollos Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@300;500;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .card-grad { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .accent-glow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+        
+        /* AI Assistant Widget */
+        #ai-assistant { position: fixed; bottom: 2rem; right: 2rem; width: 380px; height: 500px; display: flex; flex-direction: column; z-index: 100; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(calc(100% - 60px)); }
+        #ai-assistant.expanded { transform: translateY(0); }
+        .ai-header { cursor: pointer; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); padding: 1rem 1.5rem; border-radius: 1.5rem 1.5rem 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #0f172a; }
+        .ai-body { flex: 1; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); border-top: none; border-radius: 0 0 1.5rem 1.5rem; display: flex; flex-direction: column; overflow: hidden; }
+        #ai-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .msg { padding: 0.75rem 1rem; border-radius: 1rem; max-width: 85%; font-size: 0.9rem; line-height: 1.4; }
+        .msg-ai { background: rgba(30, 41, 59, 0.8); align-self: flex-start; color: #f8fafc; border-bottom-left-radius: 0.25rem; }
+        .msg-user { background: #f59e0b; color: #0f172a; align-self: flex-end; font-weight: 600; border-bottom-right-radius: 0.25rem; }
+        .ai-input-area { padding: 1rem; background: rgba(30, 41, 59, 0.5); border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 0.5rem; }
+        #ai-input { background: transparent; border: none; color: white; flex: 1; font-size: 0.9rem; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    
+    <nav class="flex justify-between items-center mb-10">
+        <div>
+            <h1 class="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+                TPV Control Panel
+            </h1>
+            <p class="text-slate-400 font-medium">Gestión Profesional en Tiempo Real</p>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="abrirCajon()" class="glass px-6 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all border-orange-500/30 border flex items-center gap-2">
+                <span>🔓</span> Abrir Cajón
+            </button>
+            <button onclick="ejecutarCierre()" class="bg-orange-500 hover:bg-orange-400 text-slate-900 px-6 py-3 rounded-2xl font-black transition-all accent-glow">
+                Cierre Z Manual
+            </button>
+        </div>
+    </nav>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="glass p-6 rounded-3xl card-grad">
+            <p class="text-slate-400 font-bold text-sm mb-1 uppercase tracking-widest">Ventas Hoy</p>
+            <h3 id="stat-ventas" class="text-4xl font-black text-white">0.00 €</h3>
+            <div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full w-[65%]"></div>
+            </div>
+        </div>
+        <div class="glass p-6 rounded-3xl card-grad">
+            <p class="text-slate-400 font-bold text-sm mb-1 uppercase tracking-widest">Pedidos</p>
+            <h3 id="stat-pedidos" class="text-4xl font-black text-white">0</h3>
+            <p class="text-emerald-400 text-xs font-bold mt-2">↑ 12% vs ayer</p>
+        </div>
+        <div class="glass p-6 rounded-3xl card-grad">
+            <p class="text-slate-400 font-bold text-sm mb-1 uppercase tracking-widest">Stock Crítico</p>
+            <h3 id="stat-stock" class="text-4xl font-black text-orange-500">2</h3>
+            <p class="text-slate-500 text-xs font-bold mt-2">Items bajo mínimo</p>
+        </div>
+        <div class="glass p-6 rounded-3xl card-grad relative overflow-hidden">
+            <p class="text-slate-400 font-bold text-sm mb-1 uppercase tracking-widest">Status Sistema</p>
+            <h3 id="sys-status-text" class="text-4xl font-black text-emerald-400 flex items-center gap-2">
+                ONLINE <span class="block w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+            </h3>
+            <div class="mt-2 flex gap-2 text-[10px] font-bold text-slate-500 uppercase">
+                <span>CPU: <span id="sys-cpu" class="text-white">0%</span></span>
+                <span>RAM: <span id="sys-ram" class="text-white">0%</span></span>
+            </div>
+            <div id="sys-db-indicator" class="absolute bottom-0 left-0 w-full h-1 bg-emerald-500/30"></div>
+        </div>
+    </div>
+
+    <!-- Charts & Feed -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Sales Chart -->
+        <div class="lg:col-span-2 glass p-8 rounded-[2rem] card-grad">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-xl font-black text-gradient">Rendimiento de Ventas</h3>
+                <select class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm font-bold outline-none text-white">
+                    <option>Últimas 24h</option>
+                    <option>Semana</option>
+                </select>
+            </div>
+            <canvas id="salesChart" height="250"></canvas>
+        </div>
+
+        <!-- Live Orders Feed -->
+        <div class="glass p-8 rounded-[2rem] card-grad flex flex-col">
+            <h3 class="text-xl font-black mb-6">Pedidos Recientes</h3>
+            <div id="orders-list" class="space-y-4 overflow-y-auto max-h-[400px] pr-2">
+                <!-- Items dynamic -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Widget -->
+    <div id="ai-assistant" class="accent-glow">
+        <div class="ai-header" onclick="document.getElementById('ai-assistant').classList.toggle('expanded')">
+            <div class="flex items-center gap-2">
+                <span>🤖</span> Koal-AI Assistant
+            </div>
+            <span id="ai-chevron">▲</span>
+        </div>
+        <div class="ai-body">
+            <div id="ai-messages">
+                <div class="msg msg-ai">Hola. Soy tu asistente estratégico. ¿En qué puedo ayudarte con la gestión de hoy?</div>
+            </div>
+            <div class="ai-input-area">
+                <input type="text" id="ai-input" placeholder="Pregúntame sobre ventas o stock..." onkeypress="if(event.key==='Enter') sendAIMessage()">
+                <button onclick="sendAIMessage()" class="text-orange-500 hover:text-orange-400">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let salesChart;
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        function initChart(labels, data) {
+            if (salesChart) salesChart.destroy();
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels || ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                    datasets: [{
+                        label: 'Ventas (€)',
+                        data: data || [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#f59e0b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        async function loadTelemetry() {
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                document.getElementById('sys-cpu').innerText = `${data.telemetry.cpu_percent}%`;
+                document.getElementById('sys-ram').innerText = data.telemetry.memory_usage;
+                
+                const dbIndicator = document.getElementById('sys-db-indicator');
+                if(data.telemetry.database === 'connected') {
+                    dbIndicator.className = "absolute bottom-0 left-0 w-full h-1 bg-emerald-500";
+                } else {
+                    dbIndicator.className = "absolute bottom-0 left-0 w-full h-1 bg-red-500";
+                    document.getElementById('sys-status-text').innerHTML = 'DB ERROR <span class="block w-3 h-3 bg-red-500 rounded-full"></span>';
+                    document.getElementById('sys-status-text').className = "text-4xl font-black text-red-500 flex items-center gap-2";
+                }
+            } catch(e) { 
+                document.getElementById('sys-status-text').innerText = 'OFFLINE';
+                document.getElementById('sys-status-text').className = "text-4xl font-black text-slate-500 flex items-center gap-2";
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/admin/dashboard/kpis');
+                if(!res.ok) return;
+                const data = await res.json();
+                document.getElementById('stat-ventas').innerText = `${data.kpis.ventas_hoy.toFixed(2)} €`;
+                document.getElementById('stat-pedidos').innerText = data.kpis.pedidos_b2c;
+                initChart(data.charts.horas.labels, data.charts.horas.data);
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/orders/');
+                if(!res.ok) return;
+                const data = await res.json();
+                const list = document.getElementById('orders-list');
+                list.innerHTML = '';
+                data.slice(0, 10).forEach(order => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 flex justify-between items-center hover:bg-slate-800 transition-all";
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-black text-white">#${order.numero_ticket}</p>
+                            <p class="text-xs text-slate-500 font-bold">${new Date(order.fecha).toLocaleTimeString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-orange-400">${order.total.toFixed(2)}€</p>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full font-black uppercase tracking-tighter">${order.estado}</span>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function sendAIMessage() {
+            const input = document.getElementById('ai-input');
+            const text = input.value.trim();
+            if(!text) return;
+            const messages = document.getElementById('ai-messages');
+            messages.innerHTML += `<div class="msg msg-user">${text}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            const loadingId = 'ai-loading-' + Date.now();
+            messages.innerHTML += `<div id="${loadingId}" class="msg msg-ai italic opacity-50">Analizando datos...</div>`;
+            messages.scrollTop = messages.scrollHeight;
+            try {
+                const res = await fetch('/api/admin/ai/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await res.json();
+                document.getElementById(loadingId).remove();
+                messages.innerHTML += `<div class="msg msg-ai">${data.response}</div>`;
+            } catch(e) {
+                document.getElementById(loadingId).innerText = "Error contactando con el analista.";
+            }
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function abrirCajon() {
+            if(!confirm("¿Seguro que quieres abrir el cajón?")) return;
+            await fetch('/api/admin/abrir-cajon', { method: 'POST' });
+        }
+
+        async function ejecutarCierre() {
+            const decl = prompt("Efectivo contado:");
+            await fetch('/api/admin/cierre-z', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ efectivo_declarado: decl ? parseFloat(decl) : null })
+            });
+        }
+
+        loadDashboard();
+        loadOrders();
+        loadTelemetry();
+        setInterval(loadDashboard, 30000);
+        setInterval(loadOrders, 10000);
+        setInterval(loadTelemetry, 15000);
+    </script>
+</body>
+</html>
