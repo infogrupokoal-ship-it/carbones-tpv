@@ -3,241 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard | Carbones y Pollos</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #ff5722;
-            --primary-dark: #e64a19;
-            --accent: #ff9800;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: var(--text); 
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Glassmorphism Header */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(12px);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; color: var(--primary); }
-        .logo i { font-size: 1.5rem; }
-
-        .status-badge {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Container */
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
-            transform: rotate(45deg); pointer-events: none;
-        }
-        .stat-card h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
-        .stat-card .trend { font-size: 0.75rem; color: var(--success); display: flex; align-items: center; gap: 3px; }
-
-        /* Main Menu */
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .menu-item {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text);
-        }
-        .menu-item:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-        .menu-item i { font-size: 2rem; color: var(--primary); }
-        .menu-item span { font-weight: 600; font-size: 0.95rem; }
-
-        /* List Section */
-        .section-title { margin: 30px 0 15px; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .section-title a { font-size: 0.8rem; color: var(--primary); text-decoration: none; }
-
-        .order-list { display: flex; flex-direction: column; gap: 12px; }
-        .order-item {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .order-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
-        .order-info p { font-size: 0.75rem; color: var(--text-muted); }
-        .order-price { text-align: right; }
-        .order-price .amt { font-weight: 700; font-size: 1.1rem; display: block; }
-        .order-status { 
-            font-size: 0.7rem; 
-            padding: 2px 8px; 
-            border-radius: 10px; 
-            background: rgba(245, 158, 11, 0.1); 
-            color: var(--warning);
-        }
-
-        /* Floating Action Button */
-        .fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 10px 25px rgba(255, 87, 34, 0.4);
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .fab:active { transform: scale(0.9); rotate: 90deg; }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate { animation: fadeIn 0.5s ease forwards; }
-    </style>
+    <title>Configuración | Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <i class="fas fa-drumstick-bite"></i>
-            <span>ADMIN TPV</span>
+<body class="min-h-screen bg-slate-900 pb-32">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 !rounded-none !border-x-0 !border-t-0 p-6 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-white/5 rounded-2xl border border-white/10">
+                <span class="text-2xl">⚙️</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-white tracking-tighter">CONFIGURACIÓN</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ajustes del Sistema v4.1</p>
+            </div>
         </div>
-        <div class="status-badge">
-            <i class="fas fa-circle"></i>
-            <span>ONLINE</span>
-        </div>
+        <a href="index.html" class="p-3 bg-white/5 rounded-2xl border border-white/10 text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </a>
     </header>
 
-    <div class="container">
-        <div class="stats-grid animate">
-            <div class="stat-card">
-                <h3>Ventas Hoy</h3>
-                <div class="value">482.50€</div>
-                <div class="trend"><i class="fas fa-arrow-up"></i> 12%</div>
-            </div>
-            <div class="stat-card">
-                <h3>Pedidos</h3>
-                <div class="value">34</div>
-                <div class="trend"><i class="fas fa-arrow-up"></i> 5</div>
-            </div>
-        </div>
-
-        <div class="menu-grid animate" style="animation-delay: 0.1s;">
-            <a href="#" class="menu-item">
-                <i class="fas fa-utensils"></i>
-                <span>Cocina</span>
-            </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-boxes-stacked"></i>
-                <span>Inventario</span>
-            </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-users"></i>
-                <span>Clientes</span>
-            </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Reportes</span>
-            </a>
-        </div>
-
-        <div class="section-title animate" style="animation-delay: 0.2s;">
-            <span>Últimos Pedidos</span>
-            <a href="#">Ver todos <i class="fas fa-chevron-right"></i></a>
-        </div>
-
-        <div class="order-list animate" style="animation-delay: 0.3s;" id="orderList">
-            <!-- Cargado vía JS -->
-            <div class="order-item">
-                <div class="order-info">
-                    <h4>Ticket #T-42</h4>
-                    <p>Hace 5 minutos • Mostrador</p>
+    <main class="max-w-xl mx-auto p-6 space-y-8 animate-in">
+        
+        <!-- System Health -->
+        <section class="glass-panel p-8">
+            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">Estado de Infraestructura</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <span class="text-sm font-bold text-white">Servidor Backend</span>
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg">ACTIVO</span>
                 </div>
-                <div class="order-price">
-                    <span class="amt">24.50€</span>
-                    <span class="order-status">PENDIENTE</span>
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <span class="text-sm font-bold text-white">Base de Datos</span>
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg">CONECTADO</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <span class="text-sm font-bold text-white">IA Gemini Engine</span>
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg">LISTO</span>
                 </div>
             </div>
-            <div class="order-item">
-                <div class="order-info">
-                    <h4>Ticket #T-41</h4>
-                    <p>Hace 12 minutos • Quiosco</p>
-                </div>
-                <div class="order-price">
-                    <span class="amt">18.20€</span>
-                    <span class="order-status" style="color:var(--success); background:rgba(16,185,129,0.1)">PAGADO</span>
-                </div>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="fab">
-        <i class="fas fa-plus"></i>
-    </div>
+        <!-- Quick Actions -->
+        <section class="space-y-4">
+            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Acciones Rápidas</h3>
+            
+            <button onclick="alert('Iniciando volcado de seguridad...')" class="w-full glass-panel p-6 flex items-center gap-6 hover:bg-white/10 transition-all active:scale-95 text-left">
+                <div class="p-4 bg-blue-500/20 rounded-2xl text-2xl">💾</div>
+                <div>
+                    <h4 class="text-lg font-bold text-white">Backup de Datos</h4>
+                    <p class="text-xs text-slate-500">Exportar base de datos a nube externa.</p>
+                </div>
+            </button>
 
-    <script>
-        // Simulación de carga de datos para el WOW inicial
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("Dashboard Enterprise Cargado");
-            // Aquí irían las llamadas fetch a /api/orders/
-        });
-    </script>
+            <button onclick="window.location.href='/docs'" class="w-full glass-panel p-6 flex items-center gap-6 hover:bg-white/10 transition-all active:scale-95 text-left">
+                <div class="p-4 bg-purple-500/20 rounded-2xl text-2xl">📖</div>
+                <div>
+                    <h4 class="text-lg font-bold text-white">Documentación API</h4>
+                    <p class="text-xs text-slate-500">Ver esquemas técnicos y endpoints.</p>
+                </div>
+            </button>
+
+            <button onclick="localStorage.clear(); window.location.href='/static/login.html';" class="w-full glass-panel p-6 flex items-center gap-6 hover:bg-red-500/10 transition-all active:scale-95 text-left border-red-500/20">
+                <div class="p-4 bg-red-500/20 rounded-2xl text-2xl">🚪</div>
+                <div>
+                    <h4 class="text-lg font-bold text-red-400">Cerrar Sesión</h4>
+                    <p class="text-xs text-slate-600">Finalizar sesión en este dispositivo.</p>
+                </div>
+            </button>
+        </section>
+
+        <!-- Danger Zone -->
+        <section class="p-8 border-2 border-dashed border-red-500/20 rounded-[2.5rem]">
+            <h3 class="text-xs font-black text-red-500 uppercase tracking-widest mb-4">Zona de Peligro</h3>
+            <button onclick="confirm('¿BORRAR TODO EL SISTEMA? Esta acción no se puede deshacer.')" class="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-xs tracking-widest uppercase shadow-xl shadow-red-500/20 active:scale-95 transition-all">
+                REINICIAR FÁBRICA
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 left-0 w-full p-8 text-center bg-slate-900/80 backdrop-blur-md">
+        <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">TPV Enterprise v4.1 &copy; 2026</p>
+    </footer>
+
 </body>
 </html>

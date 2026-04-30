@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPS Tracking - Carbones y Pollos</title>
+    <title>GPS Live Tracking | Carbones y Pollos</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#facc15">
-    <style>
-        body { user-select: none; -webkit-user-select: none; }
-    </style>
+    <!-- Design System -->
+    <link rel="stylesheet" href="/static/css/design_system.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col font-sans items-center justify-center p-6">
+<body class="min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden bg-slate-900">
     
-    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
-        <div class="text-7xl mb-4 animate-bounce" id="emoji-status">📍</div>
-        <h1 class="text-3xl font-black text-gray-800 mb-2">Tracking en Vivo</h1>
-        <p class="text-gray-500 font-bold mb-8 text-lg">Avisa a cocina para que tu pedido esté perfecto.</p>
-        
-        <div class="bg-gray-50 p-4 rounded-xl mb-8 border-2 border-gray-100 hidden" id="status-panel">
-            <span class="block text-gray-500 font-bold uppercase tracking-widest text-sm mb-1">Estado del GPS</span>
-            <span class="block font-black text-xl text-emerald-600" id="status-text">Conectando...</span>
+    <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-30">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-yellow-500/20 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-orange-500/20 blur-[120px] rounded-full"></div>
+    </div>
+
+    <div class="glass-panel w-full max-w-md p-10 text-center animate-in">
+        <div class="relative inline-block mb-8">
+            <div class="absolute inset-0 bg-yellow-500/20 blur-2xl rounded-full animate-pulse"></div>
+            <div class="relative bg-white/5 border border-white/10 p-8 rounded-full text-6xl" id="emoji-status">
+                📍
+            </div>
         </div>
 
-        <button id="btn-start" onclick="iniciarTracking()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white p-5 rounded-2xl font-black text-xl shadow-lg transition-transform active:scale-95">
-            COMPARTIR MI UBICACIÓN
+        <h1 class="text-4xl font-black text-white tracking-tighter mb-4">EN <span class="text-gradient">TRANSITO</span></h1>
+        <p class="text-slate-400 font-medium text-lg mb-10 leading-relaxed">Compartir tu ubicación ayuda a que cocina prepare tu pedido en el momento justo.</p>
+        
+        <div class="bg-white/5 p-6 rounded-3xl border border-white/10 mb-10 hidden" id="status-panel">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Señal GPS Activa</p>
+            <h2 class="text-2xl font-black text-emerald-400" id="status-text">CONECTANDO...</h2>
+        </div>
+
+        <button id="btn-start" onclick="iniciarTracking()" class="btn-primary w-full !py-6 !text-xl shadow-orange-500/20">
+            COMPARTIR UBICACIÓN
         </button>
         
-        <button id="btn-stop" onclick="detenerTracking()" class="w-full bg-red-100 hover:bg-red-200 text-red-600 p-5 rounded-2xl font-black text-xl mt-4 transition-transform active:scale-95 hidden">
-            DETENER
+        <button id="btn-stop" onclick="detenerTracking()" class="w-full mt-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400 font-black text-xs uppercase tracking-widest hidden">
+            DETENER TRANSMISIÓN
         </button>
+
+        <div class="mt-12 pt-8 border-t border-white/5">
+            <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Carbones y Pollos Enterprise Logística</p>
+        </div>
     </div>
 
     <script>
@@ -39,76 +51,52 @@
         const pedidoId = urlParams.get('pedido');
         let watchId = null;
 
-        // Dummy coords for testing: Cocina
+        // Tienda Coords
         const TIENDA_LAT = 39.4699; 
         const TIENDA_LON = -0.3763;
 
-        // Haversine formula to approximate distance
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // metres
-            const φ1 = lat1 * Math.PI/180;
-            const φ2 = lat2 * Math.PI/180;
-            const Δφ = (lat2-lat1) * Math.PI/180;
-            const Δλ = (lon2-lon1) * Math.PI/180;
-
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                      Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-            return Math.floor(R * c); 
+            const R = 6371e3;
+            const dLat = (lat2-lat1) * Math.PI/180;
+            const dLon = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            return Math.floor(R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))));
         }
 
-        async function enviarUbicacionAlServidor(lat, lon, dist) {
+        async function enviarUbicacion(lat, lon, dist) {
             if(!pedidoId) return;
             try {
-                await fetch(`${API_URL}/pedidos/${pedidoId}/ubicacion`, {
+                await fetch(`${API_URL}/orders/${pedidoId}/ubicacion`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat: lat, lon: lon, distancia_metros: dist })
+                    body: JSON.stringify({ lat, lon, distancia_metros: dist })
                 });
-            } catch(e) {
-                console.error("Error enviando ubicación:", e);
-            }
+            } catch(e) {}
         }
 
         function iniciarTracking() {
-            if(!pedidoId) {
-                alert("❌ Faltan parámetros en el enlace (pedido).");
-                return;
-            }
-            if (!("geolocation" in navigator)) {
-                alert("❌ Tu navegador no soporta GPS.");
-                return;
-            }
-
+            if(!pedidoId) { alert("Enlace inválido."); return; }
+            
             document.getElementById('btn-start').classList.add('hidden');
             document.getElementById('btn-stop').classList.remove('hidden');
             document.getElementById('status-panel').classList.remove('hidden');
-            document.getElementById('status-text').innerText = "Buscando señal...";
-            document.getElementById('status-text').className = "block font-black text-xl text-yellow-500 animate-pulse";
             document.getElementById('emoji-status').innerText = "🛰️";
 
             watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const distancia = calculateDistance(lat, lon, TIENDA_LAT, TIENDA_LON);
-                    
-                    document.getElementById('status-text').innerText = `Emitiendo en vivo (${distancia}m)`;
-                    document.getElementById('status-text').className = "block font-black text-xl text-emerald-600";
+                (pos) => {
+                    const { latitude: lat, longitude: lon } = pos.coords;
+                    const dist = calculateDistance(lat, lon, TIENDA_LAT, TIENDA_LON);
+                    document.getElementById('status-text').innerText = `${dist}m A TIENDA`;
                     document.getElementById('emoji-status').innerText = "📡";
-                    
-                    enviarUbicacionAlServidor(lat, lon, distancia);
+                    enviarUbicacion(lat, lon, dist);
                 },
-                (error) => {
-                    console.error("GPS Error:", error);
-                    document.getElementById('status-text').innerText = "GPS Denegado/Error";
-                    document.getElementById('status-text').className = "block font-black text-xl text-red-600";
+                (err) => {
+                    alert("Por favor, permite el acceso al GPS para continuar.");
                     detenerTracking();
-                    alert("Asegúrate de conceder permisos de ubicación.");
                 },
-                { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+                { enableHighAccuracy: true, timeout: 5000 }
             );
         }
 
@@ -116,8 +104,7 @@
             if(watchId) navigator.geolocation.clearWatch(watchId);
             document.getElementById('btn-start').classList.remove('hidden');
             document.getElementById('btn-stop').classList.add('hidden');
-            document.getElementById('status-text').innerText = "Detenido";
-            document.getElementById('status-text').className = "block font-black text-xl text-gray-500";
+            document.getElementById('status-panel').classList.add('hidden');
             document.getElementById('emoji-status').innerText = "📍";
         }
     </script>

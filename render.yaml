@@ -10,6 +10,8 @@ services:
     plan: free
     region: frankfurt
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
       - key: DATABASE_URL
         value: sqlite:////data/tpv_data.sqlite
       - key: GOOGLE_API_KEY
