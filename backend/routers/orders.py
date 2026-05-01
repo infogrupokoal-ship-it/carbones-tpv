@@ -72,7 +72,6 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
         # (SQLAlchemy relationship podría no cargar el nombre si no está en ItemPedido)
         results = []
         for p in pedidos:
-            p_dict = PedidoOut.from_orm(p)
             items_detailed = []
             for it in p.items:
                 prod = db.query(Producto).get(it.producto_id)
@@ -83,8 +82,17 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
                     cantidad=it.cantidad,
                     precio=it.precio_unitario
                 ))
-            p_dict.items = items_detailed
-            results.append(p_dict)
+            results.append(PedidoOut(
+                id=p.id,
+                numero_ticket=p.numero_ticket,
+                fecha=p.fecha,
+                estado=p.estado,
+                total=p.total,
+                metodo_pago=p.metodo_pago,
+                origen=p.origen,
+                notas_cliente=p.notas_cliente,
+                items=items_detailed
+            ))
             
         return results
     except Exception as e:
@@ -101,9 +109,17 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     
     results = []
     for p in pedidos:
-        p_dict = PedidoOut.from_orm(p)
-        # Aquí no cargamos items detallados para ahorrar ancho de banda en dashboard
-        results.append(p_dict)
+        results.append(PedidoOut(
+            id=p.id,
+            numero_ticket=p.numero_ticket,
+            fecha=p.fecha,
+            estado=p.estado,
+            total=p.total,
+            metodo_pago=p.metodo_pago,
+            origen=p.origen,
+            notas_cliente=p.notas_cliente,
+            items=[]
+        ))
     return results
 
 @router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
@@ -181,6 +197,8 @@ def crear_pedido(
             cliente_id=cliente.id if cliente else None,
             cubiertos_qty=pedido.cubiertos_qty,
             notas_cliente=pedido.notas_cliente,
+            total=0.0,
+            metodo_pago="TARJETA" if pedido.origen == "QUIOSCO" else "EFECTIVO",
             tienda_id=db.query(Producto).first().tienda_id if db.query(Producto).first() else None
         )
         db.add(nuevo_pedido)
@@ -251,6 +269,14 @@ def crear_pedido(
         if cliente:
             cliente.puntos_fidelidad += int(total_final)
             cliente.visitas += 1
+            
+            # Autopromoción de Nivel CRM
+            if cliente.puntos_fidelidad >= 1500 and cliente.nivel_fidelidad != "ORO":
+                cliente.nivel_fidelidad = "ORO"
+                logger.info(f"🏆 Cliente {cliente.telefono} promovido a nivel ORO!")
+            elif cliente.puntos_fidelidad >= 500 and cliente.puntos_fidelidad < 1500 and cliente.nivel_fidelidad == "BRONCE":
+                cliente.nivel_fidelidad = "PLATA"
+                logger.info(f"⭐ Cliente {cliente.telefono} promovido a nivel PLATA!")
 
         # 6. Disparar impresión si el pedido ya está pagado/confirmado
         if nuevo_pedido.estado == "EN_PREPARACION":
@@ -295,27 +321,21 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
 def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
     """
     Finaliza el proceso de cobro, gestiona el cajón inteligente y emite tickets legales.
+    A través de la arquitectura de repositorios (OrderService).
     """
-    pedido = db.query(Pedido).get(pedido_id)
-    if not pedido:
-        raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    
+    from ..repositories.order_service import OrderService
+    service = OrderService(db)
     metodo = payload.get("metodo_pago", "EFECTIVO")
-    pedido.estado = "EN_PREPARACION"
-    pedido.metodo_pago = metodo
     
-    # 1. Seguridad Física: Abrir cajón si es pago manual
-    if metodo == "EFECTIVO":
-        db.add(HardwareCommand(
-            id=str(uuid.uuid4()),
-            accion="abrir_caja",
-            origen="terminal_tpv_caja"
-        ))
+    try:
+        pedido = service.process_checkout(pedido_id, metodo)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
     
-    # 2. Generación de Tickets
+    # Generación de Tickets
     _encolar_tickets(db, pedido)
-    
     db.commit()
+    
     logger.info(f"Cobro Procesado: Ticket {pedido.numero_ticket} mediante {metodo}")
     return {"status": "success", "message": "Operación de cobro completada"}
 

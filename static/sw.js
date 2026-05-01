@@ -3,12 +3,19 @@
  * Estrategia: Stale-While-Revalidate para estáticos & Network-First para API
  */
 
-const CACHE_NAME = 'tpv-enterprise-v4.1';
+const CACHE_NAME = 'tpv-enterprise-v4.2';
 const ASSETS_TO_CACHE = [
     '/',
     '/static/index.html',
+    '/static/dashboard.html',
+    '/static/kds.html',
+    '/static/inventario.html',
+    '/static/kiosko.html',
+    '/static/login.html',
     '/static/manifest.json',
+    'https://cdn.tailwindcss.com',
     'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap',
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {

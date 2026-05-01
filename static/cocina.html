@@ -67,7 +67,7 @@
 
         async function fetchOrders() {
             try {
-                const res = await fetch(`${API_URL}/orders?estado=EN_PREPARACION`);
+                const res = await fetch(`${API_URL}/orders/?estado=EN_PREPARACION`);
                 const orders = await res.json();
                 renderOrders(orders);
             } catch (e) {
@@ -129,7 +129,7 @@
 
         async function completarPedido(orderId) {
             try {
-                await fetch(`${API_URL}/orders/${orderId}/completar`, { method: 'POST' });
+                await fetch(`${API_URL}/orders/${orderId}/estado?estado=LISTO`, { method: 'PUT' });
                 fetchOrders();
             } catch (e) {
                 alert("Error al completar");

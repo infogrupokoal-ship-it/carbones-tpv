@@ -130,7 +130,7 @@
 
         async function cargarPedidos() {
             try {
-                const res = await fetch(`${API_URL}/orders?estado=ESPERANDO_PAGO`);
+                const res = await fetch(`${API_URL}/orders/?estado=ESPERANDO_PAGO`);
                 const pedidos = await res.json();
                 
                 const container = document.getElementById('caja-container');

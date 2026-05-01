@@ -110,6 +110,12 @@
         let lastOrderCount = 0;
         let audioEnabled = false;
 
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(reg => console.log('✅ Service Worker KDS Registrado:', reg))
+                .catch(err => console.error('❌ Service Worker KDS Fallido:', err));
+        }
+
         function toggleAudio() {
             audioEnabled = !audioEnabled;
             document.getElementById('audio-btn').innerText = audioEnabled ? '🔔' : '🔕';
@@ -120,8 +126,12 @@
 
         async function loadOrders() {
             try {
-                const res = await fetch(`${API_URL}/orders?estado=EN_PREPARACION`);
-                activeOrders = await res.json();
+                const res = await fetch(`${API_URL}/orders/?estado=EN_PREPARACION`);
+                const data = await res.json();
+                if(data.offline) throw new Error("Offline mode triggered by Service Worker");
+                
+                activeOrders = data;
+                localStorage.setItem('kds_orders_backup', JSON.stringify(activeOrders));
                 
                 // Notificación de nuevo pedido
                 if (activeOrders.length > lastOrderCount && audioEnabled) {
@@ -129,13 +139,24 @@
                 }
                 lastOrderCount = activeOrders.length;
                 
+                document.getElementById('status-text').innerText = "Sincronizado";
+                document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-emerald-500');
+                
                 renderKDS();
                 updateSummary();
                 checkRushMode();
             } catch (e) {
-                console.error("KDS sync error", e);
-                document.getElementById('status-text').innerText = "OFFLINE";
+                console.warn("⚠️ Conexión perdida, usando Caché Local (Modo Resiliencia KDS)...");
+                document.getElementById('status-text').innerText = "OFFLINE MODE";
                 document.getElementById('sync-dot').classList.replace('bg-emerald-500', 'bg-red-500');
+                
+                const backup = localStorage.getItem('kds_orders_backup');
+                if (backup) {
+                    activeOrders = JSON.parse(backup);
+                    renderKDS();
+                    updateSummary();
+                    checkRushMode();
+                }
             }
         }
 

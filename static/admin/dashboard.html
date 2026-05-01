@@ -165,13 +165,14 @@
         // Simulación de carga de datos reales desde API v1
         async function loadRealData() {
             try {
-                const res = await fetch('/api/v1/orders/kpis', {
+                const res = await fetch('/api/admin/dashboard/kpis', {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById('stat-ventas').innerText = data.total_ventas.toFixed(2) + '€';
-                    document.getElementById('stat-pedidos').innerText = data.numero_pedidos;
+                    document.getElementById('stat-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
+                    document.getElementById('stat-pedidos').innerText = data.kpis.pedidos_b2c;
+                    document.getElementById('stat-costos').innerText = data.kpis.coste_mermas.toFixed(2) + '€';
                 }
             } catch (e) { console.error("Error cargando KPIs", e); }
         }

@@ -264,6 +264,15 @@
                 nav.children[0].classList.remove('bg-black/80', 'backdrop-blur-2xl');
             }
         });
+
+        // 🚀 Enterprise PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(reg => console.log('✅ Service Worker [Core] Registrado con éxito:', reg.scope))
+                    .catch(err => console.error('❌ Service Worker [Core] Falló:', err));
+            });
+        }
     </script>
 </body>
 </html>

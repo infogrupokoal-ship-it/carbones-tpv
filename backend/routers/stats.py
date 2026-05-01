@@ -88,56 +88,32 @@ def generar_cierre_z(req: CierreZRequest, db: Session = Depends(get_db)):
     """
     Genera el Reporte de Cierre Z Digital (Fin de día).
     Calcula ventas, desglosa pagos, descuadre de caja y sella el día operativo.
+    Utiliza el ReportingService para automatizar mermas y notificaciones.
     """
-    today = date.today()
-    
-    # Comprobar si ya se hizo cierre hoy (opcional, en entornos reales puede haber varios turnos)
-    
-    pedidos_hoy = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
-    
-    total_ventas = sum(p.total for p in pedidos_hoy)
-    total_efectivo = sum(p.total for p in pedidos_hoy if p.metodo_pago == "EFECTIVO")
-    total_tarjeta = sum(p.total for p in pedidos_hoy if p.metodo_pago in ["TARJETA", "TPV", "ONLINE"])
-    
-    # Calcular descuadre
-    diferencia = req.efectivo_declarado - total_efectivo
-    
-    # Pollos vendidos
-    from ..models import ItemPedido, Producto
-    pollos = db.query(func.sum(ItemPedido.cantidad)).join(Producto).filter(
-        func.date(ItemPedido.pedido.has(fecha=today)),
-        Producto.nombre.ilike("%pollo%")
-    ).scalar() or 0
-
-    # Resumen en texto para ticket/printer
-    resumen = f"CIERRE Z - {today.strftime('%d/%m/%Y')}\n"
-    resumen += f"Ventas: {total_ventas}€ | Efectivo: {total_efectivo}€ | Tarjeta: {total_tarjeta}€\n"
-    resumen += f"Declarado: {req.efectivo_declarado}€ | Descuadre: {diferencia}€"
-
-    reporte = ReporteZ(
-        total_ventas=total_ventas,
-        total_efectivo=total_efectivo,
-        total_tarjeta=total_tarjeta,
-        efectivo_declarado=req.efectivo_declarado,
-        diferencia=diferencia,
-        pollos_vendidos=pollos,
-        resumen_texto=resumen
-    )
-    
-    db.add(reporte)
+    from ..services.reporting import ReportingService
     try:
-        db.commit()
+        # La lógica industrial (Mermas, PDF, WhatsApp, Guardado) está encapsulada en ReportingService
+        reporte = ReportingService.generar_cierre_z(db, req.efectivo_declarado)
         
         # Registrar Auditoría
-        from ..utils.audit import log_action
-        log_action(db, accion="CIERRE_Z", entidad="FINANZAS", entidad_id=reporte.id, payload_nuevo=f"Descuadre: {diferencia}")
+        from .admin_audit import log_audit_action
+        log_audit_action(
+            db, 
+            usuario_id=None, 
+            accion="CIERRE_Z", 
+            entidad="FINANZAS", 
+            entidad_id=reporte.id, 
+            payload_nuevo=f"Descuadre: {reporte.diferencia}"
+        )
         
         return {
             "status": "success",
             "reporte_id": reporte.id,
-            "resumen": resumen,
-            "diferencia": diferencia
+            "resumen": reporte.resumen_texto,
+            "diferencia": reporte.diferencia,
+            "efectivo_teorico": reporte.total_efectivo
         }
     except Exception as e:
-        db.rollback()
+        import traceback
+        traceback.print_exc()
         raise HTTPException(500, f"Error generando Cierre Z: {str(e)}")

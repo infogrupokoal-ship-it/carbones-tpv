@@ -244,7 +244,7 @@
 
         async function ejecutarCierre() {
             const decl = prompt("Efectivo contado:");
-            await fetch('/api/admin/cierre-z', {
+            await fetch('/api/stats/cierre-z', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ efectivo_declarado: decl ? parseFloat(decl) : null })

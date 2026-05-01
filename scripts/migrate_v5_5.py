@@ -22,6 +22,13 @@ def run_migration():
                 print("Columna 'is_active' añadida a 'categorias'.")
             except Exception as e:
                 print(f"Columna 'is_active' ya existe en 'categorias': {e}")
+                
+            # Añadir impuesto a productos (fix)
+            try:
+                conn.execute(text("ALTER TABLE productos ADD COLUMN impuesto FLOAT DEFAULT 10.0"))
+                print("Columna 'impuesto' añadida a 'productos'.")
+            except Exception as e:
+                print(f"Columna 'impuesto' ya existe en 'productos': {e}")
 
             # Añadir is_active a ingredientes
             try:

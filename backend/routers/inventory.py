@@ -251,7 +251,8 @@ def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
         else:
             item = db.query(Ingrediente).get(req.entidad_id)
             if not item: raise HTTPException(404, "Ingrediente no encontrado")
-            coste_unitario_estimado = item.coste_unitario or 0.0
+            # Fallback seguro para modelos que no tienen coste_unitario aún
+            coste_unitario_estimado = getattr(item, "coste_unitario", 0.0)
             item.stock_actual -= req.cantidad
             nombre_entidad = item.nombre
 

@@ -84,8 +84,8 @@
         async function init() {
             try {
                 const [catRes, prodRes] = await Promise.all([
-                    fetch('/api/admin/categorias'),
-                    fetch('/api/admin/productos')
+                    fetch('/api/inventory/categorias'),
+                    fetch('/api/inventory/productos')
                 ]);
                 const cats = await catRes.json();
                 products = await prodRes.json();
@@ -171,11 +171,15 @@
             const pedido = {
                 items: cart.map(item => ({ producto_id: item.id, cantidad: 1 })),
                 total: cart.reduce((acc, curr) => acc + curr.precio, 0),
-                metodo_pago: 'TARJETA'
+                metodo_pago: 'TARJETA',
+                origen: 'QUIOSCO',
+                estado_inicial: 'EN_PREPARACION',
+                cubiertos_qty: 0,
+                canjear_puntos: false
             };
 
             try {
-                const res = await fetch('/api/pedidos', {
+                const res = await fetch('/api/orders/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(pedido)

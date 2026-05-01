@@ -1,7 +1,7 @@
+import uuid
 from sqlalchemy.orm import Session
 from .order_repository import OrderRepository
-from ..models import Pedido
-from ..routers.hardware import trigger_drawer_open # Reutilizando lógica existente
+from ..models import Pedido, HardwareCommand
 
 class OrderService:
     def __init__(self, db: Session):
@@ -12,19 +12,23 @@ class OrderService:
         """
         Lógica profesional de cobro:
         1. Actualizar estado del pedido.
-        2. Abrir cajón si es efectivo.
-        3. (Futuro) Notificar a la nube.
+        2. Abrir cajón si es efectivo (a través de HardwareCommand en BBDD).
         """
         order = self.repo.update_status(order_id, "EN_PREPARACION")
         if not order:
             raise Exception("Pedido no encontrado")
         
         order.metodo_pago = payment_method
-        self.db.commit()
-
+        
         if payment_method == "EFECTIVO":
-            trigger_drawer_open()
+            nuevo_cmd = HardwareCommand(
+                id=str(uuid.uuid4()),
+                accion="abrir_caja",
+                origen="backend_enterprise"
+            )
+            self.db.add(nuevo_cmd)
             
+        self.db.commit()
         return order
 
     def get_dashboard_summary(self):
