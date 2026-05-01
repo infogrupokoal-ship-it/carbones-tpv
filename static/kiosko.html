@@ -165,8 +165,6 @@
             </div>
         </div>
     </div>
-        </div>
-    </div>
 
     <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
         
@@ -318,7 +316,13 @@
         <div class="border-4 border-amber-500 p-8 rounded-3xl bg-white mb-12 transform hover:scale-105 transition-transform shadow-xl">
             <span id="success-turno" class="text-7xl md:text-9xl font-black text-amber-500">--</span>
         </div>
-        <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-amber-500/30">Seguir Comprando</button>
+        <div class="flex gap-4 flex-col md:flex-row">
+            <button onclick="window.location.href='/static/tracking.html?pedido=' + window.lastPedidoId" class="bg-slate-900 text-white px-8 py-4 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                Trackear Pedido
+            </button>
+            <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-amber-500/30">Seguir Comprando</button>
+        </div>
     </div>
 
     <!-- Pre-Checkout Guest Modal -->
@@ -353,6 +357,10 @@
                 <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-8">Pasarela encriptada de alta seguridad</p>
                 
                 <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-200 shadow-inner">
+                    <div class="flex gap-4 mb-6 pb-6 border-b border-slate-200">
+                        <button id="btn-recoger" onclick="setMetodoEnvio('LOCAL')" class="flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md">🏪 Recoger</button>
+                        <button id="btn-domicilio" onclick="setMetodoEnvio('DOMICILIO')" class="flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm">🛵 Domicilio (+2.50€)</button>
+                    </div>
                     <div class="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
                         <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Importe a pagar</span>
                         <span id="payment-amount" class="text-3xl font-display font-black text-amber-500 drop-shadow-sm">0.00€</span>
@@ -616,7 +624,7 @@
                             <div class="relative h-48 rounded-2xl overflow-hidden mb-4 group cursor-pointer shadow-inner" onclick="addToCart('${p.id}')">
                                 ${badgeHtml}
                                 ${scarcityHtml}
-                                <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
+                                <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-80"></div>
                                 <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
                                     <h3 class="text-lg font-black text-white leading-tight drop-shadow-md w-3/4">${p.nombre}</h3>
@@ -942,8 +950,26 @@
             document.getElementById('pre-checkout-modal').classList.add('opacity-0', 'pointer-events-none');
         }
 
+        let metodoEnvio = 'LOCAL';
+
+        function setMetodoEnvio(metodo) {
+            metodoEnvio = metodo;
+            const btnRecoger = document.getElementById('btn-recoger');
+            const btnDomicilio = document.getElementById('btn-domicilio');
+            
+            if (metodo === 'LOCAL') {
+                btnRecoger.className = "flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md";
+                btnDomicilio.className = "flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm";
+            } else {
+                btnDomicilio.className = "flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md";
+                btnRecoger.className = "flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm";
+            }
+            openPaymentModal(); // Refrescar total
+        }
+
         function openPaymentModal() {
-            const total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            let total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            if (metodoEnvio === 'DOMICILIO') total += 2.50; // Envío
             document.getElementById('payment-amount').innerText = total.toFixed(2) + '€';
             
             const modal = document.getElementById('payment-modal');
@@ -974,11 +1000,18 @@
         }
 
         async function finalSubmitOrder() {
-            if (cart.length === 0) return alert("El carrito está vacío");
+            if (cart.length === 0) {
+                if(typeof showToast === 'function') showToast("Atención", "El carrito está vacío", "error");
+                else alert("El carrito está vacío");
+                return;
+            }
             
+            let finalTotal = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            if(metodoEnvio === 'DOMICILIO') finalTotal += 2.50;
+
             const pedido = {
                 items: cart.map(item => ({ producto_id: item.id, cantidad: 1 })),
-                total: cart.reduce((acc, curr) => acc + curr.precio, 0),
+                total: finalTotal,
                 metodo_pago: 'TARJETA',
                 origen: 'QUIOSCO',
                 estado_inicial: 'EN_PREPARACION',
@@ -1015,12 +1048,12 @@
                             TOTAL: ${pedido.total.toFixed(2)}€
                         </div>
                         <div style="text-align: center; margin-top: 20px;">
-                            <h1 style="font-size: 32px; font-weight: bold; margin: 0;">TURNO: ${data.numero_ticket}</h1>
+                            <h1 style="font-size: 32px; font-weight: bold; margin: 0;">TURNO: ${data.ticket}</h1>
                             <p>¡Gracias por tu compra!</p>
                         </div>
                     `;
-                    // Mostrar Pantalla de Exito
-                    document.getElementById('success-turno').innerText = data.numero_ticket;
+                    window.lastPedidoId = data.pedido_id; // Guardamos el UUID para el Tracking
+                    document.getElementById('success-turno').innerText = data.ticket;
                     document.getElementById('success-screen').classList.remove('opacity-0', 'pointer-events-none');
 
                     // 2. DISPARAR IMPRESIÓN (Interceptado por DURAPOS) sin bloquear la UI
@@ -1037,8 +1070,13 @@
                     
                     cart = [];
                     updateCartUI();
+                } else {
+                    if(typeof showToast === 'function') showToast("Error", "No se pudo procesar el pedido. Comprueba tu conexión.", "error");
                 }
-            } catch (e) { alert("Error al procesar el pedido."); }
+            } catch (e) {
+                console.error("Fallo critico finalSubmitOrder:", e);
+                if(typeof showToast === 'function') showToast("Error", "Error de conexión con el servidor.", "error");
+            }
         }
 
         function closeSuccessScreen() {

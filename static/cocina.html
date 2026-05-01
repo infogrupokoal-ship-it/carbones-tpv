@@ -18,8 +18,11 @@
         <div class="flex items-center gap-4">
             <div class="w-10 h-10 bg-amber-500 rounded flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.5)]">🔥</div>
             <h1 class="text-2xl font-black tracking-widest uppercase">KDS Cocina</h1>
-            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-green-500/50 flex items-center gap-2">
+            <span id="status-indicator" class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-green-500/50 flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Online
+            </span>
+            <span id="status-offline" class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-500/50 flex items-center gap-2 hidden">
+                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Offline
             </span>
         </div>
         <div class="text-slate-400 font-mono text-xl" id="clock">00:00:00</div>
@@ -66,7 +69,33 @@
 
     </main>
 
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <script>
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-500' : (type === 'warning' ? 'bg-amber-500' : 'bg-green-500');
+            toast.className = `${bg} text-white px-6 py-4 rounded-xl shadow-xl transform transition-all duration-300 translate-y-full opacity-0 max-w-sm pointer-events-auto`;
+            toast.innerHTML = `
+                <div class="font-black text-sm uppercase tracking-widest">${title}</div>
+                <div class="text-xs opacity-90 mt-1">${message}</div>
+            `;
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            }, 10);
+            
+            // Remove after 3s
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // Reloj
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('es-ES', { hour12: false });
@@ -74,14 +103,15 @@
 
         async function fetchOrders() {
             try {
-                // Obtenemos solo los pedidos de hoy para la cocina
                 const res = await fetch('/api/orders/today');
                 if(!res.ok) throw new Error("Error fetching orders");
                 const pedidos = await res.json();
-                
                 renderBoard(pedidos);
+                document.getElementById('status-indicator').classList.remove('hidden');
+                document.getElementById('status-offline').classList.add('hidden');
             } catch(e) {
-                console.error(e);
+                document.getElementById('status-indicator').classList.add('hidden');
+                document.getElementById('status-offline').classList.remove('hidden');
             }
         }
 
@@ -119,8 +149,11 @@
                 );
                 
                 renderDetailedBoard(activeOrders);
+                document.getElementById('status-indicator').classList.remove('hidden');
+                document.getElementById('status-offline').classList.add('hidden');
             } catch(e) {
-                console.error(e);
+                document.getElementById('status-indicator').classList.add('hidden');
+                document.getElementById('status-offline').classList.remove('hidden');
             }
         }
 
@@ -193,10 +226,12 @@
 
         async function changeStatus(id, newStatus) {
             try {
-                await fetch(`/api/orders/${id}/estado?estado=${newStatus}`, { method: 'PUT' });
+                const res = await fetch(`/api/orders/${id}/estado?estado=${newStatus}`, { method: 'PUT' });
+                if(!res.ok) throw new Error("Fallo de red");
+                showToast("Éxito", "Estado del pedido actualizado");
                 fetchOrdersDetailed();
             } catch(e) {
-                alert('Error al actualizar estado');
+                showToast("Error de conexión", "No se pudo actualizar el estado. Revisa la red.", "error");
             }
         }
 

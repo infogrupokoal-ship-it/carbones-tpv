@@ -349,6 +349,29 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
     db.commit()
     return {"status": "success", "nuevo_estado": estado}
 
+class UbicacionPayload(BaseModel):
+    lat: float
+    lon: float
+    distancia_metros: int
+
+@router.post("/{pedido_id}/ubicacion")
+def actualizar_ubicacion(pedido_id: str, payload: UbicacionPayload, db: Session = Depends(get_db)):
+    """
+    Endpoint para recibir la telemetría GPS del cliente (Tracking).
+    Ignora la posición si el pedido_id no existe, sin romper la aplicación.
+    """
+    pedido = db.query(Pedido).get(pedido_id)
+    if not pedido:
+        # En vez de 404 estricto, respondemos 200 ok pero ignoramos
+        # para que el frontend no de error en loop
+        return {"status": "ignored", "detail": "Pedido no válido"}
+        
+    # En un sistema completo, aquí se actualizaría la posición del rider/cliente 
+    # y la cocina recibiría un evento por WebSockets.
+    logger.info(f"Tracking Pedido {pedido_id}: a {payload.distancia_metros} metros.")
+    return {"status": "success", "distancia": payload.distancia_metros}
+
+
 @router.post("/{pedido_id}/cobrar")
 @router_legacy.post("/{pedido_id}/cobrar")
 def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
