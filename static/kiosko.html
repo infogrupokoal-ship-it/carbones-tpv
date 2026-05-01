@@ -225,172 +225,170 @@
     </main>
 
     <!-- Cart Overlay -->
-    <div id="cart-overlay" class="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-500">
+    <div id="cart-overlay" class="fixed inset-0 bg-slate-900/40 z-[60] backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-500">
         <div id="cart-content" class="absolute right-0 top-0 bottom-0 w-full max-w-md cart-panel shadow-2xl p-8 translate-x-full transition-all duration-500 flex flex-col">
             <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black text-white tracking-tighter uppercase">Carrito <span class="text-amber-500">Gourmet</span></h2>
-                <button onclick="toggleCart()" class="text-stone-500 hover:text-white transition-all">✕</button>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Carrito <span class="text-amber-500">Gourmet</span></h2>
+                <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-900 transition-all bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
             </div>
 
-            <div id="cart-items" class="flex-1 overflow-y-auto space-y-6 custom-scrollbar">
+            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2">
                 <!-- Injected by JS -->
             </div>
 
-            <div class="pt-8 border-t border-stone-800 mt-8">
-                <div class="flex justify-between items-center mb-8 bg-[#1c1917] p-5 rounded-2xl border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
-                    <span class="text-xs font-black uppercase text-amber-500 tracking-widest">Total Estimado</span>
-                    <span id="cart-total" class="text-4xl font-display font-black text-white drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">0.00€</span>
+            <div class="pt-6 border-t border-slate-200 mt-6">
+                <div class="flex justify-between items-center mb-6 bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner">
+                    <span class="text-xs font-black uppercase text-slate-500 tracking-widest">Total Estimado</span>
+                    <span id="cart-total" class="text-4xl font-display font-black text-slate-900 drop-shadow-sm">0.00€</span>
                 </div>
-                <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-black font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95">Finalizar Compra 🔥</button>
+                <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-white font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-amber-500/30">Finalizar Compra 🔥</button>
             </div>
         </div>
     </div>
 
     <!-- Login Modal -->
-    <div id="login-modal" class="fixed inset-0 bg-black/90 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
-            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">Acceso <span class="text-amber-500">Rápido</span></h2>
-            <p class="text-xs text-stone-400 mb-6 leading-relaxed">Inicia sesión para acumular puntos, recuperar historial y aplicar descuentos en un clic.</p>
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/40 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Acceso <span class="text-amber-500">Rápido</span></h2>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Inicia sesión para acumular puntos, recuperar historial y aplicar descuentos en un clic.</p>
             
-            <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-stone-200 text-black font-black text-xs uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-3 transition-all mb-4 relative overflow-hidden group">
+            <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-black text-xs uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-3 transition-all mb-4 relative overflow-hidden group border border-slate-200 shadow-sm">
                 <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                 <span id="google-btn-text">Continuar con Google</span>
             </button>
             <div class="relative flex items-center py-2 mb-4">
-                <div class="flex-grow border-t border-stone-800"></div>
-                <span class="flex-shrink-0 mx-4 text-stone-500 text-[10px] uppercase font-bold tracking-widest">O usa WhatsApp</span>
-                <div class="flex-grow border-t border-stone-800"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] uppercase font-bold tracking-widest">O usa WhatsApp</span>
+                <div class="flex-grow border-t border-slate-200"></div>
             </div>
 
             <div id="step-phone">
-                <input type="tel" id="login-phone" placeholder="Tu móvil (ej. 600123456)" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none mb-4 transition-colors">
-                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Enviar Código SMS</button>
+                <input type="tel" id="login-phone" placeholder="Tu móvil (ej. 600123456)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:border-amber-500 focus:outline-none mb-4 transition-colors">
+                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Enviar Código SMS</button>
             </div>
 
             <div id="step-otp" class="hidden">
-                <p class="text-[10px] text-amber-500 uppercase tracking-widest font-bold mb-4">Te hemos enviado un código</p>
-                <input type="text" id="login-otp" placeholder="Código 6 dígitos" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4 transition-colors">
-                <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Verificar y Entrar</button>
+                <p class="text-[10px] text-amber-600 uppercase tracking-widest font-bold mb-4">Te hemos enviado un código</p>
+                <input type="text" id="login-otp" placeholder="Código 6 dígitos" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4 transition-colors">
+                <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Verificar y Entrar</button>
             </div>
         </div>
     </div>
 
     <!-- Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/90 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-3xl max-w-md w-full shadow-2xl relative max-h-[80vh] flex flex-col">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
-            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">Mi <span class="text-amber-500">Perfil</span></h2>
+    <div id="profile-modal" class="fixed inset-0 bg-slate-900/40 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-md w-full shadow-2xl relative max-h-[80vh] flex flex-col">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Mi <span class="text-amber-500">Perfil</span></h2>
             
-            <div class="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+            <div class="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-50">
                 <div class="flex justify-between items-end mb-2">
-                    <span class="text-xs text-stone-400 uppercase tracking-widest font-bold">Nivel Actual</span>
-                    <span id="profile-nivel" class="text-lg font-black text-amber-500">BRONCE</span>
+                    <span class="text-xs text-slate-500 uppercase tracking-widest font-bold">Nivel Actual</span>
+                    <span id="profile-nivel" class="text-lg font-black text-amber-600">BRONCE</span>
                 </div>
-                <div class="w-full bg-stone-900 rounded-full h-2 mb-2 relative overflow-hidden">
-                    <div id="profile-progress" class="bg-amber-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                <div class="w-full bg-slate-200 rounded-full h-2 mb-2 relative overflow-hidden">
+                    <div id="profile-progress" class="bg-amber-500 h-2 rounded-full transition-all duration-1000 shadow-sm" style="width: 0%"></div>
                 </div>
-                <p id="profile-points-text" class="text-[10px] text-stone-400 text-right">0 / 500 para Plata</p>
+                <p id="profile-points-text" class="text-[10px] text-slate-500 text-right font-medium">0 / 500 para Plata</p>
             </div>
 
-            <h3 class="text-xs font-black uppercase tracking-widest text-stone-500 mb-4 border-b border-stone-800 pb-2">Últimos Pedidos</h3>
-            <div id="profile-orders" class="flex-1 overflow-y-auto space-y-3 custom-scrollbar mb-6">
+            <h3 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-200 pb-2">Últimos Pedidos</h3>
+            <div id="profile-orders" class="flex-1 overflow-y-auto space-y-3 custom-scrollbar mb-6 pr-2">
                 <!-- Injected via API -->
             </div>
 
-            <button onclick="logoutClient()" class="w-full py-3 rounded-xl text-red-500 font-black text-xs border border-red-500/30 hover:bg-red-500/10 uppercase tracking-widest mt-auto">Cerrar Sesión</button>
+            <button onclick="logoutClient()" class="w-full py-3 rounded-xl text-red-600 font-black text-xs border border-red-200 hover:bg-red-50 uppercase tracking-widest mt-auto transition-colors">Cerrar Sesión</button>
         </div>
     </div>
 
     <!-- Success Fullscreen Modal -->
-    <div id="success-screen" class="fixed inset-0 bg-[#0c0a09] z-[100] opacity-0 pointer-events-none transition-all duration-700 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(245,158,11,0.5)] mb-8 animate-bounce">🔥</div>
-        <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">¡Pedido en <span class="text-amber-500">Marcha!</span></h1>
-        <p class="text-lg text-stone-400 mb-12">Atento a las pantallas. Tu número de turno es:</p>
-        <div class="border-4 border-amber-500 p-8 rounded-3xl bg-amber-500/10 mb-12 transform hover:scale-105 transition-transform">
+    <div id="success-screen" class="fixed inset-0 bg-slate-50 z-[100] opacity-0 pointer-events-none transition-all duration-700 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(245,158,11,0.3)] mb-8 animate-bounce text-white">🔥</div>
+        <h1 class="text-4xl md:text-6xl font-black text-slate-900 uppercase tracking-tighter mb-4">¡Pedido en <span class="text-amber-500">Marcha!</span></h1>
+        <p class="text-lg text-slate-500 mb-12 font-medium">Atento a las pantallas. Tu número de turno es:</p>
+        <div class="border-4 border-amber-500 p-8 rounded-3xl bg-white mb-12 transform hover:scale-105 transition-transform shadow-xl">
             <span id="success-turno" class="text-7xl md:text-9xl font-black text-amber-500">--</span>
         </div>
-        <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-black font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-2xl">Seguir Comprando</button>
+        <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-amber-500/30">Seguir Comprando</button>
     </div>
 
     <!-- Pre-Checkout Guest Modal -->
-    <div id="pre-checkout-modal" class="fixed inset-0 bg-black/90 z-[80] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative text-center">
-            <button onclick="closePreCheckoutModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
-            <div class="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500">
+    <div id="pre-checkout-modal" class="fixed inset-0 bg-slate-900/40 z-[80] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative text-center">
+            <button onclick="closePreCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500 border border-amber-100">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v1m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">¿Puntos <span class="text-amber-500">Gratis?</span></h2>
-            <p class="text-xs text-stone-400 mb-8 leading-relaxed">Inicia sesión ahora rápido con Google o WhatsApp para acumular puntos y ofertas especiales.</p>
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">¿Puntos <span class="text-amber-500">Gratis?</span></h2>
+            <p class="text-xs text-slate-500 mb-8 leading-relaxed">Inicia sesión ahora rápido con Google o WhatsApp para acumular puntos y ofertas especiales.</p>
             
             <div class="space-y-3">
-                <button onclick="closePreCheckoutModal(); openLoginModal();" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Identificarse Ahora</button>
-                <button onclick="closePreCheckoutModal(); openPaymentModal();" class="w-full py-3 rounded-xl border border-stone-700 text-stone-400 hover:text-white hover:border-white font-black text-xs uppercase tracking-widest transition-colors">Pagar como Invitado</button>
+                <button onclick="closePreCheckoutModal(); openLoginModal();" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Identificarse Ahora</button>
+                <button onclick="closePreCheckoutModal(); openPaymentModal();" class="w-full py-3 rounded-xl border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-black text-xs uppercase tracking-widest transition-colors">Pagar como Invitado</button>
             </div>
         </div>
     </div>
 
-    <!-- Payment Modal (Premium Industrial Theme) -->
-    <div id="payment-modal" class="fixed inset-0 bg-black/95 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-[#0c0a09] border border-amber-500/20 p-8 rounded-[2rem] max-w-md w-full shadow-[0_0_50px_rgba(0,0,0,1)] relative text-stone-300 transform scale-95 transition-transform duration-300" id="payment-card-ui">
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-[0.05] rounded-[2rem] pointer-events-none"></div>
-            
-            <button onclick="closePaymentModal()" class="absolute top-6 right-6 text-stone-500 hover:text-white z-10 transition-colors">✕</button>
+    <!-- Payment Modal (Premium Clean Theme) -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-8 rounded-[2rem] max-w-md w-full shadow-2xl relative text-slate-800 transform scale-95 transition-transform duration-300" id="payment-card-ui">
+            <button onclick="closePaymentModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-colors">✕</button>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-center gap-3 mb-8">
-                    <div class="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center">
+                    <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center border border-amber-100">
                         <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     </div>
                 </div>
-                <h2 class="text-2xl font-black text-center uppercase tracking-tighter text-white mb-2">Pago <span class="text-amber-500">Seguro</span></h2>
-                <p class="text-center text-[10px] text-stone-500 uppercase tracking-widest font-bold mb-8">Pasarela encriptada de alta seguridad</p>
+                <h2 class="text-2xl font-black text-center uppercase tracking-tighter text-slate-900 mb-2">Pago <span class="text-amber-500">Seguro</span></h2>
+                <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-8">Pasarela encriptada de alta seguridad</p>
                 
-                <div class="bg-[#1c1917] rounded-2xl p-6 mb-8 border border-stone-800 shadow-inner">
-                    <div class="flex justify-between items-center mb-6 pb-6 border-b border-stone-800">
-                        <span class="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">Importe a pagar</span>
-                        <span id="payment-amount" class="text-3xl font-display font-black text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.2)]">0.00€</span>
+                <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-200 shadow-inner">
+                    <div class="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Importe a pagar</span>
+                        <span id="payment-amount" class="text-3xl font-display font-black text-amber-500 drop-shadow-sm">0.00€</span>
                     </div>
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Número de Tarjeta</label>
-                            <input type="text" placeholder="0000 0000 0000 0000" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700">
+                            <label class="block text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Número de Tarjeta</label>
+                            <input type="text" placeholder="0000 0000 0000 0000" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-slate-400">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Caducidad</label>
-                                <input type="text" placeholder="MM/AA" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700">
+                                <label class="block text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Caducidad</label>
+                                <input type="text" placeholder="MM/AA" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-slate-400">
                             </div>
                             <div>
-                                <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">CVC</label>
-                                <input type="password" placeholder="***" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700 text-center">
+                                <label class="block text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">CVC</label>
+                                <input type="password" placeholder="***" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-slate-400 text-center">
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <button id="btn-process-payment" onclick="processPayment()" class="w-full btn-premium py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3">
-                    <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <button id="btn-process-payment" onclick="processPayment()" class="w-full btn-premium py-4 rounded-xl font-black text-white text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-amber-500/30">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
                     Procesar Pago
                 </button>
             </div>
-            <p class="text-center text-[10px] text-stone-400 mt-4 flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg> Pago encriptado 256-bit SSL</p>
+            <p class="text-center text-[10px] text-slate-400 mt-4 flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg> Pago encriptado 256-bit SSL</p>
         </div>
     </div>
 
-    <!-- Sticky Checkout Bar (Mobile) Fase 3 -->
-    <div id="sticky-checkout-bar" class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-[#1c1917] border-t border-amber-500/30 p-4 transform translate-y-full transition-transform duration-500 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-8">
-        <button onclick="toggleCart()" class="w-full bg-amber-500 text-black rounded-xl py-4 px-6 flex justify-between items-center shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-95 transition-transform">
+    <!-- Sticky Checkout Bar (Mobile) -->
+    <div id="sticky-checkout-bar" class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-white border-t border-slate-200 p-4 transform translate-y-full transition-transform duration-500 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] pb-8">
+        <button onclick="toggleCart()" class="w-full bg-amber-500 text-white rounded-xl py-4 px-6 flex justify-between items-center shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-95 transition-transform">
             <div class="flex items-center gap-3">
-                <div class="bg-black/20 w-8 h-8 rounded-full flex items-center justify-center">
+                <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center">
                     <span id="sticky-count" class="font-black text-sm">1</span>
                 </div>
-                <span class="font-black uppercase tracking-widest text-sm">Ver Pedido</span>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Ver Pedido</span>
             </div>
             <div class="flex items-center gap-2">
-                <span id="sticky-total" class="font-black text-xl">0.00€</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                <span id="sticky-total" class="font-black text-xl text-white">0.00€</span>
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
             </div>
         </button>
     </div>
@@ -994,6 +992,12 @@
                         window.print();
                     }, 500);
 
+                    // 3. Sincronizar Puntos de Fidelidad
+                    if (sessionClient) {
+                        sessionClient.puntos = (sessionClient.puntos || 0) + Math.floor(pedido.total * 10);
+                        localStorage.setItem('tpv_b2c_cliente', JSON.stringify(sessionClient));
+                        updateAuthUI();
+                    }
                     
                     cart = [];
                     updateCartUI();

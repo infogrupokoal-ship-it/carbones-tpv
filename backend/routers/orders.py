@@ -270,7 +270,7 @@ def crear_pedido(
         nuevo_pedido.cuota_iva_21 = round(total_iva_21 - nuevo_pedido.base_imponible_21, 2)
 
         if cliente:
-            cliente.puntos_fidelidad += int(total_final)
+            cliente.puntos_fidelidad += int(total_final * 10)
             cliente.visitas += 1
             
             # Autopromoción de Nivel CRM
