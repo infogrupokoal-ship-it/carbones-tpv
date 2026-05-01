@@ -1156,8 +1156,7 @@
         }
 
         async function requestOTP() {
-            const phone = document.getElementById('login-phone').value;
-            if(phone.length < 9) return typeof showToast === 'function' ? showToast("Atención", "Número inválido", "error") : alert("Número inválido");
+            if(phone.length < 9) return typeof showToast === 'function' ? showToast("Atención", "Número inválido", "error") : console.log("Número inválido");
             
             document.getElementById('btn-request-otp').innerText = 'Enviando...';
             try {

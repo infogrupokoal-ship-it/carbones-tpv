@@ -10,8 +10,29 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Design System -->
     <link rel="stylesheet" href="/static/css/design_system.css">
+    <style>
+        .toast {
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards, slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards 3s;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: auto;
+            color: white;
+            z-index: 9999;
+        }
+        @keyframes slideIn { from { transform: translateX(100%) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(100%) scale(0.95); opacity: 0; } }
+    </style>
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-100 font-sans pb-20">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- Header -->
     <nav class="bg-white/5 backdrop-blur-xl border-b border-white/10 p-6 sticky top-0 z-50 flex flex-wrap justify-between items-center gap-6">
@@ -125,6 +146,40 @@
     </div>
 
     <script>
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let iconHtml;
+            if (type === 'error') {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>`;
+            } else if (type === 'success') {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>`;
+            } else {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>`;
+            }
+
+            toast.innerHTML = `
+                ${iconHtml}
+                <div>
+                    <p class="text-white font-black text-xs">${title}</p>
+                    <p class="text-slate-400 text-[10px] font-medium">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
+        }
+
         const API_URL = "/api";
         let chartVentas, chartPollos, chartPizzas;
 
@@ -272,7 +327,7 @@
 
         async function ejecutarCierreZ() {
             const efDecl = parseFloat(document.getElementById('efectivo_declarado').value);
-            if(isNaN(efDecl) || !confirm("¿Confirmar Cierre de Caja Z?")) return;
+            if(isNaN(efDecl)) return;
             try {
                 const res = await fetch(`${API_URL}/admin/trigger_cierre_z`, {
                     method: 'POST',
@@ -280,9 +335,16 @@
                     body: JSON.stringify({efectivo_declarado: efDecl})
                 });
                 const data = await res.json();
-                alert(data.msj);
-                location.reload();
-            } catch(e) { alert("Fallo al cerrar"); }
+                if(res.ok && data.status === 'success') {
+                    showToast('Cierre Z', data.msj || 'Arqueo registrado correctamente', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('Cierre Z Fallido', data.detail || 'Fallo de validación', 'error');
+                }
+            } catch(e) { 
+                showToast('Fallo de Red', 'Fallo al cerrar o reportar. Reintente.', 'error');
+                console.error("Fallo al cerrar"); 
+            }
         }
 
         initDashboard();

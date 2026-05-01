@@ -342,25 +342,7 @@
         };
 
         const triggerFichaje = () => {
-            const pin = prompt("Introduce tu PIN de empleado:");
-            if (!pin) return;
-            const tipo = prompt("Tipo de fichaje (ENTRADA / SALIDA / PAUSA):", "ENTRADA");
-            if (!tipo) return;
-
-            fetch('/api/rrhh/fichar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin, tipo })
-            })
-            .then(r => r.json())
-            .then(d => {
-                if (d.status === 'success') {
-                    showToast('Fichaje Confirmado', `${d.usuario} (${d.tipo}) a las ${d.hora}`, 'success');
-                    updateDashboard();
-                } else {
-                    showToast('Error', d.detail || "PIN incorrecto", 'error');
-                }
-            });
+            window.location.href = 'rrhh.html';
         };
 
         const updateAuditLogs = async () => {
@@ -392,9 +374,6 @@
         };
 
         const triggerCierreZ = async () => {
-            const pin = prompt("ACCESO RESTRINGIDO: Introduce tu PIN de Encargado:");
-            if (!pin) return;
-
             try {
                 // Fetch the preview data
                 const res = await fetch('/api/orders/cierre-z');
@@ -429,8 +408,6 @@
             const efectivoStr = document.getElementById('caja-ciega-input').value;
             const efectivo = parseFloat(efectivoStr);
             if (isNaN(efectivo)) return showToast('Atención', 'Cantidad de efectivo en caja inválida.', 'error');
-
-            if (!confirm("⚠️ ¿Estás seguro de ejecutar el Cierre Z? Esto liquidará el turno y enviará el reporte contable.")) return;
 
             try {
                 const res = await fetch(`/api/stats/cierre-z`, { 
