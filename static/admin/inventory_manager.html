@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario | Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/design_system.css">
+    <style>
+        body { background: #020617; }
+        .tab-btn { transition: all 0.3s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { border-bottom-color: #f59e0b; color: #f59e0b; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col">
+
+    <!-- Top Navigation -->
+    <nav class="bg-slate-900/50 backdrop-blur-xl border-b border-white/5 p-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/static/portal.html'" class="text-slate-500 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tighter text-white uppercase italic">Inventario <span class="text-amber-500">Master</span></h1>
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Control de Suministros v4.5</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="location.reload()" class="bg-white/5 hover:bg-white/10 p-2 rounded-xl border border-white/10 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <button onclick="openAdjustmentModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 px-6 py-2 rounded-xl font-black text-xs uppercase transition-all shadow-lg shadow-amber-500/20">Registrar Movimiento</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto w-full p-6 flex-1 flex flex-col gap-8">
+        
+        <!-- Tabs & Filters -->
+        <div class="flex items-center gap-8 border-b border-white/5">
+            <button onclick="switchTab('productos')" id="tab-productos" class="tab-btn active px-4 py-4 text-xs font-black uppercase tracking-widest">Catálogo de Productos</button>
+            <button onclick="switchTab('ingredientes')" id="tab-ingredientes" class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest">Materia Prima / Suministros</button>
+        </div>
+
+        <!-- Inventory List -->
+        <div class="glass-panel flex-1 overflow-hidden flex flex-col">
+            <div class="overflow-x-auto no-scrollbar">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-slate-900/80 backdrop-blur-md z-10">
+                        <tr class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                            <th class="p-6">Nombre del Artículo</th>
+                            <th class="p-6">Stock Actual</th>
+                            <th class="p-6">Estado</th>
+                            <th class="p-6">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body" class="divide-y divide-white/5">
+                        <!-- Content injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Ajuste/Merma -->
+    <div id="modalAdjustment" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex items-center justify-center z-[100] p-4">
+        <div class="glass-panel max-w-lg w-full !p-8 animate-slide-up">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-black text-white uppercase italic">Registrar <span class="text-amber-500">Ajuste</span></h3>
+                <button onclick="closeAdjustmentModal()" class="text-slate-500 hover:text-white transition-colors text-3xl">&times;</button>
+            </div>
+            
+            <form id="adjustment-form" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tipo de Movimiento</label>
+                    <select id="adj-tipo" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white font-bold focus:outline-none focus:border-amber-500/50">
+                        <option value="AJUSTE">Ajuste Manual</option>
+                        <option value="MERMA">Registro de Merma (Pérdida)</option>
+                        <option value="ENTRADA_PROVEEDOR">Entrada de Mercancía</option>
+                    </select>
+                </div>
+                
+                <div id="merma-details" class="hidden animate-in fade-in slide-in-from-top-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Motivo de la Merma</label>
+                    <select id="merma-motivo" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white font-bold focus:outline-none focus:border-red-500/50">
+                        <option value="CADUCIDAD">Producto Caducado</option>
+                        <option value="ROTURA">Rotura o Daño</option>
+                        <option value="ERROR_COCINA">Error en Preparación</option>
+                        <option value="OTRO">Otros Motivos</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Cantidad</label>
+                        <input type="number" id="adj-cantidad" step="0.01" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-xl font-black text-white focus:outline-none focus:border-amber-500/50" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Unidad</label>
+                        <div id="adj-unit-display" class="w-full bg-white/5 border border-white/5 p-4 rounded-xl text-slate-500 font-black uppercase text-center h-[58px] flex items-center justify-center">---</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Observaciones</label>
+                    <textarea id="adj-desc" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm text-slate-300 focus:outline-none focus:border-amber-500/50" rows="3" placeholder="Ej: Rotura de empaque durante la descarga..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-500/10">Confirmar Registro</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'productos';
+        let inventoryData = [];
+        let selectedItem = null;
+
+        async function fetchInventory() {
+            const endpoint = currentTab === 'productos' ? '/api/inventory/productos' : '/api/inventory/ingredientes';
+            try {
+                const res = await fetch(endpoint);
+                inventoryData = await res.json();
+                renderTable();
+            } catch (e) { console.error("Fetch error:", e); }
+        }
+
+        function renderTable() {
+            const body = document.getElementById('inventory-body');
+            body.innerHTML = inventoryData.map(item => {
+                let statusClass = "ok";
+                let statusText = "En Stock";
+                
+                const stock = item.stock_actual;
+                const min = currentTab === 'productos' ? 5 : item.stock_minimo; // Placeholder para productos
+
+                if (stock <= 0) { statusClass = "critical"; statusText = "Agotado"; }
+                else if (stock <= min) { statusClass = "warning"; statusText = "Stock Bajo"; }
+
+                return `
+                    <tr class="group hover:bg-white/[0.02] transition-colors">
+                        <td class="p-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-xl">
+                                    ${currentTab === 'productos' ? '📦' : '🥣'}
+                                </div>
+                                <div>
+                                    <p class="font-black text-white uppercase italic text-sm tracking-tight">${item.nombre}</p>
+                                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${currentTab === 'productos' ? item.categoria : item.unidad}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-6 font-mono text-lg font-black ${statusClass === 'critical' ? 'text-red-500' : 'text-white'}">
+                            ${stock.toFixed(2)} <span class="text-[10px] text-slate-500">${currentTab === 'productos' ? 'un' : item.unidad}</span>
+                        </td>
+                        <td class="p-6">
+                            <span class="stock-badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td class="p-6">
+                            <button onclick="handleAdjustment('${item.id}', '${item.nombre}', '${currentTab === 'productos' ? 'un' : item.unidad}')" class="text-[9px] font-black uppercase text-amber-500 hover:text-amber-400 transition-colors tracking-widest">Ajustar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            fetchInventory();
+        }
+
+        function handleAdjustment(id, name, unit) {
+            selectedItem = { id, name, unit, type: currentTab === 'productos' ? 'PRODUCTO' : 'INGREDIENTE' };
+            document.getElementById('adj-unit-display').innerText = unit;
+            openAdjustmentModal();
+        }
+
+        function openAdjustmentModal() {
+            if (!selectedItem) {
+                alert("Seleccione un artículo de la tabla primero.");
+                return;
+            }
+            document.getElementById('modalAdjustment').classList.remove('hidden');
+        }
+
+        function closeAdjustmentModal() {
+            document.getElementById('modalAdjustment').classList.add('hidden');
+            selectedItem = null;
+        }
+
+        document.getElementById('adj-tipo').addEventListener('change', (e) => {
+            const mermaDiv = document.getElementById('merma-details');
+            if (e.target.value === 'MERMA') mermaDiv.classList.remove('hidden');
+            else mermaDiv.classList.add('hidden');
+        });
+
+        document.getElementById('adjustment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tipo = document.getElementById('adj-tipo').value;
+            const cantidad = parseFloat(document.getElementById('adj-cantidad').value);
+            const desc = document.getElementById('adj-desc').value;
+            
+            let endpoint = '/api/inventory/ajuste';
+            let payload = {
+                cantidad: tipo === 'MERMA' ? -Math.abs(cantidad) : cantidad,
+                tipo: tipo === 'MERMA' ? 'MERMA' : tipo,
+                descripcion: desc
+            };
+
+            if (selectedItem.type === 'PRODUCTO') payload.producto_id = selectedItem.id;
+            else payload.ingrediente_id = selectedItem.id;
+
+            // Si es merma específica, usamos el endpoint de merma para el coste
+            if (tipo === 'MERMA') {
+                endpoint = '/api/inventory/merma';
+                payload = {
+                    entidad_tipo: selectedItem.type,
+                    entidad_id: selectedItem.id,
+                    cantidad: Math.abs(cantidad),
+                    motivo: document.getElementById('merma-motivo').value
+                };
+            }
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert("Movimiento registrado con éxito.");
+                    closeAdjustmentModal();
+                    fetchInventory();
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + (err.detail || "Fallo en el servidor"));
+                }
+            } catch (err) { alert("Fallo de red."); }
+        });
+
+        fetchInventory();
+    </script>
+</body>
+</html>

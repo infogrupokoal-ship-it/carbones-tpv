@@ -161,11 +161,10 @@ async def health_check() -> Dict[str, Any]:
                 "status": db_status,
                 "latency_ms": db_latency_ms
             },
-            "resources": {
-                "cpu_usage": f"{psutil.cpu_percent()}%",
-                "memory_usage": f"{mem.percent}%",
-                "disk_free": f"{psutil.disk_usage('/').percent}%"
-            },
+            "cpu_usage": psutil.cpu_percent(),
+            "memory_usage": mem.percent,
+            "db_latency_ms": db_latency_ms,
+            "disk_free": psutil.disk_usage('/').percent,
             "network": {
                 "bytes_sent": net.bytes_sent,
                 "bytes_recv": net.bytes_recv

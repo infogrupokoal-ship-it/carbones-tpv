@@ -26,28 +26,22 @@ from ..config import settings
 # ──────────────────────────────────────────────────────────────────────────────
 MODEL_HIERARCHY = [
     {
-        "id": "gemini-2.5-pro",
-        "name": "Gemini 2.5 Pro (Primario)",
-        "tier": "ULTRA",
-        "rpm_limit": 5,          # Requests per minute en tier gratuito
-    },
-    {
-        "id": "gemini-2.0-flash",
-        "name": "Gemini 2.0 Flash (Secundario)",
-        "tier": "PRO",
-        "rpm_limit": 15,
-    },
-    {
-        "id": "gemini-2.0-flash-lite",
-        "name": "Gemini 2.0 Flash Lite (Terciario)",
-        "tier": "STANDARD",
-        "rpm_limit": 30,
+        "id": "gemini-1.5-flash",
+        "name": "Gemini 1.5 Flash (Primario)",
+        "tier": "SPEED",
+        "rpm_limit": 15,          # Tier gratuito estándar
     },
     {
         "id": "gemini-1.5-pro",
-        "name": "Gemini 1.5 Pro (Cuaternario)",
-        "tier": "LEGACY_PRO",
+        "name": "Gemini 1.5 Pro (Secundario)",
+        "tier": "POWER",
         "rpm_limit": 2,
+    },
+    {
+        "id": "gemini-1.0-pro",
+        "name": "Gemini 1.0 Pro (Terciario)",
+        "tier": "STABLE",
+        "rpm_limit": 15,
     },
 ]
 

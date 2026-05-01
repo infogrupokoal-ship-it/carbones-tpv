@@ -8,13 +8,13 @@
   "description": "Sistema de gestión inteligente para Carbones y Pollos.",
   "icons": [
     {
-      "src": "https://grupokoal.com/assets/tpv_logo_192.png",
+      "src": "/static/tpv_logo_192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://grupokoal.com/assets/tpv_logo_512.png",
+      "src": "/static/tpv_logo_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -14,7 +14,7 @@ from ..config import settings
 from ..utils.logger import logger
 from ..utils.ai_model_manager import ai_manager, generate_ai_response
 
-router = APIRouter(prefix="/api/ai", tags=["AI Assistant"])
+router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 
 
 class ChatRequest(BaseModel):

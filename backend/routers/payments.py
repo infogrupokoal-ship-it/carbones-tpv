@@ -119,7 +119,7 @@ async def send_payment_link_whatsapp(pedido_id: str, telefono: str, db: Session 
         logger.error(f"WAHA_PAYMENT_LINK_ERROR: {str(e)}")
         return {"status": "error", "message": "No se pudo enviar el WhatsApp, pero el link es válido", "url": payment_url}
 
-@router.post("/stripe/webhook")
+@router.post("/webhook")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """Confirmación industrial de pagos vía Webhook con validación de firma."""
     payload = await request.body()
