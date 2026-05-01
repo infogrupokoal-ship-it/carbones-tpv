@@ -65,9 +65,9 @@
                 <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Tickets Emitidos</p>
                 <p class="text-3xl font-black text-indigo-400" id="kpi-pedidos">0</p>
             </div>
-            <div class="glass-panel !p-6 flex flex-col justify-between">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Rating Clientes</p>
-                <p class="text-3xl font-black text-yellow-400" id="kpi-rating">0.0 ★</p>
+            <div class="glass-panel !p-6 flex flex-col justify-between border-blue-500/30">
+                <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">Envíos (Hoy)</p>
+                <p class="text-3xl font-black text-blue-400" id="kpi-envios">0</p>
             </div>
         </div>
 
@@ -194,7 +194,10 @@
                     document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
                     document.getElementById('kpi-mermas').innerText = data.kpis.coste_mermas.toFixed(2) + '€';
                     document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_b2c;
-                    document.getElementById('kpi-rating').innerText = data.kpis.avg_rating.toFixed(1) + ' ★';
+                    document.getElementById('kpi-envios').innerText = data.kpis.pedidos_domicilio;
+                    // Rating ya no está en el HTML que modifiqué, así que lo omito o lo dejo si existe
+                    const ratingEl = document.getElementById('kpi-rating');
+                    if(ratingEl) ratingEl.innerText = data.kpis.avg_rating.toFixed(1) + ' ★';
                     renderCharts(data.charts);
                     renderReviews(data.reviews);
                 }

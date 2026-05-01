@@ -3,312 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDS Kitchen Central | Carbones y Pollos</title>
+    <title>KDS | Kitchen Display System - Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background: #020617; 
-            color: white; 
-            font-family: 'JetBrains Mono', monospace;
-            overflow: hidden;
-            height: 100vh;
-        }
-        .order-card {
-            background: #0f172a;
-            border-radius: 1.5rem;
-            border: 2px solid #1e293b;
-            display: flex;
-            flex-direction: column;
-            animation: slideIn 0.3s ease-out;
-        }
-        .order-card.priority { border-color: #f59e0b; }
-        .order-card.urgent { border-color: #ef4444; background: #450a0a; }
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f1f5f9; overflow: hidden; }
+        .order-card { background: #1e293b; border: 1px solid #334155; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .order-card.ready { opacity: 0.5; transform: scale(0.95); pointer-events: none; }
+        .order-card.priority { border-left: 12px solid #f59e0b; }
+        .order-card.delivery { border-left: 12px solid #3b82f6; }
+        .urgent-pulse { animation: urgent 1s infinite; }
+        @keyframes urgent { 0% { border-color: #334155; } 50% { border-color: #ef4444; background: #450a0a; } 100% { border-color: #334155; } }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #455a64; border-radius: 10px; }
         
-        .item-row { border-bottom: 1px solid #1e293b; padding: 1rem 0; }
-        .item-row:last-child { border-bottom: none; }
-
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        .pulse-green { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulse-g 2s infinite; }
-        .pulse-red { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-r 2s infinite; }
-        @keyframes pulse-g { 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
-        @keyframes pulse-r { 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .timer-badge { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="flex flex-col">
-
-    <!-- KDS Header -->
-    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-50 transition-colors duration-500" id="kds-header">
-        <div class="max-w-[120rem] mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <button onclick="window.location.href='/static/portal.html'" class="text-stone-500 hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </button>
-                <div class="w-px h-6 bg-white/10"></div>
-                <div class="flex items-center gap-2">
-                    <div class="h-6 w-6 bg-orange-600 rounded flex items-center justify-center text-xs shadow-lg shadow-orange-900/40">🔥</div>
-                    <span class="text-white font-black tracking-widest text-xs uppercase">KDS <span class="text-orange-500">Central</span></span>
-                </div>
-            </div>
-
-            <!-- Resumen de Producción (Métricas en tiempo real) -->
-            <div id="production-summary" class="hidden md:flex gap-6 items-center border-x border-white/10 px-6 h-full">
-                <!-- Inyectado via JS -->
-            </div>
-
-            <div class="flex items-center gap-6">
-                <div class="text-right flex items-center gap-4">
-                    <p id="clock" class="text-xl font-black text-white font-mono tracking-tighter">00:00:00</p>
-                    <div class="flex items-center justify-end gap-2">
-                        <span id="sync-dot" class="h-2 w-2 rounded-full bg-emerald-500 pulse-green"></span>
-                        <p id="status-text" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Sincronizado</p>
-                    </div>
-                </div>
-                <div class="w-px h-6 bg-white/10"></div>
-                <div class="flex gap-2">
-                    <button onclick="loadOrders()" class="h-8 w-8 bg-white/5 rounded flex items-center justify-center hover:bg-white/10 transition-all border border-white/5 active:scale-90 text-sm">🔄</button>
-                    <button onclick="toggleAudio()" id="audio-btn" class="h-8 w-8 bg-white/5 rounded flex items-center justify-center hover:bg-white/10 transition-all border border-white/5 active:scale-90 text-sm">🔔</button>
-                </div>
+<body class="h-screen flex flex-col p-6">
+    <header class="flex justify-between items-center mb-8 bg-slate-800/80 backdrop-blur-md p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
+        <div class="flex items-center gap-6">
+            <div class="w-14 h-14 bg-amber-500 rounded-3xl flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20">🔥</div>
+            <div>
+                <h1 class="text-3xl font-black uppercase tracking-tighter">Kitchen <span class="text-amber-500">Master</span></h1>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Operational Dashboard | <span id="current-time">00:00:00</span></p>
             </div>
         </div>
-    </nav>
+        <div class="flex gap-4">
+            <div class="bg-slate-900/50 px-8 py-3 rounded-2xl border border-slate-700 text-center">
+                <span class="text-[9px] block text-slate-500 font-black uppercase tracking-widest mb-1">Activos</span>
+                <span id="count-pending" class="text-3xl font-black text-amber-500">0</span>
+            </div>
+            <div class="bg-slate-900/50 px-8 py-3 rounded-2xl border border-slate-700 text-center">
+                <span class="text-[9px] block text-slate-500 font-black uppercase tracking-widest mb-1">Turno</span>
+                <span id="shift-label" class="text-3xl font-black text-blue-400">---</span>
+            </div>
+        </div>
+    </header>
 
-    <!-- Rush Mode Alert -->
-    <div id="rush-banner" class="hidden mt-16 bg-red-600/20 border-b border-red-500/30 text-red-500 py-2 px-6 text-center animate-pulse backdrop-blur-md">
-        <p class="text-xs font-black uppercase tracking-[0.3em]">⚠️ RUSH MODE ACTIVATED: ALTA DEMANDA EN COCINA ⚠️</p>
-    </div>
-
-    <!-- Orders Grid -->
-    <main id="kds-grid" class="flex-1 overflow-x-auto flex gap-6 p-6 mt-16 no-scrollbar">
-        <div class="flex flex-col items-center justify-center w-full space-y-8">
-            <div class="relative">
-                <div class="text-9xl animate-pulse">🍗</div>
-                <div class="absolute -top-4 -right-4 h-12 w-12 bg-orange-600 rounded-full flex items-center justify-center animate-bounce shadow-xl border-4 border-[#020617]">
-                    <span class="text-2xl font-black">Zzz</span>
-                </div>
-            </div>
-            <div class="text-center space-y-2">
-                <h2 class="text-4xl font-black uppercase tracking-tighter text-slate-400">Cocina en Calma</h2>
-                <p class="text-slate-600 font-bold tracking-[0.2em] uppercase text-sm">Esperando transmisiones del terminal de pedidos...</p>
-            </div>
-            <div class="flex gap-4">
-                <div class="h-1.5 w-12 bg-slate-800 rounded-full overflow-hidden">
-                    <div class="h-full bg-orange-500 animate-[loading_2s_infinite]"></div>
-                </div>
-            </div>
+    <main id="kds-grid" class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 overflow-y-auto custom-scrollbar pr-2 pb-10">
+        <!-- Loader inicial -->
+        <div class="flex flex-col items-center justify-center col-span-full opacity-10 py-60">
+            <div class="text-[120px] animate-bounce">🍗</div>
+            <h2 class="text-4xl font-black uppercase tracking-[0.5em]">Sincronizando...</h2>
         </div>
     </main>
 
-    <style>
-        @keyframes loading {
-            0% { width: 0%; margin-left: 0%; }
-            50% { width: 50%; margin-left: 25%; }
-            100% { width: 0%; margin-left: 100%; }
-        }
-    </style>
-
-    <audio id="ping-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <!-- Notificador de Audio (Opcional) -->
+    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        const API_URL = "/api";
-        let activeOrders = [];
+        let orders = [];
         let lastOrderCount = 0;
-        let audioEnabled = false;
+        const grid = document.getElementById('kds-grid');
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/sw.js')
-                .then(reg => console.log('✅ Service Worker KDS Registrado:', reg))
-                .catch(err => console.error('❌ Service Worker KDS Fallido:', err));
-        }
-
-        function toggleAudio() {
-            audioEnabled = !audioEnabled;
-            document.getElementById('audio-btn').innerText = audioEnabled ? '🔔' : '🔕';
-            if (audioEnabled) {
-                document.getElementById('ping-sound').play().catch(() => {});
-            }
-        }
-
-        async function loadOrders() {
+        async function fetchOrders() {
             try {
-                const res = await fetch(`${API_URL}/orders/?estado=EN_PREPARACION`);
-                const data = await res.json();
-                if(data.offline) throw new Error("Offline mode triggered by Service Worker");
-                
-                activeOrders = data;
-                localStorage.setItem('kds_orders_backup', JSON.stringify(activeOrders));
-                
-                // Notificación de nuevo pedido
-                if (activeOrders.length > lastOrderCount && audioEnabled) {
-                    document.getElementById('ping-sound').play().catch(() => {});
+                const res = await fetch('/api/orders?estado=EN_PREPARACION');
+                if (res.ok) {
+                    const newOrders = await res.json();
+                    
+                    // Sonido si hay pedidos nuevos
+                    if (newOrders.length > lastOrderCount) {
+                        document.getElementById('alert-sound').play().catch(() => {});
+                    }
+                    
+                    orders = newOrders;
+                    lastOrderCount = orders.length;
+                    renderOrders();
                 }
-                lastOrderCount = activeOrders.length;
-                
-                document.getElementById('status-text').innerText = "Sincronizado";
-                document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-emerald-500');
-                document.getElementById('sync-dot').classList.replace('pulse-red', 'pulse-green');
-                
-                renderKDS();
-                updateSummary();
-                checkRushMode();
-            } catch (e) {
-                console.warn("⚠️ Conexión perdida, usando Caché Local (Modo Resiliencia KDS)...");
-                document.getElementById('status-text').innerText = "OFFLINE MODE";
-                document.getElementById('sync-dot').classList.replace('bg-emerald-500', 'bg-red-500');
-                document.getElementById('sync-dot').classList.replace('pulse-green', 'pulse-red');
-                
-                const backup = localStorage.getItem('kds_orders_backup');
-                if (backup) {
-                    activeOrders = JSON.parse(backup);
-                    renderKDS();
-                    updateSummary();
-                    checkRushMode();
-                }
-            }
+            } catch (e) { console.error("KDS Sync Error:", e); }
         }
 
-        function updateSummary() {
-            const summary = document.getElementById('production-summary');
-            const totals = {};
-            
-            activeOrders.forEach(o => {
-                o.items.forEach(it => {
-                    totals[it.nombre] = (totals[it.nombre] || 0) + it.cantidad;
-                });
-            });
-
-            const topItems = Object.entries(totals).sort((a,b) => b[1] - a[1]).slice(0, 3);
-            
-            if (topItems.length > 0) {
-                summary.classList.remove('hidden');
-                summary.innerHTML = topItems.map(([name, qty]) => `
-                    <div class="flex flex-col justify-center">
-                        <p class="text-[8px] font-black text-slate-500 uppercase">${name.slice(0,15)}</p>
-                        <p class="text-sm font-black text-white">x${qty}</p>
-                    </div>
-                `).join('');
-            } else {
-                summary.classList.add('hidden');
-            }
-        }
-
-        function checkRushMode() {
-            const urgentCount = activeOrders.filter(o => {
-                const elapsedMin = Math.floor((new Date() - new Date(o.fecha)) / 60000);
-                return elapsedMin > 10;
-            }).length;
-
-            const header = document.getElementById('kds-header');
-            const banner = document.getElementById('rush-banner');
-
-            if (urgentCount >= 3 || activeOrders.length >= 8) {
-                header.classList.replace('bg-black/80', 'bg-red-950/80');
-                banner.classList.remove('hidden');
-                grid.classList.replace('mt-16', 'mt-0'); // Banner takes space
-            } else {
-                header.classList.replace('bg-red-950/80', 'bg-black/80');
-                banner.classList.add('hidden');
-                grid.classList.replace('mt-0', 'mt-16');
-            }
-        }
-
-        function renderKDS() {
-            const grid = document.getElementById('kds-grid');
-            if (activeOrders.length === 0) {
-                grid.innerHTML = `<div class="flex flex-col items-center justify-center w-full opacity-20">
-                                    <div class="text-9xl mb-4 animate-bounce">🍗</div>
-                                    <p class="text-2xl font-black uppercase tracking-[0.5em]">Cocina en Silencio</p>
-                                  </div>`;
+        function renderOrders() {
+            if (orders.length === 0) {
+                grid.innerHTML = `
+                <div class="flex flex-col items-center justify-center col-span-full opacity-10 py-60">
+                    <div class="text-[120px]">🔥</div>
+                    <h2 class="text-4xl font-black uppercase tracking-[0.5em]">Cocina Despejada</h2>
+                </div>`;
+                document.getElementById('count-pending').innerText = "0";
                 return;
             }
 
-            grid.innerHTML = activeOrders.map(order => {
-                const elapsedMin = Math.floor((new Date() - new Date(order.fecha)) / 60000);
-                const isUrgent = elapsedMin > 15;
-                const isPriority = order.origen === 'DELIVERY' || elapsedMin > 8;
-
+            document.getElementById('count-pending').innerText = orders.length;
+            
+            grid.innerHTML = orders.map(order => {
+                const timeDiff = Math.floor((new Date() - new Date(order.fecha)) / 60000);
+                const isUrgent = timeDiff > 12;
+                const isDelivery = order.metodo_envio === 'DOMICILIO';
+                const typeLabel = isDelivery ? '🛵 DOMICILIO' : '🏪 LOCAL';
+                
                 return `
-                    <div class="order-card w-[380px] shrink-0 ${isUrgent ? 'urgent' : (isPriority ? 'priority' : '')} shadow-2xl">
-                        <div class="p-6 border-b border-white/5 flex justify-between items-start bg-white/5">
-                            <div>
-                                <h3 class="text-4xl font-black text-white leading-none">#${order.numero_ticket.slice(-4)}</h3>
-                                <div class="flex items-center gap-2 mt-3">
-                                    <span class="px-2 py-0.5 rounded bg-white/10 text-[10px] font-black tracking-widest">${order.origen}</span>
-                                    <span class="text-[10px] font-bold text-slate-400 italic">${new Date(order.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-3xl font-black ${isUrgent ? 'text-white animate-pulse' : 'text-orange-500'}">${elapsedMin}m</span>
-                                <p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">Tiempo Espera</p>
-                            </div>
+                <div class="order-card flex flex-col rounded-[2.5rem] overflow-hidden shadow-2xl ${isUrgent ? 'urgent-pulse' : ''} ${isDelivery ? 'delivery' : 'priority'} animate-fade-in">
+                    <div class="bg-white/5 p-6 flex justify-between items-center border-b border-white/5">
+                        <div>
+                            <span class="text-4xl font-black text-white block">#${order.numero_ticket}</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-amber-500">${typeLabel}</span>
                         </div>
-                        
-                        <div class="flex-1 p-6 overflow-y-auto space-y-4 no-scrollbar">
-                            ${order.items.map(it => `
-                                <div class="item-row group">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-3xl font-black text-white group-hover:text-orange-500 transition-colors">x${it.cantidad}</span>
-                                        <span class="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-1 rounded-full uppercase border border-white/5">${it.categoria || 'ASADO'}</span>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-orange-100 uppercase tracking-tight">${it.nombre}</h4>
-                                </div>
-                            `).join('')}
-                            
-                            ${order.notas_cliente ? `
-                                <div class="bg-yellow-500/10 p-4 rounded-2xl border border-yellow-500/20 mt-4">
-                                    <p class="text-[10px] font-black text-yellow-500 uppercase mb-1 tracking-widest">Instrucciones Especiales</p>
-                                    <p class="text-sm font-bold text-yellow-100 leading-tight">${order.notas_cliente}</p>
-                                </div>
-                            ` : ''}
-
-                            ${order.metodo_envio === 'DOMICILIO' ? `
-                                <div class="bg-blue-500/10 p-4 rounded-2xl border border-blue-500/20 mt-4 animate-pulse">
-                                    <p class="text-[10px] font-black text-blue-400 uppercase mb-1 tracking-widest flex items-center gap-2">
-                                        <span>🛵</span> DIRECCIÓN DE ENTREGA
-                                    </p>
-                                    <p class="text-sm font-bold text-blue-100 leading-tight">${order.direccion || 'Dirección no especificada'}</p>
-                                </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="p-6 bg-black/20">
-                            <button onclick="finishOrder('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl text-xl font-black shadow-lg shadow-emerald-900/40 transition-all active:scale-95 flex items-center justify-center gap-3">
-                                <span>LISTO PARA SERVIR</span>
-                                <span class="text-2xl">✅</span>
-                            </button>
+                        <div class="timer-badge px-4 py-2 rounded-2xl border border-white/10">
+                            <span class="text-xl font-black ${isUrgent ? 'text-red-500' : 'text-slate-400'}">${timeDiff}'</span>
                         </div>
                     </div>
+                    
+                    <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
+                        <ul class="space-y-6">
+                            ${order.items.map(it => `
+                                <li class="flex gap-4">
+                                    <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center font-black text-slate-900 text-xl flex-shrink-0">${it.cantidad}</div>
+                                    <div class="flex-1">
+                                        <p class="text-lg font-black uppercase leading-tight text-white">${it.nombre}</p>
+                                        ${it.notas ? `<p class="text-xs text-amber-500/80 mt-1 font-bold">⚠️ ${it.notas}</p>` : ''}
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        
+                        ${isDelivery && order.direccion ? `
+                        <div class="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
+                            <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Dirección de Envío</p>
+                            <p class="text-xs font-bold text-slate-300">${order.direccion}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="p-4 bg-black/40">
+                        <button onclick="updateStatus('${order.id}', 'LISTO', this)" class="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-[0.2em] text-sm rounded-[1.5rem] transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            Completar
+                        </button>
+                    </div>
+                </div>
                 `;
             }).join('');
         }
 
-        async function finishOrder(id) {
+        async function updateStatus(id, status, btn) {
+            btn.innerHTML = '<span class="animate-spin text-2xl">🌀</span>';
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            
             try {
-                const res = await fetch(`${API_URL}/orders/${id}/estado?estado=LISTO`, { method: 'PUT' });
+                const res = await fetch(\`/api/orders/\${id}/estado?estado=\${status}\`, { method: 'PUT' });
                 if (res.ok) {
-                    loadOrders();
+                    const card = btn.closest('.order-card');
+                    card.classList.add('ready');
+                    card.style.transform = 'translateY(100px)';
+                    card.style.opacity = '0';
+                    setTimeout(fetchOrders, 400);
                 }
-            } catch (e) {
-                console.error("Error finalizing order", e);
-            }
+            } catch (e) { console.error("KDS Update Fail:", e); }
         }
 
         function updateClock() {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-            document.getElementById('status-text').innerText = "Sincronizado";
-            document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-emerald-500');
-            document.getElementById('sync-dot').classList.replace('pulse-red', 'pulse-green');
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+            document.getElementById('shift-label').innerText = now.getHours() >= 18 ? 'NOCHE' : 'MAÑANA';
         }
 
         setInterval(updateClock, 1000);
-        setInterval(loadOrders, 5000);
-        loadOrders();
+        setInterval(fetchOrders, 5000);
+        
+        updateClock();
+        fetchOrders();
     </script>
 </body>
 </html>

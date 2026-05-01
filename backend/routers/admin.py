@@ -32,6 +32,7 @@ class KPIOut(BaseModel):
     ventas_hoy: float
     coste_mermas: float
     pedidos_b2c: int
+    pedidos_domicilio: int
     avg_rating: float
 
 class DashboardOut(BaseModel):
@@ -53,6 +54,7 @@ async def get_dashboard_kpis(db: Session = Depends(get_db)):
         # 1. KPIs principales
         ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.date(Pedido.fecha) == today).scalar() or 0.0
         pedidos_count = db.query(Pedido).filter(func.date(Pedido.fecha) == today).count()
+        pedidos_domicilio = db.query(Pedido).filter(func.date(Pedido.fecha) == today, Pedido.metodo_envio == "DOMICILIO").count()
         
         # Coste estimado de mermas (Sobrantes de hoy con valoración al 40% del PVP)
         mermas_hoy = db.query(func.sum(MovimientoStock.cantidad * Producto.precio * 0.4))\
@@ -98,6 +100,7 @@ async def get_dashboard_kpis(db: Session = Depends(get_db)):
                 ventas_hoy=round(ventas_hoy, 2),
                 coste_mermas=round(abs(mermas_hoy), 2),
                 pedidos_b2c=pedidos_count,
+                pedidos_domicilio=pedidos_domicilio,
                 avg_rating=round(float(avg_rating), 1)
             ),
             charts={

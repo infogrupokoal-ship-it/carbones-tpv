@@ -1,10 +1,10 @@
 {
   "name": "Carbones y Pollos TPV Enterprise",
   "short_name": "Carbones TPV",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0c29",
-  "theme_color": "#ff9f43",
+  "background_color": "#080808",
+  "theme_color": "#f59e0b",
   "description": "Sistema de gestión inteligente para Carbones y Pollos.",
   "icons": [
     {

@@ -1,59 +1,29 @@
-# 🍗 Carbones y Pollos TPV - Enterprise Ecosystem v2.6
+# 🍗 Carbones y Pollos TPV Enterprise v4.4
 
-SISTEMA INTEGRAL DE GESTIÓN GASTRONÓMICA IMPULSADO POR IA
+## 🚀 Ecosistema de Gestión Retail Inteligente
 
----
+Sistema integral de Punto de Venta (TPV), Gestión de Cocina (KDS) e Inteligencia de Negocio (BI) diseñado para la máxima eficiencia operativa en entornos de hostelería de alto rendimiento.
 
-## 🏗️ Arquitectura del Ecosistema
-El sistema se basa en una arquitectura de **Capa de Servicios Modular** (Service Layer) con persistencia desacoplada y soporte nativo para **Edge Computing** (Offline-First).
+### 🏗️ Arquitectura del Sistema
 
-1.  **Backend (FastAPI):** Núcleo de alta disponibilidad con middleware de telemetría y seguridad.
-2.  **Koal-AI (Gemini 1.5):** Inteligencia operacional que analiza ventas y sugiere niveles de producción.
-3.  **Enterprise Hub:** Punto de acceso centralizado con diseño Glassmorphism para todas las terminales.
-4.  **Sync Daemon:** Servicio de fondo que garantiza la sincronización entre el local físico y la nube.
-5.  **Audit Engine:** Generación automática de Reportes Z y arqueos ciegos contables.
+*   **Backend Industrial**: Basado en FastAPI + SQLAlchemy (SQLite). Gestión asíncrona de pedidos, inventario y fiscalidad.
+*   **Frontend B2C Ultra-Premium**: Interfaz Single-Page (SPA) con navegación persistente y optimización para dispositivos táctiles.
+*   **Logística Inteligente**: Soporte completo para entrega a domicilio con validación de dirección y seguimiento en tiempo real.
+*   **Motor de Inteligencia (AI Insights)**: Integración con Gemini 1.5 Flash para el análisis de sentimientos de clientes y sugerencias operativas basadas en datos.
 
----
+### 📦 Módulos Principales
 
-## 🚀 Despliegue en Producción (VPS / Linux)
+1.  **Punto de Venta (Quiosco)**: `/static/kiosko.html` - Interfaz rápida de autoservicio o mostrador.
+2.  **Cocina (KDS)**: `/static/kds.html` - Gestión visual de la línea de producción y tiempos de espera.
+3.  **BI de Producción**: `/static/dashboard_produccion.html` - Monitorización de KPIs operativos, mermas y rendimiento de productos.
+4.  **Admin Financeiro**: `/static/admin/dashboard.html` - Control de caja, Cierre Z y auditoría fiscal.
+5.  **Tracking del Cliente**: `/static/tracking.html` - Seguimiento visual del pedido para el usuario final.
 
-### 1. Preparación del Entorno
-```bash
-sudo apt update && sudo apt install python3-venv git -y
-git clone https://github.com/tu-usuario/carbones-tpv.git /opt/carbones_tpv
-cd /opt/carbones_tpv
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+### 🛠️ Configuración y Despliegue
 
-### 2. Configuración de Servicios (Systemd)
-El sistema incluye un archivo `scripts/tpv.service` pre-configurado.
-```bash
-sudo cp scripts/tpv.service /etc/systemd/system/tpv.service
-sudo systemctl daemon-reload
-sudo systemctl enable tpv
-sudo systemctl start tpv
-```
+*   **Despliegue**: Optimizado para **Render** con persistencia en `instance/`.
+*   **PWA**: Instalable en cualquier dispositivo mediante `manifest.json` y `sw.js` v4.4.
+*   **Mantenimiento**: Scheduler integrado para limpiezas de logs y cierres automáticos a las 03:00 AM.
 
 ---
-
-## 🛠️ Herramientas Administrativas (CLI)
-Para monitorizar el servidor sin interfaz gráfica, utiliza las herramientas incluidas en `scripts/`:
-
-*   **Monitor de Sistema:** `python scripts/admin_cli.py` (Ventas y salud en tiempo real).
-*   **Smoke Test:** `python scripts/smoke_test.py` (Verificación de integridad de red).
-*   **Gestor de Backups:** `python scripts/backup_manager.py` (Copia de seguridad instantánea).
-
----
-
-## 🔒 Seguridad y Auditoría
-*   **Logs:** Ubicados en `instance/logs/`. El sistema rota logs automáticamente.
-*   **Cierre Z:** Los cierres se ejecutan diariamente a las 03:00 AM (configurado en `scheduler.py`).
-*   **Persistencia:** En entornos cloud, asegúrate de montar un volumen en `/data` para que `tpv_data.sqlite` sea persistente.
-
----
-
-## 📧 Contacto y Soporte
-Desarrollado por **Antigravity AI Team** para **Grupo Koal - Advanced Agentic Coding**.
-v2.6 - Build 2026.04.30
+© 2026 Grupo Koal | Advanced Engineering for Retail
