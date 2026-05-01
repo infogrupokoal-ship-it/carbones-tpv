@@ -93,7 +93,35 @@ def verificar_otp(req: OTPVerify, db: Session = Depends(get_db)):
     db.commit()
     
     # Generar Token JWT para que el frontend lo guarde
-    token_data = {"sub": cliente.id, "telefono": cliente.telefono, "nombre": cliente.nombre, "puntos": cliente.puntos_fidelidad}
+    token_data = {
+        "sub": cliente.id, 
+        "telefono": cliente.telefono, 
+        "nombre": cliente.nombre, 
+        "puntos": cliente.puntos_fidelidad,
+        "nivel": cliente.nivel_fidelidad
+    }
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
     
     return {"status": "success", "token": token, "cliente": token_data}
+
+@router.get("/me/orders")
+def obtener_mis_pedidos(cliente_id: str, db: Session = Depends(get_db)):
+    """
+    Obtiene el historial de pedidos de un cliente. 
+    Para un entorno B2C real se usaría JWT auth en el middleware, pero
+    como es una PWA de Kiosko con baja fricción pasamos el ID directamente o validamos aquí.
+    """
+    from ..models import Pedido
+    pedidos = db.query(Pedido).filter(Pedido.cliente_id == cliente_id).order_by(Pedido.fecha.desc()).limit(10).all()
+    
+    results = []
+    for p in pedidos:
+        results.append({
+            "id": p.id,
+            "numero_ticket": p.numero_ticket,
+            "fecha": p.fecha.isoformat(),
+            "estado": p.estado,
+            "total": p.total,
+            "origen": p.origen
+        })
+    return {"status": "success", "orders": results}

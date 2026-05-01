@@ -85,27 +85,42 @@
             <button id="auth-btn" onclick="openLoginModal()" class="amber-glass px-4 py-3 rounded-2xl flex items-center gap-2 hover:bg-amber-500/10 transition-all duration-300">
                 <span class="text-xs font-black uppercase tracking-widest text-amber-500" id="auth-btn-text">Acceso Cliente</span>
             </button>
-            <button id="cart-btn-main" onclick="toggleCart()" class="amber-glass px-6 py-3 rounded-2xl flex items-center gap-3 hover:bg-amber-500/10 transition-all duration-300">
+            <button id="cart-btn-main" onclick="toggleCart()" class="hidden md:flex amber-glass px-6 py-3 rounded-2xl items-center gap-3 hover:bg-amber-500/10 transition-all duration-300">
                 <span class="text-xs font-black uppercase tracking-widest text-amber-500">Tu Pedido</span>
                 <span id="cart-count" class="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
             </button>
         </div>
     </header>
 
+    <!-- FAB for Mobile Cart -->
+    <button onclick="toggleCart()" class="md:hidden fixed bottom-6 right-6 z-50 bg-amber-500 text-black p-4 rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.5)] flex items-center justify-center transition-transform active:scale-95">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+        <span id="cart-count-fab" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-[#0c0a09]">0</span>
+    </button>
+
     <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
         
-        <!-- Categories Horizontal -->
-        <div id="categories-container" class="flex gap-3 overflow-x-auto custom-scrollbar pb-6 mb-8 sticky top-[90px] z-40 bg-[#0c0a09]/90 backdrop-blur-xl py-4 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] border-b border-white/5">
-            <!-- Injected by JS -->
+        <!-- Search and Categories -->
+        <div class="sticky top-[90px] z-40 bg-[#0c0a09]/90 backdrop-blur-xl pb-4 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] border-b border-white/5 mb-8">
+            <div class="mb-4 pt-2 flex items-center gap-3">
+                <div class="relative w-full max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="search-input" onkeyup="renderProducts()" placeholder="Buscar platos, bebidas..." class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:border-amber-500 focus:outline-none transition-all placeholder-stone-600">
+                </div>
+            </div>
+            <div id="categories-container" class="flex gap-3 overflow-x-auto custom-scrollbar">
+                <!-- Injected by JS -->
+            </div>
         </div>
 
         <!-- Products Grid -->
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Loading State -->
-            <div class="lg:col-span-3 py-40 text-center">
-                <div class="inline-block animate-spin h-8 w-8 border-4 border-amber-500 border-t-transparent rounded-full mb-4"></div>
-                <p class="text-xs font-black uppercase tracking-widest text-stone-500">Preparando el fuego...</p>
-            </div>
+            <!-- Loading State: Skeletons -->
+            <div class="product-card rounded-3xl p-4 animate-pulse border-white/5 bg-white/5"><div class="h-64 rounded-2xl bg-white/10 mb-6"></div><div class="h-4 bg-white/10 rounded w-3/4 mb-2"></div><div class="h-4 bg-white/10 rounded w-1/2"></div><div class="h-12 bg-white/10 rounded-xl mt-4"></div></div>
+            <div class="product-card rounded-3xl p-4 animate-pulse border-white/5 bg-white/5"><div class="h-64 rounded-2xl bg-white/10 mb-6"></div><div class="h-4 bg-white/10 rounded w-3/4 mb-2"></div><div class="h-4 bg-white/10 rounded w-1/2"></div><div class="h-12 bg-white/10 rounded-xl mt-4"></div></div>
+            <div class="product-card rounded-3xl p-4 animate-pulse border-white/5 bg-white/5 hidden lg:block"><div class="h-64 rounded-2xl bg-white/10 mb-6"></div><div class="h-4 bg-white/10 rounded w-3/4 mb-2"></div><div class="h-4 bg-white/10 rounded w-1/2"></div><div class="h-12 bg-white/10 rounded-xl mt-4"></div></div>
         </div>
     </main>
 
@@ -149,6 +164,43 @@
                 <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Verificar y Entrar</button>
             </div>
         </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/90 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-3xl max-w-md w-full shadow-2xl relative max-h-[80vh] flex flex-col">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">Mi <span class="text-amber-500">Perfil</span></h2>
+            
+            <div class="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-xs text-stone-400 uppercase tracking-widest font-bold">Nivel Actual</span>
+                    <span id="profile-nivel" class="text-lg font-black text-amber-500">BRONCE</span>
+                </div>
+                <div class="w-full bg-stone-900 rounded-full h-2 mb-2 relative overflow-hidden">
+                    <div id="profile-progress" class="bg-amber-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <p id="profile-points-text" class="text-[10px] text-stone-400 text-right">0 / 500 para Plata</p>
+            </div>
+
+            <h3 class="text-xs font-black uppercase tracking-widest text-stone-500 mb-4 border-b border-stone-800 pb-2">Últimos Pedidos</h3>
+            <div id="profile-orders" class="flex-1 overflow-y-auto space-y-3 custom-scrollbar mb-6">
+                <!-- Injected via API -->
+            </div>
+
+            <button onclick="logoutClient()" class="w-full py-3 rounded-xl text-red-500 font-black text-xs border border-red-500/30 hover:bg-red-500/10 uppercase tracking-widest mt-auto">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- Success Fullscreen Modal -->
+    <div id="success-screen" class="fixed inset-0 bg-[#0c0a09] z-[100] opacity-0 pointer-events-none transition-all duration-700 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(245,158,11,0.5)] mb-8 animate-bounce">🔥</div>
+        <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">¡Pedido en <span class="text-amber-500">Marcha!</span></h1>
+        <p class="text-lg text-stone-400 mb-12">Atento a las pantallas. Tu número de turno es:</p>
+        <div class="border-4 border-amber-500 p-8 rounded-3xl bg-amber-500/10 mb-12 transform hover:scale-105 transition-transform">
+            <span id="success-turno" class="text-7xl md:text-9xl font-black text-amber-500">--</span>
+        </div>
+        <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-black font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-2xl">Seguir Comprando</button>
     </div>
     <!-- Toast Notifications Container -->
     <div id="toast-container"></div>
@@ -206,7 +258,21 @@
 
         function renderProducts() {
             const grid = document.getElementById('products-grid');
-            const filtered = activeCategory === 'all' ? products : products.filter(p => p.categoria_id === activeCategory);
+            const searchQ = document.getElementById('search-input')?.value.toLowerCase() || '';
+            
+            let filtered = products;
+            
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(p => p.categoria_id === activeCategory);
+            }
+            if (searchQ) {
+                filtered = filtered.filter(p => p.nombre.toLowerCase().includes(searchQ) || (p.descripcion && p.descripcion.toLowerCase().includes(searchQ)));
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-stone-500 font-bold uppercase tracking-widest">No se encontraron productos</div>`;
+                return;
+            }
             
             grid.innerHTML = filtered.map((p, i) => {
                 // Lógica comercial: Etiquetas de impulso
@@ -329,6 +395,8 @@
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
+            const fabCount = document.getElementById('cart-count-fab');
+            if(fabCount) fabCount.innerText = cart.length;
             const itemsCont = document.getElementById('cart-items');
             itemsCont.innerHTML = cart.map((item, i) => `
                 <div class="flex items-center justify-between group">
@@ -413,10 +481,16 @@
                             <p>¡Gracias por tu compra!</p>
                         </div>
                     `;
-                    // 2. DISPARAR IMPRESIÓN (Interceptado por DURAPOS)
-                    window.print();
+                    // Mostrar Pantalla de Exito
+                    document.getElementById('success-turno').innerText = data.numero_ticket;
+                    document.getElementById('success-screen').classList.remove('opacity-0', 'pointer-events-none');
 
-                    alert(`🔥 Pedido enviado a cocina. Tu turno: ${data.numero_ticket}. ¡Disfruta!`);
+                    // 2. DISPARAR IMPRESIÓN (Interceptado por DURAPOS) sin bloquear la UI
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+
+                    
                     cart = [];
                     updateCartUI();
                     toggleCart();
@@ -424,15 +498,14 @@
             } catch (e) { alert("Error al procesar el pedido."); }
         }
 
+        function closeSuccessScreen() {
+            document.getElementById('success-screen').classList.add('opacity-0', 'pointer-events-none');
+        }
+
         // --- LÓGICA DE AUTENTICACIÓN OTP ---
         function openLoginModal() {
             if(sessionClient) {
-                if(confirm("¿Deseas cerrar sesión?")) {
-                    localStorage.removeItem('tpv_b2c_token');
-                    localStorage.removeItem('tpv_b2c_cliente');
-                    sessionClient = null;
-                    updateAuthUI();
-                }
+                openProfileModal();
                 return;
             }
             document.getElementById('login-modal').classList.remove('opacity-0', 'pointer-events-none');
@@ -489,7 +562,9 @@
         function updateAuthUI() {
             const btnText = document.getElementById('auth-btn-text');
             if(sessionClient) {
-                btnText.innerHTML = `HOLA, ${sessionClient.nombre.substring(0,6)} <span class="ml-2 bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded text-[9px]">${sessionClient.puntos} pts</span>`;
+                // If the backend didn't return nivel, fallback
+                const pts = sessionClient.puntos || 0;
+                btnText.innerHTML = `HOLA, ${sessionClient.nombre.substring(0,6)} <span class="ml-2 bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded text-[9px]">${pts} pts</span>`;
             } else {
                 btnText.innerText = "Acceso Cliente";
                 document.getElementById('step-phone').classList.remove('hidden');
@@ -497,6 +572,64 @@
                 document.getElementById('login-phone').value = '';
                 document.getElementById('login-otp').value = '';
             }
+        }
+
+        // --- PERFIL DE CLIENTE ---
+        async function openProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const pts = sessionClient.puntos || 0;
+            const nivel = sessionClient.nivel || 'BRONCE';
+            
+            document.getElementById('profile-nivel').innerText = nivel;
+            
+            let maxPts = 500;
+            let nxtLvl = "Plata";
+            if(pts >= 500) { maxPts = 1500; nxtLvl = "Oro"; }
+            if(pts >= 1500) { maxPts = pts; nxtLvl = "MAX"; }
+            
+            const pct = Math.min((pts / maxPts) * 100, 100);
+            document.getElementById('profile-progress').style.width = pct + '%';
+            document.getElementById('profile-points-text').innerText = `${pts} / ${maxPts} para ${nxtLvl}`;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+
+            // Cargar pedidos
+            const cont = document.getElementById('profile-orders');
+            cont.innerHTML = '<p class="text-xs text-stone-500">Cargando historial...</p>';
+            try {
+                const res = await fetch('/api/customers/me/orders?cliente_id=' + sessionClient.sub);
+                const data = await res.json();
+                if(data.orders && data.orders.length > 0) {
+                    cont.innerHTML = data.orders.map(o => `
+                        <div class="bg-stone-900 border border-stone-800 p-3 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-bold text-white block">${o.numero_ticket}</span>
+                                <span class="text-[10px] text-stone-500">${new Date(o.fecha).toLocaleDateString()}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-amber-500 font-bold block">${o.total}€</span>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-white/5 text-stone-400">${o.estado}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    cont.innerHTML = '<p class="text-xs text-stone-500">No hay pedidos recientes.</p>';
+                }
+            } catch(e) {
+                cont.innerHTML = '<p class="text-xs text-red-500">Error al cargar historial.</p>';
+            }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function logoutClient() {
+            localStorage.removeItem('tpv_b2c_token');
+            localStorage.removeItem('tpv_b2c_cliente');
+            sessionClient = null;
+            updateAuthUI();
+            closeProfileModal();
         }
 
         init();

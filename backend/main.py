@@ -88,6 +88,9 @@ async def startup_event():
         from scripts.seed_pizzas import seed_pizzas
         seed_pizzas()
         
+        from scripts.fix_broken_images import fix_broken_images
+        fix_broken_images()
+        
         from backend.database import SessionLocal
         from backend.models import Usuario
         from backend.utils.auth import get_password_hash
