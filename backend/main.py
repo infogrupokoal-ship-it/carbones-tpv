@@ -174,7 +174,8 @@ async def health_check() -> Dict[str, Any]:
         "integrity": {
             "last_audit": "SUCCESS",
             "security_mode": "ENFORCED"
-        }
+        },
+        "ai_engine": __import__('backend.utils.ai_model_manager', fromlist=['ai_manager']).ai_manager.get_status()
     }
 
 # --- Registro de Routers Modulares ---
