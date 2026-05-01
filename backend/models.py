@@ -58,6 +58,7 @@ class Producto(Base):
     categoria_id = Column(String(36), ForeignKey("categorias.id"))
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     is_active = Column(Boolean, default=True)
+    turno_disponible = Column(String(20), default="ALL") # ALL, MORNING, NIGHT
     
     categoria = relationship("Categoria", back_populates="productos")
     tienda = relationship("Tienda", back_populates="productos")
@@ -104,6 +105,15 @@ class Cliente(Base):
     puntos_fidelidad = Column(Integer, default=0)
     nivel_fidelidad = Column(String(20), default="BRONCE")
     visitas = Column(Integer, default=0)
+
+class VerificacionOTP(Base):
+    __tablename__ = "verificaciones_otp"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    telefono = Column(String(20), index=True)
+    codigo = Column(String(6))
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_expiracion = Column(DateTime)
+    usado = Column(Boolean, default=False)
 
 class Pedido(Base):
     __tablename__ = "pedidos"

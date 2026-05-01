@@ -184,7 +184,18 @@
 
         // Helper para añadir productos genéricos de venta cruzada rápido
         function addGenericCrossSell(nombre, precio) {
-            cart.push({ id: 'cross_sell_' + Date.now(), nombre: nombre, precio: precio, imagen_url: '' });
+            // Buscar el producto real en el catálogo para que el backend lo reconozca
+            const searchName = nombre.toLowerCase().split(' ')[0]; // Ej: "Patatas"
+            let realProd = products.find(p => p.nombre.toLowerCase().includes(searchName));
+            
+            if (realProd) {
+                cart.push(realProd);
+            } else {
+                console.warn(`[!] Producto "${nombre}" no encontrado en la DB. Usando fallback.`);
+                // Fallback temporal si la base de datos no tiene patatas
+                cart.push({ id: '00000000-0000-0000-0000-000000000000', nombre: nombre, precio: precio, imagen_url: '' });
+            }
+            
             updateCartUI();
             const cartBtn = document.getElementById('cart-btn-main');
             if (cartBtn) {

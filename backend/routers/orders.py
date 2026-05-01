@@ -218,9 +218,11 @@ def crear_pedido(
         for item in pedido.items:
             prod = db.query(Producto).get(item.producto_id)
             if not prod:
-                logger.warning(f"Intento de añadir producto inexistente: {item.producto_id}")
-                continue
-
+                logger.warning(f"Producto inexistente ({item.producto_id}). Usando genérico.")
+                # Fallback genérico para cross-selling sin ID real
+                prod = Producto(id="0000", nombre="Varios/Genérico", precio=item.precio if hasattr(item, 'precio') else 0.0, impuesto=10.0, tienda_id=nuevo_pedido.tienda_id)
+                # No hacemos db.add(prod) para no ensuciar el catálogo, solo lo usamos para el cálculo
+            
             # Registro de notas por ítem en el pedido general
             if item.notas:
                 nota_it = f"- {item.cantidad}x {prod.nombre}: {item.notas}"
@@ -231,7 +233,8 @@ def crear_pedido(
                 )
 
             # Deducción de Stock (Asíncrona para no bloquear la venta)
-            descontar_stock_pedido(db, prod.id, item.cantidad, nuevo_pedido.id, background_tasks)
+            if prod.id != "0000":
+                descontar_stock_pedido(db, prod.id, item.cantidad, nuevo_pedido.id, background_tasks)
 
             # Cálculo Contable
             coste_it = prod.precio * item.cantidad
@@ -245,7 +248,7 @@ def crear_pedido(
             db.add(ItemPedido(
                 id=str(uuid.uuid4()),
                 pedido_id=nuevo_pedido.id,
-                producto_id=prod.id,
+                producto_id=item.producto_id if prod.id != "0000" else None,
                 cantidad=item.cantidad,
                 precio_unitario=prod.precio,
             ))
