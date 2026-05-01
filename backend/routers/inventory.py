@@ -52,6 +52,13 @@ class CategoriaOut(BaseModel):
     class Config:
         from_attributes = True
 
+class UpdateProductoRequest(BaseModel):
+    imagen_url: Optional[str] = None
+    nombre: Optional[str] = None
+    precio: Optional[float] = None
+    descripcion: Optional[str] = None
+    is_active: Optional[bool] = None
+
 class PedidoProveedorRequest(BaseModel):
     ingrediente_id: str
     cantidad: float = Field(..., gt=0)
@@ -118,6 +125,49 @@ def listar_productos(db: Session = Depends(get_db)):
             is_active=p.is_active
         ))
     return out
+
+@router.patch("/productos/{producto_id}", response_model=ProductoOut)
+@router_productos.patch("/{producto_id}", response_model=ProductoOut)
+def actualizar_producto(producto_id: str, req: UpdateProductoRequest, db: Session = Depends(get_db)):
+    """
+    Actualiza la información de un producto (como la imagen, precio o nombre).
+    Ideal para el panel de control del administrador.
+    """
+    prod = db.query(Producto).get(producto_id)
+    if not prod:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    if req.imagen_url is not None:
+        prod.imagen_url = req.imagen_url
+    if req.nombre is not None:
+        prod.nombre = req.nombre
+    if req.precio is not None:
+        prod.precio = req.precio
+    if req.descripcion is not None:
+        prod.descripcion = req.descripcion
+    if req.is_active is not None:
+        prod.is_active = req.is_active
+        
+    try:
+        db.commit()
+        db.refresh(prod)
+        return ProductoOut(
+            id=prod.id,
+            nombre=prod.nombre,
+            precio=prod.precio,
+            categoria_nombre=prod.categoria.nombre if prod.categoria else "Sin Categoría",
+            categoria_id=prod.categoria_id,
+            descripcion=prod.descripcion,
+            stock_actual=prod.stock_actual,
+            imagen_url=prod.imagen_url,
+            alergenos=prod.alergenos,
+            info_nutricional=prod.info_nutricional,
+            is_active=prod.is_active
+        )
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error actualizando producto {producto_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al actualizar el producto")
 
 @router.get("/categorias", response_model=List[CategoriaOut])
 def listar_categorias(db: Session = Depends(get_db)):
