@@ -40,6 +40,7 @@ class ProductoOut(BaseModel):
     alergenos: Optional[str] = "Ninguno"
     info_nutricional: Optional[str] = None
     is_active: bool
+    turno_disponible: Optional[str] = "ALL"
 
     class Config:
         from_attributes = True
@@ -122,7 +123,8 @@ def listar_productos(db: Session = Depends(get_db)):
             imagen_url=p.imagen_url,
             alergenos=p.alergenos,
             info_nutricional=p.info_nutricional,
-            is_active=p.is_active
+            is_active=p.is_active,
+            turno_disponible=p.turno_disponible
         ))
     return out
 
@@ -162,7 +164,8 @@ def actualizar_producto(producto_id: str, req: UpdateProductoRequest, db: Sessio
             imagen_url=prod.imagen_url,
             alergenos=prod.alergenos,
             info_nutricional=prod.info_nutricional,
-            is_active=prod.is_active
+            is_active=prod.is_active,
+            turno_disponible=prod.turno_disponible
         )
     except Exception as e:
         db.rollback()

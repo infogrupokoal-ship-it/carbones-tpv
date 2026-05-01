@@ -30,6 +30,7 @@ class PedidoCrear(BaseModel):
     cubiertos_qty: int = Field(0, ge=0)
     notas_cliente: Optional[str] = None
     canjear_puntos: bool = False
+    cliente_id: Optional[str] = None
 
 class ItemPedidoOut(BaseModel):
     id: str
@@ -148,7 +149,6 @@ def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
 def crear_pedido(
     pedido: PedidoCrear,
     background_tasks: BackgroundTasks,
-    cliente_id: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -168,8 +168,8 @@ def crear_pedido(
         cliente = None
         descuento_fidelidad = 0.0
 
-        if cliente_id:
-            cliente = db.query(Cliente).get(cliente_id)
+        if pedido.cliente_id:
+            cliente = db.query(Cliente).get(pedido.cliente_id)
         elif telefono_asociado:
             cliente = db.query(Cliente).filter(Cliente.telefono == telefono_asociado).first()
             if not cliente:

@@ -196,6 +196,83 @@
         function closeModal() {
             document.getElementById('modalPedido').classList.add('hidden');
             document.getElementById('modalMerma').classList.add('hidden');
+            document.getElementById('modalEditarProducto').classList.add('hidden');
+        }
+
+        async function loadCatalogo() {
+            try {
+                currentFilter = 'cat';
+                document.querySelectorAll('.filter-tab').forEach(t => {
+                    t.classList.remove('active', 'bg-white', 'text-slate-900', 'bg-blue-500/10', 'text-blue-400');
+                    t.classList.add('bg-white/5', 'text-slate-500');
+                });
+                const active = document.getElementById('btn-filter-cat');
+                active.classList.add('bg-blue-500/10', 'text-blue-400');
+                active.classList.remove('bg-white/5', 'text-slate-500');
+                
+                const res = await fetch('/api/inventory/productos');
+                const prods = await res.json();
+                
+                const grid = document.getElementById('inventario-grid');
+                grid.innerHTML = prods.map(p => {
+                    const isOculto = !p.is_active;
+                    return `
+                    <div class="glass-panel p-8 group hover:-translate-y-2 transition-all duration-300 ${isOculto ? 'opacity-50 grayscale' : ''}">
+                        <div class="relative h-32 rounded-xl overflow-hidden mb-6">
+                            <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover">
+                            ${isOculto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-500 text-white text-[10px] px-3 py-1 font-black rounded-full uppercase">Oculto</span></div>' : ''}
+                        </div>
+                        <h3 class="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2">${p.nombre}</h3>
+                        <div class="flex justify-between items-baseline mb-6">
+                            <span class="text-2xl font-black text-blue-400">${p.precio.toFixed(2)}€</span>
+                            <span class="text-slate-500 font-bold text-[10px] uppercase">${p.categoria_nombre}</span>
+                        </div>
+                        <button onclick="abrirEditarProducto('${p.id}', \`${p.nombre}\`, ${p.precio}, '${p.imagen_url || ''}', ${p.is_active})" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all active:scale-95">
+                            EDITAR PRODUCTO
+                        </button>
+                    </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("Error loading catalog", e);
+            }
+        }
+
+        function abrirEditarProducto(id, nombre, precio, img, activo) {
+            document.getElementById('edit-prod-id').value = id;
+            document.getElementById('edit-prod-nombre').value = nombre;
+            document.getElementById('edit-prod-precio').value = precio;
+            document.getElementById('edit-prod-img').value = img;
+            document.getElementById('edit-prod-activo').value = activo.toString();
+            
+            document.getElementById('modalEditarProducto').classList.remove('hidden');
+            document.getElementById('modalEditarProducto').classList.add('flex');
+        }
+
+        async function guardarProducto() {
+            const id = document.getElementById('edit-prod-id').value;
+            const payload = {
+                nombre: document.getElementById('edit-prod-nombre').value,
+                precio: parseFloat(document.getElementById('edit-prod-precio').value),
+                imagen_url: document.getElementById('edit-prod-img').value,
+                is_active: document.getElementById('edit-prod-activo').value === 'true'
+            };
+            
+            try {
+                const res = await fetch(`/api/inventory/productos/${id}`, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    closeModal();
+                    loadCatalogo();
+                } else {
+                    alert("Error al actualizar el producto");
+                }
+            } catch (e) {
+                alert("Error de red.");
+            }
         }
 
         function adjCant(v, inputId) {
