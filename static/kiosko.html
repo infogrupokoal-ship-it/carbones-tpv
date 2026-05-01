@@ -634,8 +634,8 @@
                         </div>
                         <div>
                             <div class="flex items-center gap-2 mt-2">
-                                <span class="bg-[#0c0a09] border border-amber-500/20 text-amber-500 text-[12px] font-black px-3 py-2.5 rounded-xl uppercase tracking-widest shadow-inner">${p.precio.toFixed(2)}€</span>
-                                <button onclick="addToCart('${p.id}')" class="flex-1 py-2.5 border border-amber-500/30 text-black bg-amber-500 hover:bg-amber-400 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2">
+                                <span class="bg-amber-50 border border-amber-200 text-amber-600 text-[12px] font-black px-3 py-2.5 rounded-xl uppercase tracking-widest shadow-inner">${p.precio.toFixed(2)}€</span>
+                                <button onclick="addToCart('${p.id}')" class="flex-1 py-2.5 border border-amber-500/30 text-white bg-amber-500 hover:bg-amber-600 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 shadow-[0_4px_15px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                                     Pedir
                                 </button>
@@ -650,17 +650,45 @@
         }
 
         // Función para mostrar notificaciones Toast
-        function showToast(productName, price) {
+        function showToast(arg1, arg2, arg3) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerHTML = `
+            
+            let iconHtml, title, desc;
+            
+            if (typeof arg2 === 'string' || arg3) {
+                // New signature: title, message, type
+                const type = arg3 || 'info';
+                title = arg1;
+                desc = `<p class="text-slate-500 text-[10px] font-medium">${arg2}</p>`;
+                
+                if (type === 'error') {
+                    iconHtml = `
+                    <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 border border-red-100 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>`;
+                } else {
+                    iconHtml = `
+                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>`;
+                }
+            } else {
+                // Old signature: productName, price
+                title = "Añadido al pedido";
+                desc = `<p class="text-slate-500 text-[10px] font-medium">${arg1} - <span class="text-amber-500 font-bold">${arg2.toFixed(2)}€</span></p>`;
+                iconHtml = `
                 <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>
+                </div>`;
+            }
+
+            toast.innerHTML = `
+                ${iconHtml}
                 <div>
-                    <p class="text-slate-800 font-black text-xs">Añadido al pedido</p>
-                    <p class="text-slate-500 text-[10px] font-medium">${productName} - <span class="text-amber-500 font-bold">${price.toFixed(2)}€</span></p>
+                    <p class="text-slate-800 font-black text-xs">${title}</p>
+                    ${desc}
                 </div>
             `;
             container.appendChild(toast);
@@ -935,7 +963,7 @@
 
         // --- FLUJO DE CHECKOUT Y PASARELA DE PAGO ---
         function checkout() {
-            if (cart.length === 0) return alert("El carrito está vacío");
+            if (cart.length === 0) return typeof showToast === 'function' ? showToast("Atención", "El carrito está vacío", "error") : alert("El carrito está vacío");
             toggleCart(); // Ocultar carrito al empezar checkout
             
             if (!sessionClient) {
