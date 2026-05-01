@@ -100,17 +100,17 @@
 
     <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
         
-        <!-- Search and Categories (Premium Dropdown UI) -->
-        <div class="sticky top-[90px] z-40 bg-[#0c0a09]/90 backdrop-blur-xl pb-4 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] border-b border-white/5 mb-8">
-            <div class="pt-2 flex flex-col md:flex-row items-center gap-4">
-                <div class="relative w-full md:w-1/2">
+        <!-- Search and Categories (Premium Scroll UI) -->
+        <div class="sticky top-[90px] z-40 bg-[#0c0a09]/95 backdrop-blur-xl pb-2 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] border-b border-white/5 mb-8">
+            <div class="pt-2 flex flex-col gap-3">
+                <div class="relative w-full">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="search-input" onkeyup="renderProducts()" placeholder="Buscar platos, bebidas..." class="w-full bg-[#1c1917] border border-stone-800 rounded-xl pl-12 pr-4 py-4 text-sm text-white focus:border-amber-500 focus:outline-none transition-all placeholder-stone-600 shadow-inner">
+                    <input type="text" id="search-input" onkeyup="renderProducts()" placeholder="Buscar platos, bebidas..." class="w-full bg-[#1c1917] border border-stone-800 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-amber-500 focus:outline-none transition-all placeholder-stone-600 shadow-inner">
                 </div>
-                <div id="categories-container" class="relative w-full md:w-1/2">
-                    <!-- Injected by JS: Premium Category Dropdown -->
+                <div id="categories-container" class="w-full">
+                    <!-- Injected by JS: Horizontal Pills -->
                 </div>
             </div>
         </div>
@@ -337,11 +337,10 @@
                 'PLATOS COMBINADOS': '🍳'
             };
 
-            let optionsHtml = `<button onclick="filterCat('all', 'Todos los platos')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-white text-xs uppercase tracking-widest font-black border-b border-stone-800/50">🔥 Todos los platos</button>`;
+            let optionsHtml = '';
             
             optionsHtml += cats.map(c => {
                 const upperName = c.nombre.toUpperCase();
-                // Buscar si la categoría contiene la palabra clave, o dejar un icono genérico
                 let icon = '🍽️';
                 for (const [key, val] of Object.entries(categoryIcons)) {
                     if (upperName.includes(key)) {
@@ -349,118 +348,113 @@
                         break;
                     }
                 }
-                
-                // Si el nombre original ya tiene un emoji, no duplicarlo
                 const hasEmoji = /\p{Emoji}/u.test(c.nombre);
                 const displayName = hasEmoji ? c.nombre : `${icon} ${c.nombre}`;
                 
-                return `<button onclick="filterCat('${c.id}', '${displayName.replace(/'/g, "\\'")}')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-zinc-400 hover:text-white text-[10px] uppercase tracking-widest border-b border-stone-800/50 last:border-0">${displayName}</button>`;
+                return `<button onclick="scrollToCat('cat-${c.id}')" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest bg-[#1c1917] hover:bg-amber-500/20 text-stone-400 hover:text-amber-500 border border-stone-800 hover:border-amber-500/50 whitespace-nowrap scroll-snap-align-start transition-all active:scale-95 shadow-lg">${displayName}</button>`;
             }).join('');
             
             container.innerHTML = `
-                <div class="relative w-full z-50">
-                    <button onclick="toggleCategoryDropdown()" id="cat-selector-btn" class="w-full bg-[#1c1917] border border-stone-800 rounded-xl px-6 py-4 text-white text-xs font-black uppercase tracking-widest flex justify-between items-center shadow-lg transition-all focus:border-amber-500 hover:bg-stone-800 group">
-                        <span id="cat-selector-text" class="truncate pr-4"><span class="text-amber-500">Menú:</span> Todos los platos</span>
-                        <svg id="cat-selector-icon" class="w-5 h-5 text-stone-500 group-hover:text-amber-500 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div id="cat-dropdown-menu" class="absolute top-[110%] left-0 right-0 bg-[#1c1917] border border-stone-700 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,1)] overflow-hidden opacity-0 pointer-events-none transition-all duration-300 origin-top scale-95 max-h-[50vh] overflow-y-auto custom-scrollbar z-[50]">
-                        ${optionsHtml}
-                    </div>
+                <div class="flex overflow-x-auto custom-scrollbar gap-3 pb-2 pt-1 px-1 scroll-smooth" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+                    ${optionsHtml}
                 </div>
             `;
         }
 
-        function toggleCategoryDropdown() {
-            const menu = document.getElementById('cat-dropdown-menu');
-            const icon = document.getElementById('cat-selector-icon');
-            if(menu.classList.contains('opacity-0')) {
-                menu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                icon.classList.add('rotate-180', 'text-amber-500');
-            } else {
-                menu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-                icon.classList.remove('rotate-180', 'text-amber-500');
+        function scrollToCat(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                const y = el.getBoundingClientRect().top + window.scrollY - 180;
+                window.scrollTo({top: y, behavior: 'smooth'});
             }
-        }
-
-        function filterCat(id, name) {
-            activeCategory = id;
-            if(name) {
-                document.getElementById('cat-selector-text').innerHTML = `<span class="text-amber-500">Filtrando:</span> ${name}`;
-            }
-            toggleCategoryDropdown(); // Close dropdown
-            renderProducts();
         }
 
         function renderProducts() {
             const grid = document.getElementById('products-grid');
             const searchQ = document.getElementById('search-input')?.value.toLowerCase() || '';
             
-            let filtered = products;
+            // Group products by category
+            let categoriesMap = {};
+            products.forEach(p => {
+                if (searchQ && !p.nombre.toLowerCase().includes(searchQ) && (!p.descripcion || !p.descripcion.toLowerCase().includes(searchQ))) {
+                    return; // Skip if search doesn't match
+                }
+                const catName = p.categoria_nombre || 'OTROS';
+                const catId = p.categoria_id || 'otros';
+                if(!categoriesMap[catId]) {
+                    categoriesMap[catId] = { name: catName, products: [] };
+                }
+                categoriesMap[catId].products.push(p);
+            });
             
-            if (activeCategory !== 'all') {
-                filtered = filtered.filter(p => p.categoria_id === activeCategory);
-            }
-            if (searchQ) {
-                filtered = filtered.filter(p => p.nombre.toLowerCase().includes(searchQ) || (p.descripcion && p.descripcion.toLowerCase().includes(searchQ)));
-            }
-            
-            if (filtered.length === 0) {
+            if (Object.keys(categoriesMap).length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-20 text-center text-stone-500 font-bold uppercase tracking-widest">No se encontraron productos</div>`;
                 return;
             }
             
-            grid.innerHTML = filtered.map((p, i) => {
-                // Lógica comercial: Etiquetas de impulso
-                let badgeHtml = '';
-                if (p.nombre.toLowerCase().includes('pollo asado') || i === 0) {
-                    badgeHtml = '<span class="absolute top-4 left-4 bg-red-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10">🔥 Top Ventas</span>';
-                } else if (p.nombre.toLowerCase().includes('pizza') && i % 3 === 0) {
-                    badgeHtml = '<span class="absolute top-4 left-4 bg-emerald-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10">⭐ Especialidad</span>';
-                }
+            let html = '';
+            let globalIndex = 0;
+            
+            for (const catId in categoriesMap) {
+                const cat = categoriesMap[catId];
+                html += `<div id="cat-${catId}" class="col-span-full mt-8 mb-2 border-b border-stone-800 pb-2">
+                            <h2 class="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-black shadow-[0_0_15px_rgba(245,158,11,0.5)]">🔥</div>
+                                ${cat.name}
+                            </h2>
+                         </div>`;
+                         
+                html += cat.products.map((p) => {
+                    globalIndex++;
+                    let badgeHtml = '';
+                    if (p.nombre.toLowerCase().includes('pollo asado') || globalIndex === 1) {
+                        badgeHtml = '<span class="absolute top-3 left-3 bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest shadow-lg z-10">🔥 Top Ventas</span>';
+                    } else if (p.nombre.toLowerCase().includes('pizza') && globalIndex % 4 === 0) {
+                        badgeHtml = '<span class="absolute top-3 left-3 bg-emerald-600 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest shadow-lg z-10">⭐ Especialidad</span>';
+                    }
 
-                // Lógica comercial: Venta cruzada dinámica con Iconos Premium SVG
-                // Solo sugerimos bebidas/patatas si no es ya una bebida
-                const isDrink = p.categoria_nombre && p.categoria_nombre.toLowerCase().includes('bebida');
-                let crossSellHtml = '';
-                if (!isDrink) {
-                    crossSellHtml = `
-                        <div class="mt-5 pt-4 border-t border-white/5 flex flex-col gap-3">
-                            <span class="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Completar menú:</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="addGenericCrossSell('Patatas Fritas', 3.50); event.stopPropagation();" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30 text-zinc-400 hover:text-amber-500 py-2 rounded-xl text-[10px] font-black uppercase transition-all duration-300">
-                                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                    Patatas
-                                </button>
-                                <button onclick="addGenericCrossSell('Refresco', 2.00); event.stopPropagation();" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30 text-zinc-400 hover:text-amber-500 py-2 rounded-xl text-[10px] font-black uppercase transition-all duration-300">
-                                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg>
-                                    Refresco
+                    const isDrink = p.categoria_nombre && p.categoria_nombre.toLowerCase().includes('bebida');
+                    let crossSellHtml = '';
+                    if (!isDrink) {
+                        crossSellHtml = `
+                            <div class="mt-3 pt-3 border-t border-white/5 flex flex-col gap-2">
+                                <span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">Completar menú:</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="addGenericCrossSell('Patatas', 3.50); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-white/5 hover:bg-amber-500/20 border border-white/5 text-zinc-400 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300">🍟 Patatas</button>
+                                    <button onclick="addGenericCrossSell('Refresco', 2.00); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-white/5 hover:bg-amber-500/20 border border-white/5 text-zinc-400 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300">🥤 Refresco</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                    <div class="product-card rounded-3xl p-3 flex flex-col justify-between animate-fade" style="animation-delay: ${(globalIndex % 10) * 0.05}s">
+                        <div>
+                            <div class="relative h-48 rounded-2xl overflow-hidden mb-4 group cursor-pointer shadow-inner" onclick="addToCart('${p.id}')">
+                                ${badgeHtml}
+                                <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#1c1917] via-[#1c1917]/10 to-transparent opacity-80"></div>
+                                <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                                    <h3 class="text-lg font-black text-white leading-tight drop-shadow-md w-3/4">${p.nombre}</h3>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-stone-400 mb-2 line-clamp-2 leading-relaxed px-1">${p.descripcion || 'Especialidad de la casa preparada al momento.'}</p>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="bg-[#0c0a09] border border-amber-500/20 text-amber-500 text-[12px] font-black px-3 py-2.5 rounded-xl uppercase tracking-widest shadow-inner">${p.precio.toFixed(2)}€</span>
+                                <button onclick="addToCart('${p.id}')" class="flex-1 py-2.5 border border-amber-500/30 text-black bg-amber-500 hover:bg-amber-400 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                    Pedir
                                 </button>
                             </div>
+                            ${crossSellHtml}
                         </div>
+                    </div>
                     `;
-                }
-
-                return `
-                <div class="product-card rounded-3xl p-4 animate-fade flex flex-col justify-between" style="animation-delay: ${i * 0.05}s">
-                    <div>
-                        <div class="relative h-64 rounded-2xl overflow-hidden mb-6 group cursor-pointer" onclick="addToCart('${p.id}')">
-                            ${badgeHtml}
-                            <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#1c1917] via-[#1c1917]/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity"></div>
-                            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                                <h3 class="text-2xl font-black text-white leading-tight drop-shadow-md w-3/4">${p.nombre}</h3>
-                                <span class="bg-amber-500 text-black text-[12px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">${p.precio.toFixed(2)}€</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-stone-400 mb-2 line-clamp-2 leading-relaxed px-2">${p.descripcion || 'Especialidad de la casa preparada al momento.'}</p>
-                    </div>
-                    <div>
-                        <button onclick="addToCart('${p.id}')" class="w-full mt-4 py-4 border border-amber-500/30 text-amber-500 bg-amber-500/5 hover:bg-amber-500 hover:text-black transition-all rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95">Pedir Ahora</button>
-                        ${crossSellHtml}
-                    </div>
-                </div>
-                `;
-            }).join('');
+                }).join('');
+            }
+            grid.innerHTML = html;
         }
 
         // Función para mostrar notificaciones Toast
