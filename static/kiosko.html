@@ -100,18 +100,18 @@
 
     <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
         
-        <!-- Search and Categories -->
+        <!-- Search and Categories (Premium Dropdown UI) -->
         <div class="sticky top-[90px] z-40 bg-[#0c0a09]/90 backdrop-blur-xl pb-4 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] border-b border-white/5 mb-8">
-            <div class="mb-4 pt-2 flex items-center gap-3">
-                <div class="relative w-full max-w-md">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div class="pt-2 flex flex-col md:flex-row items-center gap-4">
+                <div class="relative w-full md:w-1/2">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="search-input" onkeyup="renderProducts()" placeholder="Buscar platos, bebidas..." class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:border-amber-500 focus:outline-none transition-all placeholder-stone-600">
+                    <input type="text" id="search-input" onkeyup="renderProducts()" placeholder="Buscar platos, bebidas..." class="w-full bg-[#1c1917] border border-stone-800 rounded-xl pl-12 pr-4 py-4 text-sm text-white focus:border-amber-500 focus:outline-none transition-all placeholder-stone-600 shadow-inner">
                 </div>
-            </div>
-            <div id="categories-container" class="flex gap-3 overflow-x-auto custom-scrollbar">
-                <!-- Injected by JS -->
+                <div id="categories-container" class="relative w-full md:w-1/2">
+                    <!-- Injected by JS: Premium Category Dropdown -->
+                </div>
             </div>
         </div>
 
@@ -310,16 +310,43 @@
 
         function renderCategories(cats) {
             const container = document.getElementById('categories-container');
-            const allHtml = `<button onclick="filterCat('all')" class="category-pill active whitespace-nowrap px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest" id="cat-all">Todos los platos</button>`;
-            container.innerHTML = allHtml + cats.map(c => `
-                <button onclick="filterCat('${c.id}')" class="category-pill whitespace-nowrap px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest" id="cat-${c.id}">${c.nombre}</button>
+            let optionsHtml = `<button onclick="filterCat('all', 'Todos los platos')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-white text-xs uppercase tracking-widest font-black border-b border-stone-800/50">🔥 Todos los platos</button>`;
+            
+            optionsHtml += cats.map(c => `
+                <button onclick="filterCat('${c.id}', '${c.nombre.replace(/'/g, "\\'")}')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-zinc-400 hover:text-white text-[10px] uppercase tracking-widest border-b border-stone-800/50 last:border-0">${c.nombre}</button>
             `).join('');
+            
+            container.innerHTML = `
+                <div class="relative w-full z-50">
+                    <button onclick="toggleCategoryDropdown()" id="cat-selector-btn" class="w-full bg-[#1c1917] border border-stone-800 rounded-xl px-6 py-4 text-white text-xs font-black uppercase tracking-widest flex justify-between items-center shadow-lg transition-all focus:border-amber-500 hover:bg-stone-800 group">
+                        <span id="cat-selector-text" class="truncate pr-4"><span class="text-amber-500">Menú:</span> Todos los platos</span>
+                        <svg id="cat-selector-icon" class="w-5 h-5 text-stone-500 group-hover:text-amber-500 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="cat-dropdown-menu" class="absolute top-[110%] left-0 right-0 bg-[#1c1917] border border-stone-700 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,1)] overflow-hidden opacity-0 pointer-events-none transition-all duration-300 origin-top scale-95 max-h-[50vh] overflow-y-auto custom-scrollbar z-[100]">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
         }
 
-        function filterCat(id) {
+        function toggleCategoryDropdown() {
+            const menu = document.getElementById('cat-dropdown-menu');
+            const icon = document.getElementById('cat-selector-icon');
+            if(menu.classList.contains('opacity-0')) {
+                menu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                icon.classList.add('rotate-180', 'text-amber-500');
+            } else {
+                menu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                icon.classList.remove('rotate-180', 'text-amber-500');
+            }
+        }
+
+        function filterCat(id, name) {
             activeCategory = id;
-            document.querySelectorAll('.category-pill').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`cat-${id}`).classList.add('active');
+            if(name) {
+                document.getElementById('cat-selector-text').innerHTML = `<span class="text-amber-500">Filtrando:</span> ${name}`;
+            }
+            toggleCategoryDropdown(); // Close dropdown
             renderProducts();
         }
 
