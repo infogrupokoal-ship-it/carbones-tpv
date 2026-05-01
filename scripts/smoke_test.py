@@ -1,6 +1,15 @@
 import requests
 import sys
 import time
+import io
+
+# Forzar UTF-8 en consola para evitar errores de charmap en Windows
+if sys.platform == "win32":
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+    except Exception:
+        pass
 
 # Script de Validación de Integridad (Smoke Test)
 # Carbones y Pollos TPV - Enterprise v2.5
