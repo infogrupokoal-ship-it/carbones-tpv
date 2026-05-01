@@ -6,7 +6,6 @@ from typing import Dict, List, Any
 from pydantic import BaseModel, Field
 
 from .admin_audit import log_audit_action
-from .customers import get_current_customer
 from ..database import get_db
 from ..models import Pedido, ItemPedido, Producto, Cliente, ReporteZ, Review, MovimientoStock
 

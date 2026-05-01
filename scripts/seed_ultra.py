@@ -168,4 +168,10 @@ def seed_ultra_industrial():
         db.close()
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        try:
+            import io
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+        except Exception:
+            pass
     seed_ultra_industrial()

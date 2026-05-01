@@ -4,6 +4,10 @@ const ASSETS_TO_CACHE = [
   '/static/nosotros.html',
   '/static/tracking.html',
   '/static/kds.html',
+  '/static/portal.html',
+  '/static/dashboard.html',
+  '/static/dashboard_produccion.html',
+  '/static/css/design_system.css',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap'
 ];
 

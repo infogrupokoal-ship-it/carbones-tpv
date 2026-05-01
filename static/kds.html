@@ -144,7 +144,7 @@
             btn.classList.add('opacity-50', 'pointer-events-none');
             
             try {
-                const res = await fetch(\`/api/orders/\${id}/estado?estado=\${status}\`, { method: 'PUT' });
+                const res = await fetch(`/api/orders/${id}/estado?estado=${status}`, { method: 'PUT' });
                 if (res.ok) {
                     const card = btn.closest('.order-card');
                     card.classList.add('ready');
