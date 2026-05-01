@@ -151,16 +151,27 @@
         <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
             <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">Acceso <span class="text-amber-500">Rápido</span></h2>
-            <p class="text-xs text-stone-400 mb-6 leading-relaxed">Inicia sesión con tu teléfono para acumular puntos y recuperar tu historial.</p>
+            <p class="text-xs text-stone-400 mb-6 leading-relaxed">Inicia sesión para acumular puntos, recuperar historial y aplicar descuentos en un clic.</p>
             
+            <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-stone-200 text-black font-black text-xs uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-3 transition-all mb-4 relative overflow-hidden group">
+                <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span id="google-btn-text">Continuar con Google</span>
+            </button>
+            <div class="relative flex items-center py-2 mb-4">
+                <div class="flex-grow border-t border-stone-800"></div>
+                <span class="flex-shrink-0 mx-4 text-stone-500 text-[10px] uppercase font-bold tracking-widest">O usa WhatsApp</span>
+                <div class="flex-grow border-t border-stone-800"></div>
+            </div>
+
             <div id="step-phone">
-                <input type="tel" id="login-phone" placeholder="Tu número de móvil (ej. 600123456)" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none mb-4">
-                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Enviar Código WhatsApp</button>
+                <input type="tel" id="login-phone" placeholder="Tu móvil (ej. 600123456)" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none mb-4 transition-colors">
+                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Enviar Código SMS</button>
             </div>
 
             <div id="step-otp" class="hidden">
-                <p class="text-[10px] text-amber-500 uppercase tracking-widest font-bold mb-4">Te hemos enviado un código por WhatsApp</p>
-                <input type="text" id="login-otp" placeholder="Código de 6 dígitos" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4">
+                <p class="text-[10px] text-amber-500 uppercase tracking-widest font-bold mb-4">Te hemos enviado un código</p>
+                <input type="text" id="login-otp" placeholder="Código 6 dígitos" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4 transition-colors">
                 <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Verificar y Entrar</button>
             </div>
         </div>
@@ -201,6 +212,62 @@
             <span id="success-turno" class="text-7xl md:text-9xl font-black text-amber-500">--</span>
         </div>
         <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-black font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-2xl">Seguir Comprando</button>
+    </div>
+
+    <!-- Pre-Checkout Guest Modal -->
+    <div id="pre-checkout-modal" class="fixed inset-0 bg-black/90 z-[80] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-[#1c1917] border border-stone-800 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative text-center">
+            <button onclick="closePreCheckoutModal()" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+            <div class="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v1m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">¿Puntos <span class="text-amber-500">Gratis?</span></h2>
+            <p class="text-xs text-stone-400 mb-8 leading-relaxed">Inicia sesión ahora rápido con Google o WhatsApp para acumular puntos y ofertas especiales.</p>
+            
+            <div class="space-y-3">
+                <button onclick="closePreCheckoutModal(); openLoginModal();" class="w-full btn-premium py-3 rounded-xl text-black font-black text-xs uppercase tracking-widest">Identificarse Ahora</button>
+                <button onclick="closePreCheckoutModal(); openPaymentModal();" class="w-full py-3 rounded-xl border border-stone-700 text-stone-400 hover:text-white hover:border-white font-black text-xs uppercase tracking-widest transition-colors">Pagar como Invitado</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal (Stripe Simulation) -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/90 z-[90] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-[2rem] max-w-md w-full shadow-2xl relative text-stone-900 transform scale-95 transition-transform duration-300" id="payment-card-ui">
+            <button onclick="closePaymentModal()" class="absolute top-6 right-6 text-stone-400 hover:text-stone-900">✕</button>
+            <div class="flex items-center gap-3 mb-6">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                <h2 class="text-2xl font-black uppercase tracking-tighter text-stone-900">Pago <span class="text-blue-600">Seguro</span></h2>
+            </div>
+            
+            <div class="bg-stone-50 rounded-2xl p-6 mb-6 border border-stone-200">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-stone-500 uppercase tracking-widest">A pagar</span>
+                    <span id="payment-amount" class="text-2xl font-black text-stone-900">0.00€</span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Número de Tarjeta</label>
+                        <input type="text" placeholder="0000 0000 0000 0000" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Caducidad</label>
+                            <input type="text" placeholder="MM/AA" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">CVC</label>
+                            <input type="password" placeholder="***" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btn-process-payment" onclick="processPayment()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                Pagar de forma segura
+            </button>
+            <p class="text-center text-[10px] text-stone-400 mt-4 flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg> Pago encriptado 256-bit SSL</p>
+        </div>
     </div>
     <!-- Toast Notifications Container -->
     <div id="toast-container"></div>
@@ -435,7 +502,55 @@
             content.classList.toggle('translate-x-full');
         }
 
-        async function checkout() {
+        // --- FLUJO DE CHECKOUT Y PASARELA DE PAGO ---
+        function checkout() {
+            if (cart.length === 0) return alert("El carrito está vacío");
+            toggleCart(); // Ocultar carrito al empezar checkout
+            
+            if (!sessionClient) {
+                // Sugerir registro si es invitado
+                document.getElementById('pre-checkout-modal').classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                openPaymentModal();
+            }
+        }
+
+        function closePreCheckoutModal() {
+            document.getElementById('pre-checkout-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function openPaymentModal() {
+            const total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            document.getElementById('payment-amount').innerText = total.toFixed(2) + '€';
+            
+            const modal = document.getElementById('payment-modal');
+            const cardUI = document.getElementById('payment-card-ui');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => cardUI.classList.remove('scale-95'), 10);
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            const cardUI = document.getElementById('payment-card-ui');
+            cardUI.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 300);
+        }
+
+        async function processPayment() {
+            const btn = document.getElementById('btn-process-payment');
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Procesando Banco...`;
+            btn.classList.add('opacity-80', 'pointer-events-none');
+            
+            // Simulación de pasarela de pago bancaria
+            setTimeout(async () => {
+                await finalSubmitOrder();
+                closePaymentModal();
+                btn.innerHTML = 'Pagar de forma segura';
+                btn.classList.remove('opacity-80', 'pointer-events-none');
+            }, 1800);
+        }
+
+        async function finalSubmitOrder() {
             if (cart.length === 0) return alert("El carrito está vacío");
             
             const pedido = {
@@ -493,7 +608,6 @@
                     
                     cart = [];
                     updateCartUI();
-                    toggleCart();
                 }
             } catch (e) { alert("Error al procesar el pedido."); }
         }
@@ -502,7 +616,7 @@
             document.getElementById('success-screen').classList.add('opacity-0', 'pointer-events-none');
         }
 
-        // --- LÓGICA DE AUTENTICACIÓN OTP ---
+        // --- LÓGICA DE AUTENTICACIÓN OTP & GOOGLE ---
         function openLoginModal() {
             if(sessionClient) {
                 openProfileModal();
@@ -513,6 +627,35 @@
 
         function closeLoginModal() {
             document.getElementById('login-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function mockGoogleLogin() {
+            const btn = document.getElementById('google-btn-text');
+            btn.innerText = "Conectando...";
+            
+            // Simular Login OAuth
+            setTimeout(() => {
+                const fakeGoogleUser = {
+                    sub: "google-mock-" + Date.now(),
+                    nombre: "Usuario Google",
+                    telefono: "Google",
+                    puntos: 150,
+                    nivel: "BRONCE"
+                };
+                localStorage.setItem('tpv_b2c_token', "mock-google-token");
+                localStorage.setItem('tpv_b2c_cliente', JSON.stringify(fakeGoogleUser));
+                sessionClient = fakeGoogleUser;
+                
+                updateAuthUI();
+                closeLoginModal();
+                showToast("Sesión Iniciada", "Google Auth");
+                btn.innerText = "Continuar con Google";
+                
+                // Si venía del pre-checkout, abrir pagos
+                if(cart.length > 0 && !document.getElementById('cart-overlay').classList.contains('opacity-0') === false) {
+                    setTimeout(openPaymentModal, 500);
+                }
+            }, 1000);
         }
 
         async function requestOTP() {
