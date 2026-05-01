@@ -137,9 +137,9 @@
             </div>
 
             <div class="pt-8 border-t border-stone-800 mt-8">
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-xs font-black uppercase text-stone-500 tracking-widest">Total Estimado</span>
-                    <span id="cart-total" class="text-3xl font-black text-white">0.00€</span>
+                <div class="flex justify-between items-center mb-8 bg-[#1c1917] p-5 rounded-2xl border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+                    <span class="text-xs font-black uppercase text-amber-500 tracking-widest">Total Estimado</span>
+                    <span id="cart-total" class="text-4xl font-display font-black text-white drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">0.00€</span>
                 </div>
                 <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-black font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95">Finalizar Compra 🔥</button>
             </div>
@@ -231,41 +231,50 @@
         </div>
     </div>
 
-    <!-- Payment Modal (Stripe Simulation) -->
-    <div id="payment-modal" class="fixed inset-0 bg-black/90 z-[90] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2rem] max-w-md w-full shadow-2xl relative text-stone-900 transform scale-95 transition-transform duration-300" id="payment-card-ui">
-            <button onclick="closePaymentModal()" class="absolute top-6 right-6 text-stone-400 hover:text-stone-900">✕</button>
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                <h2 class="text-2xl font-black uppercase tracking-tighter text-stone-900">Pago <span class="text-blue-600">Seguro</span></h2>
-            </div>
+    <!-- Payment Modal (Premium Industrial Theme) -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/95 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-[#0c0a09] border border-amber-500/20 p-8 rounded-[2rem] max-w-md w-full shadow-[0_0_50px_rgba(0,0,0,1)] relative text-stone-300 transform scale-95 transition-transform duration-300" id="payment-card-ui">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-[0.05] rounded-[2rem] pointer-events-none"></div>
             
-            <div class="bg-stone-50 rounded-2xl p-6 mb-6 border border-stone-200">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-xs font-bold text-stone-500 uppercase tracking-widest">A pagar</span>
-                    <span id="payment-amount" class="text-2xl font-black text-stone-900">0.00€</span>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Número de Tarjeta</label>
-                        <input type="text" placeholder="0000 0000 0000 0000" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Caducidad</label>
-                            <input type="text" placeholder="MM/AA" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">CVC</label>
-                            <input type="password" placeholder="***" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-900 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                        </div>
+            <button onclick="closePaymentModal()" class="absolute top-6 right-6 text-stone-500 hover:text-white z-10 transition-colors">✕</button>
+            
+            <div class="relative z-10">
+                <div class="flex items-center justify-center gap-3 mb-8">
+                    <div class="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     </div>
                 </div>
+                <h2 class="text-2xl font-black text-center uppercase tracking-tighter text-white mb-2">Pago <span class="text-amber-500">Seguro</span></h2>
+                <p class="text-center text-[10px] text-stone-500 uppercase tracking-widest font-bold mb-8">Pasarela encriptada de alta seguridad</p>
+                
+                <div class="bg-[#1c1917] rounded-2xl p-6 mb-8 border border-stone-800 shadow-inner">
+                    <div class="flex justify-between items-center mb-6 pb-6 border-b border-stone-800">
+                        <span class="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">Importe a pagar</span>
+                        <span id="payment-amount" class="text-3xl font-display font-black text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.2)]">0.00€</span>
+                    </div>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Número de Tarjeta</label>
+                            <input type="text" placeholder="0000 0000 0000 0000" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">Caducidad</label>
+                                <input type="text" placeholder="MM/AA" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">CVC</label>
+                                <input type="password" placeholder="***" class="w-full bg-[#0c0a09] border border-stone-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-stone-700 text-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btn-process-payment" onclick="processPayment()" class="w-full btn-premium py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Procesar Pago
+                </button>
             </div>
-            
-            <button id="btn-process-payment" onclick="processPayment()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
-                Pagar de forma segura
-            </button>
             <p class="text-center text-[10px] text-stone-400 mt-4 flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg> Pago encriptado 256-bit SSL</p>
         </div>
     </div>
@@ -310,11 +319,43 @@
 
         function renderCategories(cats) {
             const container = document.getElementById('categories-container');
+            
+            // Diccionario de iconos corporativos
+            const categoryIcons = {
+                'POLLOS': '🍗',
+                'PATATAS': '🍟',
+                'ENSALADAS': '🥗',
+                'BEBIDAS': '🥤',
+                'POSTRES': '🍰',
+                'PIZZAS': '🍕',
+                'BOCADILLOS': '🥖',
+                'BOCADILLOS Y CHIVITOS': '🥖',
+                'BOCADILLOS CLÁSICOS': '🥖',
+                'BRASCADAS': '🥩',
+                'ARROCES': '🥘',
+                'TAPAS': '🍤',
+                'PLATOS COMBINADOS': '🍳'
+            };
+
             let optionsHtml = `<button onclick="filterCat('all', 'Todos los platos')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-white text-xs uppercase tracking-widest font-black border-b border-stone-800/50">🔥 Todos los platos</button>`;
             
-            optionsHtml += cats.map(c => `
-                <button onclick="filterCat('${c.id}', '${c.nombre.replace(/'/g, "\\'")}')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-zinc-400 hover:text-white text-[10px] uppercase tracking-widest border-b border-stone-800/50 last:border-0">${c.nombre}</button>
-            `).join('');
+            optionsHtml += cats.map(c => {
+                const upperName = c.nombre.toUpperCase();
+                // Buscar si la categoría contiene la palabra clave, o dejar un icono genérico
+                let icon = '🍽️';
+                for (const [key, val] of Object.entries(categoryIcons)) {
+                    if (upperName.includes(key)) {
+                        icon = val;
+                        break;
+                    }
+                }
+                
+                // Si el nombre original ya tiene un emoji, no duplicarlo
+                const hasEmoji = /\p{Emoji}/u.test(c.nombre);
+                const displayName = hasEmoji ? c.nombre : `${icon} ${c.nombre}`;
+                
+                return `<button onclick="filterCat('${c.id}', '${displayName.replace(/'/g, "\\'")}')" class="w-full text-left px-6 py-4 hover:bg-stone-800 transition-colors text-zinc-400 hover:text-white text-[10px] uppercase tracking-widest border-b border-stone-800/50 last:border-0">${displayName}</button>`;
+            }).join('');
             
             container.innerHTML = `
                 <div class="relative w-full z-50">
@@ -322,7 +363,7 @@
                         <span id="cat-selector-text" class="truncate pr-4"><span class="text-amber-500">Menú:</span> Todos los platos</span>
                         <svg id="cat-selector-icon" class="w-5 h-5 text-stone-500 group-hover:text-amber-500 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div id="cat-dropdown-menu" class="absolute top-[110%] left-0 right-0 bg-[#1c1917] border border-stone-700 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,1)] overflow-hidden opacity-0 pointer-events-none transition-all duration-300 origin-top scale-95 max-h-[50vh] overflow-y-auto custom-scrollbar z-[100]">
+                    <div id="cat-dropdown-menu" class="absolute top-[110%] left-0 right-0 bg-[#1c1917] border border-stone-700 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,1)] overflow-hidden opacity-0 pointer-events-none transition-all duration-300 origin-top scale-95 max-h-[50vh] overflow-y-auto custom-scrollbar z-[50]">
                         ${optionsHtml}
                     </div>
                 </div>
