@@ -139,8 +139,8 @@
                     No es solo pollo asado. Es una liturgia de 24 horas de marinado secreto y una cocción lenta a fuego de encina que despierta memorias ancestrales.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                    <a href="/static/kiosko.html" class="btn-primary px-12 py-6 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-center">
-                        Explorar Menú Digital
+                    <a href="/static/kiosko.html" class="btn-primary px-12 py-6 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-center animate-pulse shadow-[0_0_30px_rgba(245,158,11,0.5)]">
+                        Ver Carta y Pedir Ahora 🔥
                     </a>
                     <a href="#experiencia" class="btn-secondary px-12 py-6 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-center">
                         Nuestra Historia
@@ -172,6 +172,77 @@
             </div>
         </div>
     </main>
+
+    <!-- Sección Destacados (Venta Directa) -->
+    <section class="py-24 relative z-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-end mb-16">
+                <div>
+                    <h2 class="text-amber-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">Lo más deseado</h2>
+                    <h3 class="font-display text-5xl md:text-6xl font-black text-white leading-tight">Nuestras<br>Especialidades</h3>
+                </div>
+                <a href="/static/kiosko.html" class="hidden md:flex items-center gap-3 text-stone-400 hover:text-amber-500 transition-colors uppercase text-[10px] font-black tracking-widest">
+                    Ver Carta Completa <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pollo Asado -->
+                <div class="glass-dark rounded-[2rem] overflow-hidden group border border-white/5 hover:border-amber-500/30 transition-all duration-500">
+                    <div class="relative h-64 overflow-hidden">
+                        <div class="absolute top-4 left-4 bg-red-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10">🔥 Top Ventas</div>
+                        <img src="https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?auto=format&fit=crop&q=80&w=800" alt="Pollo Asado" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-2xl font-black text-white">Pollo al Carbón</h4>
+                            <span class="text-amber-500 font-bold text-xl">12.50€</span>
+                        </div>
+                        <p class="text-sm text-zinc-400 mb-8 line-clamp-2">Asado lentamente con leña de encina durante 2 horas. Incluye patatas.</p>
+                        <a href="/static/kiosko.html" class="w-full block text-center btn-primary py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">Pedir Ahora</a>
+                    </div>
+                </div>
+                
+                <!-- Costillar -->
+                <div class="glass-dark rounded-[2rem] overflow-hidden group border border-white/5 hover:border-amber-500/30 transition-all duration-500">
+                    <div class="relative h-64 overflow-hidden">
+                        <div class="absolute top-4 left-4 bg-emerald-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10">⭐ Especialidad</div>
+                        <img src="https://images.unsplash.com/photo-1544025162-811114cd144e?auto=format&fit=crop&q=80&w=800" alt="Costillar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-2xl font-black text-white">Costillar BBQ</h4>
+                            <span class="text-amber-500 font-bold text-xl">18.90€</span>
+                        </div>
+                        <p class="text-sm text-zinc-400 mb-8 line-clamp-2">Costillar de cerdo marinado y asado al humo de encina. Se deshace en la boca.</p>
+                        <a href="/static/kiosko.html" class="w-full block text-center btn-primary py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">Pedir Ahora</a>
+                    </div>
+                </div>
+                
+                <!-- Bocadillo de Noche -->
+                <div class="glass-dark rounded-[2rem] overflow-hidden group border border-white/5 hover:border-amber-500/30 transition-all duration-500">
+                    <div class="relative h-64 overflow-hidden">
+                        <div class="absolute top-4 left-4 bg-blue-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10">🌙 Menú Noche</div>
+                        <img src="https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?auto=format&fit=crop&q=80&w=800" alt="Chivito" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-2xl font-black text-white">El Gran Chivito</h4>
+                            <span class="text-amber-500 font-bold text-xl">7.50€</span>
+                        </div>
+                        <p class="text-sm text-zinc-400 mb-8 line-clamp-2">Lomo, bacon, huevo frito, queso, lechuga y tomate en pan rústico.</p>
+                        <a href="/static/kiosko.html" class="w-full block text-center btn-primary py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">Pedir Ahora</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center md:hidden">
+                <a href="/static/kiosko.html" class="inline-flex items-center gap-3 text-amber-500 font-black uppercase tracking-widest text-[10px]">
+                    Ver Carta Completa <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+        </div>
+    </section>
 
     <!-- Features Section -->
     <section class="py-32 bg-black/40 border-y border-white/5 relative overflow-hidden">
