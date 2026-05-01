@@ -174,9 +174,10 @@ app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
     """Sirve la interfaz B2C Ultra-Premium desde la ubicación estática."""
-    path = "static/index.html"
+    path = "static/kiosko.html"
     if os.path.exists(path):
         return FileResponse(path)
+    return FileResponse("static/index.html")
     return HTMLResponse("<h1>TPV Enterprise</h1><p>Interfaz no encontrada. Despliegue en curso...</p>", status_code=404)
 
 @app.get("/sw.js", include_in_schema=False)

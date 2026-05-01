@@ -88,6 +88,9 @@
             </div>
         </div>
         <div class="flex items-center gap-4">
+            <a href="/static/nosotros.html" class="hidden md:flex amber-glass px-4 py-3 rounded-2xl items-center gap-2 hover:bg-amber-50 transition-all duration-300">
+                <span class="text-xs font-black uppercase tracking-widest text-amber-600">Más sobre nosotros</span>
+            </a>
             <button id="auth-btn" onclick="openLoginModal()" class="amber-glass px-4 py-3 rounded-2xl flex items-center gap-2 hover:bg-amber-50 transition-all duration-300">
                 <span class="text-xs font-black uppercase tracking-widest text-amber-600" id="auth-btn-text">Acceso Cliente</span>
             </button>
@@ -1156,6 +1159,7 @@
         }
 
         async function requestOTP() {
+            const phone = document.getElementById('login-phone').value;
             if(phone.length < 9) return typeof showToast === 'function' ? showToast("Atención", "Número inválido", "error") : console.log("Número inválido");
             
             document.getElementById('btn-request-otp').innerText = 'Enviando...';

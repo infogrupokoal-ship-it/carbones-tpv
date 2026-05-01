@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nuestra Historia | Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/design_system.css">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.href='/static/kiosko.html'">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.4)]">🔥</div>
+                <h1 class="text-xl font-black tracking-widest uppercase">Carbones<span class="text-amber-500">TPV</span></h1>
+            </div>
+            <button onclick="window.location.href='/static/kiosko.html'" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver al Menú
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-[60vh] flex items-center justify-center pt-20 px-6 text-center">
+        <div class="max-w-3xl animate-in slide-in-from-bottom-10 fade-in duration-1000">
+            <span class="text-amber-500 font-black tracking-[0.3em] uppercase text-sm mb-4 block">Desde 1995</span>
+            <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">Tradición <span class="text-amber-500 italic">al Carbón</span></h1>
+            <p class="text-lg md:text-xl text-slate-300 font-light leading-relaxed">
+                No somos comida rápida. Somos comida artesanal servida a la velocidad de tus necesidades. 
+                Cada pollo asado y cada ración refleja nuestro compromiso con la calidad y la familia.
+            </p>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <main class="max-w-7xl mx-auto px-6 py-24 space-y-32">
+        
+        <!-- Misión -->
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+            <div class="space-y-6">
+                <div class="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-3xl text-amber-500 border border-amber-500/20 mb-8">⭐</div>
+                <h2 class="text-3xl md:text-4xl font-black">Nuestra Misión</h2>
+                <p class="text-slate-400 leading-relaxed text-lg">
+                    Revolucionar la comida para llevar. Creemos que la conveniencia no debe estar reñida con el sabor tradicional. 
+                    Utilizamos tecnología de vanguardia en nuestro sistema de pedidos para garantizar que tu comida pase directamente de la parrilla a tus manos en tiempo récord.
+                </p>
+            </div>
+            <div class="relative h-96 rounded-[2rem] overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&q=80&w=800" alt="Grill" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            </div>
+        </div>
+
+        <!-- Ingredientes -->
+        <div class="grid md:grid-cols-2 gap-16 items-center flex-col-reverse md:flex-row-reverse">
+            <div class="space-y-6">
+                <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl text-emerald-500 border border-emerald-500/20 mb-8">🌿</div>
+                <h2 class="text-3xl md:text-4xl font-black">Materia Prima Local</h2>
+                <p class="text-slate-400 leading-relaxed text-lg">
+                    Trabajamos exclusivamente con granjas locales y proveedores de kilómetro cero. 
+                    Nuestro carbón ecológico garantiza un braseado perfecto y respetuoso con el medio ambiente, 
+                    dando ese toque ahumado inconfundible que nos caracteriza.
+                </p>
+            </div>
+            <div class="relative h-96 rounded-[2rem] overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&q=80&w=800" alt="Ingredientes frescos" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer CTA -->
+    <section class="bg-amber-500 text-slate-900 py-24 px-6 text-center">
+        <h2 class="text-4xl font-black mb-8">¿Listo para probarlo?</h2>
+        <button onclick="window.location.href='/static/kiosko.html'" class="bg-slate-900 text-white px-10 py-5 rounded-full font-black text-lg tracking-widest uppercase hover:scale-105 transition-transform shadow-[0_10px_30px_rgba(15,23,42,0.4)]">
+            Hacer un pedido ahora
+        </button>
+    </section>
+
+    <!-- Footer Base -->
+    <footer class="bg-slate-950 py-12 text-center text-slate-600 font-bold tracking-widest uppercase text-xs">
+        <p>&copy; 2026 Carbones y Pollos TPV. Todos los derechos reservados.</p>
+        <p class="mt-2 font-normal text-[10px]">Desarrollado sobre Kiosko OS Enterprise</p>
+    </footer>
+
+    <script>
+        // Efecto scroll en navbar
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg');
+            } else {
+                nav.classList.remove('shadow-lg');
+            }
+        });
+    </script>
+</body>
+</html>
