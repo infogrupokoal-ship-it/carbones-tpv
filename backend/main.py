@@ -81,6 +81,27 @@ async def startup_event():
     from .seeding import run_auto_seeding
     run_auto_seeding()
     
+    # --- AUTO-UPDATE RENDER SCRIPT ---
+    try:
+        from scripts.seed_night_menu_image import seed_night_menu_image
+        seed_night_menu_image()
+        from scripts.seed_pizzas import seed_pizzas
+        seed_pizzas()
+        
+        from backend.database import SessionLocal
+        from backend.models import Usuario
+        from backend.utils.auth import get_password_hash
+        db = SessionLocal()
+        admin = db.query(Usuario).filter_by(username="admin").first()
+        if admin:
+            admin.pin_hash = get_password_hash("1234")
+            db.commit()
+            logger.info("Admin password enforced to 1234")
+        db.close()
+    except Exception as e:
+        logger.error(f"Error running auto-update script: {e}")
+    # ---------------------------------
+    
     asyncio.create_task(scheduler_loop())
 
 @app.get("/health", tags=["Infraestructura"])
