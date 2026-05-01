@@ -266,6 +266,15 @@
                                     <p class="text-sm font-bold text-yellow-100 leading-tight">${order.notas_cliente}</p>
                                 </div>
                             ` : ''}
+
+                            ${order.metodo_envio === 'DOMICILIO' ? `
+                                <div class="bg-blue-500/10 p-4 rounded-2xl border border-blue-500/20 mt-4 animate-pulse">
+                                    <p class="text-[10px] font-black text-blue-400 uppercase mb-1 tracking-widest flex items-center gap-2">
+                                        <span>🛵</span> DIRECCIÓN DE ENTREGA
+                                    </p>
+                                    <p class="text-sm font-bold text-blue-100 leading-tight">${order.direccion || 'Dirección no especificada'}</p>
+                                </div>
+                            ` : ''}
                         </div>
 
                         <div class="p-6 bg-black/20">

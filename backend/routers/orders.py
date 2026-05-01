@@ -31,6 +31,8 @@ class PedidoCrear(BaseModel):
     notas_cliente: Optional[str] = None
     canjear_puntos: bool = False
     cliente_id: Optional[str] = None
+    metodo_envio: str = Field("LOCAL", example="LOCAL")
+    direccion: Optional[str] = None
 
 class ItemPedidoOut(BaseModel):
     id: str
@@ -47,7 +49,9 @@ class PedidoOut(BaseModel):
     total: float
     metodo_pago: Optional[str]
     origen: str
-    notas_cliente: Optional[str]
+    metodo_envio: Optional[str] = "LOCAL"
+    direccion: Optional[str] = None
+    notas_cliente: Optional[str] = None
     items: List[ItemPedidoOut] = [] # Incluimos items para el listado de caja
     
     class Config:
@@ -229,7 +233,9 @@ def crear_pedido(
             notas_cliente=pedido.notas_cliente,
             total=0.0,
             metodo_pago="TARJETA" if pedido.origen == "QUIOSCO" else "EFECTIVO",
-            tienda_id=db.query(Producto).first().tienda_id if db.query(Producto).first() else None
+            tienda_id=db.query(Producto).first().tienda_id if db.query(Producto).first() else None,
+            metodo_envio=pedido.metodo_envio,
+            direccion=pedido.direccion
         )
         db.add(nuevo_pedido)
         db.flush()
@@ -244,6 +250,12 @@ def crear_pedido(
             coste_cubiertos = pedido.cubiertos_qty * 0.20
             total_bruto += coste_cubiertos
             total_iva_10 += coste_cubiertos
+
+        # Cargo por Domicilio (IVA 10%)
+        if pedido.metodo_envio == 'DOMICILIO':
+            coste_envio = 2.50
+            total_bruto += coste_envio
+            total_iva_10 += coste_envio
 
         for item in pedido.items:
             prod = db.query(Producto).get(item.producto_id)

@@ -53,37 +53,48 @@
             <p class="text-stone-400 text-sm font-medium tracking-widest uppercase">Consola Operativa Central v4.0</p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Finanzas & BI -->
-            <div class="portal-card p-10 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/admin/dashboard.html'">
+            <div class="portal-card p-8 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/admin/dashboard.html'">
                 <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-300">📈</div>
-                <h3 class="text-xl font-black mb-2 text-white">Business Intelligence</h3>
-                <p class="text-stone-400 text-xs leading-relaxed font-medium">Márgenes, escandallos y KPIs financieros en tiempo real.</p>
-                <div class="mt-8 flex items-center text-amber-500 font-black text-[10px] uppercase tracking-widest">
-                    Explorar Métricas <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+                <div class="text-3xl mb-4 transform group-hover:scale-110 transition-transform duration-300">📈</div>
+                <h3 class="text-lg font-black mb-1 text-white">Business Intelligence</h3>
+                <p class="text-stone-400 text-[10px] leading-relaxed font-medium">Márgenes, escandallos y KPIs financieros.</p>
+                <div class="mt-6 flex items-center text-amber-500 font-black text-[9px] uppercase tracking-widest">
+                    Métricas <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
                 </div>
             </div>
 
             <!-- Operaciones TPV -->
-            <div class="portal-card p-10 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/kiosko.html'">
+            <div class="portal-card p-8 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/kiosko.html'">
                 <div class="absolute inset-0 bg-gradient-to-br from-stone-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-300">🔥</div>
-                <h3 class="text-xl font-black mb-2 text-white">Punto de Venta</h3>
-                <p class="text-stone-400 text-xs leading-relaxed font-medium">Interfaz de ventas rápida para mostrador y kiosko.</p>
-                <div class="mt-8 flex items-center text-white font-black text-[10px] uppercase tracking-widest">
-                    Abrir Terminal <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+                <div class="text-3xl mb-4 transform group-hover:scale-110 transition-transform duration-300">🔥</div>
+                <h3 class="text-lg font-black mb-1 text-white">Punto de Venta</h3>
+                <p class="text-stone-400 text-[10px] leading-relaxed font-medium">Interfaz de ventas rápida (Kiosko/Caja).</p>
+                <div class="mt-6 flex items-center text-white font-black text-[9px] uppercase tracking-widest">
+                    Vender <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
                 </div>
             </div>
 
-            <!-- Sistema & Logs -->
-            <div class="portal-card p-10 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/admin/system_logs.html'">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-300">⚙️</div>
-                <h3 class="text-xl font-black mb-2 text-white">Core System</h3>
-                <p class="text-stone-400 text-xs leading-relaxed font-medium">Configuración avanzada, telemetría y auditoría inmutable.</p>
-                <div class="mt-8 flex items-center text-stone-500 font-black text-[10px] uppercase tracking-widest group-hover:text-blue-400 transition-colors">
-                    Administrar Núcleo <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+            <!-- KDS Kitchen -->
+            <div class="portal-card p-8 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/kds.html'">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="text-3xl mb-4 transform group-hover:scale-110 transition-transform duration-300">🍗</div>
+                <h3 class="text-lg font-black mb-1 text-white">Cocina (KDS)</h3>
+                <p class="text-stone-400 text-[10px] leading-relaxed font-medium">Gestión de pedidos y tiempos de preparación.</p>
+                <div class="mt-6 flex items-center text-emerald-500 font-black text-[9px] uppercase tracking-widest">
+                    A Cocinar <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Operativo -->
+            <div class="portal-card p-8 rounded-[2rem] cursor-pointer relative overflow-hidden group" onclick="window.location.href='/static/dashboard_produccion.html'">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="text-3xl mb-4 transform group-hover:scale-110 transition-transform duration-300">📊</div>
+                <h3 class="text-lg font-black mb-1 text-white">Control Operativo</h3>
+                <p class="text-stone-400 text-[10px] leading-relaxed font-medium">Monitor de producción e IA Insights.</p>
+                <div class="mt-6 flex items-center text-indigo-400 font-black text-[9px] uppercase tracking-widest">
+                    Ver Panel <span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
                 </div>
             </div>
         </div>

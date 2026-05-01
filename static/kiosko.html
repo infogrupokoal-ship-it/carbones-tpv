@@ -17,6 +17,7 @@
         .btn-premium { background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white; box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.6); }
         .category-pill { transition: all 0.3s; border: 1px solid #cbd5e1; color: #64748b; background: white; }
         .category-pill.active { background: #f59e0b; color: white; border-color: #f59e0b; font-weight: 800; box-shadow: 0 4px 10px rgba(245,158,11,0.3); }
+        .category-pill-sticky.active { background: #f59e0b !important; color: white !important; border-color: #f59e0b !important; box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
         .cart-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-left: 1px solid #e2e8f0; }
         .category-grid-card { transition: all 0.3s; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.5rem; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; }
         .category-grid-card:hover { transform: translateY(-5px); border-color: #f59e0b; box-shadow: 0 15px 30px -10px rgba(245,158,11,0.3); }
@@ -77,10 +78,19 @@
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
-
+    <!-- Initial Loading Overlay -->
+    <div id="initial-loader" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="relative w-24 h-24">
+            <div class="absolute inset-0 border-4 border-amber-100 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-amber-500 rounded-full border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-3xl">🔥</div>
+        </div>
+        <h2 class="mt-8 text-xl font-black text-slate-900 uppercase tracking-[0.3em] animate-pulse">Carbones <span class="text-amber-500">y Pollos</span></h2>
+        <p class="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cargando experiencia gourmet...</p>
+    </div>
     <!-- Header UI -->
     <header class="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="showCategoriesView()">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
             <div class="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">🔥</div>
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Carbones <span class="text-amber-500">y Pollos</span></h1>
@@ -176,6 +186,18 @@
             <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
             <span class="text-xs font-black uppercase tracking-widest">Estás navegando sin conexión. Algunas funciones pueden estar limitadas.</span>
         </div>
+
+        <!-- Store Closed Banner -->
+        <div id="closed-banner" class="hidden absolute top-0 left-6 right-6 -mt-6 bg-slate-900 text-amber-500 px-4 py-3 rounded-2xl flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(15,23,42,0.3)] z-[35] mb-6 animate-in slide-in-from-top-4 border border-amber-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-xs font-black uppercase tracking-widest text-center leading-tight">Establecimiento Cerrado<br><span class="font-bold text-[10px] text-slate-300">Nuestros pedidos online están pausados.</span></span>
+        </div>
+
+        <!-- Store Closed Banner -->
+        <div id="closed-banner" class="hidden absolute top-0 left-6 right-6 -mt-6 bg-slate-900 text-amber-500 px-4 py-3 rounded-2xl flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(15,23,42,0.3)] z-[35] mb-6 animate-in slide-in-from-top-4 border border-amber-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-xs font-black uppercase tracking-widest text-center leading-tight">Establecimiento Cerrado<br><span class="font-bold text-[10px] text-slate-300">Nuestros pedidos online están pausados.</span></span>
+        </div>
         
         <!-- Hero Banner Promocional (Fase 3) -->
         <div class="mb-8 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 group cursor-pointer" onclick="addGenericCrossSell('Menú Familiar Ahorro', 24.99)">
@@ -199,9 +221,18 @@
         </div>
 
         <!-- Sticky Category Nav (Horizontal Scroll) -->
-        <div class="sticky top-[88px] z-40 bg-[#f8fafc]/95 backdrop-blur-xl border-b border-slate-200 mb-8 py-4 px-2 -mx-6 md:mx-0">
-            <div id="sticky-category-nav" class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 px-4 md:px-0 scroll-smooth">
+        <div class="sticky top-[88px] z-40 bg-[#f8fafc]/95 backdrop-blur-xl border-b border-slate-200 mb-6 py-4 px-2 -mx-6 md:mx-0">
+            <div id="sticky-category-nav" class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 px-4 md:px-0 scroll-smooth mb-3">
                 <!-- Se inyectan las pastillas de categoría -->
+            </div>
+            
+            <!-- Allergen Filter Row -->
+            <div class="flex gap-2 overflow-x-auto px-4 md:px-0 no-scrollbar">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter self-center mr-2">Filtros:</span>
+                <button onclick="toggleAllergen('gluten')" class="allergen-btn px-3 py-1 rounded-full border border-slate-200 text-[9px] font-bold uppercase tracking-widest transition-all hover:bg-slate-50 flex items-center gap-1.5" data-allergen="gluten">🌾 Sin Gluten</button>
+                <button onclick="toggleAllergen('lactosa')" class="allergen-btn px-3 py-1 rounded-full border border-slate-200 text-[9px] font-bold uppercase tracking-widest transition-all hover:bg-slate-50 flex items-center gap-1.5" data-allergen="lactosa">🥛 Sin Lactosa</button>
+                <button onclick="toggleAllergen('vegano')" class="allergen-btn px-3 py-1 rounded-full border border-slate-200 text-[9px] font-bold uppercase tracking-widest transition-all hover:bg-slate-50 flex items-center gap-1.5" data-allergen="vegano">🥗 Vegano</button>
+                <button onclick="toggleAllergen('picante')" class="allergen-btn px-3 py-1 rounded-full border border-slate-200 text-[9px] font-bold uppercase tracking-widest transition-all hover:bg-slate-50 flex items-center gap-1.5" data-allergen="picante">🌶️ Sin Picante</button>
             </div>
         </div>
 
@@ -247,93 +278,162 @@
         </div>
     </div>
 
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="bg-slate-900 text-white pt-20 pb-10 px-6 mt-20 rounded-t-[3rem]">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
+            <div class="col-span-2">
+                <h2 class="text-4xl font-black uppercase tracking-tighter mb-6">Carbones y <span class="text-amber-500">Pollos</span></h2>
+                <p class="text-slate-400 text-sm max-w-sm mb-8 leading-relaxed">Sabor tradicional a la brasa con la tecnología más avanzada del mercado. Calidad gourmet en cada pedido.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-amber-500 transition-colors">📸</a>
+                    <a href="#" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-amber-500 transition-colors">📘</a>
+                    <a href="https://wa.me/34600000000" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform">💬</a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xs font-black uppercase tracking-widest text-amber-500 mb-6">Explora</h3>
+                <ul class="space-y-4 text-sm font-bold text-slate-300">
+                    <li><a href="/" class="hover:text-white transition-colors">Carta Online</a></li>
+                    <li><a href="/static/nosotros.html" class="hover:text-white transition-colors">Nuestra Historia</a></li>
+                    <li><a href="/static/tracking.html" class="hover:text-white transition-colors">Seguir Pedido</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-black uppercase tracking-widest text-amber-500 mb-6">Contacto</h3>
+                <p class="text-sm font-bold text-slate-300 mb-2">📍 Calle Gourmet, 123</p>
+                <p class="text-sm font-bold text-slate-300 mb-2">📞 +34 900 000 000</p>
+                <p class="text-xs font-black text-amber-500/50 mt-4 uppercase">© 2026 TPV Enterprise Engine</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modales de Sistema (Auth, Cart, Profile, Detail) -->
+    
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 bg-slate-900/40 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Acceso <span class="text-amber-500">Rápido</span></h2>
-            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Inicia sesión para acumular puntos, recuperar historial y aplicar descuentos en un clic.</p>
+        <div class="bg-white border border-slate-200 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative">
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Acceso <span class="text-amber-500">Gourmet</span></h2>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Identifícate para acumular puntos y ofertas exclusivas.</p>
             
-            <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-black text-xs uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-3 transition-all mb-4 relative overflow-hidden group border border-slate-200 shadow-sm">
-                <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <button onclick="mockGoogleLogin()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-black text-xs uppercase tracking-widest py-3 rounded-xl flex items-center justify-center gap-3 transition-all mb-4 border border-slate-200 shadow-sm">
                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                <span id="google-btn-text">Continuar con Google</span>
+                Continuar con Google
             </button>
+            
             <div class="relative flex items-center py-2 mb-4">
                 <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] uppercase font-bold tracking-widest">O usa WhatsApp</span>
+                <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] uppercase font-bold tracking-widest">O WhatsApp OTP</span>
                 <div class="flex-grow border-t border-slate-200"></div>
             </div>
 
             <div id="step-phone">
-                <input type="tel" id="login-phone" placeholder="Tu móvil (ej. 600123456)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:border-amber-500 focus:outline-none mb-4 transition-colors">
-                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Enviar Código SMS</button>
+                <input type="tel" id="login-phone" placeholder="Ej. 600123456" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:border-amber-500 focus:outline-none mb-4">
+                <button onclick="requestOTP()" id="btn-request-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Recibir Código</button>
             </div>
 
             <div id="step-otp" class="hidden">
-                <p class="text-[10px] text-amber-600 uppercase tracking-widest font-bold mb-4">Te hemos enviado un código</p>
-                <input type="text" id="login-otp" placeholder="Código 6 dígitos" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4 transition-colors">
-                <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Verificar y Entrar</button>
+                <input type="text" id="login-otp" placeholder="--- ---" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-center text-xl tracking-[0.5em] focus:border-amber-500 focus:outline-none mb-4">
+                <button onclick="verifyOTP()" id="btn-verify-otp" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Verificar Código</button>
             </div>
         </div>
     </div>
 
     <!-- Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-slate-900/40 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-md w-full shadow-2xl relative max-h-[80vh] flex flex-col">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Mi <span class="text-amber-500">Perfil</span></h2>
+    <div id="profile-modal" class="fixed inset-0 bg-slate-900/60 z-[95] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-8 rounded-[2.5rem] max-w-md w-full shadow-2xl relative text-slate-800 transform scale-95 transition-transform duration-300" id="profile-card-ui">
+            <button onclick="closeProfileModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg font-black">👤</div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tighter" id="profile-name">Cliente</h2>
+                    <p class="text-xs text-amber-500 font-bold uppercase tracking-widest" id="profile-nivel">NIVEL BRONCE</p>
+                </div>
+            </div>
             
-            <div class="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-50">
-                <div class="flex justify-between items-end mb-2">
-                    <span class="text-xs text-slate-500 uppercase tracking-widest font-bold">Nivel Actual</span>
-                    <span id="profile-nivel" class="text-lg font-black text-amber-600">BRONCE</span>
+            <div class="mb-8">
+                <div class="flex justify-between text-[10px] font-black uppercase mb-2">
+                    <span class="text-slate-400 tracking-widest">Puntos Acumulados</span>
+                    <span id="profile-points-text" class="text-amber-500">0 pts</span>
                 </div>
-                <div class="w-full bg-slate-200 rounded-full h-2 mb-2 relative overflow-hidden">
-                    <div id="profile-progress" class="bg-amber-500 h-2 rounded-full transition-all duration-1000 shadow-sm" style="width: 0%"></div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                    <div id="profile-progress" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-1000" style="width: 0%"></div>
                 </div>
-                <p id="profile-points-text" class="text-[10px] text-slate-500 text-right font-medium">0 / 500 para Plata</p>
             </div>
 
-            <h3 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-200 pb-2">Últimos Pedidos</h3>
-            <div id="profile-orders" class="flex-1 overflow-y-auto space-y-3 custom-scrollbar mb-6 pr-2">
-                <!-- Injected via API -->
+            <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-200">
+                <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Mis Últimos Pedidos</h3>
+                <div id="profile-orders" class="space-y-3 max-h-48 overflow-y-auto custom-scrollbar">
+                    <div class="text-center text-xs text-slate-400 py-4 font-medium italic">Explora nuestra carta para empezar...</div>
+                </div>
             </div>
-
-            <button onclick="logoutClient()" class="w-full py-3 rounded-xl text-red-600 font-black text-xs border border-red-200 hover:bg-red-50 uppercase tracking-widest mt-auto transition-colors">Cerrar Sesión</button>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openFeedbackModal()" class="py-3 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all">Valorar Experiencia</button>
+                <button onclick="logoutClient()" class="py-3 rounded-xl bg-white text-red-500 border border-red-100 font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-colors">Cerrar Sesión</button>
+            </div>
         </div>
     </div>
 
-    <!-- Success Fullscreen Modal -->
+    <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="fixed inset-0 bg-slate-900/60 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-200 p-0 rounded-[2.5rem] max-w-2xl w-full shadow-2xl relative overflow-hidden flex flex-col md:flex-row transform scale-95 transition-transform duration-300" id="product-detail-card">
+            <button onclick="closeProductDetail()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-white/80 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center z-10 shadow-lg">✕</button>
+            <div class="w-full md:w-1/2 h-64 md:h-auto relative">
+                <img id="detail-img" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 text-white">
+                    <span id="detail-category" class="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-2">Categoría</span>
+                    <h2 id="detail-name" class="text-3xl font-black uppercase tracking-tighter leading-none mb-2">Producto</h2>
+                    <div id="detail-price" class="text-4xl font-display font-black text-amber-400">0.00€</div>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-10 flex flex-col bg-slate-50/50">
+                <div class="flex-1">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Nota del Chef</h3>
+                    <p id="detail-desc" class="text-slate-600 text-sm leading-relaxed mb-8">Descripción...</p>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Alérgenos</h3>
+                            <div id="detail-allergens" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-[9px] font-black uppercase">
+                            <div class="bg-white p-2 rounded-xl border border-slate-200 flex justify-between"><span>Kcal:</span> <span id="detail-kcal" class="text-amber-600">--</span></div>
+                            <div class="bg-white p-2 rounded-xl border border-slate-200 flex justify-between"><span>Grasas:</span> <span id="detail-grasas" class="text-amber-600">--</span></div>
+                        </div>
+                    </div>
+                </div>
+                <button id="detail-add-btn" class="w-full btn-premium py-5 rounded-2xl text-white font-black text-sm uppercase tracking-widest mt-8 active:scale-95 transition-all shadow-xl shadow-amber-500/20">Añadir al Carrito 🔥</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Screen -->
     <div id="success-screen" class="fixed inset-0 bg-slate-50 z-[100] opacity-0 pointer-events-none transition-all duration-700 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(245,158,11,0.3)] mb-8 animate-bounce text-white">🔥</div>
-        <h1 class="text-4xl md:text-6xl font-black text-slate-900 uppercase tracking-tighter mb-4">¡Pedido en <span class="text-amber-500">Marcha!</span></h1>
-        <p class="text-lg text-slate-500 mb-12 font-medium">Atento a las pantallas. Tu número de turno es:</p>
-        <div class="border-4 border-amber-500 p-8 rounded-3xl bg-white mb-12 transform hover:scale-105 transition-transform shadow-xl">
-            <span id="success-turno" class="text-7xl md:text-9xl font-black text-amber-500">--</span>
+        <div class="w-24 h-24 bg-amber-500 rounded-full flex items-center justify-center text-4xl shadow-xl mb-8 animate-bounce text-white">🔥</div>
+        <h1 class="text-4xl md:text-6xl font-black text-slate-900 uppercase tracking-tighter mb-4">¡Pedido <span class="text-amber-500">Recibido!</span></h1>
+        <p class="text-lg text-slate-500 mb-12 font-medium">Preparamos tu carbón. Tu turno es:</p>
+        <div class="border-8 border-slate-100 p-10 rounded-[3rem] bg-white mb-12 transform hover:scale-105 transition-transform shadow-2xl relative">
+            <div class="absolute -top-4 -left-4 bg-amber-500 text-white text-[10px] px-4 py-1 rounded-full font-black uppercase tracking-widest">Número de Turno</div>
+            <span id="success-turno" class="text-7xl md:text-9xl font-black text-slate-900">--</span>
         </div>
         <div class="flex gap-4 flex-col md:flex-row">
-            <button onclick="window.location.href='/static/tracking.html?pedido=' + window.lastPedidoId" class="bg-slate-900 text-white px-8 py-4 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
-                Trackear Pedido
-            </button>
-            <button onclick="closeSuccessScreen()" class="btn-premium px-12 py-4 rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-amber-500/30">Seguir Comprando</button>
+            <button onclick="window.location.href='/static/tracking.html?pedido=' + window.lastPedidoId" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">Seguir mi Pedido</button>
+            <button onclick="closeSuccessScreen()" class="bg-white border-2 border-slate-200 text-slate-600 px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">Volver a la Carta</button>
         </div>
     </div>
 
-    <!-- Pre-Checkout Guest Modal -->
+    <!-- Pre-Checkout Modal -->
     <div id="pre-checkout-modal" class="fixed inset-0 bg-slate-900/40 z-[80] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white border border-slate-200 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative text-center">
-            <button onclick="closePreCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500 border border-amber-100">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v1m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">¿Puntos <span class="text-amber-500">Gratis?</span></h2>
-            <p class="text-xs text-slate-500 mb-8 leading-relaxed">Inicia sesión ahora rápido con Google o WhatsApp para acumular puntos y ofertas especiales.</p>
-            
+        <div class="bg-white border border-slate-200 p-10 rounded-[2.5rem] max-w-sm w-full shadow-2xl relative text-center">
+            <button onclick="closePreCheckoutModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+            <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-500 border border-amber-100 shadow-inner">💎</div>
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">¿Quieres <span class="text-amber-500">Puntos?</span></h2>
+            <p class="text-xs text-slate-500 mb-8 leading-relaxed font-medium">Acumula el 5% de esta compra para tu próximo pedido gratis.</p>
             <div class="space-y-3">
-                <button onclick="closePreCheckoutModal(); openLoginModal();" class="w-full btn-premium py-3 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md">Identificarse Ahora</button>
-                <button onclick="closePreCheckoutModal(); openPaymentModal();" class="w-full py-3 rounded-xl border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-black text-xs uppercase tracking-widest transition-colors">Pagar como Invitado</button>
+                <button onclick="closePreCheckoutModal(); openLoginModal();" class="w-full btn-premium py-4 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all">Identificarse Ahora</button>
+                <button onclick="closePreCheckoutModal(); openPaymentModal();" class="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-500 font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">Pagar como Invitado</button>
             </div>
         </div>
     </div>
@@ -357,6 +457,14 @@
                         <button id="btn-recoger" onclick="setMetodoEnvio('LOCAL')" class="flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md">🏪 Recoger</button>
                         <button id="btn-domicilio" onclick="setMetodoEnvio('DOMICILIO')" class="flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm">🛵 Domicilio (+2.50€)</button>
                     </div>
+                    
+                    <!-- Dirección Domicilio (Hidden by default) -->
+                    <div id="direccion-container" class="hidden mb-6 pb-6 border-b border-slate-200 space-y-3 animate-in slide-in-from-top-2">
+                        <label class="block text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Dirección de Entrega</label>
+                        <input type="text" id="direccion-calle" placeholder="Calle, Número, Puerta..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-slate-400">
+                        <input type="text" id="direccion-cp" placeholder="Código Postal (Ej. 46001)" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-mono text-sm focus:border-amber-500 focus:outline-none transition-all placeholder-slate-400">
+                    </div>
+
                     <div class="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
                         <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Importe a pagar</span>
                         <span id="payment-amount" class="text-3xl font-display font-black text-amber-500 drop-shadow-sm">0.00€</span>
@@ -415,6 +523,12 @@
         let sessionClient = null;
 
         async function init() {
+            // Offline Detection
+            const offlineBanner = document.getElementById('offline-banner');
+            window.addEventListener('online', () => offlineBanner.classList.add('hidden'));
+            window.addEventListener('offline', () => offlineBanner.classList.remove('hidden'));
+            if (!navigator.onLine) offlineBanner.classList.remove('hidden');
+
             // Check session
             const token = localStorage.getItem('tpv_b2c_token');
             const clienteStr = localStorage.getItem('tpv_b2c_cliente');
@@ -423,9 +537,25 @@
                 updateAuthUI();
             }
 
-            // Detect Shift Time (after 18:00 is NIGHT)
+            // Check Shift Time (after 18:00 is NIGHT)
             const hour = new Date().getHours();
             currentTurno = hour >= 18 ? "NIGHT" : "MORNING";
+
+            // Advanced Store Hours Validation
+            const currentTotalHour = new Date().getHours() + (new Date().getMinutes() / 60);
+            const isOpen = (currentTotalHour >= 11.5 && currentTotalHour <= 16.5) || (currentTotalHour >= 19.5 && currentTotalHour <= 23.5);
+            
+            if (!isOpen) {
+                document.getElementById('closed-banner').classList.remove('hidden');
+                document.getElementById('closed-banner').classList.add('flex');
+                
+                // Block Cart Interactions
+                const overrideToggle = () => typeof showToast === 'function' ? showToast("Atención", "Nuestro sistema de pedidos online está cerrado ahora mismo.", "error") : alert("Cerrado");
+                const btnM = document.getElementById('cart-btn-main');
+                const btnF = document.querySelector('button[onclick="toggleCart()"].md\\:hidden');
+                if(btnM) { btnM.onclick = overrideToggle; btnM.classList.add('opacity-50', 'grayscale'); }
+                if(btnF) { btnF.onclick = overrideToggle; btnF.classList.add('grayscale'); }
+            }
 
             try {
                 const [catRes, prodRes] = await Promise.all([
@@ -441,6 +571,15 @@
                 renderCategories(cats);
                 renderProducts();
             } catch (e) { console.error("Error init:", e); }
+
+            // Finalize Initialization
+            setTimeout(() => {
+                const loader = document.getElementById('initial-loader');
+                if(loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.remove(), 700);
+                }
+            }, 800);
         }
 
         let globalCategories = [];
@@ -464,7 +603,7 @@
                 }
                 const displayName = c.nombre.replace(/'/g, "\\'");
                 return `
-                <button onclick="scrollToCategory('${c.id}')" class="whitespace-nowrap flex-shrink-0 flex items-center gap-2 bg-white hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 px-6 py-3 rounded-full font-black text-sm text-slate-800 uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                <button id="pill-${c.id}" onclick="scrollToCategory('${c.id}')" class="category-pill-sticky whitespace-nowrap flex-shrink-0 flex items-center gap-2 bg-white hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 px-6 py-3 rounded-full font-black text-sm text-slate-800 uppercase tracking-widest transition-all shadow-sm active:scale-95">
                     <span class="text-lg">${icon}</span> ${c.nombre}
                 </button>
                 `;
@@ -476,14 +615,53 @@
         function scrollToCategory(catId) {
             const el = document.getElementById('cat-' + catId);
             if(el) {
-                const offset = 160; // Offset for sticky headers
+                const offset = 180; // Offset for sticky headers
                 const bodyRect = document.body.getBoundingClientRect().top;
                 const elementRect = el.getBoundingClientRect().top;
                 const elementPosition = elementRect - bodyRect;
                 const offsetPosition = elementPosition - offset;
                 window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                
+                // Highlight immediately
+                document.querySelectorAll('.category-pill-sticky').forEach(p => p.classList.remove('active'));
+                document.getElementById('pill-' + catId)?.classList.add('active');
             }
         }
+
+        // Scroll Spy Logic
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-xl', 'bg-white/95');
+                header.classList.remove('bg-white/80');
+            } else {
+                header.classList.remove('shadow-xl', 'bg-white/95');
+                header.classList.add('bg-white/80');
+            }
+
+            const categories = Object.keys(globalCategories.reduce((acc, c) => ({...acc, [c.id]: c}), {}));
+            let currentCatId = null;
+            
+            for (const catId of categories) {
+                const el = document.getElementById('cat-' + catId);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 200) {
+                        currentCatId = catId;
+                    }
+                }
+            }
+            
+            if (currentCatId) {
+                document.querySelectorAll('.category-pill-sticky').forEach(p => p.classList.remove('active'));
+                const activePill = document.getElementById('pill-' + currentCatId);
+                if (activePill) {
+                    activePill.classList.add('active');
+                    // Auto-scroll the sticky nav to keep active pill visible
+                    activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }
+        });
 
         function handleGlobalSearch() {
             renderProducts();
@@ -935,13 +1113,16 @@
             metodoEnvio = metodo;
             const btnRecoger = document.getElementById('btn-recoger');
             const btnDomicilio = document.getElementById('btn-domicilio');
+            const dirContainer = document.getElementById('direccion-container');
             
             if (metodo === 'LOCAL') {
                 btnRecoger.className = "flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md";
                 btnDomicilio.className = "flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm";
+                if(dirContainer) { dirContainer.classList.add('hidden'); dirContainer.classList.remove('block'); }
             } else {
                 btnDomicilio.className = "flex-1 py-3 bg-amber-500 text-white font-black rounded-xl border-2 border-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-md";
                 btnRecoger.className = "flex-1 py-3 bg-white text-slate-500 font-black rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:text-amber-500 transition-colors uppercase text-[10px] tracking-widest shadow-sm";
+                if(dirContainer) { dirContainer.classList.remove('hidden'); dirContainer.classList.add('block'); }
             }
             openPaymentModal(); // Refrescar total
         }
@@ -965,6 +1146,15 @@
         }
 
         async function processPayment() {
+            if (metodoEnvio === 'DOMICILIO') {
+                const calle = document.getElementById('direccion-calle')?.value;
+                const cp = document.getElementById('direccion-cp')?.value;
+                if(!calle || calle.length < 5 || !cp || cp.length < 4) {
+                    if(typeof showToast === 'function') showToast("Atención", "Por favor introduce una dirección válida", "error");
+                    return;
+                }
+            }
+
             const btn = document.getElementById('btn-process-payment');
             btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Procesando Banco...`;
             btn.classList.add('opacity-80', 'pointer-events-none');
@@ -973,7 +1163,7 @@
             setTimeout(async () => {
                 await finalSubmitOrder();
                 closePaymentModal();
-                btn.innerHTML = 'Pagar de forma segura';
+                btn.innerHTML = '<svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg> Procesar Pago';
                 btn.classList.remove('opacity-80', 'pointer-events-none');
             }, 1800);
         }
@@ -994,6 +1184,8 @@
                 metodo_pago: 'TARJETA',
                 origen: 'QUIOSCO',
                 estado_inicial: 'EN_PREPARACION',
+                metodo_envio: metodoEnvio,
+                direccion: metodoEnvio === 'DOMICILIO' ? `${document.getElementById('direccion-calle').value} (CP: ${document.getElementById('direccion-cp').value})` : null,
                 cubiertos_qty: 0,
                 canjear_puntos: false,
                 cliente_id: sessionClient ? sessionClient.sub : null
@@ -1026,6 +1218,12 @@
                         <div style="text-align: right; font-size: 18px; font-weight: bold;">
                             TOTAL: ${pedido.total.toFixed(2)}€
                         </div>
+                        ${pedido.metodo_envio === 'DOMICILIO' ? `
+                        <div style="margin-top: 10px; padding: 5px; border: 1px solid black; font-size: 12px;">
+                            <strong>ENTREGA A DOMICILIO</strong><br>
+                            ${pedido.direccion}
+                        </div>
+                        ` : ''}
                         <div style="text-align: center; margin-top: 20px;">
                             <h1 style="font-size: 32px; font-weight: bold; margin: 0;">TURNO: ${data.ticket}</h1>
                             <p>¡Gracias por tu compra!</p>
@@ -1159,17 +1357,61 @@
 
         function updateAuthUI() {
             const btnText = document.getElementById('auth-btn-text');
+            const btn = document.getElementById('auth-btn');
+            
             if(sessionClient) {
-                // If the backend didn't return nivel, fallback
+                btn.onclick = openProfileModal;
                 const pts = sessionClient.puntos || 0;
-                btnText.innerHTML = `HOLA, ${sessionClient.nombre.substring(0,6)} <span class="ml-2 bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded text-[9px]">${pts} pts</span>`;
+                const shortName = sessionClient.nombre ? sessionClient.nombre.split(' ')[0].substring(0,8) : 'PERFIL';
+                btnText.innerHTML = `<span class="flex items-center gap-2 font-black uppercase tracking-widest text-[10px] text-amber-500">👤 ${shortName} <span class="bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded">${pts} pts</span></span>`;
             } else {
+                btn.onclick = openLoginModal;
                 btnText.innerText = "Acceso Cliente";
-                document.getElementById('step-phone').classList.remove('hidden');
-                document.getElementById('step-otp').classList.add('hidden');
-                document.getElementById('login-phone').value = '';
-                document.getElementById('login-otp').value = '';
+                const stepPhone = document.getElementById('step-phone');
+                const stepOtp = document.getElementById('step-otp');
+                if(stepPhone) stepPhone.classList.remove('hidden');
+                if(stepOtp) stepOtp.classList.add('hidden');
             }
+        }
+
+        // --- FEEDBACK & REVIEWS ---
+        let currentRating = 5;
+        function openFeedbackModal() {
+            if(!sessionClient) return openLoginModal();
+            document.getElementById('feedback-modal').classList.remove('opacity-0', 'pointer-events-none');
+            setRating(5);
+        }
+        function closeFeedbackModal() {
+            document.getElementById('feedback-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+        function setRating(r) {
+            currentRating = r;
+            const stars = document.querySelectorAll('#rating-stars button');
+            stars.forEach((s, idx) => {
+                if(idx < r) {
+                    s.classList.remove('grayscale', 'opacity-30');
+                } else {
+                    s.classList.add('grayscale', 'opacity-30');
+                }
+            });
+        }
+        async function submitFeedback() {
+            const comment = document.getElementById('feedback-comment').value;
+            try {
+                const res = await fetch('/api/feedback/', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        rating: currentRating,
+                        comentario: comment,
+                        cliente_id: sessionClient.sub
+                    })
+                });
+                if(res.ok) {
+                    showToast("¡Gracias!", "Tu valoración ha sido enviada.", "success");
+                    closeFeedbackModal();
+                    closeProfileModal();
+                }
+            } catch(e) { showToast("Error", "No se pudo enviar", "error"); }
         }
 
         // --- PERFIL DE CLIENTE ---

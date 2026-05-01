@@ -72,6 +72,14 @@
                 <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
                     <p id="status-message" class="text-amber-800 font-bold text-sm">Cargando estado actual...</p>
                 </div>
+
+                <div id="delivery-info" class="hidden mt-6 bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="text-2xl">🛵</div>
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Dirección de Entrega</p>
+                    </div>
+                    <p id="delivery-address" class="text-slate-800 font-bold text-sm leading-tight ml-9 italic">--</p>
+                </div>
             </div>
 
             <div class="mt-8 text-center">
@@ -122,6 +130,14 @@
                     
                     document.getElementById('ticket-number').innerText = order.numero_ticket;
                     updateStatusUI(order.estado);
+
+                    // Información de Domicilio
+                    if (order.metodo_envio === 'DOMICILIO') {
+                        document.getElementById('delivery-info').classList.remove('hidden');
+                        document.getElementById('delivery-address').innerText = order.direccion || 'Pendiente de especificar';
+                    } else {
+                        document.getElementById('delivery-info').classList.add('hidden');
+                    }
                 } else {
                     document.getElementById('error-screen').classList.remove('hidden');
                 }

@@ -131,6 +131,8 @@ class Pedido(Base):
     metodo_pago = Column(String(20))
     estado = Column(String(20), default="ESPERANDO_PAGO")
     origen = Column(String(20), default="TPV")
+    metodo_envio = Column(String(20), default="LOCAL") # LOCAL o DOMICILIO
+    direccion = Column(Text, nullable=True)
     
     notas_cliente = Column(Text)
     cubiertos_qty = Column(Integer, default=0)

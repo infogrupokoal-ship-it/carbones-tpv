@@ -20,7 +20,7 @@ from .config import settings
 from .database import Base, engine
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers
+    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -170,6 +170,7 @@ app.include_router(telemetry.router, prefix="/api/system", tags=["Mantenimiento"
 app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
 app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
 app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
+app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():

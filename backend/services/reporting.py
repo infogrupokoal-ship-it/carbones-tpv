@@ -41,6 +41,12 @@ class ReportingService:
         total_tarjeta = sum(p.total for p in pedidos_hoy if p.metodo_pago != "EFECTIVO")
         total_ventas = total_efectivo + total_tarjeta
 
+        # Métricas de Domicilio
+        pedidos_domicilio = [p for p in pedidos_hoy if p.metodo_envio == "DOMICILIO"]
+        count_domicilio = len(pedidos_domicilio)
+        total_fees_domicilio = count_domicilio * 2.50
+        total_ventas_domicilio = sum(p.total for p in pedidos_domicilio)
+
         diferencia = 0.0
         if efectivo_declarado is not None:
             diferencia = efectivo_declarado - total_efectivo
@@ -97,7 +103,9 @@ class ReportingService:
             msg += f"⚖️ Desajuste: {diferencia:.2f}€ {status_icon}\n"
         msg += f"💳 Ventas Tarjeta: {total_tarjeta:.2f}€\n"
         msg += "━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        msg += f"📊 *FACTURACIÓN TOTAL: {total_ventas:.2f}€*\n\n"
+        msg += f"📊 *FACTURACIÓN TOTAL: {total_ventas:.2f}€*\n"
+        msg += f"🛵 Domicilios: {count_domicilio} ({total_ventas_domicilio:.2f}€)\n"
+        msg += f"🚚 Tasas Envío: {total_fees_domicilio:.2f}€\n\n"
         msg += f"🍗 Pollos Despachados: {pollos_vendidos}\n"
         if coste_total_mermas > 0:
             msg += f"🚨 Impacto Mermas: -{coste_total_mermas:.2f}€\n\n"
