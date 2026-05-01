@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presupuestos | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #020617; color: #f1f5f9; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .nav-active { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        .quote-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .quote-card:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.3); background: rgba(30, 41, 59, 0.5); }
+        
+        .status-badge { font-size: 10px; font-weight: 900; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.1em; }
+        .status-BORRADOR { background: #64748b; color: #f1f5f9; }
+        .status-ENVIADO { background: #3b82f6; color: #f1f5f9; }
+        .status-ACEPTADO { background: #10b981; color: #f1f5f9; }
+        .status-RECHAZADO { background: #ef4444; color: #f1f5f9; }
+    </style>
+</head>
+<body class="min-h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 hidden lg:flex">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg">⚡</div>
+            <h2 class="text-xl font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
+        </div>
+        <nav class="space-y-1 flex-1 overflow-y-auto custom-scrollbar pr-2">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-4">Core Operativo</p>
+            <a href="/static/portal.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🏠 Portal de Inicio</a>
+            <a href="/static/dashboard.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Business Intelligence</a>
+            <a href="/static/caja.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">💰 Control de Caja</a>
+            
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Ventas y Marketing</p>
+            <a href="/static/presupuestos.html" class="flex items-center gap-3 p-3 rounded-xl nav-active text-xs font-bold uppercase tracking-tight">📄 Presupuestos</a>
+            <a href="/static/referidos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🔗 Programa de Referidos</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4 gap-2 items-center">
+            <a href="/static/portal.html" class="hover:text-blue-500 transition-colors">Inicio</a>
+            <span>/</span>
+            <span class="text-slate-300">Presupuestos</span>
+        </nav>
+
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Gestión de <span class="text-blue-500">Presupuestos</span></h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Pipeline Comercial • Fase de Cotización</p>
+            </div>
+            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-blue-600/20 transition-all transform active:scale-95 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                Nuevo Presupuesto
+            </button>
+        </header>
+
+        <!-- Filters -->
+        <div class="flex gap-4 mb-8 overflow-x-auto pb-2 custom-scrollbar">
+            <button onclick="filterQuotes('ALL')" class="px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Todos</button>
+            <button onclick="filterQuotes('BORRADOR')" class="px-6 py-2 rounded-xl bg-slate-800 border border-slate-700 text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all">Borradores</button>
+            <button onclick="filterQuotes('ENVIADO')" class="px-6 py-2 rounded-xl bg-blue-900/30 border border-blue-500/30 text-[10px] font-black uppercase tracking-widest hover:bg-blue-900/50 transition-all">Enviados</button>
+            <button onclick="filterQuotes('ACEPTADO')" class="px-6 py-2 rounded-xl bg-emerald-900/30 border border-emerald-500/30 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-900/50 transition-all">Aceptados</button>
+        </div>
+
+        <!-- Grid de Presupuestos -->
+        <div id="quotes-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Loading State -->
+            <div class="col-span-full py-40 flex flex-col items-center justify-center opacity-20">
+                <div class="text-6xl animate-bounce">📄</div>
+                <p class="text-sm font-black uppercase tracking-[0.5em] mt-4">Cargando Cotizaciones...</p>
+            </div>
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="empty-state" class="hidden col-span-full py-40 flex flex-col items-center justify-center">
+            <div class="w-32 h-32 bg-slate-800/50 rounded-full flex items-center justify-center text-5xl mb-6">🏜️</div>
+            <h3 class="text-xl font-black text-white uppercase tracking-tight">No hay presupuestos</h3>
+            <p class="text-slate-500 text-sm mt-2 mb-8">Empieza creando tu primera cotización comercial.</p>
+            <button onclick="openModal()" class="bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl border border-white/10 transition-all">Crear Presupuesto</button>
+        </div>
+    </main>
+
+    <!-- Modal Nuevo Presupuesto -->
+    <div id="modal-presupuesto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-all duration-300">
+        <div class="glass-panel w-full max-w-2xl rounded-[2.5rem] p-10 border border-white/10 shadow-2xl transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-2xl font-black text-white tracking-tighter uppercase">Crear <span class="text-blue-500">Cotización</span></h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-white/10 rounded-full transition-all">✕</button>
+            </div>
+
+            <form id="quote-form" onsubmit="saveQuote(event)" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cliente (Opcional)</label>
+                        <select id="q-cliente" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none transition-all">
+                            <option value="">Anónimo</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Validez hasta</label>
+                        <input type="date" id="q-fecha" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Items del Presupuesto</label>
+                    <div id="items-list" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                        <!-- Items injected here -->
+                    </div>
+                    <button type="button" onclick="addItemRow()" class="w-full py-3 bg-white/5 hover:bg-white/10 border border-dashed border-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white">
+                        + Añadir Producto
+                    </button>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-sm rounded-[1.5rem] transition-all shadow-lg shadow-blue-600/20">
+                        Generar y Guardar Presupuesto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let quotes = [];
+        let productos = [];
+        let clientes = [];
+
+        async function init() {
+            await Promise.all([fetchQuotes(), fetchProductos(), fetchClientes()]);
+            renderQuotes();
+            populateSelects();
+        }
+
+        async function fetchQuotes() {
+            try {
+                const res = await fetch('/api/commercial/quotes');
+                if (res.ok) quotes = await res.json();
+            } catch (e) { console.error(e); }
+        }
+
+        async function fetchProductos() {
+            try {
+                const res = await fetch('/api/inventory/products');
+                if (res.ok) productos = await res.json();
+            } catch (e) { console.error(e); }
+        }
+
+        async function fetchClientes() {
+            try {
+                const res = await fetch('/api/customers');
+                if (res.ok) clientes = await res.json();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderQuotes(filter = 'ALL') {
+            const grid = document.getElementById('quotes-grid');
+            const empty = document.getElementById('empty-state');
+            
+            const filtered = filter === 'ALL' ? quotes : quotes.filter(q => q.estado === filter);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            
+            empty.classList.add('hidden');
+            grid.innerHTML = filtered.map(q => `
+                <div class="glass-panel p-6 rounded-[2.5rem] quote-card border border-white/5">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-black text-slate-500 block uppercase tracking-tighter">${q.numero_presupuesto}</span>
+                            <h3 class="text-xl font-black text-white">${q.cliente_nombre}</h3>
+                        </div>
+                        <span class="status-badge status-${q.estado}">${q.estado}</span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-6">
+                        ${q.items.slice(0, 3).map(it => `
+                            <div class="flex justify-between text-xs font-medium text-slate-400">
+                                <span>${it.cantidad}x ${it.nombre}</span>
+                                <span>${(it.cantidad * it.precio_unitario).toFixed(2)}€</span>
+                            </div>
+                        `).join('')}
+                        ${q.items.length > 3 ? `<p class="text-[10px] text-slate-600 font-bold italic">+ ${q.items.length - 3} items más...</p>` : ''}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-white/5">
+                        <div class="text-2xl font-black text-blue-500">${q.total.toFixed(2)}€</div>
+                        <div class="flex gap-2">
+                            <button onclick="sendToWhatsApp('${q.id}')" class="p-3 bg-emerald-600/20 text-emerald-500 rounded-xl hover:bg-emerald-600/30 transition-all" title="Enviar por WhatsApp">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.038 3.284l-.542 2.317 2.134-.549c.954.514 2.02.788 3.137.789h.001c3.182 0 5.767-2.587 5.768-5.767 0-3.18-2.586-5.766-5.767-5.766zm3.375 8.203c-.147.415-.744.757-1.025.795-.27.037-.534.058-1.57-.369-1.035-.427-1.705-1.487-1.757-1.558-.052-.071-.444-.592-.444-1.129 0-.537.28-.801.379-.905.1-.104.216-.131.288-.131.072 0 .144.001.206.004.066.002.155-.025.242.185.087.21.298.728.324.781.026.053.043.114.007.185-.035.071-.053.114-.107.175-.053.061-.112.136-.16.182-.053.053-.109.111-.047.219.062.107.276.455.592.736.406.363.748.475.856.529.108.053.171.044.234-.029.062-.073.271-.318.344-.426.072-.108.145-.091.243-.054.1.036.634.3.744.354.11.053.183.08.21.125.027.045.027.26-.12.675z"/></svg>
+                            </button>
+                            <button onclick="changeStatus('${q.id}', 'ACEPTADO')" class="p-3 bg-blue-600/20 text-blue-500 rounded-xl hover:bg-blue-600/30 transition-all" title="Aceptar Presupuesto">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateSelects() {
+            const clienteSelect = document.getElementById('q-cliente');
+            clienteSelect.innerHTML = '<option value="">Anónimo</option>' + 
+                clientes.map(c => `<option value="${c.id}">${c.nombre} (${c.telefono})</option>`).join('');
+        }
+
+        let itemRows = 0;
+        function addItemRow() {
+            const list = document.getElementById('items-list');
+            const id = `row-${itemRows++}`;
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = "flex gap-3 animate-fade-in";
+            div.innerHTML = `
+                <select class="flex-1 bg-slate-900 border border-white/10 rounded-xl p-3 text-xs outline-none focus:border-blue-500">
+                    <option value="">Seleccionar Producto...</option>
+                    ${productos.map(p => `<option value="${p.id}">${p.nombre} - ${p.precio}€</option>`).join('')}
+                </select>
+                <input type="number" value="1" min="1" class="w-20 bg-slate-900 border border-white/10 rounded-xl p-3 text-xs text-center outline-none focus:border-blue-500">
+                <button type="button" onclick="document.getElementById('${id}').remove()" class="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition-all">✕</button>
+            `;
+            list.appendChild(div);
+        }
+
+        function openModal() {
+            const m = document.getElementById('modal-presupuesto');
+            m.classList.remove('hidden');
+            setTimeout(() => {
+                m.classList.remove('opacity-0');
+                m.querySelector('div').classList.remove('scale-95');
+            }, 10);
+            if (itemRows === 0) addItemRow();
+        }
+
+        function closeModal() {
+            const m = document.getElementById('modal-presupuesto');
+            m.classList.add('opacity-0');
+            m.querySelector('div').classList.add('scale-95');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        }
+
+        async function saveQuote(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="animate-spin">🌀</span> Guardando...';
+            btn.disabled = true;
+
+            const items = [];
+            document.querySelectorAll('#items-list > div').forEach(row => {
+                const prodId = row.querySelector('select').value;
+                const qty = row.querySelector('input').value;
+                if (prodId) items.push({ producto_id: prodId, cantidad: parseInt(qty) });
+            });
+
+            const data = {
+                cliente_id: document.getElementById('q-cliente').value || null,
+                fecha_validez: document.getElementById('q-fecha').value ? new Date(document.getElementById('q-fecha').value).toISOString() : null,
+                items: items
+            };
+
+            try {
+                const res = await fetch('/api/commercial/quotes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    await fetchQuotes();
+                    renderQuotes();
+                    closeModal();
+                }
+            } catch (e) { alert("Error al guardar"); }
+            finally {
+                btn.innerHTML = 'Generar y Guardar Presupuesto';
+                btn.disabled = false;
+            }
+        }
+
+        async function changeStatus(id, status) {
+            if (!confirm(`¿Cambiar estado a ${status}?`)) return;
+            try {
+                const res = await fetch(`/api/commercial/quotes/${id}/status?estado=${status}`, { method: 'PUT' });
+                if (res.ok) {
+                    await fetchQuotes();
+                    renderQuotes();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function sendToWhatsApp(id) {
+            const q = quotes.find(quote => quote.id === id);
+            if (!q) return;
+            
+            // Lógica para enviar por WhatsApp (simulada o link directo)
+            const msg = `Hola! Soy de Carbones y Pollos. Te envío el presupuesto ${q.numero_presupuesto} por un total de ${q.total.toFixed(2)}€. ¿Deseas confirmarlo?`;
+            const phone = "34600000000"; // En una app real usaríamos el teléfono del cliente
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>

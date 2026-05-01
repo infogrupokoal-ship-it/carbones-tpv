@@ -80,7 +80,15 @@
                         </div>
                         <div class="flex gap-2">
                             <button onclick="updateStatus('${o.id}', 'EN_CAMINO')" class="flex-1 py-3 bg-white text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest">Aceptar Entrega</button>
-                            <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.direccion)}')" class="w-12 h-12 glass-card flex items-center justify-center rounded-xl text-xl">🧭</button>
+                            <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.direccion)}')" class="w-12 h-12 glass-card flex items-center justify-center rounded-xl text-xl" title="Abrir Mapa">🧭</button>
+                            ${o.cliente_telefono ? `
+                            <a href="https://wa.me/${o.cliente_telefono.replace(/\s+/g, '')}?text=Hola ${o.cliente_nombre}, soy tu repartidor de Carbones y Pollos. Estoy en camino con tu pedido #${o.numero_ticket}." 
+                               target="_blank"
+                               class="w-12 h-12 glass-card flex items-center justify-center rounded-xl text-xl hover:bg-emerald-500/20 transition-all"
+                               title="WhatsApp Cliente">
+                                🟢
+                            </a>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('');

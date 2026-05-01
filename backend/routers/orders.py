@@ -57,6 +57,8 @@ class PedidoOut(BaseModel):
     metodo_envio: Optional[str] = "LOCAL"
     direccion: Optional[str] = None
     notas_cliente: Optional[str] = None
+    cliente_nombre: Optional[str] = "Anónimo"
+    cliente_telefono: Optional[str] = None
     items: List[ItemPedidoOut] = [] # Incluimos items para el listado de caja
     
     class Config:

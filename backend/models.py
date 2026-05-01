@@ -156,6 +156,15 @@ class Pedido(Base):
     
     items = relationship("ItemPedido", back_populates="pedido")
     tienda = relationship("Tienda", back_populates="pedidos")
+    cliente = relationship("Cliente")
+
+    @property
+    def cliente_nombre(self):
+        return self.cliente.nombre if self.cliente else "Anónimo"
+
+    @property
+    def cliente_telefono(self):
+        return self.cliente.telefono if self.cliente else None
 
 class ItemPedido(Base):
     __tablename__ = "item_pedido"
@@ -288,3 +297,52 @@ class Traduccion(Base):
     clave = Column(String(100), index=True)
     idioma = Column(String(5), default="es")
     valor = Column(Text)
+
+# --- FLUJO COMERCIAL & MARKETING (PHASE 2) ---
+class Presupuesto(Base):
+    __tablename__ = "presupuestos"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    numero_presupuesto = Column(String(50), unique=True)
+    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha_validez = Column(DateTime)
+    total = Column(Float, nullable=False)
+    estado = Column(String(20), default="BORRADOR") # BORRADOR, ENVIADO, ACEPTADO, RECHAZADO, VENCIDO
+    notas = Column(Text)
+    
+    cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    
+    items = relationship("ItemPresupuesto", back_populates="presupuesto")
+    cliente = relationship("Cliente")
+
+class ItemPresupuesto(Base):
+    __tablename__ = "item_presupuesto"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    presupuesto_id = Column(String(36), ForeignKey("presupuestos.id"))
+    producto_id = Column(String(36), ForeignKey("productos.id"))
+    cantidad = Column(Integer, default=1)
+    precio_unitario = Column(Float)
+    
+    presupuesto = relationship("Presupuesto", back_populates="items")
+    producto = relationship("Producto")
+
+class Referido(Base):
+    __tablename__ = "referidos"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    cliente_referidor_id = Column(String(36), ForeignKey("clientes.id"))
+    cliente_referido_id = Column(String(36), ForeignKey("clientes.id"))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, COMPLETADO
+    bono_aplicado = Column(Float, default=0.0)
+    
+    referidor = relationship("Cliente", foreign_keys=[cliente_referidor_id])
+    referido = relationship("Cliente", foreign_keys=[cliente_referido_id])
+
+class WhatsAppTemplate(Base):
+    __tablename__ = "whatsapp_templates"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    nombre = Column(String(50), unique=True)
+    slug = Column(String(50), unique=True)
+    contenido = Column(Text)
+    variables = Column(String(255)) # Comma separated list of variables: "nombre,ticket,total"
+    is_active = Column(Boolean, default=True)

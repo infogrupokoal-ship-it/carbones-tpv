@@ -21,7 +21,7 @@ from .config import settings
 from .database import Base, engine
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant
+    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -191,6 +191,8 @@ app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
 app.include_router(payments.router, prefix="/api", tags=["Pagos"])
 app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artificial"])
+app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
+app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():

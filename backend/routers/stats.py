@@ -97,6 +97,8 @@ def get_unified_dashboard(db: Session = Depends(get_db)):
         "metodo_envio": o.metodo_envio,
         "estado": o.estado,
         "fecha": o.fecha.strftime("%H:%M:%S"),
+        "cliente_nombre": o.cliente.nombre if o.cliente else "Anon",
+        "cliente_telefono": o.cliente.telefono if o.cliente else None,
         "items": [it.producto_id for it in o.items]
     } for o in recent_orders]
 
