@@ -3,9 +3,11 @@ __pycache__/
 *.pyc
 .env
 tpv_data.sqlite*
+*.sqlite
 *.log
 screen.png
 scan_local.py
 scan_tpv.py
 test_ssh.py
 temp_media/
+backups/
