@@ -89,13 +89,15 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const ticketId = urlParams.get('ticket');
+        // Soporte tanto para ?pedido=UUID (nuevo) como ?ticket=NUMERO (antiguo)
+        const pedidoId = urlParams.get('pedido') || urlParams.get('ticket');
 
-        if (!ticketId) {
+        if (!pedidoId) {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('error-screen').classList.remove('hidden');
         } else {
-            document.getElementById('ticket-number').innerText = ticketId;
+            // Asumimos que se pasó UUID si la longitud es grande, si no, es ticket number
+            document.getElementById('ticket-number').innerText = pedidoId.length > 10 ? 'Consultando...' : pedidoId;
             pollOrder();
             setInterval(pollOrder, 5000);
         }
@@ -107,7 +109,7 @@
                 if(!res.ok) throw new Error("Fallo en la red");
                 const orders = await res.json();
                 
-                const order = orders.find(o => o.numero_ticket === ticketId || o.id === ticketId);
+                const order = orders.find(o => o.numero_ticket === pedidoId || o.id === pedidoId);
                 
                 document.getElementById('loading').classList.add('hidden');
 
@@ -118,6 +120,7 @@
                     void content.offsetWidth;
                     content.classList.remove('opacity-0');
                     
+                    document.getElementById('ticket-number').innerText = order.numero_ticket;
                     updateStatusUI(order.estado);
                 } else {
                     document.getElementById('error-screen').classList.remove('hidden');
@@ -139,7 +142,7 @@
             // Activar iconos
             const activate = (id, colorClass) => {
                 const el = document.getElementById('icon-' + id);
-                el.className = \`w-12 h-12 mx-auto rounded-full \${colorClass} text-white flex items-center justify-center text-2xl transition-all duration-500 mb-1 shadow-lg transform scale-110\`;
+                el.className = `w-12 h-12 mx-auto rounded-full ${colorClass} text-white flex items-center justify-center text-2xl transition-all duration-500 mb-1 shadow-lg transform scale-110`;
             };
 
             if (estado === 'NUEVO' || estado === 'ESPERANDO_PAGO') {
@@ -169,6 +172,36 @@
                 bar.classList.replace('bg-amber-500', 'bg-red-500');
                 msg.innerText = "El pedido ha sido cancelado.";
             }
+        }
+
+        // --- Telemetría GPS (Rider/Client Tracking) ---
+        function startTelemetry() {
+            if (!navigator.geolocation) return;
+            
+            // Intentamos obtener la ubicación cada 15 segundos si está permitido
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    
+                    // Cálculo de distancia dummy o real si tuviéramos lat/lon del local
+                    // Asumimos distancia dummy para el payload
+                    try {
+                        await fetch(`/api/orders/${pedidoId}/ubicacion`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ lat, lon, distancia_metros: Math.floor(Math.random() * 1000) })
+                        });
+                    } catch(e) { /* silent fail for telemetry */ }
+                }, (err) => {
+                    // console.warn("Telemetría deshabilitada o denegada");
+                }, { enableHighAccuracy: true });
+            }, 15000);
+        }
+
+        // Iniciar telemetría si se pasó el UUID largo
+        if(pedidoId && pedidoId.length > 10) {
+            setTimeout(startTelemetry, 3000);
         }
     </script>
 </body>

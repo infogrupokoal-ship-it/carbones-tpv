@@ -48,7 +48,7 @@
         /* Toast Notifications Premium */
         #toast-container {
             position: fixed;
-            bottom: 24px;
+            bottom: 90px;
             right: 24px;
             z-index: 100;
             display: flex;
@@ -904,10 +904,12 @@
             }
 
             const itemsCont = document.getElementById('cart-items');
-            itemsCont.innerHTML = progressHtml + cart.map((item, i) => `
+            itemsCont.innerHTML = progressHtml + cart.map((item, i) => {
+                const imgUrl = item.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800';
+                return `
                 <div class="flex items-center justify-between group bg-white p-2 rounded-xl mb-2 border border-slate-200 shadow-sm">
                     <div class="flex items-center gap-3">
-                        <img src="${item.imagen_url}" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
+                        <img src="${imgUrl}" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
                         <div>
                             <p class="text-[11px] font-black text-slate-800 uppercase line-clamp-1">${item.nombre}</p>
                             <p class="text-[10px] font-bold text-amber-500">${item.precio.toFixed(2)}€</p>
@@ -915,7 +917,7 @@
                     </div>
                     <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-slate-400 hover:text-red-500 text-xs px-2 py-1 rounded-md bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-colors shadow-sm">✕</button>
                 </div>
-            `).join('');
+            `}).join('');
 
             if(cart.length === 0) {
                 itemsCont.innerHTML = `
@@ -1155,7 +1157,7 @@
 
         async function requestOTP() {
             const phone = document.getElementById('login-phone').value;
-            if(phone.length < 9) return alert("Número inválido");
+            if(phone.length < 9) return typeof showToast === 'function' ? showToast("Atención", "Número inválido", "error") : alert("Número inválido");
             
             document.getElementById('btn-request-otp').innerText = 'Enviando...';
             try {
@@ -1167,9 +1169,13 @@
                     document.getElementById('step-phone').classList.add('hidden');
                     document.getElementById('step-otp').classList.remove('hidden');
                 } else {
-                    alert("Error al enviar código");
+                    if(typeof showToast === 'function') showToast("Error", "Error al enviar código", "error");
+                    else alert("Error al enviar código");
                 }
-            } catch(e) { alert("Error de conexión"); }
+            } catch(e) { 
+                if(typeof showToast === 'function') showToast("Error", "Error de conexión", "error");
+                else alert("Error de conexión");
+            }
             document.getElementById('btn-request-otp').innerText = 'Enviar Código WhatsApp';
         }
 
@@ -1190,10 +1196,15 @@
                     sessionClient = data.cliente;
                     updateAuthUI();
                     closeLoginModal();
+                    if(typeof showToast === 'function') showToast("¡Bienvenido!", "Sesión iniciada correctamente.", "success");
                 } else {
-                    alert("Código incorrecto o caducado");
+                    if(typeof showToast === 'function') showToast("Error", "Código incorrecto o caducado", "error");
+                    else alert("Código incorrecto o caducado");
                 }
-            } catch(e) { alert("Error de conexión"); }
+            } catch(e) { 
+                if(typeof showToast === 'function') showToast("Error", "Error de conexión", "error");
+                else alert("Error de conexión");
+            }
             document.getElementById('btn-verify-otp').innerText = 'Verificar y Entrar';
         }
 
