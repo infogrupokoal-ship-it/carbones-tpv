@@ -16,6 +16,15 @@ class Tienda(Base):
     usuarios = relationship("Usuario", back_populates="tienda")
     productos = relationship("Producto", back_populates="tienda")
     pedidos = relationship("Pedido", back_populates="tienda")
+    horarios = relationship("Horario", back_populates="tienda")
+    
+    # Configuración Industrial
+    logo_url = Column(String(255))
+    color_primario = Column(String(20), default="#f59e0b")
+    mensaje_ticket = Column(Text)
+    lat = Column(Float)
+    lon = Column(Float)
+    radio_entrega_km = Column(Float, default=5.0)
 
 # --- CONTROL DE ACCESO & PERSONAL ---
 class Usuario(Base):
@@ -140,6 +149,11 @@ class Pedido(Base):
     cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     
+    # Integración Stripe & Pagos Online
+    stripe_session_id = Column(String(255), nullable=True)
+    stripe_payment_status = Column(String(50), nullable=True) # pending, paid, failed
+    external_payment_id = Column(String(255), nullable=True)
+    
     items = relationship("ItemPedido", back_populates="pedido")
     tienda = relationship("Tienda", back_populates="pedidos")
 
@@ -152,6 +166,15 @@ class ItemPedido(Base):
     precio_unitario = Column(Float)
     
     pedido = relationship("Pedido", back_populates="items")
+    producto = relationship("Producto")
+
+    @property
+    def nombre(self):
+        return self.producto.nombre if self.producto else "Producto Desconocido"
+    
+    @property
+    def precio(self):
+        return self.precio_unitario
 
 # --- HARDWARE & OPERATIVA ---
 class HardwareCommand(Base):
@@ -234,3 +257,34 @@ class Merma(Base):
     motivo = Column(String(100)) # CADUCADO, ERROR_COCINA, ROTURA
     coste_estimado = Column(Float, default=0.0)
     usuario_id = Column(String(36), ForeignKey("usuarios.id"))
+
+# --- INFRAESTRUCTURA ENTERPRISE ---
+class Horario(Base):
+    __tablename__ = "horarios"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    dia_semana = Column(Integer) # 0-6 (Lunes-Domingo)
+    hora_apertura = Column(String(5)) # "09:00"
+    hora_cierre = Column(String(5)) # "22:00"
+    is_closed = Column(Boolean, default=False)
+    
+    tienda = relationship("Tienda", back_populates="horarios")
+
+class Notificacion(Base):
+    __tablename__ = "notificaciones"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tipo = Column(String(20)) # WHATSAPP, EMAIL, PUSH
+    destino = Column(String(100))
+    asunto = Column(String(255))
+    mensaje = Column(Text)
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, ENVIADO, ERROR
+    reintentos = Column(Integer, default=0)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_envio = Column(DateTime, nullable=True)
+
+class Traduccion(Base):
+    __tablename__ = "traducciones"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    clave = Column(String(100), index=True)
+    idioma = Column(String(5), default="es")
+    valor = Column(Text)

@@ -23,6 +23,8 @@ class DashboardData(BaseModel):
     kpis: DashboardKPIs
     charts: Dict[str, Any]
     reviews: List[Dict[str, Any]]
+    recent_orders: List[Dict[str, Any]]
+    stock_alerts: List[Dict[str, Any]]
     status: str = "operational"
 
 @router.get("/dashboard", response_model=DashboardData)
@@ -85,6 +87,27 @@ def get_unified_dashboard(db: Session = Depends(get_db)):
         "cliente": "Anónimo"
     } for r in recent_reviews]
 
+    # 6. Pedidos Recientes (Live Feed)
+    recent_orders = db.query(Pedido).order_by(Pedido.fecha.desc()).limit(15).all()
+    orders_list = [{
+        "id": o.id,
+        "numero_ticket": o.numero_ticket,
+        "total": o.total,
+        "metodo_pago": o.metodo_pago,
+        "metodo_envio": o.metodo_envio,
+        "estado": o.estado,
+        "fecha": o.fecha.strftime("%H:%M:%S"),
+        "items": [it.producto_id for it in o.items]
+    } for o in recent_orders]
+
+    # 7. Alertas de Stock (Bajo Mínimo)
+    stock_alerts = db.query(Producto).filter(Producto.stock_actual <= Producto.stock_minimo).limit(10).all()
+    alerts_list = [{
+        "nombre": p.nombre,
+        "stock_actual": p.stock_actual,
+        "stock_minimo": p.stock_minimo
+    } for p in stock_alerts]
+
     return DashboardData(
         kpis=DashboardKPIs(
             ventas_hoy=round(ventas_hoy, 2),
@@ -112,7 +135,9 @@ def get_unified_dashboard(db: Session = Depends(get_db)):
                 "data": [int(p[1]) for p in top_pizzas]
             }
         },
-        reviews=reviews_list
+        reviews=reviews_list,
+        recent_orders=orders_list,
+        stock_alerts=alerts_list
     )
 
 @router.get("/summary")

@@ -42,6 +42,39 @@ async def get_audit_logs(
     logs = db.query(AuditLog).order_by(desc(AuditLog.fecha)).offset(offset).limit(limit).all()
     return logs
 
+@router.get("/export/csv")
+async def export_audit_csv(
+    db: Session = Depends(get_db),
+    admin_user: Usuario = Depends(require_admin)
+):
+    """Genera un reporte CSV de la auditoría para cumplimiento legal."""
+    import csv
+    import io
+    from fastapi.responses import StreamingResponse
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "FECHA", "USUARIO", "ACCION", "ENTIDAD", "ENTIDAD_ID", "IP"])
+    
+    logs = db.query(AuditLog).order_by(desc(AuditLog.fecha)).all()
+    for log in logs:
+        writer.writerow([
+            log.id, 
+            log.fecha.isoformat(), 
+            log.usuario.username if log.usuario else "SISTEMA",
+            log.accion,
+            log.entidad,
+            log.entidad_id,
+            log.ip_origen
+        ])
+    
+    output.seek(0)
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode("utf-8")),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=audit_log_carbones.csv"}
+    )
+
 # --- Función Helper para Inserción ---
 def log_audit_action(
     db: Session, 

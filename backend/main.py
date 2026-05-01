@@ -21,12 +21,14 @@ from .config import settings
 from .database import Base, engine
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback
+    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
 from .utils.openapi import custom_openapi
 from .services.scheduler import scheduler_loop
+from .services.notification_service import NotificationService
+from .services.worker_manager import WorkerManager
 
 # --- Configuración de Control de Tráfico ---
 limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
@@ -98,6 +100,9 @@ async def startup_event():
         from scripts.seed_pizzas import seed_pizzas
         seed_pizzas()
         
+        # Iniciar Worker de Notificaciones
+        asyncio.create_task(NotificationService.worker_loop())
+        
         from scripts.fix_broken_images import fix_broken_images
         fix_broken_images()
         
@@ -116,6 +121,7 @@ async def startup_event():
     # ---------------------------------
     
     asyncio.create_task(scheduler_loop())
+    asyncio.create_task(WorkerManager.run_maintenance_cycle())
 
 @app.get("/health", tags=["Infraestructura"])
 @app.get("/healthz", tags=["Infraestructura"], include_in_schema=False)
@@ -181,6 +187,8 @@ app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
 app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
 app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
+app.include_router(payments.router, prefix="/api", tags=["Pagos"])
+app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artificial"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():

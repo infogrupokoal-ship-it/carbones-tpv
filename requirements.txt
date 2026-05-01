@@ -21,6 +21,7 @@ python-multipart==0.0.9
 google-generativeai==0.8.5
 slowapi==0.1.9
 reportlab==4.1.0
+stripe==8.5.0
 
 # --- Utilities & Telemetry ---
 requests==2.31.0

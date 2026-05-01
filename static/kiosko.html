@@ -37,10 +37,54 @@
         }
 
         .amber-glass { 
-            background: rgba(255, 251, 235, 0.8); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(245, 158, 11, 0.2); 
-            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.1); 
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .btn-premium:hover::after {
+            left: 120%;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .category-pill-sticky.active {
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4);
         }
 
         /* Product Cards Upgrade */
@@ -106,6 +150,43 @@
             transform: scale(1.05);
         }
 
+        /* Industrial UI: Skeleton Screens */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Industrial UI: Premium Spinner */
+        .premium-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(245, 158, 11, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Cart Badge Micro-animation */
+        #cart-count-badge.bump {
+            animation: bump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bump {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
         .cart-panel { 
             background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(25px); 
@@ -140,12 +221,54 @@
             margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            transform: translateX(120%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
         .toast.show { transform: translateX(0); }
+
+        /* Loyalty Badge */
+        .loyalty-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: #1e293b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Upsell Enhancements */
+        .upsell-card { 
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .upsell-card:hover { 
+            transform: translateY(-8px); 
+            border-color: var(--primary); 
+            background: white;
+            box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.15);
+        }
+
+        /* AI Chat Styles */
+        #ai-chat-bubble {
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
+            animation: pulse-gold 2s infinite;
+        }
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .chat-msg {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            animation: slideUp 0.3s ease;
+        }
+        .msg-ai { background: #fef3c7; color: #92400e; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .msg-user { background: #1e293b; color: white; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
@@ -180,6 +303,9 @@
                 <span class="text-xs font-black uppercase tracking-widest text-amber-600">Nuestro Origen</span>
             </a>
             <button id="auth-btn" onclick="openLoginModal()" class="amber-glass px-4 py-3 rounded-2xl flex items-center gap-2 hover:bg-amber-50 transition-all duration-300">
+                <div id="loyalty-info" class="hidden">
+                    <span class="loyalty-badge"><span id="user-points">0</span> PTS</span>
+                </div>
                 <span class="text-xs font-black uppercase tracking-widest text-amber-600" id="auth-btn-text">Acceso Cliente</span>
             </button>
             <button id="cart-btn-main" onclick="toggleCart()" class="hidden md:flex amber-glass px-6 py-3 rounded-2xl items-center gap-3 hover:bg-amber-50 transition-all duration-300">
@@ -312,6 +438,52 @@
     </div>
 
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <!-- Contenido de pago... -->
+    </div>
+
+    <!-- Upsell Modal Industrial -->
+    <div id="upsell-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-2xl z-[150] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 p-6">
+        <div class="max-w-2xl w-full bg-white rounded-[4rem] p-12 text-center shadow-2xl relative">
+            <button onclick="closeUpsell()" class="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-xl">✕</button>
+            <div class="mb-10">
+                <span class="text-6xl animate-bounce inline-block">🍟</span>
+                <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter mt-6">¿Lo completamos?</h2>
+                <p class="text-slate-400 font-bold text-sm uppercase tracking-widest mt-2">Nuestros clientes suelen acompañar su plato con...</p>
+            </div>
+            
+            <div id="upsell-items" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <!-- Dinámico -->
+            </div>
+
+            <button onclick="closeUpsell()" class="w-full py-6 rounded-[2rem] bg-slate-100 text-slate-400 font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-xs">No, gracias. Continuar al carrito</button>
+        </div>
+    </div>
+
+    <!-- Success Overlay Industrial -->
+    <div id="success-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-700 p-8 text-center">
+        <div class="relative mb-12">
+            <div class="absolute inset-0 bg-amber-500/10 rounded-full blur-3xl scale-150 animate-pulse"></div>
+            <div class="w-32 h-32 bg-amber-500 rounded-full flex items-center justify-center text-white text-5xl shadow-2xl relative">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        <h2 class="text-5xl font-black text-slate-900 uppercase tracking-tighter mb-4">¡Pedido Recibido!</h2>
+        <p class="text-slate-400 text-lg max-w-md mb-12">Estamos preparando tu brasa. Recibirás un WhatsApp con los detalles del seguimiento.</p>
+        
+        <div class="bg-slate-50 border border-slate-100 rounded-3xl p-8 w-full max-w-sm mb-12">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nº Pedido</span>
+                <span id="success-order-id" class="text-xl font-black text-slate-900">#---</span>
+            </div>
+            <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-amber-500 w-1/3 animate-[loading_5s_linear_forwards]"></div>
+            </div>
+        </div>
+
+        <button onclick="window.location.reload()" class="bg-slate-900 text-white px-12 py-6 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-500 transition-all shadow-xl">
+            Volver al Menú
+        </button>
+    </div>
         <div class="bg-white p-10 rounded-[3rem] max-w-md w-full shadow-2xl relative">
             <button onclick="closePaymentModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">✕</button>
             <h2 class="text-3xl font-black text-center mb-10 uppercase tracking-tighter">Checkout <span class="text-amber-500">Premium</span></h2>
@@ -368,7 +540,33 @@
         </div>
     </div>
 
-    <!-- Printer Container (Hidden) -->
+    <!-- AI Chat Assistant -->
+    <div id="ai-chat-container" class="fixed bottom-24 right-6 z-[100] w-80 h-96 flex flex-col pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
+        <div class="bg-white rounded-[2rem] shadow-2xl flex flex-col h-full overflow-hidden border border-slate-200 pointer-events-auto">
+            <div class="bg-amber-500 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🔥</span>
+                    <div>
+                        <p class="text-xs font-black text-white uppercase leading-none">Carbonito IA</p>
+                        <p class="text-[8px] font-bold text-amber-100 uppercase tracking-widest mt-1">Gourmet Assistant</p>
+                    </div>
+                </div>
+                <button onclick="toggleAIChat()" class="text-white/60 hover:text-white">✕</button>
+            </div>
+            <div id="ai-chat-history" class="flex-1 p-4 overflow-y-auto flex flex-col custom-scrollbar bg-slate-50/50">
+                <div class="chat-msg msg-ai font-bold">¡Hola! Soy Carbonito 🔥 ¿En qué puedo ayudarte hoy? ¿Buscas alguna recomendación?</div>
+            </div>
+            <div class="p-3 border-t border-slate-100 bg-white flex gap-2">
+                <input type="text" id="ai-chat-input" onkeypress="if(event.key==='Enter') sendAIChat()" placeholder="Escribe aquí..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500">
+                <button onclick="sendAIChat()" class="bg-amber-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-all">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Bubble -->
+    <button id="ai-chat-bubble" onclick="toggleAIChat()" class="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-[100] bg-amber-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-xl hover:scale-110 transition-all active:scale-95">
+        🔥
+    </button>
     <div id="ticket-impresion" class="print-only"></div>
     <div id="toast-container"></div>
 
@@ -385,6 +583,9 @@
         async function init() {
             console.log("🚀 Iniciando Kiosko...");
             
+            // Mostrar Skeletons para carga industrial suave
+            renderSkeletons();
+
             // Timeout de seguridad para quitar el loader sí o sí
             const loaderTimeout = setTimeout(() => {
                 const loader = document.getElementById('initial-loader');
@@ -472,6 +673,29 @@
         function handleGlobalSearch() {
             const query = document.getElementById('global-search').value.toLowerCase();
             renderProducts(query);
+        }
+        
+        function renderSkeletons() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = `
+                <div class="mt-10">
+                    <div class="h-8 w-48 bg-slate-100 skeleton rounded mb-8"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        ${[1,2,3,4,5,6].map(() => `
+                            <div class="product-card rounded-[2rem] p-5 flex flex-col justify-between">
+                                <div class="h-56 rounded-2xl bg-slate-100 skeleton mb-6"></div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="h-2 w-16 bg-slate-100 skeleton rounded"></div>
+                                        <div class="h-6 w-28 bg-slate-100 skeleton rounded"></div>
+                                    </div>
+                                    <div class="h-12 w-28 bg-slate-100 skeleton rounded-2xl"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
         }
 
         function renderProducts(search = "") {
@@ -574,7 +798,65 @@
                 localStorage.setItem('tpv_b2c_cart', JSON.stringify(cart));
                 updateCartUI();
                 showToast("Añadido", p.nombre, "info");
+
+                // Micro-animación industrial de feedback
+                const fab = document.getElementById('cart-count-fab');
+                if(fab) {
+                    fab.classList.remove('bump');
+                    void fab.offsetWidth; // Force reflow
+                    fab.classList.add('bump');
+                }
+
+                // Trigger Upsell if it's a main product (Pollos, Pizzas, etc)
+                const cname = p.categoria_nombre ? p.categoria_nombre.toLowerCase() : '';
+                if(cname.includes('pollo') || cname.includes('pizza') || cname.includes('hamburguesa')) {
+                    showUpsellModal(p);
+                }
             }
+        }
+
+        function showUpsellModal(mainProd) {
+            const modal = document.getElementById('upsell-modal');
+            const container = document.getElementById('upsell-items');
+            
+            // Buscar complementos o bebidas
+            const suggestions = products.filter(p => {
+                const cn = p.categoria_nombre ? p.categoria_nombre.toLowerCase() : '';
+                return (cn.includes('bebida') || cn.includes('complemento') || cn.includes('postre')) && p.id !== mainProd.id;
+            }).sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            if(suggestions.length === 0) return;
+
+            container.innerHTML = suggestions.map(s => `
+                <div class="upsell-card bg-slate-50 p-6 rounded-[2.5rem] flex flex-col items-center text-center gap-4 cursor-pointer" onclick="addUpsell('${s.id}')">
+                    <div class="w-24 h-24 rounded-2xl overflow-hidden shadow-lg">
+                        <img src="${s.imagen_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200'}" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-900 uppercase leading-tight">${s.nombre}</p>
+                        <p class="text-xs font-black text-amber-500 mt-1">+${s.precio.toFixed(2)}€</p>
+                    </div>
+                    <button class="w-full py-3 bg-white border border-slate-200 rounded-xl text-[8px] font-black uppercase tracking-widest text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">Añadir</button>
+                </div>
+            `).join('');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            // No bloqueamos el scroll aquí para que el usuario pueda seguir viendo si quiere, pero el modal es fullscreen
+        }
+
+        function addUpsell(id) {
+            const p = products.find(prod => prod.id === id);
+            if(p) {
+                cart.push({...p, cartId: Date.now() + Math.random()});
+                updateCartUI();
+                localStorage.setItem('tpv_b2c_cart', JSON.stringify(cart));
+                showToast("¡Genial!", `${p.nombre} añadido`, "success");
+            }
+            closeUpsell();
+        }
+
+        function closeUpsell() {
+            document.getElementById('upsell-modal').classList.add('opacity-0', 'pointer-events-none');
         }
 
         function removeFromCart(cartId) {
@@ -655,8 +937,16 @@
         }
 
         async function processPayment() {
+            if(cart.length === 0) return;
+            
             const btn = document.getElementById('btn-process-payment');
-            btn.innerText = "Procesando...";
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `
+                <div class="flex items-center justify-center gap-3">
+                    <div class="premium-spinner border-white/20 border-l-white w-5 h-5"></div>
+                    <span>Verificando Pago...</span>
+                </div>
+            `;
             btn.disabled = true;
 
             const total = cart.reduce((acc, curr) => acc + curr.precio, 0) + (metodoEnvio === 'DOMICILIO' ? 2.5 : 0);
@@ -679,17 +969,39 @@
 
                 if(res.ok) {
                     const data = await res.json();
-                    document.getElementById('success-turno').innerText = data.numero_ticket || '--';
-                    document.getElementById('success-screen').classList.remove('opacity-0', 'pointer-events-none');
+                    
+                    // Si el cliente está logueado y es domicilio, ofrecemos enviar link por WhatsApp
+                    if (sessionClient && metodoEnvio === 'DOMICILIO') {
+                        const waRes = await fetch(`/api/payments/whatsapp-link/${data.pedido_id}?telefono=${sessionClient.telefono}`, { method: 'POST' });
+                        if(waRes.ok) {
+                            showToast("WhatsApp Enviado", "Revisa tu teléfono para el pago", "success");
+                        }
+                    }
+
+                    // Iniciar sesión de Stripe para pago inmediato
+                    const stripeRes = await fetch(`/api/payments/stripe/create-session/${data.pedido_id}`, { method: 'POST' });
+                    if(stripeRes.ok) {
+                        const stripeData = await stripeRes.json();
+                        window.location.href = stripeData.url;
+                        return;
+                    }
+
+                    // Pantalla de éxito fallback Premium
+                    document.getElementById('success-order-id').innerText = `#${data.pedido_id || '---'}`;
+                    document.getElementById('success-overlay').classList.remove('opacity-0', 'pointer-events-none');
                     closePaymentModal();
                     cart = [];
                     localStorage.removeItem('tpv_b2c_cart');
                     updateCartUI();
+                } else {
+                    const error = await res.json();
+                    showToast("Error", error.detail || "Error en el servidor", "error");
                 }
             } catch (e) {
-                showToast("Error", "No se pudo procesar el pedido", "error");
+                console.error(e);
+                showToast("Error", "Fallo de conexión con el servidor", "error");
             } finally {
-                btn.innerText = "Pagar y Confirmar 🔥";
+                btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         }
@@ -729,7 +1041,17 @@
 
         function updateAuthUI() {
             const btn = document.getElementById('auth-btn-text');
-            if(sessionClient) btn.innerText = sessionClient.nombre.split(' ')[0].toUpperCase();
+            const loyalty = document.getElementById('loyalty-info');
+            const points = document.getElementById('user-points');
+            
+            if(sessionClient) {
+                btn.innerText = sessionClient.nombre.split(' ')[0].toUpperCase();
+                loyalty.classList.remove('hidden');
+                points.innerText = sessionClient.puntos_fidelidad || 0;
+            } else {
+                btn.innerText = "Acceso Cliente";
+                loyalty.classList.add('hidden');
+            }
         }
 
         function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('opacity-0', 'pointer-events-none'); }
@@ -746,6 +1068,42 @@
                 showToast("Éxito", "Gracias por tu valoración", "success");
                 closeFeedbackModal();
             }
+        }
+
+        function toggleAIChat() {
+            const container = document.getElementById('ai-chat-container');
+            const isOpen = !container.classList.contains('pointer-events-none');
+            if(isOpen) {
+                container.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            } else {
+                container.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                document.getElementById('ai-chat-input').focus();
+            }
+        }
+
+        async function sendAIChat() {
+            const input = document.getElementById('ai-chat-input');
+            const history = document.getElementById('ai-chat-history');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            // Add user msg
+            history.innerHTML += `<div class="chat-msg msg-user font-bold">${msg}</div>`;
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            try {
+                const res = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ message: msg, context: `Cart: ${JSON.stringify(cart.map(it=>it.nombre))}` })
+                });
+                const data = await res.json();
+                history.innerHTML += `<div class="chat-msg msg-ai font-bold">${data.reply}</div>`;
+            } catch(e) {
+                history.innerHTML += `<div class="chat-msg msg-ai font-bold">Upps, se me ha apagado el carbón. ¡Vuelve a intentarlo! 💨</div>`;
+            }
+            history.scrollTop = history.scrollHeight;
         }
 
         if ('serviceWorker' in navigator) {

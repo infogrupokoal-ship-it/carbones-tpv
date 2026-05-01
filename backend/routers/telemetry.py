@@ -1,93 +1,50 @@
-import os
-import time
-
+from fastapi import APIRouter, Depends, HTTPException
 import psutil
-from fastapi import APIRouter, Depends
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+import os
+import platform
+import time
+from datetime import datetime
+from backend.auth import get_current_user
 
-from ..config import settings
-from ..database import get_db
+router = APIRouter(prefix="/api/telemetry", tags=["telemetry"])
 
-router = APIRouter()
+# Iniciar contador de tiempo
+START_TIME = time.time()
 
-
-@router.get("/health")
-def health_check(db: Session = Depends(get_db)):
+@router.get("/status")
+async def get_system_status(current_user: dict = Depends(get_current_user)):
     """
-    Diagnóstico completo del sistema: Base de datos, Hardware y Conectividad.
-    Ideal para dashboards de mantenimiento o sistemas de monitoreo externo.
+    Retorna telemetría avanzada del servidor para el dashboard administrativo.
+    Requiere permisos de administrador.
     """
-    start_time = time.time()
+    if current_user.get("rol") != "ADMIN":
+        raise HTTPException(status_code=403, detail="Acceso denegado")
 
-    # 1. Verificar Base de Datos
-    db_status = "DOWN"
-    try:
-        db.execute(text("SELECT 1"))
-        db_status = "UP"
-    except Exception as e:
-        db_status = f"ERROR: {str(e)}"
-
-    # 2. Métricas del Host (Hardware)
-    cpu_usage = psutil.cpu_percent()
-    ram_usage = psutil.virtual_memory().percent
-    disk_usage = psutil.disk_usage("/").percent
-
-    # 3. Estado de Servicios Externos (Simulado/Rápido)
-    stripe_configured = bool(settings.STRIPE_SECRET_KEY)
-    waha_status = "NOT_CONFIGURED" if not settings.WAHA_URL else "CONFIGURED"
-
-    latency_ms = (time.time() - start_time) * 1000
-
+    uptime = str(datetime.fromtimestamp(START_TIME))
+    process = psutil.Process(os.getpid())
+    
     return {
-        "status": "OPERATIONAL" if db_status == "UP" else "DEGRADED",
-        "timestamp": time.time(),
-        "latency_ms": round(latency_ms, 2),
-        "components": {
-            "database": db_status,
-            "cpu_percent": cpu_usage,
-            "ram_percent": ram_usage,
-            "disk_percent": disk_usage,
-            "stripe": "READY" if stripe_configured else "MISSING_KEYS",
-            "waha": waha_status,
+        "os": platform.system(),
+        "node": platform.node(),
+        "release": platform.release(),
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "memory": {
+            "total": psutil.virtual_memory().total,
+            "available": psutil.virtual_memory().available,
+            "percent": psutil.virtual_memory().percent,
+            "used": psutil.virtual_memory().used
         },
-        "version": settings.APP_VERSION,
+        "disk": psutil.disk_usage('/')._asdict(),
+        "process": {
+            "memory_info": process.memory_info()._asdict(),
+            "cpu_percent": process.cpu_percent(),
+            "threads": process.num_threads(),
+            "uptime_seconds": int(time.time() - START_TIME)
+        },
+        "timestamp": datetime.now().isoformat()
     }
 
-
-@router.get("/logs")
-def get_recent_logs(lines: int = 100):
-    """Permite visualizar los últimos eventos del servidor para depuración rápida."""
-    log_path = "logs/tpv_system.log"
-    if not os.path.exists(log_path):
-        return {"error": f"Archivo de logs no encontrado en {log_path}", "logs": []}
-
-    try:
-        with open(log_path, "r", encoding="utf-8") as f:
-            content = f.readlines()
-            return {"logs": content[-lines:]}
-    except Exception as e:
-        return {"error": str(e), "logs": []}
-
-@router.get("/audit")
-def get_audit_logs(limit: int = 50, db: Session = Depends(get_db)):
-    """
-    Obtiene el historial de auditoría de seguridad y operaciones críticas
-    (Cierres Z, Ajustes de Inventario, Inicio de Sesión, etc.).
-    """
-    from ..models import AuditLog
-    
-    logs = db.query(AuditLog).order_by(AuditLog.fecha.desc()).limit(limit).all()
-    out = []
-    for log in logs:
-        out.append({
-            "id": log.id,
-            "fecha": log.fecha.isoformat(),
-            "usuario": log.usuario.username if log.usuario else "SISTEMA",
-            "accion": log.accion,
-            "entidad": log.entidad,
-            "entidad_id": log.entidad_id,
-            "ip_origen": log.ip_origen
-        })
-    return out
-
+@router.get("/health")
+async def health_check():
+    """Endpoint público para monitorización (Render/UptimeRobot)"""
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}

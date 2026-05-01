@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Ingrediente, MovimientoStock, Producto
 from ..utils.logger import logger
+from .admin_audit import log_audit_action
 
 router = APIRouter(prefix="/inventory", tags=["Logística"])
 router_legacy = APIRouter(prefix="/inventario", tags=["Legacy Inventario"])
@@ -268,6 +269,17 @@ def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db)):
         ))
 
         db.commit()
+        
+        # Auditoría Industrial
+        log_audit_action(
+            db=db,
+            usuario_id=None, # Debería venir de auth en prod
+            accion=f"AJUSTE_STOCK_{req.tipo}",
+            entidad="PRODUCTO" if req.producto_id else "INGREDIENTE",
+            entidad_id=req.producto_id or req.ingrediente_id,
+            payload_nuevo=f"Cantidad: {req.cantidad} | Motivo: {req.descripcion}"
+        )
+
         logger.warning(f"Ajuste de Stock [{req.tipo}]: {target_name} | Cambio: {req.cantidad}")
         return {"status": "success", "target": target_name}
     except HTTPException:
@@ -335,6 +347,17 @@ def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
         ))
 
         db.commit()
+
+        # Auditoría de Mermas
+        log_audit_action(
+            db=db,
+            usuario_id=req.usuario_id,
+            accion="REGISTRO_MERMA",
+            entidad=req.entidad_tipo,
+            entidad_id=req.entidad_id,
+            payload_nuevo=f"Q:{req.cantidad} | M:{req.motivo} | C:{coste_total_merma}€"
+        )
+
         logger.warning(f"🚨 Merma Industrial Registrada: {req.cantidad}x {nombre_entidad} | Motivo: {req.motivo} | Coste: {coste_total_merma}€")
         
         return {

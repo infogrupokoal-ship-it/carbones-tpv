@@ -12,6 +12,7 @@ from ..database import get_db
 from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
+from .admin_audit import log_audit_action
 
 router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
@@ -368,6 +369,17 @@ def crear_pedido(
             _encolar_tickets(db, nuevo_pedido)
 
         db.commit()
+        
+        # Auditoría de Creación
+        log_audit_action(
+            db=db,
+            usuario_id=pedido.cliente_id if hasattr(pedido, 'cliente_id') else None,
+            accion="CREAR_PEDIDO",
+            entidad="PEDIDO",
+            entidad_id=nuevo_pedido.id,
+            payload_nuevo=f"Ticket: {nuevo_pedido.numero_ticket} | Total: {nuevo_pedido.total}€"
+        )
+
         logger.info(f"Pedido Creado: {nuevo_pedido.numero_ticket} | Total: {nuevo_pedido.total}€")
         
         return {
@@ -399,6 +411,17 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
         _encolar_tickets(db, pedido)
 
     db.commit()
+
+    # Auditoría de Cambio de Estado
+    log_audit_action(
+        db=db,
+        usuario_id=None,
+        accion="ACTUALIZAR_ESTADO_PEDIDO",
+        entidad="PEDIDO",
+        entidad_id=pedido.id,
+        payload_previo=estado_anterior,
+        payload_nuevo=estado
+    )
     return {"status": "success", "nuevo_estado": estado}
 
 class UbicacionPayload(BaseModel):
@@ -444,6 +467,16 @@ def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends
     _encolar_tickets(db, pedido)
     db.commit()
     
+    # Auditoría de Cobro
+    log_audit_action(
+        db=db,
+        usuario_id=None,
+        accion="COBRAR_PEDIDO",
+        entidad="PEDIDO",
+        entidad_id=pedido_id,
+        payload_nuevo=f"Metodo: {metodo} | Total: {pedido.total}€"
+    )
+
     logger.info(f"Cobro Procesado: Ticket {pedido.numero_ticket} mediante {metodo}")
     return {"status": "success", "message": "Operación de cobro completada"}
 

@@ -74,9 +74,11 @@
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Carbones y Pollos • Control Center v3.0</p>
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="triggerCierreZ()" class="bg-orange-600 hover:bg-orange-500 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl shadow-lg transition-all">Ejecutar Cierre Z</button>
-                    <button onclick="updateDashboard()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl shadow-lg transition-all">Sincronizar Datos</button>
-                    <button onclick="triggerFichaje()" class="bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest px-6 py-3 rounded-xl border border-white/10 transition-all">Reg. Fichaje</button>
+                    <button onclick="exportFiscalCSV()" class="bg-slate-700 hover:bg-slate-600 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Exportar Fiscal (CSV)</button>
+                    <a href="/static/repartidores.html" target="_blank" class="bg-amber-600 hover:bg-amber-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Reparto 🛵</a>
+                    <button onclick="triggerCierreZ()" class="bg-orange-600 hover:bg-orange-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Cierre Z</button>
+                    <button onclick="updateDashboard()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Sync</button>
+                    <button onclick="triggerFichaje()" class="bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border border-white/10 transition-all">Fichar</button>
                 </div>
             </header>
 
@@ -131,6 +133,34 @@
                     <h4 class="text-sm font-black text-white uppercase tracking-widest mb-8">Top Productos (Hoy)</h4>
                     <div class="space-y-6" id="top-products-list">
                         <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Feed & Stock -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+                <!-- Live Order Feed -->
+                <div class="lg:col-span-3 glass-panel p-8 rounded-3xl border-t-2 border-blue-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                            </span>
+                            Live Order Feed
+                        </h4>
+                        <span class="text-[9px] font-black text-slate-500 uppercase">Tiempo Real (Polling 30s)</span>
+                    </div>
+                    <div id="live-order-feed" class="space-y-3 h-[400px] overflow-y-auto custom-scrollbar pr-4">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase text-center py-20 italic">Sincronizando flujo de pedidos...</p>
+                    </div>
+                </div>
+
+                <!-- Stock Alerts -->
+                <div class="glass-panel p-8 rounded-3xl border-t-2 border-orange-500/30">
+                    <h4 class="text-sm font-black text-white uppercase tracking-widest mb-6">Stock Alerts</h4>
+                    <div id="stock-alerts-list" class="space-y-4 h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase text-center py-10 italic">Escaneando niveles...</p>
                     </div>
                 </div>
             </div>
@@ -289,25 +319,11 @@
                 // Actualizar Gráfica
                 updateSalesChart(data.charts.horas);
 
-                // 3. Fetch Staff Status
-                const staffRes = await fetch('/api/rrhh/estado-plantilla');
-                const staff = await staffRes.json();
-                const staffList = document.getElementById('staff-list');
-                staffList.innerHTML = staff.map(u => `
-                    <div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <div class="h-8 w-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center text-[10px] font-black">${u.username[0].toUpperCase()}</div>
-                            <div>
-                                <p class="text-xs font-bold text-white">${u.full_name}</p>
-                                <p class="text-[9px] text-slate-500 uppercase">${u.rol}</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="status-dot ${u.ultimo_estado !== 'OFFLINE' ? 'status-online' : 'status-offline'}"></span>
-                            <span class="text-[8px] font-black text-slate-600 mt-1">${u.ultima_hora || '--:--'}</span>
-                        </div>
-                    </div>
                 `).join('');
+
+                // 4. Update Live Feed & Stock Alerts
+                updateLiveFeed(data.recent_orders);
+                updateStockAlerts(data.stock_alerts);
 
             } catch (e) { console.error("Error en Dashboard:", e); }
         };
@@ -355,6 +371,49 @@
                     }
                 }
             });
+        };
+
+        const updateLiveFeed = (orders) => {
+            const feed = document.getElementById('live-order-feed');
+            if(!orders || orders.length === 0) {
+                feed.innerHTML = '<p class="text-[10px] text-slate-600 text-center py-10 uppercase font-black tracking-widest">Sin actividad reciente</p>';
+                return;
+            }
+            feed.innerHTML = orders.map(o => `
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all group">
+                    <div class="flex items-center gap-4">
+                        <div class="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center font-black text-xs text-blue-400 group-hover:scale-110 transition-transform">#${o.numero_ticket}</div>
+                        <div>
+                            <p class="text-xs font-black text-white">${o.items.length} Items • ${o.metodo_pago}</p>
+                            <p class="text-[9px] text-slate-500 font-bold uppercase">${o.metodo_envio} • ${o.fecha}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-black text-white">${o.total.toFixed(2)}€</p>
+                        <span class="text-[8px] px-2 py-0.5 rounded-full font-black ${o.estado === 'COMPLETADO' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'} uppercase">${o.estado}</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        const updateStockAlerts = (alerts) => {
+            const list = document.getElementById('stock-alerts-list');
+            if(!alerts || alerts.length === 0) {
+                list.innerHTML = '<p class="text-[10px] text-emerald-500/50 text-center py-10 uppercase font-black tracking-widest">Inventario Óptimo ✅</p>';
+                return;
+            }
+            list.innerHTML = alerts.map(a => `
+                <div class="bg-orange-500/5 p-3 rounded-xl border border-orange-500/10 flex flex-col gap-1">
+                    <div class="flex justify-between items-start">
+                        <p class="text-[10px] font-black text-white uppercase">${a.nombre}</p>
+                        <span class="text-[9px] text-orange-500 font-black">${a.stock_actual} ud</span>
+                    </div>
+                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-500" style="width: ${(a.stock_actual / a.stock_minimo) * 100}%"></div>
+                    </div>
+                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-tighter">Min: ${a.stock_minimo} • Reorden sugerido</p>
+                </div>
+            `).join('');
         };
 
         const triggerFichaje = () => {
@@ -446,6 +505,33 @@
                 showToast('Error de Red', 'Fallo de conexión al ejecutar Cierre Z', 'error');
             }
         };
+
+        async function exportFiscalCSV() {
+            try {
+                window.location.href = '/api/admin/audit/export/csv';
+                showToast("Audit", "Iniciando descarga fiscal...", "info");
+            } catch(e) {
+                showToast("Error", "No se pudo exportar", "error");
+            }
+        }
+
+        function showToast(title, msg, type) {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-blue-500/10 text-blue-400">
+                    ${type === 'error' ? '❌' : 'ℹ️'}
+                </div>
+                <div>
+                    <p class="text-xs font-black uppercase">${title}</p>
+                    <p class="text-[10px] text-slate-400 font-bold">${msg}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
 
         window.onload = () => {
             updateDashboard();
