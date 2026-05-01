@@ -98,6 +98,36 @@
         <span id="cart-count-fab" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-[#0c0a09]">0</span>
     </button>
 
+    <!-- Upsell Modal (Fase 2) -->
+    <div id="upsell-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+        <div class="bg-[#1c1917] rounded-3xl w-full max-w-sm overflow-hidden border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-scale-up text-center relative">
+            <button onclick="closeUpsell()" class="absolute top-4 right-4 text-stone-500 hover:text-white bg-black/50 p-2 rounded-full transition-colors z-10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="h-40 bg-stone-800 relative overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1594212752119-90656094b9ee?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover opacity-70" alt="Combo">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#1c1917] to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                    <span class="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg inline-block mb-2">🔥 Recomendado</span>
+                </div>
+            </div>
+            <div class="p-6 pt-2">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">¿Lo hacemos Menú?</h3>
+                <p class="text-sm text-stone-400 mb-6 font-medium">Añade ración de Patatas Fritas y un Refresco a tu elección por solo <span class="text-amber-500 font-black">3.50€</span> extra.</p>
+                
+                <div class="space-y-3">
+                    <button onclick="acceptUpsell()" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 active:scale-95">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        Sí, quiero el menú
+                    </button>
+                    <button onclick="closeUpsell()" class="w-full py-3 bg-white/5 hover:bg-white/10 text-stone-300 rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-white/10 active:scale-95">
+                        No, solo el plato
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
         
         <!-- Search and Categories (Premium Scroll UI) -->
@@ -507,40 +537,109 @@
             }
         }
 
+        let currentUpsellProductId = null;
+
         function addToCart(id) {
             const prod = products.find(p => p.id === id);
+            if(!prod) return;
             cart.push(prod);
             updateCartUI();
             
-            showToast(prod.nombre, prod.precio);
-
-            // UX: Animar el botón del carrito en lugar de abrirlo
-            const cartBtn = document.getElementById('cart-btn-main');
-            if (cartBtn) {
-                cartBtn.classList.add('scale-110', 'bg-amber-500/20');
-                setTimeout(() => cartBtn.classList.remove('scale-110', 'bg-amber-500/20'), 300);
+            // Lógica de Upselling Comercial (Opción A)
+            const isMainDish = ['POLLOS', 'BOCADILLOS', 'PIZZAS', 'BOCADILLOS CLÁSICOS', 'BOCADILLOS Y CHIVITOS'].some(c => prod.categoria_nombre && prod.categoria_nombre.toUpperCase().includes(c));
+            const hasSide = cart.some(item => item.nombre.toLowerCase().includes('patatas') || (item.categoria_nombre && item.categoria_nombre.toLowerCase().includes('bebida')));
+            
+            if (isMainDish && !hasSide && !sessionStorage.getItem('upsell_shown')) {
+                currentUpsellProductId = id;
+                showUpsellModal();
+                sessionStorage.setItem('upsell_shown', 'true');
+            } else {
+                showToast(prod.nombre, prod.precio);
+                // UX: Animar el botón del carrito
+                const cartBtn = document.getElementById('cart-btn-main');
+                if (cartBtn) {
+                    cartBtn.classList.add('scale-110', 'bg-amber-500/20');
+                    setTimeout(() => cartBtn.classList.remove('scale-110', 'bg-amber-500/20'), 300);
+                }
             }
+        }
+
+        function showUpsellModal() {
+            const modal = document.getElementById('upsell-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeUpsell() {
+            const modal = document.getElementById('upsell-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            showToast('Plato añadido al carrito', 0);
+        }
+
+        function acceptUpsell() {
+            addGenericCrossSell('Patatas Fritas', 3.50);
+            closeUpsell();
+            setTimeout(() => showToast('¡Menú completo añadido!', 3.50), 500);
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
             const fabCount = document.getElementById('cart-count-fab');
             if(fabCount) fabCount.innerText = cart.length;
-            const itemsCont = document.getElementById('cart-items');
-            itemsCont.innerHTML = cart.map((item, i) => `
-                <div class="flex items-center justify-between group">
-                    <div class="flex items-center gap-4">
-                        <img src="${item.imagen_url}" class="w-12 h-12 rounded-xl object-cover border border-stone-800">
-                        <div>
-                            <p class="text-xs font-black text-white uppercase">${item.nombre}</p>
-                            <p class="text-[10px] font-bold text-amber-500">${item.precio}€</p>
+            
+            const total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            
+            // Gamificación: Barra de Progreso de Regalo
+            const envioGratisMeta = 25.00;
+            const progress = Math.min((total / envioGratisMeta) * 100, 100);
+            const remaining = Math.max(envioGratisMeta - total, 0);
+            
+            let progressHtml = '';
+            if (total > 0 && remaining > 0) {
+                progressHtml = `
+                    <div class="bg-[#1c1917] rounded-xl p-3 mb-4 border border-stone-800 shadow-inner">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Faltan <span class="text-amber-500">${remaining.toFixed(2)}€</span> para 🎁 Postre Gratis</span>
+                        </div>
+                        <div class="w-full bg-[#0c0a09] rounded-full h-1.5 overflow-hidden border border-white/5">
+                            <div class="bg-gradient-to-r from-amber-600 to-amber-400 h-1.5 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]" style="width: ${progress}%"></div>
                         </div>
                     </div>
-                    <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-stone-700 hover:text-red-500 text-xs">✕</button>
+                `;
+            } else if (total > 0 && remaining === 0) {
+                 progressHtml = `
+                    <div class="bg-emerald-900/20 rounded-xl p-3 mb-4 border border-emerald-500/30 text-center shadow-inner">
+                        <span class="text-[10px] text-emerald-400 font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            ¡Postre Sorpresa Desbloqueado!
+                        </span>
+                    </div>
+                `;
+            }
+
+            const itemsCont = document.getElementById('cart-items');
+            itemsCont.innerHTML = progressHtml + cart.map((item, i) => `
+                <div class="flex items-center justify-between group bg-[#1c1917] p-2 rounded-xl mb-2 border border-white/5">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.imagen_url}" class="w-10 h-10 rounded-lg object-cover border border-stone-800">
+                        <div>
+                            <p class="text-[11px] font-black text-white uppercase line-clamp-1">${item.nombre}</p>
+                            <p class="text-[10px] font-bold text-amber-500">${item.precio.toFixed(2)}€</p>
+                        </div>
+                    </div>
+                    <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-stone-500 hover:text-red-500 text-xs px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 transition-colors">✕</button>
                 </div>
             `).join('');
 
-            const total = cart.reduce((acc, curr) => acc + curr.precio, 0);
+            if(cart.length === 0) {
+                itemsCont.innerHTML = `
+                    <div class="text-center py-12 flex flex-col items-center opacity-50">
+                        <span class="text-5xl mb-4">🛒</span>
+                        <p class="text-stone-500 font-bold uppercase tracking-widest text-sm">Tu bandeja está vacía</p>
+                    </div>`;
+            }
+
             document.getElementById('cart-total').innerText = total.toFixed(2) + '€';
             
             // UX: Controlar estado del botón de pago
