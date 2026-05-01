@@ -123,6 +123,36 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
         ))
     return results
 
+@router.get("/cierre-z")
+def obtener_cierre_z(db: Session = Depends(get_db)):
+    """
+    Genera el Cierre Z de la jornada actual: Ingresos por método de pago y totales.
+    """
+    today = datetime.date.today()
+    pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today, Pedido.estado == "COMPLETADO").all()
+    
+    total_dia = 0.0
+    total_efectivo = 0.0
+    total_tarjeta = 0.0
+    pedidos_count = len(pedidos)
+
+    for p in pedidos:
+        total_dia += p.total
+        if p.metodo_pago == "EFECTIVO":
+            total_efectivo += p.total
+        elif p.metodo_pago == "TARJETA":
+            total_tarjeta += p.total
+
+    return {
+        "fecha": str(today),
+        "pedidos_completados": pedidos_count,
+        "total_ingresos": round(total_dia, 2),
+        "desglose": {
+            "EFECTIVO": round(total_efectivo, 2),
+            "TARJETA": round(total_tarjeta, 2)
+        }
+    }
+
 @router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 @router_legacy.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):

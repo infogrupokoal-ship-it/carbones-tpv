@@ -123,35 +123,39 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                         Sí, quiero el menú
                     </button>
-                    <button onclick="closeUpsell()" class="w-full py-3 bg-white/5 hover:bg-white/10 text-stone-300 rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-white/10 active:scale-95">
+                    <button onclick="closeUpsell()" class="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-slate-200 active:scale-95">
                         No, solo el plato
                     </button>
                 </div>
-            <!-- Customize Product Modal (Fase 3) -->
-    <div id="customize-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[75] hidden items-center justify-center p-4">
-        <div class="bg-[#1c1917] rounded-[2rem] w-full max-w-md overflow-hidden border border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] animate-scale-up flex flex-col max-h-[90vh]">
+            </div>
+        </div>
+    </div>
+
+    <!-- Customize Product Modal (Fase 3) -->
+    <div id="customize-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[75] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden border border-slate-200 shadow-2xl animate-scale-up flex flex-col max-h-[90vh]">
             <div class="relative h-48 flex-shrink-0">
-                <img id="custom-modal-img" src="" class="w-full h-full object-cover opacity-80" alt="Producto">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#1c1917] via-transparent to-black/50"></div>
-                <button onclick="closeCustomizeModal()" class="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-stone-300 hover:text-white backdrop-blur-md transition-colors z-10">
+                <img id="custom-modal-img" src="" class="w-full h-full object-cover opacity-90" alt="Producto">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/30"></div>
+                <button onclick="closeCustomizeModal()" class="absolute top-4 right-4 bg-white/50 p-2 rounded-full text-slate-900 hover:bg-white backdrop-blur-md transition-colors z-10 shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
                 <div class="absolute bottom-4 left-6 right-6">
                     <h3 id="custom-modal-title" class="text-3xl font-black text-white uppercase tracking-tighter drop-shadow-md">Producto</h3>
-                    <p id="custom-modal-price" class="text-amber-500 font-black text-xl drop-shadow-md">0.00€</p>
+                    <p id="custom-modal-price" class="text-amber-400 font-black text-xl drop-shadow-md">0.00€</p>
                 </div>
             </div>
             
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <h4 class="text-xs font-black text-stone-500 uppercase tracking-widest mb-4">Mejora tu pedido (Opcional)</h4>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                <h4 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Mejora tu pedido (Opcional)</h4>
                 
                 <div class="space-y-3" id="custom-options">
                     <!-- Dinámico -->
                 </div>
             </div>
             
-            <div class="p-6 bg-[#0c0a09] border-t border-stone-800">
-                <button onclick="confirmCustomProduct()" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-95 flex justify-between items-center px-6">
+            <div class="p-6 bg-white border-t border-slate-200">
+                <button onclick="confirmCustomProduct()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-lg shadow-amber-500/30 active:scale-95 flex justify-between items-center px-6">
                     <span>Añadir al Carrito</span>
                     <span id="custom-btn-total">0.00€</span>
                 </button>
@@ -436,65 +440,94 @@
 
         function renderCategories(cats) {
             globalCategories = cats;
-            const container = document.getElementById('categories-container');
+            const container = document.getElementById('main-category-grid');
+            if(!container) return; // Si la UI antigua sigue activa, evita errores
             
-            // Diccionario de iconos corporativos
-            const categoryIcons = {
-                'POLLOS': '🍗',
-                'PATATAS': '🍟',
-                'ENSALADAS': '🥗',
-                'BEBIDAS': '🥤',
-                'POSTRES': '🍰',
-                'PIZZAS': '🍕',
-                'BOCADILLOS': '🥖',
-                'BOCADILLOS Y CHIVITOS': '🥖',
-                'BOCADILLOS CLÁSICOS': '🥖',
-                'BRASCADAS': '🥩',
-                'ARROCES': '🥘',
-                'TAPAS': '🍤',
-                'PLATOS COMBINADOS': '🍳'
+            // Diccionario de iconos corporativos e imágenes de fondo
+            const categoryData = {
+                'POLLOS': { icon: '🍗', img: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?w=400&q=80' },
+                'PATATAS': { icon: '🍟', img: 'https://images.unsplash.com/photo-1573080496599-2313642340dc?w=400&q=80' },
+                'ENSALADAS': { icon: '🥗', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80' },
+                'BEBIDAS': { icon: '🥤', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80' },
+                'POSTRES': { icon: '🍰', img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80' },
+                'PIZZAS': { icon: '🍕', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80' },
+                'BOCADILLOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
+                'BOCADILLOS Y CHIVITOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
+                'BOCADILLOS CLÁSICOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
+                'BRASCADAS': { icon: '🥩', img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80' },
+                'ARROCES': { icon: '🥘', img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80' },
+                'TAPAS': { icon: '🍤', img: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&q=80' },
+                'PLATOS COMBINADOS': { icon: '🍳', img: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80' }
             };
 
             let optionsHtml = '';
             
-            // Botón por defecto "Todo el Menú"
-            const isActiveAll = activeCategory === 'all' ? 'bg-amber-500 text-black border-amber-500 font-black' : 'bg-[#1c1917] text-stone-400 border-stone-800';
-            optionsHtml += `<button onclick="filterByCategory('all')" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-amber-500/20 hover:text-amber-500 hover:border-amber-500/50 whitespace-nowrap scroll-snap-align-start transition-all active:scale-95 shadow-lg border ${isActiveAll}">🔥 Para Ti (Todo)</button>`;
-            
+            // Renderizar tarjetas de categorías (Fase 4 - Grid)
             optionsHtml += cats.map(c => {
                 const upperName = c.nombre.toUpperCase();
                 let icon = '🍽️';
-                for (const [key, val] of Object.entries(categoryIcons)) {
+                let img = 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400&q=80';
+                
+                for (const [key, val] of Object.entries(categoryData)) {
                     if (upperName.includes(key)) {
-                        icon = val;
+                        icon = val.icon;
+                        img = val.img;
                         break;
                     }
                 }
                 const hasEmoji = /\p{Emoji}/u.test(c.nombre);
-                const displayName = hasEmoji ? c.nombre : `${icon} ${c.nombre}`;
+                const displayName = hasEmoji ? c.nombre : `${c.nombre}`;
                 
-                const isActive = activeCategory === c.id ? 'bg-amber-500 text-black border-amber-500 font-black' : 'bg-[#1c1917] text-stone-400 border-stone-800';
-                
-                return `<button onclick="filterByCategory('${c.id}')" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-amber-500/20 hover:text-amber-500 hover:border-amber-500/50 whitespace-nowrap scroll-snap-align-start transition-all active:scale-95 shadow-lg border ${isActive}">${displayName}</button>`;
+                return `
+                <div onclick="showProductsView('${c.id}', '${displayName.replace(/'/g, "\\'")}')" class="group cursor-pointer relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200 bg-white aspect-square md:aspect-auto md:h-40 flex flex-col active:scale-95">
+                    <div class="h-3/4 w-full relative overflow-hidden">
+                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                        <div class="absolute bottom-2 left-2 text-2xl drop-shadow-md">${icon}</div>
+                    </div>
+                    <div class="h-1/4 flex items-center justify-center p-2 bg-white">
+                        <h3 class="text-[11px] md:text-sm font-black text-slate-800 uppercase tracking-tight text-center line-clamp-1">${displayName}</h3>
+                    </div>
+                </div>
+                `;
             }).join('');
             
-            container.innerHTML = `
-                <div class="flex overflow-x-auto custom-scrollbar gap-3 pb-2 pt-1 px-1 scroll-smooth" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-                    ${optionsHtml}
-                </div>
-            `;
+            container.innerHTML = optionsHtml;
         }
 
-        function filterByCategory(id) {
-            activeCategory = id;
-            renderCategories(globalCategories); // Update active state on buttons
+        // Navegación Fase 4
+        function showCategoriesView() {
+            document.getElementById('view-products').classList.add('hidden');
+            document.getElementById('view-categories').classList.remove('hidden');
+            document.getElementById('local-search').value = '';
+            document.getElementById('global-search').value = '';
+            activeCategory = 'all';
+        }
+
+        function showProductsView(catId, catName) {
+            document.getElementById('view-categories').classList.add('hidden');
+            document.getElementById('view-products').classList.remove('hidden');
+            document.getElementById('active-category-title').innerText = catName || 'Resultados';
+            document.getElementById('local-search').value = '';
+            activeCategory = catId;
             renderProducts();
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
+        function handleGlobalSearch() {
+            const q = document.getElementById('global-search').value;
+            if(q.length > 1) {
+                showProductsView('all', 'Búsqueda');
+                document.getElementById('local-search').value = q;
+                renderProducts();
+            }
+        }
+
+
+
         function renderProducts() {
             const grid = document.getElementById('products-grid');
-            const searchQ = document.getElementById('search-input')?.value.toLowerCase() || '';
+            const searchQ = document.getElementById('local-search')?.value.toLowerCase() || '';
             
             // Group products by category
             let categoriesMap = {};
@@ -517,7 +550,7 @@
             });
             
             if (Object.keys(categoriesMap).length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-stone-500 font-bold uppercase tracking-widest">No se encontraron productos</div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 font-bold uppercase tracking-widest bg-slate-50 rounded-3xl border border-slate-200">No se encontraron productos</div>`;
                 return;
             }
             
@@ -527,11 +560,11 @@
             for (const catId in categoriesMap) {
                 const cat = categoriesMap[catId];
                 
-                // Si no hay búsqueda y no estamos en "all", no mostrar el título de la categoría (ya se asume)
-                if (activeCategory === 'all' || searchQ) {
-                    html += `<div id="cat-${catId}" class="col-span-full mt-8 mb-2 border-b border-stone-800 pb-2">
-                                <h2 class="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-black shadow-[0_0_15px_rgba(245,158,11,0.5)]">🔥</div>
+                // Si hay búsqueda global (multi-categoria), mostrar títulos
+                if (activeCategory === 'all' && searchQ) {
+                    html += `<div id="cat-${catId}" class="col-span-full mt-4 mb-2 border-b border-slate-200 pb-2">
+                                <h2 class="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tighter flex items-center gap-3">
+                                    <div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-slate-500 text-sm">📁</div>
                                     ${cat.name}
                                 </h2>
                              </div>`;
@@ -550,11 +583,11 @@
                     let crossSellHtml = '';
                     if (!isDrink) {
                         crossSellHtml = `
-                            <div class="mt-3 pt-3 border-t border-white/5 flex flex-col gap-2">
-                                <span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">Completar menú:</span>
+                            <div class="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                <span class="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Completar menú:</span>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button onclick="addGenericCrossSell('Patatas', 3.50); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-white/5 hover:bg-amber-500/20 border border-white/5 text-zinc-400 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300 active:scale-95">🍟 Patatas</button>
-                                    <button onclick="addGenericCrossSell('Refresco', 2.00); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-white/5 hover:bg-amber-500/20 border border-white/5 text-zinc-400 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300 active:scale-95">🥤 Refresco</button>
+                                    <button onclick="addGenericCrossSell('Patatas', 3.50); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-slate-50 hover:bg-amber-50 border border-slate-200 text-slate-600 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300 active:scale-95 shadow-sm">🍟 Patatas</button>
+                                    <button onclick="addGenericCrossSell('Refresco', 2.00); event.stopPropagation();" class="flex items-center justify-center gap-1 bg-slate-50 hover:bg-amber-50 border border-slate-200 text-slate-600 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-300 active:scale-95 shadow-sm">🥤 Refresco</button>
                                 </div>
                             </div>
                         `;
@@ -575,18 +608,18 @@
                     }
 
                     return `
-                    <div class="product-card rounded-3xl p-3 flex flex-col justify-between animate-fade relative" style="animation-delay: ${(globalIndex % 10) * 0.05}s">
+                    <div class="product-card rounded-3xl p-3 flex flex-col justify-between animate-fade relative bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-shadow" style="animation-delay: ${(globalIndex % 10) * 0.05}s">
                         <div>
                             <div class="relative h-48 rounded-2xl overflow-hidden mb-4 group cursor-pointer shadow-inner" onclick="addToCart('${p.id}')">
                                 ${badgeHtml}
                                 ${scarcityHtml}
                                 <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
-                                <div class="absolute inset-0 bg-gradient-to-t from-[#1c1917] via-[#1c1917]/10 to-transparent opacity-80"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-80"></div>
                                 <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
                                     <h3 class="text-lg font-black text-white leading-tight drop-shadow-md w-3/4">${p.nombre}</h3>
                                 </div>
                             </div>
-                            <p class="text-[10px] text-stone-400 mb-2 line-clamp-2 leading-relaxed px-1">${p.descripcion || 'Especialidad de la casa preparada al momento.'}</p>
+                            <p class="text-[10px] text-slate-500 mb-2 line-clamp-2 leading-relaxed px-1 font-medium">${p.descripcion || 'Especialidad de la casa preparada al momento.'}</p>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 mt-2">
@@ -717,27 +750,27 @@
             let optionsHtml = '';
             if(prod.categoria_nombre && prod.categoria_nombre.toUpperCase().includes('PIZZAS')) {
                 optionsHtml = `
-                    <label class="flex items-center justify-between p-4 bg-[#0c0a09] border border-stone-800 rounded-xl cursor-pointer hover:border-amber-500/50 transition-colors">
+                    <label class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 transition-colors shadow-sm">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" onchange="toggleExtra(this, 'Doble Queso', 1.50)" class="w-5 h-5 accent-amber-500 bg-stone-800 border-stone-700 rounded">
-                            <span class="text-white font-bold text-sm">Extra Doble Queso 🧀</span>
+                            <input type="checkbox" onchange="toggleExtra(this, 'Doble Queso', 1.50)" class="w-5 h-5 accent-amber-500 bg-slate-50 border-slate-200 rounded">
+                            <span class="text-slate-800 font-bold text-sm">Extra Doble Queso 🧀</span>
                         </div>
                         <span class="text-amber-500 font-black">+1.50€</span>
                     </label>
-                    <label class="flex items-center justify-between p-4 bg-[#0c0a09] border border-stone-800 rounded-xl cursor-pointer hover:border-amber-500/50 transition-colors">
+                    <label class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 transition-colors shadow-sm">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" onchange="toggleExtra(this, 'Masa Rellena', 2.50)" class="w-5 h-5 accent-amber-500 bg-stone-800 border-stone-700 rounded">
-                            <span class="text-white font-bold text-sm">Bordes rellenos de Queso</span>
+                            <input type="checkbox" onchange="toggleExtra(this, 'Masa Rellena', 2.50)" class="w-5 h-5 accent-amber-500 bg-slate-50 border-slate-200 rounded">
+                            <span class="text-slate-800 font-bold text-sm">Bordes rellenos de Queso</span>
                         </div>
                         <span class="text-amber-500 font-black">+2.50€</span>
                     </label>
                 `;
             } else {
                 optionsHtml = `
-                    <label class="flex items-center justify-between p-4 bg-[#0c0a09] border border-stone-800 rounded-xl cursor-pointer hover:border-amber-500/50 transition-colors">
+                    <label class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 transition-colors shadow-sm">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" onchange="toggleExtra(this, 'Extra Bacon', 1.00)" class="w-5 h-5 accent-amber-500 bg-stone-800 border-stone-700 rounded">
-                            <span class="text-white font-bold text-sm">Extra Bacon Crujiente 🥓</span>
+                            <input type="checkbox" onchange="toggleExtra(this, 'Extra Bacon', 1.00)" class="w-5 h-5 accent-amber-500 bg-slate-50 border-slate-200 rounded">
+                            <span class="text-slate-800 font-bold text-sm">Extra Bacon Crujiente 🥓</span>
                         </div>
                         <span class="text-amber-500 font-black">+1.00€</span>
                     </label>
@@ -811,19 +844,19 @@
             let progressHtml = '';
             if (total > 0 && remaining > 0) {
                 progressHtml = `
-                    <div class="bg-[#1c1917] rounded-xl p-3 mb-4 border border-stone-800 shadow-inner">
+                    <div class="bg-slate-50 rounded-xl p-3 mb-4 border border-slate-200 shadow-inner">
                         <div class="flex justify-between items-end mb-2">
-                            <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Faltan <span class="text-amber-500">${remaining.toFixed(2)}€</span> para 🎁 Postre Gratis</span>
+                            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Faltan <span class="text-amber-500">${remaining.toFixed(2)}€</span> para 🎁 Postre Gratis</span>
                         </div>
-                        <div class="w-full bg-[#0c0a09] rounded-full h-1.5 overflow-hidden border border-white/5">
-                            <div class="bg-gradient-to-r from-amber-600 to-amber-400 h-1.5 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]" style="width: ${progress}%"></div>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden border border-slate-300">
+                            <div class="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full transition-all duration-500 ease-out shadow-sm" style="width: ${progress}%"></div>
                         </div>
                     </div>
                 `;
             } else if (total > 0 && remaining === 0) {
                  progressHtml = `
-                    <div class="bg-emerald-900/20 rounded-xl p-3 mb-4 border border-emerald-500/30 text-center shadow-inner">
-                        <span class="text-[10px] text-emerald-400 font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                    <div class="bg-emerald-50 rounded-xl p-3 mb-4 border border-emerald-200 text-center shadow-sm">
+                        <span class="text-[10px] text-emerald-600 font-black uppercase tracking-widest flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             ¡Postre Sorpresa Desbloqueado!
                         </span>
@@ -833,23 +866,23 @@
 
             const itemsCont = document.getElementById('cart-items');
             itemsCont.innerHTML = progressHtml + cart.map((item, i) => `
-                <div class="flex items-center justify-between group bg-[#1c1917] p-2 rounded-xl mb-2 border border-white/5">
+                <div class="flex items-center justify-between group bg-white p-2 rounded-xl mb-2 border border-slate-200 shadow-sm">
                     <div class="flex items-center gap-3">
-                        <img src="${item.imagen_url}" class="w-10 h-10 rounded-lg object-cover border border-stone-800">
+                        <img src="${item.imagen_url}" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
                         <div>
-                            <p class="text-[11px] font-black text-white uppercase line-clamp-1">${item.nombre}</p>
+                            <p class="text-[11px] font-black text-slate-800 uppercase line-clamp-1">${item.nombre}</p>
                             <p class="text-[10px] font-bold text-amber-500">${item.precio.toFixed(2)}€</p>
                         </div>
                     </div>
-                    <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-stone-500 hover:text-red-500 text-xs px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 transition-colors">✕</button>
+                    <button onclick="cart.splice(${i}, 1); updateCartUI()" class="text-slate-400 hover:text-red-500 text-xs px-2 py-1 rounded-md bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-colors shadow-sm">✕</button>
                 </div>
             `).join('');
 
             if(cart.length === 0) {
                 itemsCont.innerHTML = `
-                    <div class="text-center py-12 flex flex-col items-center opacity-50">
+                    <div class="text-center py-12 flex flex-col items-center opacity-60">
                         <span class="text-5xl mb-4">🛒</span>
-                        <p class="text-stone-500 font-bold uppercase tracking-widest text-sm">Tu bandeja está vacía</p>
+                        <p class="text-slate-400 font-bold uppercase tracking-widest text-sm">Tu bandeja está vacía</p>
                     </div>`;
                 
                 // Ocultar Sticky Bar
