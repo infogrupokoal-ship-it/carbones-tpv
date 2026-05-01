@@ -4,7 +4,7 @@ import os
 import platform
 import time
 from datetime import datetime
-from backend.auth import get_current_user
+from .auth import get_current_user
 
 router = APIRouter(prefix="/api/telemetry", tags=["telemetry"])
 

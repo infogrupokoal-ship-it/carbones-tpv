@@ -69,42 +69,13 @@ class PedidoOut(BaseModel):
 def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
     """
     Lista los pedidos con soporte para filtrado por estado y paginación básica.
-    Incluye el desglose de ítems para visualización directa en terminales de cobro.
     """
     try:
         query = db.query(Pedido)
         if estado:
             query = query.filter(Pedido.estado == estado)
         
-        pedidos = query.order_by(Pedido.fecha.desc()).limit(limit).all()
-        
-        # Mapeo manual para asegurar que los nombres de productos estén presentes
-        # (SQLAlchemy relationship podría no cargar el nombre si no está en ItemPedido)
-        results = []
-        for p in pedidos:
-            items_detailed = []
-            for it in p.items:
-                prod = db.query(Producto).get(it.producto_id)
-                items_detailed.append(ItemPedidoOut(
-                    id=it.id,
-                    producto_id=it.producto_id,
-                    nombre=prod.nombre if prod else "Item Descatalogado",
-                    cantidad=it.cantidad,
-                    precio=it.precio_unitario
-                ))
-            results.append(PedidoOut(
-                id=p.id,
-                numero_ticket=p.numero_ticket,
-                fecha=p.fecha,
-                estado=p.estado,
-                total=p.total,
-                metodo_pago=p.metodo_pago,
-                origen=p.origen,
-                notas_cliente=p.notas_cliente,
-                items=items_detailed
-            ))
-            
-        return results
+        return query.order_by(Pedido.fecha.desc()).limit(limit).all()
     except Exception as e:
         logger.error(f"Error listando pedidos: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
@@ -112,35 +83,10 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
 @router.get("/pending", response_model=List[PedidoOut])
 def listar_pedidos_pendientes(db: Session = Depends(get_db)):
     """
-    Endpoint optimizado para el KDS: Retorna solo pedidos en estado EN_PREPARACION 
-    con todos sus items cargados para evitar múltiples peticiones.
+    Endpoint optimizado para el KDS: Retorna pedidos en estado EN_PREPARACION.
     """
     try:
-        pedidos = db.query(Pedido).filter(Pedido.estado == "EN_PREPARACION").order_by(Pedido.fecha.asc()).all()
-        results = []
-        for p in pedidos:
-            items_detailed = []
-            for it in p.items:
-                prod = db.query(Producto).get(it.producto_id)
-                items_detailed.append(ItemPedidoOut(
-                    id=it.id,
-                    producto_id=it.producto_id,
-                    nombre=prod.nombre if prod else "Item",
-                    cantidad=it.cantidad,
-                    precio=it.precio_unitario
-                ))
-            results.append(PedidoOut(
-                id=p.id,
-                numero_ticket=p.numero_ticket,
-                fecha=p.fecha,
-                estado=p.estado,
-                total=p.total,
-                metodo_pago=p.metodo_pago,
-                origen=p.origen,
-                notas_cliente=p.notas_cliente,
-                items=items_detailed
-            ))
-        return results
+        return db.query(Pedido).filter(Pedido.estado == "EN_PREPARACION").order_by(Pedido.fecha.asc()).all()
     except Exception as e:
         logger.error(f"Error en /pending: {e}")
         return []
@@ -151,22 +97,7 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     Retorna todos los pedidos realizados en la fecha actual (Jornada Operativa).
     """
     today = datetime.date.today()
-    pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
-    
-    results = []
-    for p in pedidos:
-        results.append(PedidoOut(
-            id=p.id,
-            numero_ticket=p.numero_ticket,
-            fecha=p.fecha,
-            estado=p.estado,
-            total=p.total,
-            metodo_pago=p.metodo_pago,
-            origen=p.origen,
-            notas_cliente=p.notas_cliente,
-            items=[]
-        ))
-    return results
+    return db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
 
 @router.get("/cierre-z")
 def obtener_cierre_z(db: Session = Depends(get_db)):

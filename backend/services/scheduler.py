@@ -32,7 +32,7 @@ async def check_low_stock():
         from ..models import Producto
         alertas = db.query(Producto).filter(Producto.stock_actual < 5, Producto.is_active == True).all()
         for p in alertas:
-            logger.warning(f"⚠️ ALERTA DE STOCK: {p.nombre} está bajo mínimos ({p.stock_actual} uds).")
+            logger.warning(f"ALERTA DE STOCK: {p.nombre} está bajo mínimos ({p.stock_actual} uds).")
             # Podríamos disparar WhatsApp aquí si fuera crítico
     except Exception as e:
         logger.error(f"FALLO EN MONITOR DE STOCK: {str(e)}")

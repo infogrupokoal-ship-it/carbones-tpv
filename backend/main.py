@@ -89,7 +89,9 @@ async def startup_event():
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
     
     # Asegurar esquemas y datos iniciales
-    Base.metadata.create_all(bind=engine)
+    from .auto_migrate import migrate_schema
+    migrate_schema()
+    
     from .seeding import run_auto_seeding
     run_auto_seeding()
     
