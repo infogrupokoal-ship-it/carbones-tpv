@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tpv-cache-v4.5';
+const CACHE_NAME = 'tpv-cache-v5.0';
 const ASSETS_TO_CACHE = [
   '/static/kiosko.html',
   '/static/nosotros.html',

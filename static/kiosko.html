@@ -60,15 +60,20 @@
     <!-- Header UI -->
     <header class="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-            <div class="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">🔥</div>
+            <div class="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30 overflow-hidden">
+                <img src="/static/icon.png" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=100'">
+            </div>
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Carbones <span class="text-amber-500">y Pollos</span></h1>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-1">Gourmet Experience</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Gourmet Experience</p>
+                    <div id="health-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                </div>
             </div>
         </div>
         <div class="flex items-center gap-4">
             <a href="/static/nosotros.html" class="hidden md:flex amber-glass px-4 py-3 rounded-2xl items-center gap-2 hover:bg-amber-50 transition-all duration-300">
-                <span class="text-xs font-black uppercase tracking-widest text-amber-600">Nosotros</span>
+                <span class="text-xs font-black uppercase tracking-widest text-amber-600">Nuestro Origen</span>
             </a>
             <button id="auth-btn" onclick="openLoginModal()" class="amber-glass px-4 py-3 rounded-2xl flex items-center gap-2 hover:bg-amber-50 transition-all duration-300">
                 <span class="text-xs font-black uppercase tracking-widest text-amber-600" id="auth-btn-text">Acceso Cliente</span>
@@ -97,7 +102,7 @@
         </div>
 
         <!-- Hero Banner -->
-        <div class="mb-8 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 group cursor-pointer" onclick="addGenericCrossSell('Menú Familiar Ahorro', 24.99)">
+        <div class="mb-8 relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200 group cursor-pointer" onclick="addGenericCrossSell('Menú Familiar Ahorro', 24.99)">
             <img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=1200" class="w-full h-48 md:h-64 object-cover group-hover:scale-105 transition-transform duration-700" alt="Oferta">
             <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent"></div>
             <div class="absolute inset-0 p-6 md:p-10 flex flex-col justify-center">
@@ -108,7 +113,7 @@
                 </div>
             </div>
             <div class="absolute bottom-6 right-6">
-                <button class="bg-amber-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg">Añadir</button>
+                <button class="bg-amber-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg transform hover:scale-110 transition-all">Añadir Ahora</button>
             </div>
         </div>
 
@@ -121,7 +126,8 @@
 
         <!-- Search -->
         <div class="relative w-full max-w-2xl mx-auto mb-10">
-            <input type="text" id="global-search" onkeyup="handleGlobalSearch()" placeholder="¿Qué te apetece hoy?" class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-base focus:border-amber-500 focus:outline-none transition-all shadow-sm">
+            <input type="text" id="global-search" onkeyup="handleGlobalSearch()" placeholder="¿Qué te apetece hoy?" class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-base focus:border-amber-500 focus:outline-none transition-all shadow-md">
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</div>
         </div>
 
         <!-- Catalog -->
@@ -137,106 +143,112 @@
         <div id="cart-content" class="absolute right-0 top-0 bottom-0 w-full max-w-md cart-panel shadow-2xl p-8 translate-x-full transition-all duration-500 flex flex-col">
             <div class="flex justify-between items-center mb-10">
                 <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Tu <span class="text-amber-500">Bandeja</span></h2>
-                <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-900">✕</button>
+                <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-900 w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center">✕</button>
             </div>
             <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2"></div>
             <div class="pt-6 border-t border-slate-200 mt-6">
                 <div class="flex justify-between items-center mb-6 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <span class="text-xs font-black uppercase text-slate-500 tracking-widest">Total</span>
+                    <span class="text-xs font-black uppercase text-slate-500 tracking-widest">Total a pagar</span>
                     <span id="cart-total" class="text-4xl font-black text-slate-900">0.00€</span>
                 </div>
-                <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-lg">Finalizar Pedido 🔥</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals -->
+                <button onclick="checkout()" class="w-full btn-premium py-5 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-lg transform active:scale-95 transition-all">Finalizar Pedido 🔥</button>
+            </div    <!-- Modals -->
     <div id="login-modal" class="fixed inset-0 bg-slate-900/40 z-[70] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
         <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative">
-            <button onclick="closeLoginModal()" class="absolute top-6 right-6">✕</button>
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center">✕</button>
             <h2 class="text-2xl font-black mb-2 uppercase">Acceso <span class="text-amber-500">Cliente</span></h2>
             <div id="step-phone" class="mt-6">
-                <input type="tel" id="login-phone" placeholder="WhatsApp / Teléfono" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4">
+                <input type="tel" id="login-phone" placeholder="WhatsApp / Teléfono" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4 focus:ring-2 focus:ring-amber-500 outline-none">
                 <button onclick="requestOTP()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-xs">Recibir Código</button>
             </div>
             <div id="step-otp" class="hidden mt-6">
-                <input type="text" id="login-otp" placeholder="Código" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4 text-center tracking-[0.5em]">
-                <button onclick="verifyOTP()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-xs">Entrar</button>
+                <input type="text" id="login-otp" placeholder="Código" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4 text-center tracking-[0.5em] focus:ring-2 focus:ring-amber-500 outline-none">
+                <button onclick="verifyOTP()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-xs">Confirmar</button>
             </div>
         </div>
     </div>
 
-    <!-- Feedback Modal -->
-    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/40 z-[110] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative text-center">
-            <button onclick="closeFeedbackModal()" class="absolute top-6 right-6">✕</button>
-            <h2 class="text-2xl font-black mb-2 uppercase">Tu <span class="text-amber-500">Opinión</span></h2>
-            <div id="rating-stars" class="flex justify-center gap-2 my-6">
-                <button onclick="setRating(1)" class="text-4xl hover:scale-110 transition-transform">⭐</button>
-                <button onclick="setRating(2)" class="text-4xl hover:scale-110 transition-transform">⭐</button>
-                <button onclick="setRating(3)" class="text-4xl hover:scale-110 transition-transform">⭐</button>
-                <button onclick="setRating(4)" class="text-4xl hover:scale-110 transition-transform">⭐</button>
-                <button onclick="setRating(5)" class="text-4xl hover:scale-110 transition-transform">⭐</button>
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/40 z-[80] backdrop-blur-md hidden items-center justify-center p-6 transition-all">
+        <div class="bg-white rounded-[3rem] max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+            <button onclick="closeProductModal()" class="absolute top-6 right-6 z-10 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center shadow-lg">✕</button>
+            <div class="md:w-1/2 h-64 md:h-auto relative">
+                <img id="modal-img" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
-            <textarea id="feedback-comment" placeholder="¿Cómo fue tu experiencia?" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm mb-6 h-24"></textarea>
-            <button onclick="submitFeedback()" class="w-full btn-premium py-4 rounded-xl font-black uppercase tracking-widest">Enviar Valoración</button>
+            <div class="md:w-1/2 p-8 md:p-12 flex flex-col">
+                <span id="modal-category" class="text-amber-500 font-black text-[10px] uppercase tracking-widest mb-2">Categoría</span>
+                <h2 id="modal-title" class="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">Producto</h2>
+                <p id="modal-description" class="text-slate-400 leading-relaxed mb-8">Descripción del producto...</p>
+                <div class="flex items-center justify-between mt-auto">
+                    <div class="flex items-center gap-6 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                        <button onclick="adjustModalQty(-1)" class="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-xl font-black">-</button>
+                        <span id="modal-qty" class="text-xl font-black w-8 text-center">1</span>
+                        <button onclick="adjustModalQty(1)" class="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-xl font-black">+</button>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Precio Total</p>
+                        <span id="modal-price" class="text-3xl font-black text-slate-900">0.00€</span>
+                    </div>
+                </div>
+                <button id="modal-add-btn" class="w-full btn-premium py-5 rounded-2xl mt-8 font-black uppercase tracking-widest shadow-lg transform active:scale-95 transition-all">Añadir a la bandeja 🔥</button>
+            </div>
         </div>
     </div>
 
-    <!-- Payment Modal -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 z-[90] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2rem] max-w-md w-full shadow-2xl relative" id="payment-card-ui">
-            <button onclick="closePaymentModal()" class="absolute top-6 right-6">✕</button>
-            <h2 class="text-2xl font-black text-center mb-8 uppercase">Pago <span class="text-amber-500">Seguro</span></h2>
-            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-                <div class="flex gap-4 mb-6">
-                    <button id="btn-recoger" onclick="setMetodoEnvio('LOCAL')" class="flex-1 py-3 bg-amber-500 text-white font-black rounded-xl text-[10px]">🏪 LOCAL</button>
-                    <button id="btn-domicilio" onclick="setMetodoEnvio('DOMICILIO')" class="flex-1 py-3 bg-white border border-slate-200 text-slate-500 font-black rounded-xl text-[10px]">🛵 DOMICILIO</button>
+        <div class="bg-white p-10 rounded-[3rem] max-w-md w-full shadow-2xl relative">
+            <button onclick="closePaymentModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">✕</button>
+            <h2 class="text-3xl font-black text-center mb-10 uppercase tracking-tighter">Checkout <span class="text-amber-500">Premium</span></h2>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <button id="btn-recoger" onclick="setMetodoEnvio('LOCAL')" class="flex-1 py-4 bg-amber-500 text-white font-black rounded-2xl text-xs shadow-lg shadow-amber-500/20">🏪 LOCAL</button>
+                    <button id="btn-domicilio" onclick="setMetodoEnvio('DOMICILIO')" class="flex-1 py-4 bg-slate-50 border border-slate-200 text-slate-400 font-black rounded-2xl text-xs">🛵 DOMICILIO</button>
                 </div>
-                <div id="direccion-container" class="hidden mb-6 space-y-3">
-                    <input type="text" id="direccion-calle" placeholder="Calle y Número" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">
-                    <input type="text" id="direccion-cp" placeholder="Código Postal" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">
+                <div id="direccion-container" class="hidden space-y-4 animate-fade">
+                    <input type="text" id="direccion-calle" placeholder="Calle, Número, Piso/Puerta" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    <input type="text" id="direccion-cp" placeholder="Código Postal" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                 </div>
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-[10px] font-black uppercase text-slate-500">Total</span>
-                    <span id="payment-amount" class="text-3xl font-black text-amber-500">0.00€</span>
+                <div class="bg-slate-900 rounded-[2rem] p-8 text-white">
+                    <div class="flex justify-between items-center mb-2 opacity-50">
+                        <span class="text-[10px] font-black uppercase tracking-widest">Resumen</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Total</span>
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div id="payment-items-summary" class="text-[10px] font-bold text-amber-500">--</div>
+                        <span id="payment-amount" class="text-4xl font-black">0.00€</span>
+                    </div>
                 </div>
-                <button onclick="processPayment()" id="btn-process-payment" class="w-full btn-premium py-4 rounded-xl font-black uppercase shadow-lg">Pagar Ahora</button>
+                <button onclick="processPayment()" id="btn-process-payment" class="w-full btn-premium py-6 rounded-[2rem] font-black uppercase shadow-xl transform active:scale-95 transition-all text-sm tracking-widest">Pagar y Confirmar 🔥</button>
             </div>
         </div>
     </div>
 
-    <!-- Success -->
     <div id="success-screen" class="fixed inset-0 bg-white z-[100] opacity-0 pointer-events-none transition-all duration-700 flex flex-col items-center justify-center text-center p-6">
-        <div class="text-6xl mb-8">🍗</div>
-        <h1 class="text-5xl font-black uppercase mb-4">¡Gracias por <span class="text-amber-500">confiar!</span></h1>
-        <p class="text-slate-500 mb-12">Tu pedido está en manos de nuestros maestros del carbón.</p>
-        <div class="bg-slate-50 border-4 border-amber-500 p-10 rounded-[3rem] mb-12">
-            <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Turno</p>
-            <span id="success-turno" class="text-8xl font-black text-slate-900">--</span>
+        <div class="w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center text-5xl mb-8 shadow-2xl shadow-emerald-500/20 text-white">✓</div>
+        <h1 class="text-5xl font-black uppercase mb-4 tracking-tighter">¡Pedido <span class="text-amber-500">Confirmado!</span></h1>
+        <p class="text-slate-400 text-lg mb-12 max-w-sm">Tus brasas ya están ardiendo. Prepararemos tu pedido con la máxima dedicación.</p>
+        <div class="bg-slate-50 border-2 border-slate-100 p-12 rounded-[4rem] mb-12 shadow-sm relative">
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">Tu Turno</div>
+            <span id="success-turno" class="text-9xl font-black text-slate-900 tracking-tighter">--</span>
         </div>
-        <button onclick="closeSuccessScreen()" class="bg-slate-900 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest">Cerrar</button>
+        <button onclick="closeSuccessScreen()" class="bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-2xl active:scale-95 transition-all">Volver al Inicio</button>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-slate-900/60 z-[95] backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2.5rem] max-w-md w-full shadow-2xl relative text-slate-800">
-            <button onclick="closeProfileModal()" class="absolute top-6 right-6">✕</button>
-            <div class="flex items-center gap-4 mb-8">
-                <div class="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center text-white font-black text-2xl shadow-lg">👤</div>
-                <div>
-                    <h2 class="text-xl font-black uppercase" id="profile-name">Cliente</h2>
-                    <p class="text-xs text-amber-500 font-black uppercase tracking-widest" id="profile-nivel">Nivel Bronce</p>
-                </div>
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/40 z-[110] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-6">
+        <div class="bg-white p-10 rounded-[3rem] max-w-sm w-full shadow-2xl relative text-center">
+            <button onclick="closeFeedbackModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">✕</button>
+            <div class="text-4xl mb-6">✨</div>
+            <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">Danos tu <span class="text-amber-500">Brillo</span></h2>
+            <p class="text-xs text-slate-400 mb-8">Tu valoración nos ayuda a ser mejores cada día.</p>
+            <div id="rating-stars" class="flex justify-center gap-2 mb-8">
+                <button onclick="setRating(1)" class="star-btn text-4xl hover:scale-125 transition-all duration-300 opacity-30">⭐</button>
+                <button onclick="setRating(2)" class="star-btn text-4xl hover:scale-125 transition-all duration-300 opacity-30">⭐</button>
+                <button onclick="setRating(3)" class="star-btn text-4xl hover:scale-125 transition-all duration-300 opacity-30">⭐</button>
+                <button onclick="setRating(4)" class="star-btn text-4xl hover:scale-125 transition-all duration-300 opacity-30">⭐</button>
+                <button onclick="setRating(5)" class="star-btn text-4xl hover:scale-125 transition-all duration-300 opacity-30">⭐</button>
             </div>
-            <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-200">
-                <p class="text-[10px] font-black uppercase text-slate-400 mb-4">Historial Reciente</p>
-                <div id="profile-orders" class="space-y-3"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="openFeedbackModal()" class="py-4 bg-amber-500 text-white font-black rounded-xl uppercase text-[10px]">Valorar Experiencia</button>
-                <button onclick="logoutClient()" class="py-4 border border-red-200 text-red-500 font-black rounded-xl uppercase text-[10px]">Salir</button>
-            </div>
+            <textarea id="feedback-comment" placeholder="¿Algún detalle que quieras destacar?" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm mb-8 h-32 focus:ring-2 focus:ring-amber-500 outline-none resize-none"></textarea>
+            <button onclick="submitFeedback()" class="w-full btn-premium py-5 rounded-2xl font-black uppercase tracking-widest shadow-lg">Enviar Mi Experiencia</button>
         </div>
     </div>
 
@@ -247,15 +259,21 @@
     <script>
         let cart = [];
         let products = [];
+        let globalCategories = [];
         let sessionClient = null;
         let metodoEnvio = 'LOCAL';
+        let modalQty = 1;
+        let selectedRating = 5;
+        let modalProduct = null;
 
         async function init() {
             // Loader removal
             setTimeout(() => {
                 const loader = document.getElementById('initial-loader');
-                loader.classList.add('opacity-0');
-                setTimeout(() => loader.remove(), 700);
+                if(loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.remove(), 700);
+                }
             }, 1000);
 
             // Session check
@@ -265,13 +283,18 @@
                 updateAuthUI();
             }
 
+            // Restore cart
+            const savedCart = localStorage.getItem('tpv_b2c_cart');
+            if(savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartUI();
+            }
+
             // Fetch catalog
             try {
-                const [catRes, prodRes] = await Promise.all([
-                    fetch('/api/inventory/categorias'),
                 const [catsRes, prodsRes] = await Promise.all([
-                    fetch(`${API_URL}/inventory/categorias`),
-                    fetch(`${API_URL}/inventory/productos`)
+                    fetch('/api/inventory/categorias'),
+                    fetch('/api/inventory/productos')
                 ]);
                 
                 globalCategories = await catsRes.json();
@@ -279,20 +302,16 @@
                 
                 renderStickyNav();
                 renderProducts();
-            } catch (e) { console.error("Error init:", e); }
-
-            // Finalize Initialization
-            setTimeout(() => {
-                const loader = document.getElementById('initial-loader');
-                if(loader) {
-                    loader.classList.add('opacity-0');
-                    setTimeout(() => loader.remove(), 700);
-                }
-            }, 800);
+            } catch (e) { 
+                console.error("Error init:", e);
+                const health = document.getElementById('health-indicator');
+                if(health) health.classList.replace('bg-emerald-500', 'bg-red-500');
+            }
         }
 
         function renderStickyNav() {
             const nav = document.getElementById('sticky-category-nav');
+            if(!globalCategories.length) return;
             nav.innerHTML = globalCategories.map((c, i) => `
                 <button onclick="scrollToCategory('${c.id}')" class="category-pill-sticky whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest border border-slate-200 transition-all ${i===0 ? 'active' : ''}">
                     ${c.nombre}
@@ -310,6 +329,10 @@
                 const offsetPosition = elementPosition - offset;
 
                 window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                
+                document.querySelectorAll('.category-pill-sticky').forEach(p => p.classList.remove('active'));
+                const btn = Array.from(document.querySelectorAll('.category-pill-sticky')).find(b => b.innerText.includes(globalCategories.find(c => c.id == id).nombre));
+                if(btn) btn.classList.add('active');
             }
         }
 
@@ -323,7 +346,9 @@
             const catsMap = {};
             
             products.forEach(p => {
-                if(search && !p.nombre.toLowerCase().includes(search) && !p.categoria_nombre.toLowerCase().includes(search)) return;
+                const matchesSearch = !search || p.nombre.toLowerCase().includes(search) || (p.categoria_nombre && p.categoria_nombre.toLowerCase().includes(search));
+                if(!matchesSearch) return;
+                
                 const cid = p.categoria_id || 'other';
                 if(!catsMap[cid]) catsMap[cid] = { name: p.categoria_nombre || 'Otros', prods: [] };
                 catsMap[cid].prods.push(p);
@@ -339,21 +364,37 @@
                     <h2 class="text-2xl font-black uppercase tracking-tighter mb-6 border-b-4 border-amber-500 w-max pb-2">${catsMap[cid].name}</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         ${catsMap[cid].prods.map(p => `
-                            <div class="product-card rounded-3xl p-4 flex flex-col justify-between cursor-pointer" onclick="openProductModal('${p.id}')">
-                                <div class="relative h-48 rounded-2xl overflow-hidden mb-4 shadow-inner">
-                                    <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <h3 class="absolute bottom-4 left-4 text-white font-black uppercase tracking-tighter">${p.nombre}</h3>
+                            <div class="product-card rounded-[2rem] p-5 flex flex-col justify-between cursor-pointer group hover:bg-amber-50/30" onclick="openProductModal('${p.id}')">
+                                <div class="relative h-56 rounded-2xl overflow-hidden mb-6 shadow-xl">
+                                    <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" 
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1562967914-608f82629710?q=80&w=800&auto=format&fit=crop';">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1 block">${p.categoria_nombre || 'Especialidad'}</span>
+                                        <h3 class="text-white font-black uppercase tracking-tighter text-xl leading-none">${p.nombre}</h3>
+                                    </div>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-lg font-black text-amber-500">${p.precio.toFixed(2)}€</span>
-                                    <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="bg-amber-500 text-white px-6 py-3 rounded-xl font-black uppercase text-[10px] shadow-lg active:scale-95 transition-transform">Añadir</button>
+                                    <div class="flex flex-col">
+                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Precio Unidad</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tighter">${p.precio.toFixed(2)}€</span>
+                                    </div>
+                                    <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 transition-all hover:bg-amber-500 hover:text-white">Añadir</button>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
             `).join('');
+        }
+
+        function setRating(r) {
+            selectedRating = r;
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((s, i) => {
+                s.style.opacity = (i < r) ? '1' : '0.3';
+            });
         }
 
         function openProductModal(id) {
@@ -365,7 +406,7 @@
             document.getElementById('modal-img').src = p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800';
             document.getElementById('modal-title').innerText = p.nombre;
             document.getElementById('modal-category').innerText = p.categoria_nombre;
-            document.getElementById('modal-description').innerText = p.descripcion || "Un sabor inigualable preparado con ingredientes frescos de la mejor calidad. Pruébalo hoy mismo y déjate seducir por nuestra receta tradicional.";
+            document.getElementById('modal-description').innerText = p.descripcion || "Receta tradicional braseada lentamente con carbón ecológico. Un sabor inigualable que respeta el medio ambiente y deleita tu paladar.";
             document.getElementById('modal-price').innerText = p.precio.toFixed(2) + '€';
             document.getElementById('modal-qty').innerText = modalQty;
             
@@ -390,6 +431,7 @@
         function adjustModalQty(delta) {
             modalQty = Math.max(1, modalQty + delta);
             document.getElementById('modal-qty').innerText = modalQty;
+            document.getElementById('modal-price').innerText = (modalProduct.precio * modalQty).toFixed(2) + '€';
         }
 
         function addToCart(id) {
@@ -436,9 +478,7 @@
                             <p class="text-[10px] font-bold text-amber-500">${it.precio.toFixed(2)}€</p>
                         </div>
                     </div>
-                    <button onclick="removeFromCart(${it.cartId})" class="text-slate-300 hover:text-red-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
+                    <button onclick="removeFromCart(${it.cartId})" class="text-slate-300 hover:text-red-500 transition-colors">✕</button>
                 </div>
             `).join('');
         }
@@ -467,6 +507,7 @@
             let total = cart.reduce((acc, curr) => acc + curr.precio, 0);
             if (metodoEnvio === 'DOMICILIO') total += 2.50;
             document.getElementById('payment-amount').innerText = total.toFixed(2) + '€';
+            document.getElementById('payment-items-summary').innerText = `${cart.length} productos`;
             document.getElementById('payment-modal').classList.remove('opacity-0', 'pointer-events-none');
         }
 
@@ -475,12 +516,16 @@
         function setMetodoEnvio(m) {
             metodoEnvio = m;
             document.getElementById('direccion-container').classList.toggle('hidden', m === 'LOCAL');
-            document.getElementById('btn-recoger').className = m === 'LOCAL' ? 'flex-1 py-3 bg-amber-500 text-white font-black rounded-xl' : 'flex-1 py-3 bg-white border border-slate-200 text-slate-500 font-black rounded-xl';
-            document.getElementById('btn-domicilio').className = m === 'DOMICILIO' ? 'flex-1 py-3 bg-amber-500 text-white font-black rounded-xl' : 'flex-1 py-3 bg-white border border-slate-200 text-slate-500 font-black rounded-xl';
+            document.getElementById('btn-recoger').className = m === 'LOCAL' ? 'flex-1 py-4 bg-amber-500 text-white font-black rounded-2xl text-xs' : 'flex-1 py-4 bg-slate-50 border border-slate-200 text-slate-400 font-black rounded-2xl text-xs';
+            document.getElementById('btn-domicilio').className = m === 'DOMICILIO' ? 'flex-1 py-4 bg-amber-500 text-white font-black rounded-2xl text-xs' : 'flex-1 py-4 bg-slate-50 border border-slate-200 text-slate-400 font-black rounded-2xl text-xs';
             openPaymentModal();
         }
 
         async function processPayment() {
+            const btn = document.getElementById('btn-process-payment');
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
+
             const total = cart.reduce((acc, curr) => acc + curr.precio, 0) + (metodoEnvio === 'DOMICILIO' ? 2.5 : 0);
             const payload = {
                 items: cart.map(it => ({ producto_id: it.id, cantidad: 1 })),
@@ -488,23 +533,31 @@
                 metodo_pago: 'TARJETA',
                 origen: 'QUIOSCO',
                 metodo_envio: metodoEnvio,
-                direccion: metodoEnvio === 'DOMICILIO' ? document.getElementById('direccion-calle').value : null,
-                cliente_id: sessionClient ? sessionClient.sub : null
+                direccion: metodoEnvio === 'DOMICILIO' ? `${document.getElementById('direccion-calle').value} (CP: ${document.getElementById('direccion-cp').value})` : null,
+                cliente_id: sessionClient ? sessionClient.id : null
             };
 
-            const res = await fetch('/api/orders/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            try {
+                const res = await fetch('/api/orders/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if(res.ok) {
-                const data = await res.json();
-                document.getElementById('success-turno').innerText = data.ticket;
-                document.getElementById('success-screen').classList.remove('opacity-0', 'pointer-events-none');
-                closePaymentModal();
-                cart = [];
-                updateCartUI();
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('success-turno').innerText = data.numero_ticket || '--';
+                    document.getElementById('success-screen').classList.remove('opacity-0', 'pointer-events-none');
+                    closePaymentModal();
+                    cart = [];
+                    localStorage.removeItem('tpv_b2c_cart');
+                    updateCartUI();
+                }
+            } catch (e) {
+                showToast("Error", "No se pudo procesar el pedido", "error");
+            } finally {
+                btn.innerText = "Pagar y Confirmar 🔥";
+                btn.disabled = false;
             }
         }
 
@@ -546,20 +599,26 @@
             if(sessionClient) btn.innerText = sessionClient.nombre.split(' ')[0].toUpperCase();
         }
 
-        function openProfileModal() { document.getElementById('profile-modal').classList.remove('opacity-0', 'pointer-events-none'); }
-        function closeProfileModal() { document.getElementById('profile-modal').classList.add('opacity-0', 'pointer-events-none'); }
-        function logoutClient() { localStorage.removeItem('tpv_b2c_cliente'); sessionClient = null; updateAuthUI(); closeProfileModal(); }
-
         function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('opacity-0', 'pointer-events-none'); }
         function closeFeedbackModal() { document.getElementById('feedback-modal').classList.add('opacity-0', 'pointer-events-none'); }
-        function setRating(r) { /* Logic for stars */ }
-        async function submitFeedback() { /* logic */ closeFeedbackModal(); }
+        async function submitFeedback() {
+            const rating = selectedRating;
+            const comment = document.getElementById('feedback-comment').value;
+            const res = await fetch('/api/feedback/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating, comentario: comment, cliente_id: sessionClient ? sessionClient.id : null })
+            });
+            if(res.ok) {
+                showToast("Éxito", "Gracias por tu valoración", "success");
+                closeFeedbackModal();
+            }
+        }
 
-        // PWA Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/static/sw.js').then(reg => {
-                    console.log('SW Registered v4.5', reg.scope);
+                    console.log('SW Registered v5.0', reg.scope);
                 }).catch(err => console.log('SW Fail:', err));
             });
         }

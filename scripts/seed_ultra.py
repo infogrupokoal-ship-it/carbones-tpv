@@ -5,7 +5,7 @@ from backend.utils.auth import get_password_hash
 from backend.utils.logger import logger
 
 def seed_ultra_industrial():
-    print("🚀 Iniciando Sembrado MEGA INDUSTRIAL v2.1...")
+    logger.info("Iniciando Sembrado MEGA INDUSTRIAL v2.1...")
     db = SessionLocal()
     
     try:
@@ -25,7 +25,7 @@ def seed_ultra_industrial():
             )
             db.add(tienda)
             db.commit()
-            print(f"✅ Tienda Central: {tienda.id}")
+            logger.info(f"Tienda Central Creada: {tienda.id}")
 
         # 2. Usuarios
         if not db.query(Usuario).filter_by(username="admin").first():
@@ -38,7 +38,7 @@ def seed_ultra_industrial():
                 tienda_id=tienda.id
             )
             db.add(admin)
-            print("✅ Usuario ADMIN: 1234")
+            logger.info("Usuario ADMIN Creado: PIN 1234")
 
         # 3. Categorías con Iconos Visuales (Simulados en el nombre para el Kiosko)
         cat_data = [
@@ -158,12 +158,12 @@ def seed_ultra_industrial():
                 db.add(p)
         
         db.commit()
-        print(f"✅ Catálogo de {len(productos_data)} productos sembrado.")
-        print("🚀 [SUCCESS] Mega Seeder Industrial Completado.")
+        logger.info(f"Catálogo de {len(productos_data)} productos sembrado.")
+        logger.info("[SUCCESS] Mega Seeder Industrial Completado.")
 
     except Exception as e:
         db.rollback()
-        print(f"❌ [ERROR] Sembrado fallido: {e}")
+        logger.error(f"[ERROR] Sembrado fallido: {e}")
     finally:
         db.close()
 

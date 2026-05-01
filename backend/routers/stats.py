@@ -5,10 +5,116 @@ from datetime import date, datetime, timedelta
 from typing import Dict, List, Any
 from pydantic import BaseModel, Field
 
+from .admin_audit import log_audit_action
+from .customers import get_current_customer
 from ..database import get_db
-from ..models import Pedido, ItemPedido, Producto, Cliente, ReporteZ
+from ..models import Pedido, ItemPedido, Producto, Cliente, ReporteZ, Review, MovimientoStock
 
 router = APIRouter(prefix="/stats", tags=["Business Intelligence"])
+
+class DashboardKPIs(BaseModel):
+    ventas_hoy: float
+    pedidos_count: int
+    ticket_medio: float
+    coste_mermas: float
+    envios_hoy: int
+    satisfaccion: float
+
+class DashboardData(BaseModel):
+    kpis: DashboardKPIs
+    charts: Dict[str, Any]
+    reviews: List[Dict[str, Any]]
+    status: str = "operational"
+
+@router.get("/dashboard", response_model=DashboardData)
+def get_unified_dashboard(db: Session = Depends(get_db)):
+    """
+    Motor de Inteligencia Centralizado: Proporciona telemetría operativa y financiera
+    para todos los niveles de mando de la organización.
+    """
+    today = date.today()
+    today_str = today.strftime("%Y-%m-%d")
+    
+    # 1. KPIs de Alto Nivel
+    ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.date(Pedido.fecha) == today).scalar() or 0.0
+    num_pedidos = db.query(func.count(Pedido.id)).filter(func.date(Pedido.fecha) == today).scalar() or 0
+    envios_hoy = db.query(Pedido).filter(func.date(Pedido.fecha) == today, Pedido.metodo_envio == "DOMICILIO").count()
+    
+    # Mermas (valoradas al 40% del PVP)
+    mermas_hoy = db.query(func.sum(MovimientoStock.cantidad * Producto.precio * 0.4))\
+        .join(Producto)\
+        .filter(MovimientoStock.tipo == "SOBRANTE_DIA")\
+        .filter(func.date(MovimientoStock.fecha) == today).scalar() or 0.0
+        
+    satisfaccion = db.query(func.avg(Review.rating)).scalar() or 5.0
+
+    # 2. Análisis de Tendencias (Histórico 7 días)
+    end_date = today
+    start_date = end_date - timedelta(days=6)
+    history = db.query(func.date(Pedido.fecha).label("day"), func.sum(Pedido.total))\
+        .filter(func.date(Pedido.fecha) >= start_date)\
+        .group_by("day").order_by("day").all()
+    
+    # 3. Rendimiento por Horas (Hoy)
+    horas_labels = [f"{h:02d}:00" for h in range(11, 24)] # Horario operativo estándar
+    ventas_horas = db.query(
+        func.strftime("%H", Pedido.fecha).label("hora"),
+        func.sum(Pedido.total)
+    ).filter(func.date(Pedido.fecha) == today).group_by("hora").all()
+    
+    horas_dict = {f"{int(h):02d}:00": v for h, v in ventas_horas}
+    horas_data = [horas_dict.get(h, 0.0) for h in horas_labels]
+
+    # 4. Top Productos (Categorizados)
+    def get_top_products(cat_name=None):
+        query = db.query(Producto.nombre, func.sum(ItemPedido.cantidad).label("qty"))\
+            .join(ItemPedido).join(Pedido)\
+            .filter(func.date(Pedido.fecha) == today)
+        if cat_name:
+            query = query.join(Producto.categoria).filter(Producto.categoria.has(nombre=cat_name))
+        return query.group_by(Producto.nombre).order_by(func.desc("qty")).limit(5).all()
+
+    top_pollos = get_top_products("Pollos Asados")
+    top_pizzas = get_top_products("Pizzas")
+
+    # 5. Reviews Recientes
+    recent_reviews = db.query(Review).order_by(Review.fecha.desc()).limit(10).all()
+    reviews_list = [{
+        "rating": r.rating,
+        "comentario": r.comentario,
+        "fecha": r.fecha.strftime("%H:%M") if r.fecha else "--:--",
+        "cliente": "Anónimo"
+    } for r in recent_reviews]
+
+    return DashboardData(
+        kpis=DashboardKPIs(
+            ventas_hoy=round(ventas_hoy, 2),
+            pedidos_count=num_pedidos,
+            ticket_medio=round(ventas_hoy / num_pedidos, 2) if num_pedidos > 0 else 0,
+            coste_mermas=round(abs(mermas_hoy), 2),
+            envios_hoy=envios_hoy,
+            satisfaccion=round(float(satisfaccion), 1)
+        ),
+        charts={
+            "historico": {
+                "labels": [h[0].strftime("%d/%m") for h in history],
+                "data": [round(h[1], 2) for h in history]
+            },
+            "horas": {
+                "labels": horas_labels,
+                "data": [round(v, 2) for v in horas_data]
+            },
+            "top_pollos": {
+                "labels": [p[0] for p in top_pollos],
+                "data": [int(p[1]) for p in top_pollos]
+            },
+            "top_pizzas": {
+                "labels": [p[0] for p in top_pizzas],
+                "data": [int(p[1]) for p in top_pizzas]
+            }
+        },
+        reviews=reviews_list
+    )
 
 @router.get("/summary")
 def get_daily_summary(db: Session = Depends(get_db)):

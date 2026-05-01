@@ -60,7 +60,7 @@
 
         async function fetchOrders() {
             try {
-                const res = await fetch('/api/orders?estado=EN_PREPARACION');
+                const res = await fetch('/api/orders/pending');
                 if (res.ok) {
                     const newOrders = await res.json();
                     

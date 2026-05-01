@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 import time
 from datetime import datetime
 from typing import Dict, Any
@@ -74,6 +75,15 @@ if os.path.exists("static"):
 async def startup_event():
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
+    # Forzar UTF-8 en consola para evitar errores de charmap en Windows
+    if sys.platform == "win32":
+        try:
+            import io
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+        except Exception:
+            pass
+
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
     
     # Asegurar esquemas y datos iniciales
@@ -174,12 +184,11 @@ app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
-    """Sirve la interfaz B2C Ultra-Premium desde la ubicación estática."""
+    """Sirve la interfaz B2C Ultra-Premium como entrada principal del ecosistema."""
     path = "static/kiosko.html"
     if os.path.exists(path):
         return FileResponse(path)
-    return FileResponse("static/index.html")
-    return HTMLResponse("<h1>TPV Enterprise</h1><p>Interfaz no encontrada. Despliegue en curso...</p>", status_code=404)
+    return HTMLResponse("<h1>TPV Enterprise</h1><p>Sistema en mantenimiento industrial. Contacte con soporte.</p>", status_code=503)
 
 @app.get("/sw.js", include_in_schema=False)
 async def get_sw():

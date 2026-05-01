@@ -33,6 +33,7 @@ class PedidoCrear(BaseModel):
     cliente_id: Optional[str] = None
     metodo_envio: str = Field("LOCAL", example="LOCAL")
     direccion: Optional[str] = None
+    metodo_pago: str = Field("TARJETA", example="TARJETA")
 
 class ItemPedidoOut(BaseModel):
     id: str
@@ -40,6 +41,9 @@ class ItemPedidoOut(BaseModel):
     nombre: str
     cantidad: int
     precio: float
+    
+    class Config:
+        from_attributes = True
 
 class PedidoOut(BaseModel):
     id: str
@@ -103,6 +107,42 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
     except Exception as e:
         logger.error(f"Error listando pedidos: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
+
+@router.get("/pending", response_model=List[PedidoOut])
+def listar_pedidos_pendientes(db: Session = Depends(get_db)):
+    """
+    Endpoint optimizado para el KDS: Retorna solo pedidos en estado EN_PREPARACION 
+    con todos sus items cargados para evitar múltiples peticiones.
+    """
+    try:
+        pedidos = db.query(Pedido).filter(Pedido.estado == "EN_PREPARACION").order_by(Pedido.fecha.asc()).all()
+        results = []
+        for p in pedidos:
+            items_detailed = []
+            for it in p.items:
+                prod = db.query(Producto).get(it.producto_id)
+                items_detailed.append(ItemPedidoOut(
+                    id=it.id,
+                    producto_id=it.producto_id,
+                    nombre=prod.nombre if prod else "Item",
+                    cantidad=it.cantidad,
+                    precio=it.precio_unitario
+                ))
+            results.append(PedidoOut(
+                id=p.id,
+                numero_ticket=p.numero_ticket,
+                fecha=p.fecha,
+                estado=p.estado,
+                total=p.total,
+                metodo_pago=p.metodo_pago,
+                origen=p.origen,
+                notas_cliente=p.notas_cliente,
+                items=items_detailed
+            ))
+        return results
+    except Exception as e:
+        logger.error(f"Error en /pending: {e}")
+        return []
 
 @router.get("/today", response_model=List[PedidoOut])
 def listar_pedidos_hoy(db: Session = Depends(get_db)):
@@ -232,7 +272,7 @@ def crear_pedido(
             cubiertos_qty=pedido.cubiertos_qty,
             notas_cliente=pedido.notas_cliente,
             total=0.0,
-            metodo_pago="TARJETA" if pedido.origen == "QUIOSCO" else "EFECTIVO",
+            metodo_pago=pedido.metodo_pago,
             tienda_id=db.query(Producto).first().tienda_id if db.query(Producto).first() else None,
             metodo_envio=pedido.metodo_envio,
             direccion=pedido.direccion

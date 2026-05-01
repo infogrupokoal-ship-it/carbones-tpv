@@ -211,22 +211,47 @@
             }
         });
 
-        // Simulación de carga de datos reales desde API v1
+        // Sincronización Industrial con API v5.0
         async function loadRealData() {
             try {
-                const res = await fetch('/api/admin/dashboard/kpis', {
+                const res = await fetch('/api/stats/dashboard', {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById('stat-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
-                    document.getElementById('stat-pedidos').innerText = data.kpis.pedidos_b2c;
-                    document.getElementById('stat-costos').innerText = data.kpis.coste_mermas.toFixed(2) + '€';
+                    
+                    // 1. Actualizar KPIs con precisión monetaria
+                    document.getElementById('stat-ventas').innerText = data.kpis.ventas_hoy.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                    document.getElementById('stat-pedidos').innerText = data.kpis.pedidos_count;
+                    document.getElementById('stat-costos').innerText = data.kpis.coste_mermas.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                    document.getElementById('stat-margen').innerText = (data.kpis.satisfaccion * 20).toFixed(1) + '%'; // Satisfacción escalada a %
+
+                    // 2. Sincronizar Gráficas
+                    updateCharts(data.charts);
                 }
-            } catch (e) { console.error("Error cargando KPIs", e); }
+            } catch (e) { console.error("Error crítico en sincronización BI", e); }
+        }
+
+        function updateCharts(charts) {
+            // Actualizar Histórico Semanal
+            const salesChart = Chart.getChart("salesChart");
+            if (salesChart) {
+                salesChart.data.labels = charts.historico.labels;
+                salesChart.data.datasets[0].data = charts.historico.data;
+                salesChart.update();
+            }
+
+            // Actualizar Distribución por Categoría (Top Pollos vs Top Pizzas)
+            const marginChart = Chart.getChart("marginChart");
+            if (marginChart) {
+                marginChart.data.labels = [...charts.top_pollos.labels, ...charts.top_pizzas.labels].slice(0, 5);
+                marginChart.data.datasets[0].data = [...charts.top_pollos.data, ...charts.top_pizzas.data].slice(0, 5);
+                marginChart.update();
+            }
         }
         
         loadRealData();
+        setInterval(loadRealData, 60000); // Auto-refresh industrial
     </script>
 </body>
 </html>

@@ -13,7 +13,7 @@ router = APIRouter(prefix="/feedback", tags=["Feedback"])
 class ReviewCrear(BaseModel):
     rating: int
     comentario: str
-    cliente_id: str
+    cliente_id: str | None = None
 
 @router.post("/")
 def crear_reseña(req: ReviewCrear, db: Session = Depends(get_db)):

@@ -10,7 +10,7 @@ from .database import SessionLocal
 # Configuración Profesional de Gemini
 if settings.GOOGLE_API_KEY:
     genai.configure(api_key=settings.GOOGLE_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 else:
     model = None
 
