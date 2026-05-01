@@ -34,47 +34,58 @@
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .pulse-green { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulse-g 2s infinite; }
+        .pulse-red { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-r 2s infinite; }
+        @keyframes pulse-g { 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        @keyframes pulse-r { 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     </style>
 </head>
 <body class="flex flex-col">
 
     <!-- KDS Header -->
-    <header id="kds-header" class="bg-[#0f172a] border-b-2 border-slate-800 p-6 flex justify-between items-center transition-colors duration-500">
-        <div class="flex items-center gap-4">
-            <div class="h-12 w-12 bg-orange-600 rounded-xl flex items-center justify-center text-2xl shadow-lg shadow-orange-900/40">🔥</div>
-            <div>
-                <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">Kitchen <span class="text-orange-500">Display</span></h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Industrial Production v2.1</p>
-            </div>
-        </div>
-
-        <!-- Resumen de Producción (Métricas en tiempo real) -->
-        <div id="production-summary" class="hidden md:flex gap-4 px-6 border-l border-r border-slate-800">
-            <!-- Inyectado via JS -->
-        </div>
-
-        <div class="flex items-center gap-8">
-            <div class="text-right">
-                <p id="clock" class="text-3xl font-black text-white">00:00:00</p>
-                <div class="flex items-center justify-end gap-2">
-                    <span id="sync-dot" class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <p id="status-text" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Sincronizado</p>
+    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-50 transition-colors duration-500" id="kds-header">
+        <div class="max-w-[120rem] mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/static/portal.html'" class="text-stone-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 bg-orange-600 rounded flex items-center justify-center text-xs shadow-lg shadow-orange-900/40">🔥</div>
+                    <span class="text-white font-black tracking-widest text-xs uppercase">KDS <span class="text-orange-500">Central</span></span>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="loadOrders()" class="h-12 w-12 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-all border border-white/5 active:scale-90">🔄</button>
-                <button onclick="toggleAudio()" id="audio-btn" class="h-12 w-12 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-all border border-white/5 active:scale-90">🔔</button>
+
+            <!-- Resumen de Producción (Métricas en tiempo real) -->
+            <div id="production-summary" class="hidden md:flex gap-6 items-center border-x border-white/10 px-6 h-full">
+                <!-- Inyectado via JS -->
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="text-right flex items-center gap-4">
+                    <p id="clock" class="text-xl font-black text-white font-mono tracking-tighter">00:00:00</p>
+                    <div class="flex items-center justify-end gap-2">
+                        <span id="sync-dot" class="h-2 w-2 rounded-full bg-emerald-500 pulse-green"></span>
+                        <p id="status-text" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Sincronizado</p>
+                    </div>
+                </div>
+                <div class="w-px h-6 bg-white/10"></div>
+                <div class="flex gap-2">
+                    <button onclick="loadOrders()" class="h-8 w-8 bg-white/5 rounded flex items-center justify-center hover:bg-white/10 transition-all border border-white/5 active:scale-90 text-sm">🔄</button>
+                    <button onclick="toggleAudio()" id="audio-btn" class="h-8 w-8 bg-white/5 rounded flex items-center justify-center hover:bg-white/10 transition-all border border-white/5 active:scale-90 text-sm">🔔</button>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Rush Mode Alert -->
-    <div id="rush-banner" class="hidden bg-red-600 text-white py-2 px-6 text-center animate-pulse">
-        <p class="text-sm font-black uppercase tracking-[0.3em]">⚠️ RUSH MODE ACTIVATED: ALTA DEMANDA EN COCINA ⚠️</p>
+    <div id="rush-banner" class="hidden mt-16 bg-red-600/20 border-b border-red-500/30 text-red-500 py-2 px-6 text-center animate-pulse backdrop-blur-md">
+        <p class="text-xs font-black uppercase tracking-[0.3em]">⚠️ RUSH MODE ACTIVATED: ALTA DEMANDA EN COCINA ⚠️</p>
     </div>
 
     <!-- Orders Grid -->
-    <main id="kds-grid" class="flex-1 overflow-x-auto flex gap-6 p-6 no-scrollbar">
+    <main id="kds-grid" class="flex-1 overflow-x-auto flex gap-6 p-6 mt-16 no-scrollbar">
         <div class="flex flex-col items-center justify-center w-full space-y-8">
             <div class="relative">
                 <div class="text-9xl animate-pulse">🍗</div>
@@ -141,6 +152,7 @@
                 
                 document.getElementById('status-text').innerText = "Sincronizado";
                 document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-emerald-500');
+                document.getElementById('sync-dot').classList.replace('pulse-red', 'pulse-green');
                 
                 renderKDS();
                 updateSummary();
@@ -149,6 +161,7 @@
                 console.warn("⚠️ Conexión perdida, usando Caché Local (Modo Resiliencia KDS)...");
                 document.getElementById('status-text').innerText = "OFFLINE MODE";
                 document.getElementById('sync-dot').classList.replace('bg-emerald-500', 'bg-red-500');
+                document.getElementById('sync-dot').classList.replace('pulse-green', 'pulse-red');
                 
                 const backup = localStorage.getItem('kds_orders_backup');
                 if (backup) {
@@ -177,7 +190,7 @@
                 summary.innerHTML = topItems.map(([name, qty]) => `
                     <div class="flex flex-col justify-center">
                         <p class="text-[8px] font-black text-slate-500 uppercase">${name.slice(0,15)}</p>
-                        <p class="text-xl font-black text-white">x${qty}</p>
+                        <p class="text-sm font-black text-white">x${qty}</p>
                     </div>
                 `).join('');
             } else {
@@ -195,11 +208,13 @@
             const banner = document.getElementById('rush-banner');
 
             if (urgentCount >= 3 || activeOrders.length >= 8) {
-                header.classList.replace('bg-[#0f172a]', 'bg-red-950');
+                header.classList.replace('bg-black/80', 'bg-red-950/80');
                 banner.classList.remove('hidden');
+                grid.classList.replace('mt-16', 'mt-0'); // Banner takes space
             } else {
-                header.classList.replace('bg-red-950', 'bg-[#0f172a]');
+                header.classList.replace('bg-red-950/80', 'bg-black/80');
                 banner.classList.add('hidden');
+                grid.classList.replace('mt-0', 'mt-16');
             }
         }
 
@@ -279,6 +294,7 @@
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
             document.getElementById('status-text').innerText = "Sincronizado";
             document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-emerald-500');
+            document.getElementById('sync-dot').classList.replace('pulse-red', 'pulse-green');
         }
 
         setInterval(updateClock, 1000);

@@ -11,26 +11,33 @@
 </head>
 <body class="min-h-screen pb-24">
 
-    <!-- Header / Nav -->
-    <header class="glass-panel sticky top-0 z-50 !rounded-none !border-x-0 !border-t-0 p-6 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                <span class="text-2xl">📦</span>
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-50 transition-colors duration-500">
+        <div class="max-w-[120rem] mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/static/portal.html'" class="text-stone-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 bg-emerald-500 rounded flex items-center justify-center text-xs shadow-lg shadow-emerald-900/40">📦</div>
+                    <span class="text-white font-black tracking-widest text-xs uppercase">CONTROL DE <span class="text-emerald-500">STOCKS</span></span>
+                </div>
             </div>
-            <div>
-                <h1 class="text-2xl font-black text-white tracking-tighter">CONTROL DE <span class="text-gradient">STOCKS</span></h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Módulo de Logística Centralizada</p>
-            </div>
-        </div>
-        <div class="flex gap-4">
-            <button onclick="loadInventario()" class="p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 text-white transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </button>
-            <a href="index.html" class="btn-primary !py-3 !px-6">VOLVER</a>
-        </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto p-8">
+            <div class="flex items-center gap-4">
+                <button onclick="loadInventario()" class="p-2 text-stone-500 hover:text-white transition-colors rounded-full hover:bg-white/5" title="Sincronizar Datos">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Sincronizado</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-8 mt-16">
         <!-- Stats Summary -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-in">
             <div class="glass-panel p-6 border-l-4 border-l-emerald-500">

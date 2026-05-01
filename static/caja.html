@@ -93,29 +93,34 @@
 <body class="h-screen flex flex-col text-white">
     
     <!-- Top Navigation -->
-    <nav class="px-6 py-6 flex justify-between items-center bg-black/20 border-b border-white/5 backdrop-blur-xl sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-amber-500/20">💰</div>
-            <div>
-                <h1 class="heading-font text-2xl tracking-tight leading-none uppercase">Caja Maestra</h1>
-                <div class="flex items-center mt-1">
-                    <span class="status-dot status-online animate-pulse"></span>
-                    <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Enterprise v4.1 • Live</span>
+    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-50">
+        <div class="max-w-[120rem] mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/static/portal.html'" class="text-stone-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 bg-amber-500 rounded flex items-center justify-center text-xs shadow-lg shadow-amber-500/20">💰</div>
+                    <span class="text-white font-black tracking-widest text-xs uppercase">Caja <span class="text-amber-500">Maestra</span></span>
                 </div>
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="abrirCajaRemota()" class="bg-white/5 hover:bg-white/10 text-white px-5 py-3 rounded-2xl font-bold text-xs border border-white/10 transition-all flex items-center gap-2">
-                <span>🔓</span> ABRIR CAJÓN
-            </button>
-            <button onclick="location.href='index.html'" class="bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-2xl font-bold text-xs border border-white/10 transition-all">
-                🏠 INICIO
-            </button>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="abrirCajaRemota()" class="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg font-bold text-xs border border-white/10 transition-all flex items-center gap-2">
+                    <span>🔓</span> ABRIR CAJÓN
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">En Línea</span>
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- Main Viewport -->
-    <main class="flex-1 overflow-y-auto p-6 md:p-12">
+    <main class="flex-1 overflow-y-auto p-6 md:p-12 mt-16">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
@@ -195,49 +200,51 @@
                 container.innerHTML = '';
                 pedidos.forEach((ped, idx) => {
                     const delay = idx * 100;
+                    
                     let itemsHtml = ped.items.map(i => `
-                        <div class="flex justify-between items-center py-3 border-b border-slate-100/50 group">
+                        <div class="flex justify-between items-center py-2 border-b border-white/5 group">
                             <div class="flex items-center gap-3">
-                                <span class="w-6 h-6 flex items-center justify-center bg-slate-100 rounded-md text-[10px] font-black text-slate-500">${i.cantidad}</span>
-                                <span class="font-bold text-slate-800 group-hover:text-amber-600 transition-colors">${i.nombre}</span>
+                                <span class="w-6 h-6 flex items-center justify-center bg-white/10 rounded text-[10px] font-black text-white">${i.cantidad}</span>
+                                <span class="font-bold text-slate-300 group-hover:text-amber-500 transition-colors text-sm">${i.nombre}</span>
                             </div>
-                            <span class="text-slate-400 font-black text-sm">${(i.precio * i.cantidad).toFixed(2)}€</span>
+                            <span class="text-white font-black text-sm">${(i.precio * i.cantidad).toFixed(2)}€</span>
                         </div>
                     `).join('');
-                    
+
                     const card = document.createElement('div');
-                    card.className = 'ticket-white animate-pop';
+                    card.className = 'glass-card flex flex-col overflow-hidden relative animate-pop';
                     card.style.animationDelay = `${delay}ms`;
                     card.innerHTML = `
-                        <div class="bg-slate-50 p-6 flex justify-between items-start rounded-t-[2rem] border-b-2 border-dashed border-slate-200">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+                        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
                             <div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Ticket Operativo</span>
-                                <h3 class="text-5xl font-black text-slate-900 tracking-tighter">${ped.numero_ticket}</h3>
+                                <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Ticket Operativo</span>
+                                <h3 class="text-3xl font-black text-white tracking-tighter">#${ped.numero_ticket.slice(-4)}</h3>
                             </div>
                             <div class="text-right">
-                                <span class="px-3 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest">${ped.origen}</span>
-                                <p class="text-[10px] font-bold text-slate-400 mt-2">${new Date(ped.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                <span class="px-2 py-1 rounded bg-white/5 text-slate-300 border border-white/10 text-[10px] font-black uppercase tracking-widest">${ped.origen}</span>
+                                <p class="text-[10px] font-bold text-slate-500 mt-2">${new Date(ped.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
-                        <div class="p-8 flex-1 flex flex-col min-h-[300px]">
-                            <div class="flex-1 mb-8">
+                        <div class="p-6 flex-1 flex flex-col relative z-10">
+                            <div class="flex-1 mb-8 space-y-2">
                                 ${itemsHtml}
                             </div>
                             
                             ${ped.notas_cliente ? `
-                                <div class="mb-8 p-4 bg-amber-50 rounded-2xl border border-amber-100 italic text-sm text-amber-800 flex gap-3 items-start">
-                                    <span class="text-lg">💬</span>
+                                <div class="mb-6 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs font-medium text-amber-200/80 flex gap-3 items-start">
+                                    <span class="text-amber-500">💬</span>
                                     "${ped.notas_cliente}"
                                 </div>
                             ` : ''}
 
-                            <div class="flex justify-between items-end mb-8">
-                                <span class="font-black text-slate-300 text-xs uppercase tracking-widest mb-2">Total Bruto</span>
-                                <span class="font-black text-slate-900 text-6xl tracking-tighter leading-none">${ped.total.toFixed(2)}<span class="text-2xl ml-1">€</span></span>
+                            <div class="flex justify-between items-end mb-6 pt-6 border-t border-white/5">
+                                <span class="font-black text-slate-500 text-xs uppercase tracking-widest mb-1">Total Bruto</span>
+                                <span class="font-black text-white text-5xl tracking-tighter leading-none">${ped.total.toFixed(2)}<span class="text-xl text-amber-500 ml-1">€</span></span>
                             </div>
 
-                            <button onclick="cobrarTKT('${ped.id}', '${ped.numero_ticket}')" class="btn-confirm w-full text-white p-6 rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-3 transition-all hover:brightness-110">
-                                <span>🤝</span> CONFIRMAR COBRO
+                            <button onclick="cobrarTKT('${ped.id}', '${ped.numero_ticket}')" class="w-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 p-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all">
+                                CONFIRMAR COBRO
                             </button>
                         </div>
                     `;

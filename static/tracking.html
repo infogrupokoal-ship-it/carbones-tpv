@@ -12,19 +12,19 @@
 <body class="min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden bg-slate-900">
     
     <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-30">
-        <div class="absolute -top-24 -left-24 w-96 h-96 bg-yellow-500/20 blur-[120px] rounded-full"></div>
-        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-orange-500/20 blur-[120px] rounded-full"></div>
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/20 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-orange-600/20 blur-[120px] rounded-full"></div>
     </div>
 
     <div class="glass-panel w-full max-w-md p-10 text-center animate-in">
         <div class="relative inline-block mb-8">
-            <div class="absolute inset-0 bg-yellow-500/20 blur-2xl rounded-full animate-pulse"></div>
-            <div class="relative bg-white/5 border border-white/10 p-8 rounded-full text-6xl" id="emoji-status">
+            <div class="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full animate-pulse"></div>
+            <div class="relative bg-white/5 border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.2)] p-8 rounded-full text-6xl" id="emoji-status">
                 📍
             </div>
         </div>
 
-        <h1 class="text-4xl font-black text-white tracking-tighter mb-4">EN <span class="text-gradient">TRANSITO</span></h1>
+        <h1 class="text-4xl font-black text-white tracking-tighter mb-4">EN <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">TRÁNSITO</span></h1>
         <p class="text-slate-400 font-medium text-lg mb-10 leading-relaxed">Compartir tu ubicación ayuda a que cocina prepare tu pedido en el momento justo.</p>
         
         <div class="bg-white/5 p-6 rounded-3xl border border-white/10 mb-10 hidden" id="status-panel">
@@ -32,7 +32,7 @@
             <h2 class="text-2xl font-black text-emerald-400" id="status-text">CONECTANDO...</h2>
         </div>
 
-        <button id="btn-start" onclick="iniciarTracking()" class="btn-primary w-full !py-6 !text-xl shadow-orange-500/20">
+        <button id="btn-start" onclick="iniciarTracking()" class="w-full bg-amber-500 text-slate-900 font-black py-6 rounded-2xl text-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:scale-[1.02] transition-transform active:scale-95 uppercase tracking-widest">
             COMPARTIR UBICACIÓN
         </button>
         
