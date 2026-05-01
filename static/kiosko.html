@@ -51,7 +51,7 @@
                 <p class="text-[9px] font-black text-amber-500/50 uppercase tracking-[0.4em] mt-1">Industrial Gourmet Experience</p>
             </div>
         </div>
-        <button onclick="toggleCart()" class="amber-glass px-6 py-3 rounded-2xl flex items-center gap-3 hover:bg-amber-500/10 transition-all">
+        <button id="cart-btn-main" onclick="toggleCart()" class="amber-glass px-6 py-3 rounded-2xl flex items-center gap-3 hover:bg-amber-500/10 transition-all duration-300">
             <span class="text-xs font-black uppercase tracking-widest text-amber-500">Tu Pedido</span>
             <span id="cart-count" class="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
         </button>
@@ -154,7 +154,13 @@
             const prod = products.find(p => p.id === id);
             cart.push(prod);
             updateCartUI();
-            if (document.getElementById('cart-overlay').classList.contains('opacity-0')) toggleCart();
+            
+            // UX: Animar el botón del carrito en lugar de abrirlo
+            const cartBtn = document.getElementById('cart-btn-main');
+            if (cartBtn) {
+                cartBtn.classList.add('scale-110', 'bg-amber-500/20');
+                setTimeout(() => cartBtn.classList.remove('scale-110', 'bg-amber-500/20'), 300);
+            }
         }
 
         function updateCartUI() {
