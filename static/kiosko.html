@@ -169,7 +169,13 @@
         </div>
     </div>
 
-    <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto">
+    <main class="pt-36 px-6 pb-40 max-w-7xl mx-auto relative">
+        
+        <!-- Offline Banner -->
+        <div id="offline-banner" class="hidden absolute top-0 left-6 right-6 -mt-6 bg-red-500 text-white px-4 py-3 rounded-2xl flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(239,68,68,0.3)] z-40 mb-6 animate-in slide-in-from-top-4">
+            <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
+            <span class="text-xs font-black uppercase tracking-widest">Estás navegando sin conexión. Algunas funciones pueden estar limitadas.</span>
+        </div>
         
         <!-- Hero Banner Promocional (Fase 3) -->
         <div class="mb-8 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 group cursor-pointer" onclick="addGenericCrossSell('Menú Familiar Ahorro', 24.99)">
@@ -192,42 +198,29 @@
             </div>
         </div>
 
-        <!-- Vista 1: Cuadrícula de Categorías (Home) -->
-        <div id="view-categories" class="animate-fade">
-            <h2 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter mb-8 text-center">¿Qué te <span class="text-amber-500">Apetece?</span></h2>
-            <div class="relative w-full max-w-2xl mx-auto mb-10">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" id="global-search" onkeyup="handleGlobalSearch()" placeholder="Buscar platos rápidamente..." class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-base text-slate-800 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 focus:outline-none transition-all shadow-sm">
-            </div>
-            
-            <div id="main-category-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Se inyecta por JS -->
+        <!-- Sticky Category Nav (Horizontal Scroll) -->
+        <div class="sticky top-[88px] z-40 bg-[#f8fafc]/95 backdrop-blur-xl border-b border-slate-200 mb-8 py-4 px-2 -mx-6 md:mx-0">
+            <div id="sticky-category-nav" class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 px-4 md:px-0 scroll-smooth">
+                <!-- Se inyectan las pastillas de categoría -->
             </div>
         </div>
 
-        <!-- Vista 2: Lista de Productos (Por Categoría o Búsqueda) -->
-        <div id="view-products" class="hidden animate-fade">
-            <div class="sticky top-[88px] z-40 bg-[#f8fafc]/95 backdrop-blur-xl pb-4 pt-2 border-b border-slate-200 mb-8 flex flex-col md:flex-row items-center gap-4 justify-between">
-                <button onclick="showCategoriesView()" class="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Volver a Categorías
-                </button>
-                <div id="active-category-title" class="text-2xl font-black text-slate-900 uppercase tracking-tighter hidden md:block">
-                    <!-- Título dinámico -->
-                </div>
-                <div class="relative w-full md:w-64 hidden">
-                    <input type="text" id="local-search" onkeyup="renderProducts()" placeholder="Buscar en categoría..." class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none transition-all">
-                </div>
+        <div class="relative w-full max-w-2xl mx-auto mb-10">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
+            <input type="text" id="global-search" onkeyup="handleGlobalSearch()" placeholder="Buscar platos rápidamente..." class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-base text-slate-800 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 focus:outline-none transition-all shadow-sm">
+        </div>
 
-            <!-- Products Grid -->
-            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Vista Única: Lista Continua de Productos por Categoría -->
+        <div id="view-products" class="animate-fade">
+            <!-- Products Layout -->
+            <div id="products-grid" class="flex flex-col gap-12">
                 <!-- Loading State: Skeletons -->
-                <div class="product-card rounded-3xl p-4 animate-pulse"><div class="h-64 rounded-2xl bg-slate-200 mb-6"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div><div class="h-12 bg-slate-200 rounded-xl mt-4"></div></div>
-                <div class="product-card rounded-3xl p-4 animate-pulse"><div class="h-64 rounded-2xl bg-slate-200 mb-6"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div><div class="h-12 bg-slate-200 rounded-xl mt-4"></div></div>
-                <div class="product-card rounded-3xl p-4 animate-pulse hidden lg:block"><div class="h-64 rounded-2xl bg-slate-200 mb-6"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div><div class="h-12 bg-slate-200 rounded-xl mt-4"></div></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                    <div class="product-card rounded-3xl p-4 animate-pulse border border-slate-200"><div class="h-64 rounded-2xl bg-slate-200 mb-6"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div><div class="h-12 bg-slate-200 rounded-xl mt-4"></div></div>
+                    <div class="product-card rounded-3xl p-4 animate-pulse border border-slate-200"><div class="h-64 rounded-2xl bg-slate-200 mb-6"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div><div class="h-12 bg-slate-200 rounded-xl mt-4"></div></div>
+                </div>
             </div>
         </div>
     </main>
@@ -454,94 +447,53 @@
 
         function renderCategories(cats) {
             globalCategories = cats;
-            const container = document.getElementById('main-category-grid');
-            if(!container) return; // Si la UI antigua sigue activa, evita errores
+            const container = document.getElementById('sticky-category-nav');
+            if(!container) return;
             
-            // Diccionario de iconos corporativos e imágenes de fondo
             const categoryData = {
-                'POLLOS': { icon: '🍗', img: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?w=400&q=80' },
-                'PATATAS': { icon: '🍟', img: 'https://images.unsplash.com/photo-1573080496599-2313642340dc?w=400&q=80' },
-                'ENSALADAS': { icon: '🥗', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80' },
-                'BEBIDAS': { icon: '🥤', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80' },
-                'POSTRES': { icon: '🍰', img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80' },
-                'PIZZAS': { icon: '🍕', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80' },
-                'BOCADILLOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
-                'BOCADILLOS Y CHIVITOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
-                'BOCADILLOS CLÁSICOS': { icon: '🥖', img: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=400&q=80' },
-                'BRASCADAS': { icon: '🥩', img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80' },
-                'ARROCES': { icon: '🥘', img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80' },
-                'TAPAS': { icon: '🍤', img: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&q=80' },
-                'PLATOS COMBINADOS': { icon: '🍳', img: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80' }
+                'POLLOS': { icon: '🍗' }, 'PATATAS': { icon: '🍟' }, 'ENSALADAS': { icon: '🥗' }, 'BEBIDAS': { icon: '🥤' },
+                'POSTRES': { icon: '🍰' }, 'PIZZAS': { icon: '🍕' }, 'BOCADILLOS': { icon: '🥖' }, 'BRASCADAS': { icon: '🥩' },
+                'ARROCES': { icon: '🥘' }, 'TAPAS': { icon: '🍤' }, 'PLATOS COMBINADOS': { icon: '🍳' }
             };
 
-            let optionsHtml = '';
-            
-            // Renderizar tarjetas de categorías (Fase 4 - Grid)
-            optionsHtml += cats.map(c => {
+            let optionsHtml = cats.map(c => {
                 const upperName = c.nombre.toUpperCase();
                 let icon = '🍽️';
-                let img = 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400&q=80';
-                
                 for (const [key, val] of Object.entries(categoryData)) {
-                    if (upperName.includes(key)) {
-                        icon = val.icon;
-                        img = val.img;
-                        break;
-                    }
+                    if (upperName.includes(key)) { icon = val.icon; break; }
                 }
-                const hasEmoji = /\p{Emoji}/u.test(c.nombre);
-                const displayName = hasEmoji ? c.nombre : `${c.nombre}`;
-                
+                const displayName = c.nombre.replace(/'/g, "\\'");
                 return `
-                <div onclick="showProductsView('${c.id}', '${displayName.replace(/'/g, "\\'")}')" class="group cursor-pointer relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200 bg-white aspect-square md:aspect-auto md:h-40 flex flex-col active:scale-95">
-                    <div class="h-3/4 w-full relative overflow-hidden">
-                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
-                        <div class="absolute bottom-2 left-2 text-2xl drop-shadow-md">${icon}</div>
-                    </div>
-                    <div class="h-1/4 flex items-center justify-center p-2 bg-white">
-                        <h3 class="text-[11px] md:text-sm font-black text-slate-800 uppercase tracking-tight text-center line-clamp-1">${displayName}</h3>
-                    </div>
-                </div>
+                <button onclick="scrollToCategory('${c.id}')" class="whitespace-nowrap flex-shrink-0 flex items-center gap-2 bg-white hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 px-6 py-3 rounded-full font-black text-sm text-slate-800 uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                    <span class="text-lg">${icon}</span> ${c.nombre}
+                </button>
                 `;
             }).join('');
             
             container.innerHTML = optionsHtml;
         }
 
-        // Navegación Fase 4
-        function showCategoriesView() {
-            document.getElementById('view-products').classList.add('hidden');
-            document.getElementById('view-categories').classList.remove('hidden');
-            document.getElementById('local-search').value = '';
-            document.getElementById('global-search').value = '';
-            activeCategory = 'all';
-        }
-
-        function showProductsView(catId, catName) {
-            document.getElementById('view-categories').classList.add('hidden');
-            document.getElementById('view-products').classList.remove('hidden');
-            document.getElementById('active-category-title').innerText = catName || 'Resultados';
-            document.getElementById('local-search').value = '';
-            activeCategory = catId;
-            renderProducts();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function scrollToCategory(catId) {
+            const el = document.getElementById('cat-' + catId);
+            if(el) {
+                const offset = 160; // Offset for sticky headers
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = el.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+            }
         }
 
         function handleGlobalSearch() {
-            const q = document.getElementById('global-search').value;
-            if(q.length > 1) {
-                showProductsView('all', 'Búsqueda');
-                document.getElementById('local-search').value = q;
-                renderProducts();
-            }
+            renderProducts();
         }
 
 
 
         function renderProducts() {
             const grid = document.getElementById('products-grid');
-            const searchQ = document.getElementById('local-search')?.value.toLowerCase() || '';
+            const searchQ = document.getElementById('global-search')?.value.toLowerCase() || '';
             
             // Group products by category
             let categoriesMap = {};
@@ -551,11 +503,6 @@
                 }
                 const catName = p.categoria_nombre || 'OTROS';
                 const catId = String(p.categoria_id) || 'otros';
-                
-                // Si estamos filtrando por categoría y no es "all", saltar los que no coinciden
-                if (activeCategory !== 'all' && activeCategory !== catId && !searchQ) {
-                    return;
-                }
 
                 if(!categoriesMap[catId]) {
                     categoriesMap[catId] = { name: catName, products: [] };
@@ -574,15 +521,13 @@
             for (const catId in categoriesMap) {
                 const cat = categoriesMap[catId];
                 
-                // Si hay búsqueda global (multi-categoria), mostrar títulos
-                if (activeCategory === 'all' && searchQ) {
-                    html += `<div id="cat-${catId}" class="col-span-full mt-4 mb-2 border-b border-slate-200 pb-2">
-                                <h2 class="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tighter flex items-center gap-3">
-                                    <div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-slate-500 text-sm">📁</div>
-                                    ${cat.name}
-                                </h2>
-                             </div>`;
-                }
+                html += `
+                <div id="cat-${catId}" class="scroll-mt-40">
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 border-b-2 border-amber-500 pb-2 w-max">
+                        ${cat.name}
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                `;
                          
                 html += cat.products.map((p) => {
                     globalIndex++;
@@ -648,6 +593,7 @@
                     </div>
                     `;
                 }).join('');
+                html += `</div></div>`; // Close grid and section
             }
             grid.innerHTML = html;
         }

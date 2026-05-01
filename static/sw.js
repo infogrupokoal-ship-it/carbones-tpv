@@ -3,7 +3,7 @@
  * Estrategia: Stale-While-Revalidate para estáticos & Network-First para API
  */
 
-const CACHE_NAME = 'tpv-enterprise-v4.2';
+const CACHE_NAME = 'tpv-enterprise-v4.4';
 const ASSETS_TO_CACHE = [
     '/',
     '/static/index.html',
@@ -12,6 +12,8 @@ const ASSETS_TO_CACHE = [
     '/static/inventario.html',
     '/static/kiosko.html',
     '/static/login.html',
+    '/static/nosotros.html',
+    '/static/tracking.html',
     '/static/manifest.json',
     'https://cdn.tailwindcss.com',
     'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap',
