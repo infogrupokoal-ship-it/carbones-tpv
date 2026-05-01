@@ -294,9 +294,10 @@
                 try {
                     const healthRes = await fetch('/api/health');
                     const health = await healthRes.json();
-                    document.getElementById('tele-cpu').innerText = `${health.telemetry.cpu_usage}%`;
-                    document.getElementById('tele-ram').innerText = `${health.telemetry.memory_usage}%`;
-                    document.getElementById('tele-db').innerText = `${health.telemetry.db_latency_ms.toFixed(1)}ms`;
+                    // Actualizar telemetría visual
+                    document.getElementById('tele-cpu').innerText = `${health.telemetry.cpu_usage || 0}%`;
+                    document.getElementById('tele-ram').innerText = `${health.telemetry.memory_usage || 0}%`;
+                    document.getElementById('tele-db').innerText = `${(health.telemetry.db_latency_ms || 0).toFixed(1)}ms`;
                 } catch(e) { console.warn("Health check fail", e); }
 
                 // Actualizar Top Productos
@@ -422,7 +423,7 @@
 
         const updateAuditLogs = async () => {
             try {
-                const res = await fetch('/api/system/audit?limit=10');
+                const res = await fetch('/api/admin/audit/logs?limit=10');
                 if(!res.ok) return;
                 const data = await res.json();
                 

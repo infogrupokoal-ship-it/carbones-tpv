@@ -37,10 +37,10 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
     """
     if not settings.GOOGLE_API_KEY:
         return ChatResponse(
-            reply="Lo siento, el asistente no está disponible en este momento.",
+            reply="Lo siento, el asistente Carbonito requiere una Google API Key para funcionar. Por favor, configúrala en el panel de control. 🔥",
             agent="Carbonito",
-            model_used="none",
-            model_tier="OFFLINE"
+            model_used="OFFLINE",
+            model_tier="NONE"
         )
 
     try:
