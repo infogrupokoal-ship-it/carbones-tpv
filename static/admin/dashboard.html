@@ -15,19 +15,40 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 1.5rem;
         }
-        .stat-value { font-weight: 800; font-size: 2.5rem; letter-spacing: -1px; }
+        .stat-value { font-weight: 900; font-size: 3rem; letter-spacing: -2px; }
+        .pulse-green { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulse-g 2s infinite; }
+        .pulse-red { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-r 2s infinite; }
+        @keyframes pulse-g { 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        @keyframes pulse-r { 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="pt-24 p-6 md:p-12">
 
-    <header class="flex justify-between items-center mb-12">
-        <div>
-            <h1 class="text-4xl font-black tracking-tight mb-2">Business <span class="text-amber-500">Intelligence</span></h1>
-            <p class="text-gray-500 uppercase tracking-widest text-xs font-bold">Consola de Control Financiero v4.0</p>
+    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-50">
+        <div class="max-w-[90rem] mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/static/portal.html'" class="text-stone-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <span class="text-white font-black tracking-widest text-xs uppercase">BI <span class="text-amber-500">Enterprise</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="location.reload()" class="p-2 text-stone-500 hover:text-white transition-colors rounded-full hover:bg-white/5" title="Sincronizar Datos">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">En línea</span>
+                </div>
+            </div>
         </div>
-        <div class="flex gap-4">
-            <button onclick="location.reload()" class="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 transition">🔄</button>
-            <button onclick="window.location.href='/static/portal.html'" class="px-6 py-2 bg-white text-black font-bold rounded-full text-sm">VOLVER AL HUB</button>
+    </nav>
+
+    <header class="max-w-[90rem] mx-auto mb-12 flex justify-between items-end">
+        <div>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-2 text-white">Consola <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">Financiera</span></h1>
+            <p class="text-stone-500 uppercase tracking-widest text-[10px] font-black">Métricas Operativas en Tiempo Real v4.0</p>
         </div>
     </header>
 
@@ -92,7 +113,12 @@
                         <td class="text-gray-400">4.12€</td>
                         <td class="text-emerald-500">10.78€</td>
                         <td><span class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs">72%</span></td>
-                        <td><span class="text-xs text-gray-500">Óptimo</span></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-green"></div>
+                                <span class="text-xs text-stone-400 font-bold uppercase tracking-wider">Óptimo</span>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="border-b border-white/5 hover:bg-white/5 transition">
                         <td class="py-6">Menú Individual</td>
@@ -100,7 +126,12 @@
                         <td class="text-gray-400">5.80€</td>
                         <td class="text-emerald-500">6.70€</td>
                         <td><span class="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-xs">53%</span></td>
-                        <td><span class="text-xs text-amber-500">Revisar</span></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                                <span class="text-xs text-amber-500 font-bold uppercase tracking-wider">Revisar Escandallo</span>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="border-b border-white/5 hover:bg-white/5 transition">
                         <td class="py-6">Patatas Grandes</td>
@@ -108,7 +139,25 @@
                         <td class="text-gray-400">0.85€</td>
                         <td class="text-emerald-500">3.65€</td>
                         <td><span class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs">81%</span></td>
-                        <td><span class="text-xs text-gray-500">Alta Rotación</span></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-green"></div>
+                                <span class="text-xs text-stone-400 font-bold uppercase tracking-wider">Alta Rotación</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                        <td class="py-6">Refresco Cola</td>
+                        <td>2.50€</td>
+                        <td class="text-gray-400">1.80€</td>
+                        <td class="text-emerald-500">0.70€</td>
+                        <td><span class="bg-red-500/10 text-red-500 px-3 py-1 rounded-full text-xs">28%</span></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-red-500 pulse-red"></div>
+                                <span class="text-xs text-red-500 font-bold uppercase tracking-wider">Margen Crítico</span>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

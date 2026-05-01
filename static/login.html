@@ -25,8 +25,10 @@
 
     <div class="glass-panel w-full max-w-md animate-in">
         <div class="text-center mb-10">
-            <div class="inline-block p-4 rounded-3xl bg-white/5 border border-white/10 mb-6">
-                <span class="text-5xl">🍗</span>
+            <div class="inline-flex p-4 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+                <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
             </div>
             <h1 class="text-4xl font-black text-white tracking-tighter">SISTEMA <span class="text-gradient">CLOUD</span></h1>
             <p class="text-slate-400 font-medium mt-2">Acceso restringido para personal autorizado</p>
@@ -35,11 +37,11 @@
         <form id="login-form" class="space-y-6">
             <div>
                 <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Identificador de Usuario</label>
-                <input id="user" type="text" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:border-orange-500/50 transition-all" required autocomplete="username" placeholder="admin">
+                <input id="user" type="text" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white font-mono text-sm outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/50 transition-all placeholder-slate-700" required autocomplete="username" placeholder="admin">
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Clave de Acceso</label>
-                <input id="pass" type="password" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:border-orange-500/50 transition-all" required autocomplete="current-password" placeholder="••••••••">
+                <input id="pass" type="password" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white font-mono text-sm outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/50 transition-all placeholder-slate-700 tracking-widest" required autocomplete="current-password" placeholder="••••••••">
             </div>
 
             <div id="error-msg" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-sm font-bold text-center">
@@ -78,7 +80,7 @@
                     const data = await r.json();
                     localStorage.setItem('auth_user', data.username);
                     localStorage.setItem('auth_role', data.role);
-                    window.location.href = 'index.html';
+                    window.location.href = 'portal.html';
                 } else {
                     error.classList.remove('hidden');
                     btn.innerText = "REINTENTAR";
