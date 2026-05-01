@@ -18,6 +18,26 @@
         .custom-scrollbar::-webkit-scrollbar { width: 0px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.6s ease-out forwards; }
+        
+        /* ESTILOS DE IMPRESIÓN (RECIBO ESC/POS Y CAJÓN) */
+        @media print {
+            body * { visibility: hidden; }
+            #ticket-impresion, #ticket-impresion * { visibility: visible; }
+            #ticket-impresion {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 14px;
+                color: #000;
+                padding: 10px;
+                margin: 0;
+            }
+            .print-only { display: block !important; }
+            .no-print { display: none !important; }
+        }
+        .print-only { display: none; }
     </style>
 </head>
 <body class="text-stone-300 min-h-screen">
@@ -185,7 +205,35 @@
                     body: JSON.stringify(pedido)
                 });
                 if (res.ok) {
-                    alert("🔥 Pedido enviado a cocina. ¡Disfruta!");
+                    const data = await res.json();
+                    
+                    // 1. GENERAR FORMATO DE TICKET PARA IMPRESORA DURAPOS
+                    const ticketDiv = document.getElementById('ticket-impresion');
+                    let itemsHtml = cart.map(item => `<div>1x ${item.nombre.substring(0,20)} ... ${item.precio.toFixed(2)}€</div>`).join('');
+                    
+                    ticketDiv.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <h2 style="font-size: 24px; font-weight: bold; margin: 0;">CARBONES Y POLLOS</h2>
+                            <p style="margin: 0;">Ticket de Venta (Kiosko)</p>
+                            <p style="margin: 0;">Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+                            <hr style="border-top: 1px dashed black; margin: 10px 0;">
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            ${itemsHtml}
+                        </div>
+                        <hr style="border-top: 1px dashed black; margin: 10px 0;">
+                        <div style="text-align: right; font-size: 18px; font-weight: bold;">
+                            TOTAL: ${pedido.total.toFixed(2)}€
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <h1 style="font-size: 32px; font-weight: bold; margin: 0;">TURNO: ${data.numero_ticket}</h1>
+                            <p>¡Gracias por tu compra!</p>
+                        </div>
+                    `;
+                    // 2. DISPARAR IMPRESIÓN (Interceptado por DURAPOS)
+                    window.print();
+
+                    alert(`🔥 Pedido enviado a cocina. Tu turno: ${data.numero_ticket}. ¡Disfruta!`);
                     cart = [];
                     updateCartUI();
                     toggleCart();

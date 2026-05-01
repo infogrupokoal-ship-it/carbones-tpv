@@ -26,7 +26,7 @@ def seed_night_menu_image():
                 db.query(Categoria).filter(Categoria.nombre == cdata["nombre"]).first()
             )
             if not cat:
-                cat = Categoria(nombre=cdata["nombre"], orden=cdata["orden"])
+                cat = Categoria(nombre=cdata["nombre"])
                 db.add(cat)
                 db.flush()
             cat_objs[cdata["nombre"]] = cat
