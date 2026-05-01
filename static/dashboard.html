@@ -18,9 +18,27 @@
         .status-offline { background: #64748b; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .toast {
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards, slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards 3s;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: auto;
+            color: white;
+        }
+        @keyframes slideIn { from { transform: translateX(100%) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(100%) scale(0.95); opacity: 0; } }
     </style>
 </head>
 <body class="min-h-screen text-slate-300 overflow-x-hidden">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <div class="flex h-screen overflow-hidden">
         
@@ -186,6 +204,41 @@
     </div>
 
     <script>
+        // Función para mostrar notificaciones Toast
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let iconHtml;
+            if (type === 'error') {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>`;
+            } else if (type === 'success') {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>`;
+            } else {
+                iconHtml = `
+                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>`;
+            }
+
+            toast.innerHTML = `
+                ${iconHtml}
+                <div>
+                    <p class="text-white font-black text-xs">${title}</p>
+                    <p class="text-slate-400 text-[10px] font-medium">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
+        }
+
         let salesChart;
 
         const updateDashboard = async () => {
@@ -302,9 +355,11 @@
             .then(r => r.json())
             .then(d => {
                 if (d.status === 'success') {
-                    alert(`Fichaje confirmado: ${d.usuario} (${d.tipo}) a las ${d.hora}`);
+                    showToast('Fichaje Confirmado', `${d.usuario} (${d.tipo}) a las ${d.hora}`, 'success');
                     updateDashboard();
-                } else alert("Error: " + (d.detail || "PIN incorrecto"));
+                } else {
+                    showToast('Error', d.detail || "PIN incorrecto", 'error');
+                }
             });
         };
 
@@ -359,7 +414,7 @@
                 setTimeout(() => content.classList.remove('scale-95'), 10);
                 
             } catch(e) {
-                alert("Error al obtener la previsualización del Cierre Z.");
+                showToast('Error', 'No se pudo obtener la previsualización del Cierre Z.', 'error');
             }
         };
 
@@ -373,7 +428,7 @@
         const confirmCierreZ = async () => {
             const efectivoStr = document.getElementById('caja-ciega-input').value;
             const efectivo = parseFloat(efectivoStr);
-            if (isNaN(efectivo)) return alert("Cantidad de efectivo en caja inválida.");
+            if (isNaN(efectivo)) return showToast('Atención', 'Cantidad de efectivo en caja inválida.', 'error');
 
             if (!confirm("⚠️ ¿Estás seguro de ejecutar el Cierre Z? Esto liquidará el turno y enviará el reporte contable.")) return;
 
@@ -387,15 +442,15 @@
                 
                 if (res.ok && d.status === 'success') {
                     let diffMsg = d.diferencia === 0 ? "CUADRE PERFECTO 🎯" : `Descuadre de ${d.diferencia}€ ⚠️`;
-                    alert(`✅ Cierre Z ejecutado correctamente.\n\nEfectivo Declarado: ${efectivo}€\nVentas Efectivo (Sistema): ${d.efectivo_teorico}€\n${diffMsg}\n\nReporte ID: ${d.reporte_id}`);
+                    showToast('Cierre Z Ejecutado', `Efectivo: ${efectivo}€ | ${diffMsg}`, 'success');
                     closeCierreZModal();
                     updateDashboard();
                     updateAuditLogs();
                 } else {
-                    alert("Error: " + (d.detail || "Fallo al ejecutar el Cierre Z"));
+                    showToast('Error', d.detail || "Fallo al ejecutar el Cierre Z", 'error');
                 }
             } catch(e) {
-                alert("Error de red al ejecutar Cierre Z");
+                showToast('Error de Red', 'Fallo de conexión al ejecutar Cierre Z', 'error');
             }
         };
 
