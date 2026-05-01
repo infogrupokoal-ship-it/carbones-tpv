@@ -3,141 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDS | Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>KDS - Cocina | Carbones</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Design System -->
-    <link rel="stylesheet" href="/static/css/design_system.css">
     <style>
-        :root {
-            --bg: #020617;
-            --card-bg: #0f172a;
-            --primary: #f59e0b;
-            --urgent: #ef4444;
-        }
-        body { background: var(--bg); }
-        .kds-card {
-            background: var(--card-bg);
-            border: 2px solid #1e293b;
-            border-radius: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s;
-        }
-        .kds-card.urgent { border-color: var(--urgent); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
-        .kds-card.waiting { border-color: var(--primary); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
-<body class="p-4 h-screen flex flex-col text-white overflow-hidden">
+<body class="bg-slate-900 text-white h-screen flex flex-col overflow-hidden font-sans">
     
-    <!-- Navbar KDS -->
-    <header class="flex justify-between items-center mb-6 bg-slate-900/50 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-md z-10">
         <div class="flex items-center gap-4">
-            <span class="text-4xl">👨‍🍳</span>
-            <div>
-                <h1 class="text-2xl font-black leading-tight tracking-tighter">MONITOR DE COCINA</h1>
-                <p class="text-xs font-bold text-slate-400 tracking-widest uppercase">Sistema de Producción v4.1</p>
-            </div>
+            <div class="w-10 h-10 bg-amber-500 rounded flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.5)]">🔥</div>
+            <h1 class="text-2xl font-black tracking-widest uppercase">KDS Cocina</h1>
+            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-green-500/50 flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Online
+            </span>
         </div>
-        <div class="text-right">
-            <div class="text-3xl font-black text-yellow-400 font-mono" id="clock">00:00:00</div>
-            <div class="flex items-center justify-end gap-2 text-[10px] font-bold text-emerald-400">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                SISTEMA OPERATIVO
-            </div>
-        </div>
+        <div class="text-slate-400 font-mono text-xl" id="clock">00:00:00</div>
     </header>
 
-    <!-- Orders Grid -->
-    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-1 overflow-y-auto pb-10" id="kds-grid">
-        <!-- Loader / No Orders -->
-        <div class="col-span-full py-20 text-center glass-panel">
-            <h3 class="text-2xl font-black text-slate-500">Sincronizando comanda...</h3>
+    <!-- Kanban Board -->
+    <main class="flex-1 p-4 flex gap-4 overflow-hidden">
+        
+        <!-- Columna 1: Nuevos -->
+        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col overflow-hidden">
+            <div class="p-4 bg-slate-800 border-b border-slate-700">
+                <h2 class="text-lg font-black text-white uppercase flex justify-between items-center">
+                    Nuevos (Pagados) <span id="count-nuevos" class="bg-blue-500 text-white text-xs px-2 py-1 rounded">0</span>
+                </h2>
+            </div>
+            <div id="col-nuevos" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Tarjetas -->
+            </div>
         </div>
+
+        <!-- Columna 2: En Preparación -->
+        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-amber-900/50 flex flex-col overflow-hidden shadow-[inset_0_0_50px_rgba(245,158,11,0.05)]">
+            <div class="p-4 bg-slate-800 border-b border-amber-500/30">
+                <h2 class="text-lg font-black text-amber-400 uppercase flex justify-between items-center">
+                    En Preparación <span id="count-prep" class="bg-amber-500 text-black text-xs px-2 py-1 rounded">0</span>
+                </h2>
+            </div>
+            <div id="col-prep" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Tarjetas -->
+            </div>
+        </div>
+
+        <!-- Columna 3: Listos -->
+        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-green-900/50 flex flex-col overflow-hidden shadow-[inset_0_0_50px_rgba(34,197,94,0.05)]">
+            <div class="p-4 bg-slate-800 border-b border-green-500/30">
+                <h2 class="text-lg font-black text-green-400 uppercase flex justify-between items-center">
+                    Listos (Recoger) <span id="count-listos" class="bg-green-500 text-black text-xs px-2 py-1 rounded">0</span>
+                </h2>
+            </div>
+            <div id="col-listos" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Tarjetas -->
+            </div>
+        </div>
+
     </main>
 
     <script>
-        const API_URL = "/api";
-
-        function updateClock() {
+        // Reloj
+        setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('es-ES', { hour12: false });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+        }, 1000);
 
         async function fetchOrders() {
             try {
-                const res = await fetch(`${API_URL}/orders/?estado=EN_PREPARACION`);
-                const orders = await res.json();
-                renderOrders(orders);
-            } catch (e) {
-                console.error("KDS Error:", e);
+                // Obtenemos solo los pedidos de hoy para la cocina
+                const res = await fetch('/api/orders/today');
+                if(!res.ok) throw new Error("Error fetching orders");
+                const pedidos = await res.json();
+                
+                renderBoard(pedidos);
+            } catch(e) {
+                console.error(e);
             }
         }
 
-        function renderOrders(orders) {
-            const grid = document.getElementById('kds-grid');
-            if(!orders || orders.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-40 text-center flex flex-col items-center">
-                        <span class="text-8xl mb-6 opacity-20">🔥</span>
-                        <h3 class="text-3xl font-black text-slate-600">COCINA DESPEJADA</h3>
-                        <p class="text-slate-500 mt-2 font-medium">No hay pedidos pendientes de preparación.</p>
-                    </div>
-                `;
-                return;
-            }
+        function renderBoard(pedidos) {
+            const cols = {
+                nuevos: document.getElementById('col-nuevos'),
+                prep: document.getElementById('col-prep'),
+                listos: document.getElementById('col-listos')
+            };
 
-            grid.innerHTML = orders.map(order => {
-                const mins = Math.floor((new Date() - new Date(order.fecha)) / 60000);
-                const isUrgent = mins > 15;
+            // Limpiar columnas
+            Object.values(cols).forEach(c => c.innerHTML = '');
+            
+            let counts = { nuevos: 0, prep: 0, listos: 0 };
+
+            pedidos.forEach(p => {
+                // Solo renderizar si los items están disponibles, pero como /today no los trae,
+                // usaremos /api/orders/?limit=50 para traer los items,
+                // vamos a cambiar la url de fetchOrders
+            });
+        }
+        
+        async function fetchOrdersDetailed() {
+            try {
+                const res = await fetch('/api/orders/?limit=100');
+                if(!res.ok) throw new Error("Error fetching");
+                const pedidos = await res.json();
                 
-                return `
-                    <div class="kds-card ${isUrgent ? 'urgent' : 'waiting'} animate-in">
-                        <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                // Filtrar solo los de hoy que no estén COMPLETADO (ya entregados y cerrados) o CANCELADO
+                // Wait, if it's completed we might want to hide it.
+                const todayStr = new Date().toISOString().split('T')[0];
+                const activeOrders = pedidos.filter(p => 
+                    p.fecha.startsWith(todayStr) && 
+                    !['COMPLETADO', 'CANCELADO'].includes(p.estado)
+                );
+                
+                renderDetailedBoard(activeOrders);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function renderDetailedBoard(pedidos) {
+            const cols = {
+                'NUEVO': document.getElementById('col-nuevos'),
+                'ESPERANDO_PAGO': document.getElementById('col-nuevos'),
+                'EN_PREPARACION': document.getElementById('col-prep'),
+                'LISTO': document.getElementById('col-listos')
+            };
+
+            Object.values(cols).forEach(c => { if(c) c.innerHTML = ''; });
+            let counts = { nuevos: 0, prep: 0, listos: 0 };
+
+            pedidos.forEach(p => {
+                let col = cols[p.estado] || cols['EN_PREPARACION'];
+                
+                if(p.estado === 'NUEVO' || p.estado === 'ESPERANDO_PAGO') counts.nuevos++;
+                else if(p.estado === 'EN_PREPARACION') counts.prep++;
+                else if(p.estado === 'LISTO') counts.listos++;
+
+                // Agrupar items
+                let itemsList = (p.items || []).map(it => 
+                    `<li class="flex justify-between items-center text-sm py-1 border-b border-slate-700/50 last:border-0">
+                        <span class="font-bold">x${it.cantidad} ${it.nombre}</span>
+                    </li>`
+                ).join('');
+
+                // Time diff
+                const orderDate = new Date(p.fecha + 'Z');
+                const diffMins = Math.floor((new Date() - orderDate) / 60000);
+                let timeColor = diffMins > 15 ? 'text-red-400' : 'text-slate-400';
+
+                // Botones de acción
+                let actionBtn = '';
+                if(p.estado === 'ESPERANDO_PAGO' || p.estado === 'NUEVO') {
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'EN_PREPARACION')" class="w-full mt-3 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase text-xs py-3 rounded active:scale-95 transition-all">Empezar a Cocinar</button>`;
+                } else if(p.estado === 'EN_PREPARACION') {
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'LISTO')" class="w-full mt-3 bg-green-500 hover:bg-green-400 text-black font-black uppercase text-xs py-3 rounded active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">Marcar como Listo</button>`;
+                } else if(p.estado === 'LISTO') {
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'COMPLETADO')" class="w-full mt-3 border border-slate-600 hover:bg-slate-700 text-white font-black uppercase text-xs py-3 rounded active:scale-95 transition-all">Entregado (Cerrar)</button>`;
+                }
+
+                const cardHtml = `
+                    <div class="bg-slate-700 rounded-xl p-4 shadow-lg border border-slate-600 animate-fade">
+                        <div class="flex justify-between items-start mb-3 border-b border-slate-600 pb-2">
                             <div>
-                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">TICKET</p>
-                                <p class="text-3xl font-black text-white">#${order.numero_ticket || order.id.slice(0,4)}</p>
+                                <span class="text-2xl font-black tracking-tighter text-white">#${p.numero_ticket}</span>
+                                <div class="text-[10px] text-slate-400 uppercase font-bold mt-1">Origen: ${p.origen}</div>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-black ${isUrgent ? 'text-red-400' : 'text-yellow-400'} uppercase tracking-widest">TIEMPO</p>
-                                <p class="text-2xl font-black ${isUrgent ? 'text-red-400' : 'text-white'}">${mins}m</p>
+                                <div class="${timeColor} font-bold text-sm">Hace ${diffMins} min</div>
+                                <div class="text-xs text-slate-400 mt-1">${orderDate.toLocaleTimeString('es-ES', {hour12:false}).substring(0,5)}</div>
                             </div>
                         </div>
-                        <div class="p-6 flex-1">
-                            <ul class="space-y-4">
-                                ${order.items.map(i => `
-                                    <li class="flex items-start gap-4">
-                                        <span class="bg-slate-800 text-yellow-400 font-black px-3 py-1 rounded-lg text-xl">${i.cantidad}</span>
-                                        <div class="flex-1">
-                                            <p class="text-xl font-bold leading-tight">${i.nombre.toUpperCase()}</p>
-                                            ${i.notas ? `<p class="text-sm text-yellow-500/80 italic mt-1 font-medium">⚠️ ${i.notas}</p>` : ''}
-                                        </div>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                        <div class="p-6 pt-0">
-                            <button onclick="completarPedido('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-xl shadow-lg shadow-emerald-900/20 active:scale-95 transition-all">
-                                COMPLETADO
-                            </button>
-                        </div>
+                        <ul class="mb-2">
+                            ${itemsList}
+                        </ul>
+                        ${p.notas_cliente ? `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs p-2 rounded mb-2">⚠️ ${p.notas_cliente}</div>` : ''}
+                        ${actionBtn}
                     </div>
                 `;
-            }).join('');
+                col.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            document.getElementById('count-nuevos').innerText = counts.nuevos;
+            document.getElementById('count-prep').innerText = counts.prep;
+            document.getElementById('count-listos').innerText = counts.listos;
         }
 
-        async function completarPedido(orderId) {
+        async function changeStatus(id, newStatus) {
             try {
-                await fetch(`${API_URL}/orders/${orderId}/estado?estado=LISTO`, { method: 'PUT' });
-                fetchOrders();
-            } catch (e) {
-                alert("Error al completar");
+                await fetch(`/api/orders/${id}/estado?estado=${newStatus}`, { method: 'PUT' });
+                fetchOrdersDetailed();
+            } catch(e) {
+                alert('Error al actualizar estado');
             }
         }
 
-        setInterval(fetchOrders, 5000);
-        fetchOrders();
+        // Init polling
+        fetchOrdersDetailed();
+        setInterval(fetchOrdersDetailed, 5000);
     </script>
 </body>
 </html>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gourmet Kiosk - Carbones y Pollos</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#f59e0b">
+    <link rel="apple-touch-icon" href="/static/icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
     <style>
@@ -644,12 +647,12 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <div>
-                    <p class="text-white font-bold text-xs">Añadido al pedido</p>
-                    <p class="text-zinc-400 text-[10px]">${productName} - <span class="text-amber-500">${price.toFixed(2)}€</span></p>
+                    <p class="text-slate-800 font-black text-xs">Añadido al pedido</p>
+                    <p class="text-slate-500 text-[10px] font-medium">${productName} - <span class="text-amber-500 font-bold">${price.toFixed(2)}€</span></p>
                 </div>
             `;
             container.appendChild(toast);
@@ -1202,6 +1205,17 @@
         }
 
         init();
+
+        // 🚀 PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js').then(reg => {
+                    console.log('Service Worker Registrado!', reg.scope);
+                }).catch(err => {
+                    console.error('Fallo al registrar el Service Worker:', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
