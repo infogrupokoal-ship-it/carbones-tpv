@@ -116,6 +116,24 @@
         </div>
     </div>
 
+    <!-- Modal Enviar Campaña -->
+    <div id="modalSend" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden flex items-center justify-center z-[100] p-6">
+        <div class="glass-panel max-w-lg w-full p-10 rounded-[2.5rem] relative">
+            <button onclick="document.getElementById('modalSend').classList.add('hidden')" class="absolute top-6 right-6 text-slate-500 hover:text-white">✕</button>
+            <h3 class="text-3xl font-black text-white mb-8 uppercase tracking-tighter">Enviar <span class="text-emerald-500">Campaña</span></h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase block mb-2">Destinatarios</label>
+                    <div id="clientes-list" class="bg-slate-900 border border-white/10 rounded-xl p-4 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+                        <!-- Clientes inyectados aquí -->
+                    </div>
+                </div>
+                <button onclick="sendCampaign()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-emerald-900/40">Confirmar Envío Masivo</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function fetchTemplates() {
             try {
@@ -144,7 +162,7 @@
                     </div>
                     <div class="mt-8 pt-6 border-t border-white/5 flex gap-3">
                         <button class="flex-1 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase py-2 rounded-lg transition-all">Editar</button>
-                        <button class="px-4 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase py-2 rounded-lg hover:bg-emerald-500/20 transition-all">Test</button>
+                        <button onclick="openSendModal('${t.id}')" class="px-4 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase py-2 rounded-lg hover:bg-emerald-500/20 transition-all shadow-lg">Enviar Campaña</button>
                     </div>
                 </div>
             `).join('');
@@ -169,7 +187,54 @@
             }
         }
 
+        let selectedTemplateId = null;
+        let allClients = [];
+
+        async function fetchClientes() {
+            try {
+                const res = await fetch('/api/customers');
+                if (res.ok) allClients = await res.json();
+            } catch(e) { console.error(e); }
+        }
+
+        function openSendModal(templateId) {
+            selectedTemplateId = templateId;
+            const list = document.getElementById('clientes-list');
+            list.innerHTML = allClients.map(c => `
+                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer">
+                    <input type="checkbox" value="${c.id}" class="client-cb rounded bg-slate-800 border-white/10 text-emerald-500 focus:ring-emerald-500">
+                    <span class="text-sm text-slate-300 font-bold">${c.nombre} <span class="text-slate-500 font-normal ml-2">${c.telefono}</span></span>
+                </label>
+            `).join('');
+            document.getElementById('modalSend').classList.remove('hidden');
+        }
+
+        async function sendCampaign() {
+            if (!selectedTemplateId) return;
+            const checkboxes = document.querySelectorAll('.client-cb:checked');
+            const clientIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (clientIds.length === 0) {
+                alert("Selecciona al menos un cliente");
+                return;
+            }
+
+            try {
+                const res = await fetch(\`/api/marketing/send-bulk?template_id=\${selectedTemplateId}\`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(clientIds)
+                });
+                
+                if (res.ok) {
+                    alert("Campaña enviada con éxito.");
+                    document.getElementById('modalSend').classList.add('hidden');
+                }
+            } catch(e) { console.error(e); }
+        }
+
         fetchTemplates();
+        fetchClientes();
     </script>
 </body>
 </html>

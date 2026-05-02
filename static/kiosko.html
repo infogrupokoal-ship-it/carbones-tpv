@@ -600,6 +600,19 @@
             }
         }
 
+        function getCategoryImg(nombre, fallback_url) {
+            if (!nombre) return fallback_url || '';
+            const n = nombre.toLowerCase();
+            if(n.includes('arroz') || n.includes('arroces')) return '/static/img/categorias/cat_arroz.png';
+            if(n.includes('bocadillo') || n.includes('bocatas')) return '/static/img/categorias/cat_bocadillo.png';
+            if(n.includes('hamburguesa') || n.includes('burger')) return '/static/img/categorias/cat_burger.png';
+            if(n.includes('pizza')) return '/static/img/categorias/cat_pizza.png';
+            if(n.includes('pollo')) return '/static/img/categorias/cat_pollo.png';
+            if(n.includes('refresco') || n.includes('bebida') || n.includes('coca')) return '/static/img/categorias/cat_refresco.png';
+            if(n.includes('sandwich') || n.includes('sándwich')) return '/static/img/categorias/cat_sandwich.png';
+            return fallback_url || '';
+        }
+
         function renderStickyNav() {
             const nav = document.getElementById('sticky-category-nav');
             if(!globalCategories.length) return;
@@ -613,17 +626,19 @@
                 return true;
             });
 
-            nav.innerHTML = uniqueCats.map((c, i) => `
+            nav.innerHTML = uniqueCats.map((c, i) => {
+                const imgUrl = getCategoryImg(c.nombre, c.imagen_url);
+                return `
                 <button onclick="scrollToCategory('${c.id}')" class="category-pill-sticky group flex flex-col items-center gap-2 whitespace-nowrap px-8 py-4 rounded-[2rem] border-2 border-slate-100 bg-white hover:border-amber-500 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-500 ${i===0 ? 'active' : ''}">
                     <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center p-2 group-hover:bg-amber-50 transition-colors">
-                        ${c.imagen_url ? 
-                            `<img src="${c.imagen_url}" class="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 opacity-60 group-hover:opacity-100">` : 
+                        ${imgUrl ? 
+                            `<img src="${imgUrl}" class="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 opacity-60 group-hover:opacity-100">` : 
                             `<span class="text-2xl opacity-40">🔥</span>`
                         }
                     </div>
                     <span class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-900 transition-colors">${c.nombre}</span>
                 </button>
-            `).join('');
+            `}).join('');
         }
 
         function scrollToCategory(id) {
@@ -721,13 +736,15 @@
                 if(renderedCats.has(baseName)) return ''; 
                 renderedCats.add(baseName);
 
+                const imgUrl = getCategoryImg(catData.nombre, catData.imagen_url);
+
                 return `
                 <div id="cat-${cid}" class="scroll-mt-60 animate-slide-up">
                     <div class="flex items-center justify-between mb-10">
                         <div class="flex items-center gap-6">
                             <div class="w-20 h-20 bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 flex items-center justify-center p-4 transform -rotate-3 hover:rotate-0 transition-transform duration-500">
-                                ${catData.imagen_url ? 
-                                    `<img src="${catData.imagen_url}" class="w-full h-full object-contain">` : 
+                                ${imgUrl ? 
+                                    `<img src="${imgUrl}" class="w-full h-full object-contain">` : 
                                     `<span class="text-3xl">🔥</span>`
                                 }
                             </div>

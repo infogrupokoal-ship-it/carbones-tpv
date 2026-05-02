@@ -6,10 +6,96 @@
     <title>Portal HR - Carbones y Pollos</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <!-- Design System Enterprise -->
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
-        body { user-select: none; -webkit-user-select: none; font-family: 'Outfit', sans-serif; background: #020617; }
+        :root {
+            --primary: #3b82f6; /* blue-500 */
+            --bg-base: #020617; /* slate-950 */
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        body { 
+            user-select: none; 
+            -webkit-user-select: none; 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Premium Background Grid */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .ambient-glow {
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
+            filter: blur(80px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* Keypad Styles */
+        .keypad-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .keypad-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .keypad-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .action-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
         @keyframes pulse-bg {
             0% { opacity: 0.6; }
             50% { opacity: 0.3; }
@@ -21,96 +107,124 @@
             border-radius: 4px;
             animation: pulse-bg 1.5s infinite;
         }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
-<body class="min-h-screen text-slate-300 overflow-x-hidden">
+<body class="min-h-screen text-slate-300">
+    
+    <div class="bg-grid"></div>
+    <div class="ambient-glow"></div>
+
     <!-- Enterprise Sidebar will be injected here -->
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative z-10">
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
-
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-            <div>
-                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">RRHH <span class="text-yellow-500">& Personal</span></h1>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Staff Portal • TPV Ultra</p>
-            </div>
-        </header>
-
-    <div class="container mx-auto px-4 pb-24 flex-1">
-        <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 xl:p-12 custom-scrollbar">
             
-            <!-- Panel Izquierdo: Fichaje -->
-            <div class="w-full lg:w-5/12 max-w-md mx-auto">
-                <div class="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl text-center">
-                    <h2 class="text-2xl md:text-3xl font-black mb-6 tracking-tight text-white">Portal de Fichaje</h2>
-                    
-                    <div id="pin-display" class="text-4xl tracking-[0.5em] text-center bg-black/50 text-white p-4 rounded-xl min-h-[72px] mb-8 font-mono border border-white/10 shadow-inner flex items-center justify-center"></div>
-                    
-                    <div class="grid grid-cols-3 gap-3 md:gap-4 mb-8 place-items-center max-w-[280px] mx-auto">
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('1')">1</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('2')">2</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('3')">3</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('4')">4</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('5')">5</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('6')">6</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('7')">7</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('8')">8</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('9')">9</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/40 text-2xl font-bold transition-all active:scale-90 border border-red-500/30" onclick="clearPin()">C</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 hover:bg-white/20 text-2xl font-bold transition-all active:scale-90 border border-white/5" onclick="addPin('0')">0</button>
-                        <button class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/40 text-2xl font-bold transition-all active:scale-90 border border-yellow-400/30" onclick="delPin()">⌫</button>
-                    </div>
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                <div>
+                    <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase">Recursos <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Humanos</span></h1>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Staff Portal • Control Center v3.0
+                    </p>
+                </div>
+            </header>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <button class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 font-black text-lg md:text-xl rounded-xl transition-all active:scale-95 shadow-lg" onclick="fichar('ENTRADA')">ENTRADA</button>
-                        <button class="bg-red-500 hover:bg-red-600 text-white p-4 font-black text-lg md:text-xl rounded-xl transition-all active:scale-95 shadow-lg" onclick="fichar('SALIDA')">SALIDA</button>
-                        <button class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 p-4 font-black text-lg md:text-xl rounded-xl transition-all active:scale-95 shadow-lg" onclick="fichar('INICIO_PAUSA')">PAUSA</button>
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white p-4 font-black text-lg md:text-xl rounded-xl transition-all active:scale-95 shadow-lg" onclick="fichar('FIN_PAUSA')">FIN PAUSA</button>
+            <div class="flex flex-col lg:flex-row gap-8">
+                
+                <!-- Panel Izquierdo: Fichaje -->
+                <div class="w-full lg:w-5/12 xl:w-4/12 flex-shrink-0">
+                    <div class="glass-panel rounded-3xl p-8 text-center relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
+                        
+                        <h2 class="text-lg font-black mb-8 tracking-widest text-white uppercase flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Terminal de Fichaje
+                        </h2>
+                        
+                        <div id="pin-display" class="text-5xl tracking-[0.4em] text-center bg-slate-900/80 text-white p-6 rounded-2xl min-h-[96px] mb-8 font-mono border border-white/5 shadow-inner flex items-center justify-center"></div>
+                        
+                        <div class="grid grid-cols-3 gap-4 mb-10 place-items-center max-w-[260px] mx-auto">
+                            <button class="keypad-btn" onclick="addPin('1')">1</button>
+                            <button class="keypad-btn" onclick="addPin('2')">2</button>
+                            <button class="keypad-btn" onclick="addPin('3')">3</button>
+                            <button class="keypad-btn" onclick="addPin('4')">4</button>
+                            <button class="keypad-btn" onclick="addPin('5')">5</button>
+                            <button class="keypad-btn" onclick="addPin('6')">6</button>
+                            <button class="keypad-btn" onclick="addPin('7')">7</button>
+                            <button class="keypad-btn" onclick="addPin('8')">8</button>
+                            <button class="keypad-btn" onclick="addPin('9')">9</button>
+                            <button class="keypad-btn bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20" onclick="clearPin()">C</button>
+                            <button class="keypad-btn" onclick="addPin('0')">0</button>
+                            <button class="keypad-btn bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20" onclick="delPin()">⌫</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="action-btn bg-emerald-600 hover:bg-emerald-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(16,185,129,0.5)] border border-emerald-500" onclick="fichar('ENTRADA')">Entrada</button>
+                            <button class="action-btn bg-red-600 hover:bg-red-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(239,68,68,0.5)] border border-red-500" onclick="fichar('SALIDA')">Salida</button>
+                            <button class="action-btn bg-amber-500 hover:bg-amber-400 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(245,158,11,0.5)] border border-amber-400" onclick="fichar('INICIO_PAUSA')">Pausa</button>
+                            <button class="action-btn bg-blue-600 hover:bg-blue-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] border border-blue-500" onclick="fichar('FIN_PAUSA')">Fin Pausa</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel Derecho: Historial -->
+                <div class="w-full lg:w-7/12 xl:w-8/12 flex-1">
+                    <div class="glass-panel rounded-3xl p-8 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+                            <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Registro Biométrico Reciente
+                            </h4>
+                            <span class="text-[9px] bg-slate-800 text-slate-400 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                            </span>
+                        </div>
+                        
+                        <div class="overflow-x-auto flex-1 custom-scrollbar pb-4">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="text-[10px] text-slate-400 uppercase tracking-[0.2em] border-b border-white/10">
+                                        <th class="pb-4 px-4 font-black">Identidad</th>
+                                        <th class="pb-4 px-4 font-black">Evento</th>
+                                        <th class="pb-4 px-4 text-right font-black">Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fichajes-list" class="text-sm text-slate-300">
+                                    <!-- Skeleton Loaders -->
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-5 px-4"><div class="skeleton-loader w-32"></div></td>
+                                        <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
+                                        <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-40"></div></td>
+                                    </tr>
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-5 px-4"><div class="skeleton-loader w-24"></div></td>
+                                        <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
+                                        <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-36"></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Panel Derecho: Historial -->
-            <div class="w-full lg:w-7/12">
-                <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 h-full flex flex-col shadow-xl">
-                    <h4 class="text-xl md:text-2xl font-bold mb-6 text-white border-b border-white/10 pb-4">Últimos Fichajes</h4>
-                    
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-left whitespace-nowrap">
-                            <thead>
-                                <tr class="text-slate-400 text-sm md:text-base border-b border-white/10">
-                                    <th class="pb-3 font-semibold px-2">Usuario</th>
-                                    <th class="pb-3 font-semibold px-2">Tipo</th>
-                                    <th class="pb-3 font-semibold px-2">Fecha y Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fichajes-list" class="divide-y divide-white/5">
-                                <!-- Skeleton Loaders -->
-                                <tr>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-24"></div></td>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-16"></div></td>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-32"></div></td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-24"></div></td>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-16"></div></td>
-                                    <td class="py-4 px-2"><div class="skeleton-loader w-32"></div></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+
+            <!-- Footer Meta -->
+            <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
+                <div>© 2026 Carbones y Pollos Enterprise Suite</div>
+                <div class="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-white/5">
+                    <span class="text-purple-500 border-white/10 pr-4">Módulo RRHH</span>
+                    <span class="flex items-center gap-2 border-l border-white/10 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
                 </div>
-            </div>
-        </div>
+            </footer>
+        </main>
     </div>
-
-    <!-- Speed Dial Flotante -->
-    <button onclick="window.location.href='dashboard_produccion.html'" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-yellow-400 hover:bg-yellow-300 text-slate-900 rounded-full w-16 h-16 text-3xl shadow-2xl flex items-center justify-center transition-all active:scale-90 border-2 border-yellow-200 z-50" title="Volver al Dashboard">
-        ⬅️
-    </button>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
@@ -204,5 +318,4 @@
         loadFichajes();
     </script>
 </body>
-</html></body>
 </html>

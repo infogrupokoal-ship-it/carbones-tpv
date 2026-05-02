@@ -62,6 +62,7 @@ function injectSidebar(role, user) {
 
             <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-3">Gestión</p>
             <a href="/static/rrhh.html" class="nav-link" data-path="rrhh.html"><span>👥</span> RRHH & Personal</a>
+            <a href="/static/liquidaciones.html" class="nav-link" data-path="liquidaciones.html"><span>💰</span> Liquidaciones</a>
             <a href="/static/repartidores.html" class="nav-link" data-path="repartidores.html"><span>🛵</span> Repartidores</a>
             <a href="/static/stats.html" class="nav-link" data-path="stats.html"><span>📈</span> Analytics Pro</a>
         </nav>

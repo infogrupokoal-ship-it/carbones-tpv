@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 import uuid
 
 from ..database import get_db
-from ..models import Usuario, Fichaje
+from ..models import Usuario, Fichaje, Liquidacion
 from ..utils.auth import verify_password
 from ..utils.logger import logger
 
@@ -78,7 +78,60 @@ def obtener_estado_plantilla(db: Session = Depends(get_db)):
             "username": u.username,
             "full_name": u.full_name or u.username,
             "rol": u.rol,
-            "ultimo_estado": ultimo.tipo if ultimo and ultimo.fecha.date() == today else "OFFLINE",
             "ultima_hora": ultimo.fecha.strftime("%H:%M") if ultimo and ultimo.fecha.date() == today else None
         })
     return resultado
+
+
+
+@router.post("/liquidaciones/calcular")
+def calcular_liquidaciones(fecha_inicio: str, fecha_fin: str, db: Session = Depends(get_db)):
+    """
+    Calcula la liquidación financiera de los empleados (Ej: Repartidores) 
+    para un rango de fechas.
+    """
+    inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+    fin = datetime.strptime(fecha_fin, "%Y-%m-%d")
+    
+    # Ejemplo: Liquidar a repartidores según pedidos entregados
+    usuarios = db.query(Usuario).filter(Usuario.is_active, Usuario.rol == "REPARTIDOR").all()
+    
+    resultados = []
+    for u in usuarios:
+        # En una DB completa buscaríamos en AsignacionReparto, aquí contamos pedidos entregados
+        # asumiendo que un REPARTIDOR está asignado (simplificado: contar pedidos DOMICILIO completados en el turno del repartidor)
+        # Para el Kiosko Enterprise, asignaremos un importe de 1€ por entrega.
+        # Aquí mockeamos los pedidos asumiendo que el modelo final vincularía la AsignacionReparto.
+        
+        # Como añadimos AsignacionReparto en models.py, busquemos ahí:
+        from ..models import AsignacionReparto
+        asignaciones = db.query(AsignacionReparto).filter(
+            AsignacionReparto.repartidor_id == u.id,
+            AsignacionReparto.estado == "ENTREGADO",
+            AsignacionReparto.fecha_entrega >= inicio,
+            AsignacionReparto.fecha_entrega <= fin
+        ).all()
+        
+        total_pedidos = len(asignaciones)
+        comision_por_pedido = 1.50 # 1.50€ por pedido entregado
+        
+        nueva_liq = Liquidacion(
+            id=str(uuid.uuid4()),
+            usuario_id=u.id,
+            fecha_inicio=inicio,
+            fecha_fin=fin,
+            total_pedidos=total_pedidos,
+            monto_fijo=0.0,
+            comisiones=total_pedidos * comision_por_pedido,
+            total_pagar=total_pedidos * comision_por_pedido,
+            estado="PENDIENTE"
+        )
+        db.add(nueva_liq)
+        resultados.append({
+            "usuario": u.full_name or u.username,
+            "total_pedidos": total_pedidos,
+            "total_pagar": nueva_liq.total_pagar
+        })
+        
+    db.commit()
+    return {"status": "success", "generadas": len(resultados), "detalles": resultados}

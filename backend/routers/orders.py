@@ -101,6 +101,13 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     today = datetime.date.today()
     return db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
 
+@router.get("/activas", response_model=List[PedidoOut])
+def listar_pedidos_activos(db: Session = Depends(get_db)):
+    """
+    Retorna los pedidos que aún no están completados (para logística).
+    """
+    return db.query(Pedido).filter(Pedido.estado.in_(["ESPERANDO_PAGO", "EN_PREPARACION", "PREPARADO", "EN_CAMINO"])).all()
+
 @router.get("/cierre-z")
 def obtener_cierre_z(db: Session = Depends(get_db)):
     """
@@ -342,6 +349,27 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
 
     if estado == "EN_PREPARACION" and estado_anterior == "ESPERANDO_PAGO":
         _encolar_tickets(db, pedido)
+
+    # Lógica Logística / Repartidores
+    if estado == "EN_CAMINO" and estado_anterior != "EN_CAMINO":
+        from ..models import AsignacionReparto, Usuario
+        repartidor = db.query(Usuario).filter(Usuario.rol == "REPARTIDOR", Usuario.is_active).first()
+        if repartidor:
+            asignacion = AsignacionReparto(
+                id=str(uuid.uuid4()),
+                pedido_id=pedido.id,
+                repartidor_id=repartidor.id,
+                estado="EN_CAMINO"
+            )
+            db.add(asignacion)
+            logger.info(f"Pedido {pedido.numero_ticket} asignado a repartidor {repartidor.username}")
+
+    if estado == "ENTREGADO":
+        from ..models import AsignacionReparto
+        asignacion = db.query(AsignacionReparto).filter(AsignacionReparto.pedido_id == pedido.id).first()
+        if asignacion:
+            asignacion.estado = "ENTREGADO"
+            asignacion.fecha_entrega = datetime.datetime.utcnow()
 
     db.commit()
 

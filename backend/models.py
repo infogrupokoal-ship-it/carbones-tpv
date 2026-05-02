@@ -347,3 +347,30 @@ class WhatsAppTemplate(Base):
     contenido = Column(Text)
     variables = Column(String(255)) # Comma separated list of variables: "nombre,ticket,total"
     is_active = Column(Boolean, default=True)
+
+# --- LOGÍSTICA & RRHH AVANZADO (PHASE 3) ---
+class AsignacionReparto(Base):
+    __tablename__ = "asignaciones_reparto"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    pedido_id = Column(String(36), ForeignKey("pedidos.id"))
+    repartidor_id = Column(String(36), ForeignKey("usuarios.id"))
+    fecha_asignacion = Column(DateTime, default=datetime.utcnow)
+    fecha_entrega = Column(DateTime, nullable=True)
+    estado = Column(String(20), default="EN_CAMINO") # EN_CAMINO, ENTREGADO, FALLIDO
+    
+    pedido = relationship("Pedido")
+    repartidor = relationship("Usuario")
+
+class Liquidacion(Base):
+    __tablename__ = "liquidaciones"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"))
+    fecha_inicio = Column(DateTime)
+    fecha_fin = Column(DateTime)
+    total_pedidos = Column(Integer, default=0)
+    monto_fijo = Column(Float, default=0.0)
+    comisiones = Column(Float, default=0.0)
+    total_pagar = Column(Float, default=0.0)
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, PAGADA
+    
+    usuario = relationship("Usuario")

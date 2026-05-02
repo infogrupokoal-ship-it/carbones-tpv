@@ -56,6 +56,30 @@ class WorkerManager:
             logger.error(f"WORKER ERROR: Backup fallido: {e}")
 
     @classmethod
+    async def check_expired_quotes(cls):
+        """Marca como VENCIDOS los presupuestos cuya fecha de validez haya expirado."""
+        logger.info("WORKER: Comprobando presupuestos vencidos...")
+        db = SessionLocal()
+        try:
+            from backend.models import Presupuesto
+            vencidos = db.query(Presupuesto).filter(
+                Presupuesto.estado.in_(["BORRADOR", "ENVIADO"]),
+                Presupuesto.fecha_validez < datetime.utcnow()
+            ).all()
+            
+            for p in vencidos:
+                p.estado = "VENCIDO"
+            
+            db.commit()
+            if vencidos:
+                logger.info(f"WORKER: {len(vencidos)} presupuestos marcados como VENCIDO.")
+        except Exception as e:
+            logger.error(f"WORKER ERROR: Comprobacion de presupuestos fallida: {e}")
+            db.rollback()
+        finally:
+            db.close()
+
+    @classmethod
     async def run_maintenance_cycle(cls):
         """Ciclo principal del worker de mantenimiento."""
         logger.info("WORKER: Ciclo de mantenimiento activado.")
@@ -64,6 +88,7 @@ class WorkerManager:
                 # Ejecutar tareas
                 await cls.cleanup_old_logs()
                 await cls.auto_backup_db()
+                await cls.check_expired_quotes()
                 
                 logger.info("WORKER: Tareas completadas. Proximo ciclo en 24h.")
                 await asyncio.sleep(86400) 

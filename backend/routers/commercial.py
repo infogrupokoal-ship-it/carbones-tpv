@@ -173,3 +173,25 @@ class ReferidoOut(BaseModel):
 @router.get("/referrals", response_model=List[ReferidoOut])
 def listar_referidos(db: Session = Depends(get_db)):
     return db.query(Referido).all()
+
+@router.put("/referrals/{id}/approve")
+def aprobar_referido(id: str, db: Session = Depends(get_db)):
+    from ..models import Cliente
+    ref = db.query(Referido).filter(Referido.id == id).first()
+    if not ref:
+        raise HTTPException(status_code=404, detail="Referido no encontrado")
+    
+    if ref.estado != "COMPLETADO":
+        ref.estado = "COMPLETADO"
+        ref.bono_aplicado = 5.0  # Bono de ejemplo por referido
+        
+        # Abonar saldo al cliente referidor si existe el campo
+        referidor = db.query(Cliente).filter(Cliente.id == ref.cliente_referidor_id).first()
+        if referidor and hasattr(referidor, 'saldo'):
+            if referidor.saldo is None:
+                referidor.saldo = 0.0
+            referidor.saldo += ref.bono_aplicado
+            
+        db.commit()
+    
+    return {"status": "ok", "estado": ref.estado, "bono_aplicado": ref.bono_aplicado}
