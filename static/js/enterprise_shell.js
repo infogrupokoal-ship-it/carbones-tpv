@@ -36,42 +36,74 @@ function initShell() {
 
 function injectSidebar(role, user) {
     const sidebarHTML = `
-    <aside id="enterprise-sidebar" class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 h-screen sticky top-0 hidden lg:flex">
+    <aside id="enterprise-sidebar" class="w-72 glass-panel border-r border-slate-200 flex flex-col p-6 h-screen sticky top-0 hidden lg:flex">
         <div class="flex items-center gap-3 mb-10">
-            <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-900/40">⚡</div>
+            <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-900/40 text-white">⚡</div>
             <div class="flex flex-col">
-                <h2 class="text-xl font-black text-white tracking-tighter uppercase leading-tight">TPV <span class="text-blue-500">Ultra</span></h2>
+                <h2 class="text-xl font-black text-slate-900 tracking-tighter uppercase leading-tight">TPV <span class="text-blue-600">Ultra</span></h2>
                 <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Enterprise Edition</span>
             </div>
         </div>
 
-        <nav class="space-y-1 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-4 px-3">Ecosistema</p>
-            <a href="/static/portal.html" class="nav-link" data-path="portal.html"><span>🏠</span> Portal de Inicio</a>
-            <a href="/static/dashboard.html" class="nav-link" data-path="dashboard.html"><span>📊</span> Dashboard BI</a>
+        <nav class="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <!-- Ecosistema -->
+            <div class="nav-group">
+                <button class="nav-group-btn w-full flex items-center justify-between px-3 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-bold text-sm" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <div class="flex items-center gap-2"><span>🌐</span> Ecosistema</div>
+                    <span class="text-xs">▼</span>
+                </button>
+                <div class="nav-submenu hidden pl-6 pr-2 py-1 space-y-1">
+                    <a href="/static/portal.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="portal.html">🏠 Portal de Inicio</a>
+                    <a href="/static/dashboard.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="dashboard.html">📊 Dashboard BI</a>
+                </div>
+            </div>
             
-            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-3">Operaciones</p>
-            <a href="/static/caja.html" class="nav-link" data-path="caja.html"><span>💰</span> Control de Caja</a>
-            <a href="/static/kds.html" class="nav-link" data-path="kds.html"><span>🍳</span> Cocina KDS</a>
-            <a href="/static/inventario.html" class="nav-link" data-path="inventario.html"><span>📦</span> Inventario Central</a>
+            <!-- Operaciones -->
+            <div class="nav-group">
+                <button class="nav-group-btn w-full flex items-center justify-between px-3 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-bold text-sm" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <div class="flex items-center gap-2"><span>⚡</span> Operaciones</div>
+                    <span class="text-xs">▼</span>
+                </button>
+                <div class="nav-submenu hidden pl-6 pr-2 py-1 space-y-1">
+                    <a href="/static/caja.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="caja.html">💰 Control de Caja</a>
+                    <a href="/static/kds.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="kds.html">🍳 Cocina KDS</a>
+                    <a href="/static/inventario.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="inventario.html">📦 Inventario Central</a>
+                </div>
+            </div>
             
-            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-3">Crecimiento</p>
-            <a href="/static/presupuestos.html" class="nav-link" data-path="presupuestos.html"><span>📄</span> Presupuestos</a>
-            <a href="/static/referidos.html" class="nav-link" data-path="referidos.html"><span>🔗</span> Referidos</a>
-            <a href="/static/marketing.html" class="nav-link" data-path="marketing.html"><span>📣</span> Marketing Hub</a>
+            <!-- Crecimiento -->
+            <div class="nav-group">
+                <button class="nav-group-btn w-full flex items-center justify-between px-3 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-bold text-sm" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <div class="flex items-center gap-2"><span>🚀</span> Crecimiento</div>
+                    <span class="text-xs">▼</span>
+                </button>
+                <div class="nav-submenu hidden pl-6 pr-2 py-1 space-y-1">
+                    <a href="/static/presupuestos.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="presupuestos.html">📄 Presupuestos</a>
+                    <a href="/static/referidos.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="referidos.html">🔗 Referidos</a>
+                    <a href="/static/marketing.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="marketing.html">📣 Marketing Hub</a>
+                </div>
+            </div>
 
-            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-3">Gestión</p>
-            <a href="/static/rrhh.html" class="nav-link" data-path="rrhh.html"><span>👥</span> RRHH & Personal</a>
-            <a href="/static/liquidaciones.html" class="nav-link" data-path="liquidaciones.html"><span>💰</span> Liquidaciones</a>
-            <a href="/static/repartidores.html" class="nav-link" data-path="repartidores.html"><span>🛵</span> Repartidores</a>
-            <a href="/static/stats.html" class="nav-link" data-path="stats.html"><span>📈</span> Analytics Pro</a>
+            <!-- Gestión -->
+            <div class="nav-group">
+                <button class="nav-group-btn w-full flex items-center justify-between px-3 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-bold text-sm" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <div class="flex items-center gap-2"><span>⚙️</span> Gestión</div>
+                    <span class="text-xs">▼</span>
+                </button>
+                <div class="nav-submenu hidden pl-6 pr-2 py-1 space-y-1">
+                    <a href="/static/rrhh.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="rrhh.html">👥 RRHH & Personal</a>
+                    <a href="/static/liquidaciones.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="liquidaciones.html">💰 Liquidaciones</a>
+                    <a href="/static/repartidores.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="repartidores.html">🛵 Repartidores</a>
+                    <a href="/static/stats.html" class="nav-link block px-3 py-2 text-sm text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg" data-path="stats.html">📈 Analytics Pro</a>
+                </div>
+            </div>
         </nav>
 
-        <div class="mt-auto pt-6 border-t border-white/5">
-            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl mb-4">
-                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-xs border border-blue-500/20">👤</div>
+        <div class="mt-auto pt-6 border-t border-slate-200">
+            <div class="flex items-center gap-3 p-3 bg-slate-100 rounded-2xl mb-4">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs border border-blue-200">👤</div>
                 <div class="flex flex-col">
-                    <span class="text-[10px] font-black text-white uppercase truncate w-32">${user || 'Admin'}</span>
+                    <span class="text-[10px] font-black text-slate-900 uppercase truncate w-32">${user || 'Admin'}</span>
                     <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">${role === 'admin' ? 'Super Admin' : 'Staff'}</span>
                 </div>
             </div>
@@ -80,9 +112,9 @@ function injectSidebar(role, user) {
     </aside>
 
     <!-- Mobile Header -->
-    <header class="lg:hidden fixed top-0 w-full glass-panel z-50 p-4 flex justify-between items-center border-b border-white/5">
-        <h2 class="text-lg font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
-        <button id="mobile-toggle" class="p-2 bg-white/5 rounded-lg text-white">☰</button>
+    <header class="lg:hidden fixed top-0 w-full glass-panel z-50 p-4 flex justify-between items-center border-b border-slate-200">
+        <h2 class="text-lg font-black text-slate-900 tracking-tighter uppercase">TPV <span class="text-blue-600">Ultra</span></h2>
+        <button id="mobile-toggle" class="p-2 bg-slate-100 rounded-lg text-slate-900">☰</button>
     </header>
     `;
 
@@ -105,7 +137,7 @@ function injectBreadcrumbs() {
     const currentPath = window.location.pathname.split('/').pop().replace('.html', '');
     const breadcrumbHTML = `
         <div class="flex items-center gap-2 mb-8 page-fade-in">
-            <a href="/static/portal.html" class="breadcrumb-item hover:text-white transition-colors">Enterprise</a>
+            <a href="/static/portal.html" class="breadcrumb-item hover:text-slate-900 transition-colors">Enterprise</a>
             <span class="text-slate-700">/</span>
             <span class="breadcrumb-item text-blue-500">${currentPath}</span>
         </div>
@@ -143,34 +175,34 @@ function injectCarbonitoAI() {
     </button>
 
     <!-- Carbonito AI Panel -->
-    <div id="carbonito-panel" class="fixed bottom-24 left-6 z-[90] w-80 md:w-96 h-[500px] max-h-[70vh] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-95 opacity-0 pointer-events-none origin-bottom-left">
+    <div id="carbonito-panel" class="fixed bottom-24 left-6 z-[90] w-80 md:w-96 h-[500px] max-h-[70vh] bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-95 opacity-0 pointer-events-none origin-bottom-left">
         <!-- Header -->
-        <div class="p-4 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-emerald-900/30 to-transparent">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-transparent">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-xl">🔥</div>
+                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl">🔥</div>
                 <div>
-                    <h3 class="text-white font-black uppercase tracking-tighter text-sm">Carbonito AI</h3>
-                    <p class="text-[9px] text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> Online</p>
+                    <h3 class="text-slate-900 font-black uppercase tracking-tighter text-sm">Carbonito AI</h3>
+                    <p class="text-[9px] text-emerald-600 uppercase tracking-widest font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> Online</p>
                 </div>
             </div>
-            <button onclick="toggleCarbonito()" class="text-slate-400 hover:text-white p-2 text-xl">&times;</button>
+            <button onclick="toggleCarbonito()" class="text-slate-400 hover:text-slate-900 p-2 text-xl">&times;</button>
         </div>
 
         <!-- Chat History -->
         <div id="carbonito-history" class="flex-1 p-4 overflow-y-auto flex flex-col gap-4 custom-scrollbar">
             <div class="flex gap-3 max-w-[85%]">
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
-                <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5">
-                    <p class="text-sm text-slate-300">¡Hola! Soy Carbonito, tu asistente inteligente. ¿En qué te puedo ayudar hoy con el sistema?</p>
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
+                <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none border border-slate-200">
+                    <p class="text-sm text-slate-700">¡Hola! Soy Carbonito, tu asistente inteligente. ¿En qué te puedo ayudar hoy con el sistema?</p>
                 </div>
             </div>
         </div>
 
         <!-- Input Area -->
-        <div class="p-4 border-t border-white/5 bg-slate-800/30">
+        <div class="p-4 border-t border-slate-200 bg-slate-50">
             <form id="carbonito-form" onsubmit="sendCarbonitoMessage(event)" class="relative">
-                <input type="text" id="carbonito-input" placeholder="Pregunta algo..." class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 transition-colors">
-                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors">
+                <input type="text" id="carbonito-input" placeholder="Pregunta algo..." class="w-full bg-white border border-slate-300 rounded-xl py-3 pl-4 pr-12 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors shadow-sm">
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
                     <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
                 </button>
             </form>
@@ -204,8 +236,8 @@ window.sendCarbonitoMessage = async function(e) {
     // Add user message
     history.insertAdjacentHTML('beforeend', \`
         <div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
-            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex-shrink-0 flex items-center justify-center text-sm">👤</div>
-            <div class="bg-blue-600 p-3 rounded-2xl rounded-tr-none shadow-lg">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center text-sm">👤</div>
+            <div class="bg-blue-600 p-3 rounded-2xl rounded-tr-none shadow-sm">
                 <p class="text-sm text-white">\${msg}</p>
             </div>
         </div>
@@ -216,11 +248,11 @@ window.sendCarbonitoMessage = async function(e) {
     const loadingId = 'loading-' + Date.now();
     history.insertAdjacentHTML('beforeend', \`
         <div id="\${loadingId}" class="flex gap-3 max-w-[85%]">
-            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm animate-pulse">🔥</div>
-            <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5 flex items-center gap-1">
-                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></span>
-                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
-                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center text-sm animate-pulse">🔥</div>
+            <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none border border-slate-200 flex items-center gap-1">
+                <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
             </div>
         </div>
     \`);
@@ -238,9 +270,9 @@ window.sendCarbonitoMessage = async function(e) {
 
         history.insertAdjacentHTML('beforeend', \`
             <div class="flex gap-3 max-w-[85%]">
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
-                <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5">
-                    <p class="text-sm text-slate-300">\${data.reply || 'Ha ocurrido un error.'}</p>
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
+                <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none border border-slate-200">
+                    <p class="text-sm text-slate-700">\${data.reply || 'Ha ocurrido un error.'}</p>
                 </div>
             </div>
         \`);
@@ -248,9 +280,9 @@ window.sendCarbonitoMessage = async function(e) {
         document.getElementById(loadingId).remove();
         history.insertAdjacentHTML('beforeend', \`
             <div class="flex gap-3 max-w-[85%]">
-                <div class="w-8 h-8 rounded-full bg-red-500/20 flex-shrink-0 flex items-center justify-center text-sm">⚠️</div>
-                <div class="bg-red-500/10 p-3 rounded-2xl rounded-tl-none border border-red-500/20">
-                    <p class="text-sm text-red-400">Error de conexión con Carbonito.</p>
+                <div class="w-8 h-8 rounded-full bg-red-100 flex-shrink-0 flex items-center justify-center text-sm">⚠️</div>
+                <div class="bg-red-50 p-3 rounded-2xl rounded-tl-none border border-red-200">
+                    <p class="text-sm text-red-600">Error de conexión con Carbonito.</p>
                 </div>
             </div>
         \`);
@@ -286,15 +318,15 @@ window.EnterpriseShell = {
         }
 
         const toast = document.createElement('div');
-        toast.className = 'toast page-fade-in pointer-events-auto flex items-center gap-3 p-4 bg-slate-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl text-white min-w-[280px]';
+        toast.className = 'toast page-fade-in pointer-events-auto flex items-center gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-xl text-slate-900 min-w-[280px]';
         
         let iconHtml;
         if (type === 'error') {
-            iconHtml = `<div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 text-lg">⚠️</div>`;
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-lg">⚠️</div>`;
         } else if (type === 'success') {
-            iconHtml = `<div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 text-lg">✅</div>`;
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-lg">✅</div>`;
         } else {
-            iconHtml = `<div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500 text-lg">ℹ️</div>`;
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-lg">ℹ️</div>`;
         }
 
         toast.innerHTML = `
