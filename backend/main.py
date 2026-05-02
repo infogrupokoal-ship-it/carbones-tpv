@@ -20,10 +20,8 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from .routers import (
-    admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial, marketing, ws
-)
+from backend.routers import orders, inventory, clients, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, admin, telemetry, webhooks, admin_audit, feedback, payments, ws
+from backend.services import sync_daemon
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
 from .services.scheduler import scheduler_loop
@@ -200,6 +198,8 @@ app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artif
 app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
 app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
 app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
+app.include_router(delivery_aggregators.router, prefix="/api", tags=["Delivery Aggregators"])
+app.include_router(mantenimiento.router, prefix="/api", tags=["Mantenimiento"])
 app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
 app.include_router(ws.router, tags=["Real-time"])
 
