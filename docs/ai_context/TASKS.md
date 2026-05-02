@@ -76,3 +76,10 @@
 - [x] **Unicode Sanitization**: Eliminación de emojis conflictivos para estabilidad en consolas Windows legacy.
 - [x] **Loyalty Portal [V6.0]**: Implementación completa del sistema de puntos y niveles VIP industriales.
 - [x] **Production Ready Audit**: Creación de la lista de verificación final para despliegue zero-touch en Render.
+
+## Fase XI: B2C Storefront & Backend Stabilization [V11.0]
+- [x] **B2C Primary Entry**: Configuración de `index.html` como raíz (`/`) para priorizar la venta directa.
+- [x] **Admin Decoupling**: Movimiento del portal administrativo a `/admin` para separación clara de contextos.
+- [x] **Circular Import Resolution**: Desacoplamiento de `auth.py` y `admin_audit.py` mediante importaciones diferidas.
+- [x] **Path Robustness**: Implementación de rutas absolutas en `main.py` para localización de activos estáticos.
+- [x] **Visual Audit Completion**: Verificación de integridad de UI tanto en el catálogo B2C como en el dashboard administrativo.

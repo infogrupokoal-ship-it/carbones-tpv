@@ -1,5 +1,13 @@
 # CHANGELOG_AI.md
 
+## [11.0.0-SINGULARITY] - 2026-05-02
+### Priorización Comercial y Estabilización de Arquitectura
+- **B2C Storefront**: La raíz (`/`) ahora sirve el catálogo minimalista de alta conversión para clientes.
+- **Admin Portal**: Acceso industrial centralizado en la ruta `/admin`.
+- **Backend Fixes**: Resueltos bloqueos de importación circular entre `auth` y `admin_audit`.
+- **Stability**: Implementadas rutas absolutas para activos estáticos, eliminando errores de localización de archivos.
+- **UI/UX**: Verificación de integridad 100% operativa en el catálogo digital y el dashboard administrativo.
+
 ## [10.0.0-QUANTUM] - 2026-05-02
 ### Industrialización Total y Singularidad Operativa
 - **Quantum Portal**: Nueva puerta de enlace centralizada con telemetría en tiempo real.

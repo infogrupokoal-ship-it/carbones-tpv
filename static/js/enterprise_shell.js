@@ -362,14 +362,25 @@ const EnterpriseShell = {
                 if (cpuBar) cpuBar.style.width = `${data.telemetry.cpu_usage}%`;
 
                 // Update neural monitor if open
+                const monitor = document.getElementById('neural-monitor');
                 const logsCont = document.getElementById('neural-logs');
-                if (logsCont && !document.getElementById('neural-monitor').classList.contains('translate-x-full')) {
-                    const log = document.createElement('div');
-                    log.className = "flex gap-2 text-[9px] border-l border-white/10 pl-2";
-                    log.innerHTML = `<span class="text-indigo-400">[${new Date().toLocaleTimeString()}]</span> <span>NODE_SYNC: OK</span>`;
-                    logsCont.appendChild(log);
-                    logsCont.scrollTop = logsCont.scrollHeight;
-                    if (logsCont.children.length > 50) logsCont.removeChild(logsCont.firstChild);
+                if (logsCont && monitor && !monitor.classList.contains('translate-x-full')) {
+                    const token = localStorage.getItem('auth_token');
+                    const logRes = await fetch('/api/system/telemetry/logs', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (logRes.ok) {
+                        const logData = await logRes.json();
+                        const allLines = Object.values(logData.logs).flat();
+                        const lastLines = allLines.slice(-10); // Only last 10 for performance
+                        
+                        logsCont.innerHTML = lastLines.map(line => `
+                            <div class="flex gap-2 text-[9px] border-l border-white/10 pl-2">
+                                <span class="text-indigo-400">[SYSTEM]</span> <span>${line}</span>
+                            </div>
+                        `).join('');
+                        logsCont.scrollTop = logsCont.scrollHeight;
+                    }
                 }
             } catch(e) {}
         }, 5000);
@@ -388,6 +399,7 @@ const EnterpriseShell = {
     },
 
     injectNeuralMonitor() {
+        if (this.user?.rol !== 'ADMIN') return;
         if (document.getElementById('neural-monitor')) return;
         const monitor = document.createElement('div');
         monitor.id = 'neural-monitor';
@@ -405,6 +417,7 @@ const EnterpriseShell = {
     },
 
     toggleNeuralMonitor() {
+        if (this.user?.rol !== 'ADMIN') return;
         document.getElementById('neural-monitor')?.classList.toggle('translate-x-full');
     },
 
@@ -531,7 +544,7 @@ const EnterpriseShell = {
                 })
             });
             const data = await response.json();
-            typing.innerText = data.response || "No puedo procesar esa solicitud en este momento.";
+            typing.innerText = data.reply || "No puedo procesar esa solicitud en este momento.";
             typing.classList.remove('italic');
         } catch (e) {
             typing.innerText = "Error de conexión con el núcleo neural.";

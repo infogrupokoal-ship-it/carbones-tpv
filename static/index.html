@@ -15,7 +15,7 @@
         }
 
         .hero-gradient {
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('/static/assets/pollo_asado.png');
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=1920');
             background-size: cover;
             background-position: center;
         }
@@ -322,7 +322,10 @@
             grid.innerHTML = filtered.map(p => `
                 <div class="product-card group">
                     <div class="relative overflow-hidden rounded-3xl mb-6 aspect-square bg-gray-100">
-                        <img src="${p.imagen_url || '/static/assets/placeholder.png'}" alt="${p.nombre}" class="w-full h-full object-cover">
+                        <img src="${p.imagen_url || '/static/assets/minimalist/pollo.png'}" 
+                             alt="${p.nombre}" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400'">
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     </div>
                     <div class="flex justify-between items-start mb-2">

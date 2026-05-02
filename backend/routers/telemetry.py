@@ -33,6 +33,30 @@ def get_global_nodes_status():
         "nodes": nodes
     }
 
+@router.get("/logs")
+def get_system_logs():
+    """
+    Recupera las últimas líneas de los logs del sistema para diagnóstico remoto.
+    Reservado para auditoría industrial.
+    """
+    import os
+    log_paths = ["logs/tpv_system.log", "logs/critical_errors.log"]
+    logs_data = {}
+    
+    for path in log_paths:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                # Leer las últimas 100 líneas
+                lines = f.readlines()[-100:]
+                logs_data[path] = lines
+        else:
+            logs_data[path] = [f"Log file {path} not found."]
+            
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "logs": logs_data
+    }
+
 @router.get("/system-load")
 def get_system_load():
     """Métricas de carga del servidor para el Dashboard Enterprise."""

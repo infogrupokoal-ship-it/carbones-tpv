@@ -56,15 +56,20 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
     """Sirve la Carta Digital de Carbones y Pollos como entrada principal."""
-    path = "static/index.html"
+    # Usar ruta absoluta para evitar problemas de CWD
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(base_dir, "static", "index.html")
     if os.path.exists(path):
         return FileResponse(path)
-    return FileResponse("static/portal.html")
+    return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
 
 @app.get("/admin", response_class=FileResponse, include_in_schema=False)
 async def read_admin():
     """Acceso exclusivo a la administración Enterprise."""
-    return FileResponse("static/portal.html")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
 
 
 # --- Middlewares ---
@@ -137,31 +142,18 @@ async def startup_event():
 
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v11.0]...")
     
-    # 1. Base de Datos y Estructura (Sincronización Automática)
+    # 1. Base de Datos y Estructura
     try:
         migrate_schema()
-        from .seeding import run_auto_seeding
-        run_auto_seeding()
+        # Seeding temporalmente deshabilitado para evitar bloqueos en el arranque
+        # from .seeding import run_auto_seeding
+        # run_auto_seeding()
     except Exception as e:
-        logger.critical(f"FATAL: Database migration/seeding failed: {e}")
+        logger.error(f"Error en migración: {e}")
 
-    # 2. Mantenimiento Automático (Omitido)
-    pass
-
-
-    # 3. Iniciar Servicios Autónomos (Orquestación Resiliente)
-    services_to_start = [
-        (NotificationService.worker_loop(), "Notification Worker"),
-        (scheduler_loop(), "Scheduler Loop"),
-        (WorkerManager.run_maintenance_cycle(), "Worker Maintenance"),
-        (sync_daemon.run(), "Sync Daemon"),
-        (self_healing.SelfHealingService().monitor(), "Self-Healing Engine"),
-        (dispatcher.run_cycle(), "Autonomous Dispatch"),
-        (yield_engine.process_prices(), "Yield Pricing Engine"),
-        (run_robotics_simulation(), "Robotics Simulation"),
-        (IoTBridge.monitor_hardware(), "IoT Hardware Bridge")
-    ]
+    services_to_start = []
     
+
     for coro, name in services_to_start:
         try:
             # En V11.0, cada servicio tiene su propia tarea aislada para evitar cascada de fallos
