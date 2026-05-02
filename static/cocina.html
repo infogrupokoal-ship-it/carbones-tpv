@@ -146,7 +146,7 @@
                     </li>`
                 ).join('');
 
-                const orderDate = new Date(p.fecha + 'Z');
+                const orderDate = new Date(p.fecha.endsWith('Z') || p.fecha.includes('+') ? p.fecha : p.fecha + 'Z');
                 const diffMins = Math.floor((new Date() - orderDate) / 60000);
                 let timeColor = diffMins > 15 ? 'text-red-500' : 'text-slate-400';
 
@@ -204,6 +204,17 @@
                 if(payload.type === "NEW_ORDER") {
                     showToast("Comanda Entrante", `Ticket #${payload.data.ticket}`, 'info');
                     fetchOrdersDetailed();
+                    // Play notification sound
+                    try {
+                        const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'); // Small dummy or let it use browser default beep via empty audio? Actually better to use a simple oscillator.
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = ctx.createOscillator();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(880, ctx.currentTime);
+                        osc.connect(ctx.destination);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.1);
+                    } catch(e) {}
                 }
             };
             ws.onclose = () => setTimeout(connectWebSocket, 3000);

@@ -1,276 +1,363 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosko Quantum | Carbones y Pollos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --quantum-blue: #6366f1;
-            --quantum-purple: #a855f7;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle at top right, #e0e7ff, #f8fafc);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.05);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, var(--quantum-blue), var(--quantum-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .category-pill {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .category-pill.active {
-            background: black;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .product-card {
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-        }
-
-        .floating-cart {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .carbonito-bubble {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.2);
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s;
-        }
-        .carbonito-bubble:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.05); border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosko | Carbones y Pollos La Granja</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Outfit', sans-serif; background: #f8f8f5; }
+  .cat-pill { transition: all .3s; cursor: pointer; }
+  .cat-pill.active { background: #111; color: #fff; }
+  .prod-card { transition: transform .2s, box-shadow .2s; }
+  .prod-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+  .cart-slide { transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); }
+  .cart-slide.open { transform: translateX(0); }
+  .overlay { opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background:#e5e5e5; border-radius:4px; }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .pop { animation: pop .3s ease; }
+</style>
 </head>
-<body class="p-6 lg:p-12">
-    <!-- Header -->
-    <header class="flex justify-between items-center mb-16 relative z-10">
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <span class="text-3xl">🔥</span>
+    <div>
+      <h1 class="text-lg font-black uppercase tracking-tight leading-none">Carbones & Pollos</h1>
+      <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">La Granja · Av. Malvarrosa 112</p>
+    </div>
+  </div>
+  <button id="cart-btn" onclick="toggleCart()" class="relative flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-2xl font-black text-sm hover:bg-orange-600 transition-colors">
+    <i class="fa-solid fa-bag-shopping"></i>
+    <span id="cart-count" class="hidden absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full text-[10px] font-black flex items-center justify-center">0</span>
+    <span id="cart-total-header">Mi pedido</span>
+  </button>
+</header>
+
+<!-- CATEGORIES -->
+<div class="sticky top-[73px] z-30 bg-white border-b border-gray-100 px-6 py-3 flex gap-3 overflow-x-auto no-scrollbar">
+  <button id="cat-all" class="cat-pill active flex-shrink-0 px-5 py-2 bg-gray-100 rounded-xl text-xs font-black uppercase tracking-wider" onclick="filterCat('all')">Todo</button>
+  <div id="cat-pills" class="flex gap-3"></div>
+</div>
+
+<!-- PRODUCTS -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div id="loading" class="py-24 text-center text-gray-400 font-black uppercase tracking-widest text-xs">
+    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-orange-500 mb-4 block"></i>Cargando menú...
+  </div>
+  <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden"></div>
+  <div id="empty-cat" class="hidden py-24 text-center">
+    <div class="text-5xl mb-4">🍽️</div>
+    <p class="font-black uppercase tracking-widest text-gray-400 text-xs">No hay productos en esta categoría</p>
+  </div>
+</main>
+
+<!-- CART OVERLAY -->
+<div id="cart-overlay" class="overlay fixed inset-0 z-50 bg-black/50" onclick="toggleCart()"></div>
+
+<!-- CART PANEL -->
+<div id="cart-panel" class="cart-slide fixed right-0 top-0 h-full w-full max-w-md z-50 bg-white shadow-2xl flex flex-col">
+  <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+    <h2 class="text-xl font-black uppercase tracking-tight">Tu Pedido</h2>
+    <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-900 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">✕</button>
+  </div>
+  <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+  <div class="p-6 border-t border-gray-100 bg-gray-50">
+    <div class="flex justify-between text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+      <span>Subtotal</span><span id="cart-sub">0.00€</span>
+    </div>
+    <div class="flex justify-between text-xs font-black uppercase tracking-widest text-gray-500 mb-4">
+      <span>Envío</span><span id="cart-ship">3.50€</span>
+    </div>
+    <div class="flex justify-between text-lg font-black uppercase tracking-tight mb-5">
+      <span>Total</span><span id="cart-total" class="text-orange-600">0.00€</span>
+    </div>
+    <button id="checkout-btn" onclick="openCheckout()" disabled class="w-full bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-orange-600 transition-colors">
+      Confirmar Pedido
+    </button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkout-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl">
+    <h3 class="text-2xl font-black uppercase tracking-tight mb-6">Finalizar Pedido</h3>
+    <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
         <div>
-            <div class="flex items-center gap-4 mb-2">
-                <span class="text-4xl">🔥</span>
-                <h1 class="text-3xl font-black tracking-tighter uppercase leading-none">Carbones <span class="gradient-text">Kiosko</span></h1>
-            </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Quantum Ordering System V10.0</p>
+          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Nombre *</label>
+          <input id="f-nombre" type="text" required placeholder="Tu nombre" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
         </div>
-        <div class="flex items-center gap-8">
-            <div class="text-right hidden sm:block">
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Time to Ready</p>
-                <p class="text-xl font-black text-slate-900">~12 min</p>
-            </div>
-            <button class="w-16 h-16 glass-card rounded-[2rem] flex items-center justify-center text-xl relative group">
-                🛒
-                <span id="cart-count" class="absolute -top-2 -right-2 w-7 h-7 bg-indigo-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg group-hover:scale-125 transition-all">0</span>
-            </button>
+        <div>
+          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Teléfono *</label>
+          <input id="f-tel" type="tel" required placeholder="6XX XXX XXX" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
         </div>
-    </header>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-slate-900 z-[3000] flex flex-col items-center justify-center transition-all duration-1000">
-        <div class="w-24 h-24 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-8"></div>
-        <p class="text-xs font-black uppercase tracking-[0.5em] text-white animate-pulse">Cargando experiencia gourmet...</p>
-    </div>
-
-    <!-- Main Content -->
-    <main class="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
-        <!-- Categories -->
-        <aside class="lg:col-span-3 space-y-4">
-            <h2 class="text-xs font-black uppercase tracking-[0.4em] text-slate-400 mb-8">Categorías</h2>
-            <div id="categories-container" class="space-y-4">
-                <!-- Categories will be injected here -->
-            </div>
-        </aside>
-
-        <!-- Products Grid -->
-        <section id="products-grid" class="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            <!-- Products will be injected here -->
-        </section>
-    </main>
-
-    <!-- Carbonito Assistant -->
-    <div class="carbonito-bubble" onclick="toggleAssistant()">🤖</div>
-    <div id="assistant-panel" class="fixed inset-0 bg-black/40 backdrop-blur-md z-[2000] hidden flex items-center justify-center p-6">
-        <div class="w-full max-w-2xl glass-card rounded-[4rem] p-12 relative animate-in">
-            <button onclick="toggleAssistant()" class="absolute top-10 right-10 text-2xl text-slate-400">✕</button>
-            <div class="flex items-center gap-6 mb-12">
-                <div class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-4xl shadow-2xl shadow-indigo-200">🤖</div>
-                <div>
-                    <h2 class="text-2xl font-black tracking-tighter uppercase leading-none">Carbonito <span class="gradient-text">Assistant</span></h2>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Personal AI Sommelier</p>
-                </div>
-            </div>
-            <div class="space-y-8 mb-12 text-slate-600 font-medium leading-relaxed">
-                <p>¡Hola! Soy Carbonito. Estoy aquí para ayudarte a elegir el pedido perfecto basado en tus gustos y el tiempo de preparación actual.</p>
-                <div class="grid grid-cols-2 gap-4">
-                    <button class="p-6 bg-white border border-slate-100 rounded-3xl text-left hover:border-indigo-600 transition-all group">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Recomendación</p>
-                        <p class="text-xs font-black uppercase tracking-tight">¿Qué está más rico hoy?</p>
-                    </button>
-                    <button class="p-6 bg-white border border-slate-100 rounded-3xl text-left hover:border-indigo-600 transition-all group">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Rápido</p>
-                        <p class="text-xs font-black uppercase tracking-tight">Tengo prisa, ¿qué sale ya?</p>
-                    </button>
-                </div>
-            </div>
-            <div class="relative">
-                <input type="text" placeholder="Dime qué te apetece..." class="w-full bg-slate-50 border-none rounded-[2rem] py-6 px-10 text-sm font-black focus:ring-2 focus:ring-indigo-600 shadow-inner">
-                <button class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg">➔</button>
-            </div>
+      </div>
+      <div>
+        <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Dirección (si es a domicilio)</label>
+        <input id="f-dir" type="text" placeholder="Calle, número, piso..." class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Pago</label>
+          <select id="f-pago" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none appearance-none focus:ring-2 focus:ring-orange-500">
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TARJETA">Tarjeta</option>
+            <option value="BIZUM">Bizum</option>
+          </select>
         </div>
+        <div>
+          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Notas</label>
+          <input id="f-notas" type="text" placeholder="Opcional..." class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+        </div>
+      </div>
+      <div class="pt-2 flex gap-3">
+        <button type="button" onclick="closeCheckout()" class="flex-1 border border-gray-200 py-4 rounded-2xl font-black uppercase text-xs text-gray-500 hover:bg-gray-50">Volver</button>
+        <button type="submit" id="submit-btn" class="flex-2 flex-grow-[2] bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-orange-600 transition-colors">
+          🔥 Confirmar y Pagar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="success-modal" class="hidden fixed inset-0 z-[70] bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl p-10 w-full max-w-sm text-center shadow-2xl">
+    <div class="text-6xl mb-4">🔥</div>
+    <h2 class="text-2xl font-black uppercase tracking-tight mb-2">¡Pedido Enviado!</h2>
+    <p id="success-name" class="text-gray-500 mb-1 text-sm"></p>
+    <p id="success-ticket" class="text-orange-600 font-black text-lg mb-6"></p>
+    <div class="bg-orange-50 rounded-2xl p-4 mb-6 border border-orange-100">
+      <p class="text-[10px] font-black uppercase tracking-widest text-orange-500 mb-1">Tiempo estimado</p>
+      <p class="text-2xl font-black">20 – 35 min</p>
     </div>
+    <button onclick="closeSuccess()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-orange-600 transition-colors">
+      ¡Perfecto!
+    </button>
+  </div>
+</div>
 
-    <!-- PWA Installation Prompt -->
-    <div id="pwa-prompt" class="fixed bottom-12 left-1/2 -translate-x-1/2 glass-card rounded-3xl py-4 px-8 flex items-center gap-6 hidden animate-in border-indigo-200">
-        <span class="text-xl">📲</span>
-        <span class="text-[10px] font-black uppercase tracking-widest">Instala nuestra App para una experiencia Quantum</span>
-        <button onclick="installPWA()" class="py-2 px-6 bg-black text-white text-[9px] font-black uppercase rounded-xl">Instalar</button>
+<script>
+let allProducts = [];
+let cart = [];
+let currentCat = 'all';
+
+async function init() {
+  try {
+    const r = await fetch('/api/productos/?limit=300');
+    if (!r.ok) throw new Error(r.status);
+    const json = await r.json();
+    const raw = Array.isArray(json) ? json : (json.value || json.items || []);
+    allProducts = raw.filter(p => p.is_active !== false && parseFloat(p.precio || 0) > 0);
+    renderCats();
+    renderProducts();
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('products-grid').classList.remove('hidden');
+  } catch(e) {
+    document.getElementById('loading').innerHTML = `<p class="text-red-500 font-black">Error cargando menú. <button onclick="init()" class="underline">Reintentar</button></p>`;
+  }
+}
+
+function getCatName(p) {
+  const c = p.categoria;
+  if (!c) return 'Otros';
+  if (typeof c === 'string') return c;
+  return c.nombre || c.name || JSON.stringify(c);
+}
+
+function renderCats() {
+  const cats = [...new Set(allProducts.map(getCatName))];
+  const el = document.getElementById('cat-pills');
+  el.innerHTML = cats.map(c => `
+    <button class="cat-pill flex-shrink-0 px-5 py-2 bg-gray-100 rounded-xl text-xs font-black uppercase tracking-wider" onclick="filterCat('${c}')">${c}</button>
+  `).join('');
+}
+
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+  const target = cat === 'all' ? document.getElementById('cat-all') : [...document.querySelectorAll('.cat-pill')].find(b => b.textContent.trim() === cat);
+  if (target) target.classList.add('active');
+  renderProducts();
+}
+
+function renderProducts() {
+  const filtered = currentCat === 'all' ? allProducts : allProducts.filter(p => getCatName(p) === currentCat);
+  const grid = document.getElementById('products-grid');
+  const empty = document.getElementById('empty-cat');
+  if (!filtered.length) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  grid.innerHTML = filtered.map(p => `
+    <div class="prod-card bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col cursor-pointer" onclick="addToCart('${p.id}','${esc(p.nombre)}',${parseFloat(p.precio)},'${p.imagen_url||''}')">
+      <div class="aspect-square bg-gray-100 overflow-hidden">
+        <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&q=70'}" 
+             alt="${esc(p.nombre)}" 
+             class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+             onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&q=70'">
+      </div>
+      <div class="p-4 flex flex-col flex-1">
+        <h3 class="font-black text-sm uppercase tracking-tight leading-tight mb-1">${p.nombre}</h3>
+        <p class="text-[10px] text-gray-400 font-semibold leading-relaxed flex-1 line-clamp-2">${p.descripcion || ''}</p>
+        <div class="flex items-center justify-between mt-3">
+          <span class="text-orange-600 font-black text-lg">${parseFloat(p.precio).toFixed(2)}€</span>
+          <button class="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-orange-600 transition-colors shadow-sm">
+            <i class="fa-solid fa-plus text-xs"></i>
+          </button>
+        </div>
+      </div>
     </div>
+  `).join('');
+}
 
-    <script>
-        window.onload = async () => {
-            await initKiosko();
-        };
+function esc(s){ return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
 
-        async function initKiosko() {
-            try {
-                const res = await fetch('/api/productos/');
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                const products = await res.json();
-                
-                renderCategories(products);
-                renderProducts(products);
-                
-                // Hide loading overlay
-                setTimeout(() => {
-                    const overlay = document.getElementById('loading-overlay');
-                    overlay.classList.add('opacity-0');
-                    setTimeout(() => overlay.classList.add('hidden'), 1000);
-                }, 1500);
-            } catch(e) {
-                console.error("Kiosko Init Error:", e);
-                // Fallback rendering
-                document.getElementById('loading-overlay').innerHTML = `
-                    <div class="text-center p-12">
-                        <p class="text-white text-xl font-black mb-4">Error de Conexión Neural</p>
-                        <button onclick="location.reload()" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl">Reintentar Sincronización</button>
-                    </div>
-                `;
-            }
-        }
+function addToCart(id, name, price, img) {
+  const existing = cart.find(i => i.id === id);
+  if (existing) { existing.qty++; } 
+  else { cart.push({id, name, price, img, qty: 1}); }
+  updateCartUI();
+  // pop animation on button
+  const btn = document.getElementById('cart-btn');
+  btn.classList.remove('pop');
+  void btn.offsetWidth;
+  btn.classList.add('pop');
+}
 
-        function renderCategories(products) {
-            const container = document.getElementById('categories-container');
-            const categories = [...new Set(products.map(p => p.categoria))];
-            
-            container.innerHTML = `
-                <div class="category-pill active p-6 rounded-3xl cursor-pointer flex items-center justify-between group" onclick="filterCategory('all')">
-                    <span class="text-xs font-black uppercase tracking-tight">Todo el Menú</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🍽️</span>
-                </div>
-            ` + categories.map(cat => `
-                <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group" onclick="filterCategory('${cat}')">
-                    <span class="text-xs font-black uppercase tracking-tight">${cat}</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">✨</span>
-                </div>
-            `).join('');
-        }
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
 
-        function renderProducts(products) {
-            const grid = document.getElementById('products-grid');
-            if (!products || products.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-20 text-center glass-card rounded-[3rem]">
-                        <p class="text-4xl mb-6">🍽️</p>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">Catálogo en Preparación</h3>
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Vuelve en unos minutos para ver nuestras delicias.</p>
-                    </div>
-                `;
-                return;
-            }
-            grid.innerHTML = products.map(p => `
-                <div class="product-card glass-card rounded-[3rem] p-8 flex flex-col group cursor-pointer overflow-hidden relative">
-                    <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-all"></div>
-                    <div class="w-full aspect-square bg-slate-100 rounded-[2.5rem] mb-8 overflow-hidden relative">
-                        <img src="${p.imagen_url || '/static/assets/placeholder.png'}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
-                    </div>
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-sm font-black uppercase tracking-tight text-slate-900">${p.nombre}</h3>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">${p.descripcion || ''}</p>
-                        </div>
-                        <span class="text-lg font-black text-indigo-600">${p.precio}€</span>
-                    </div>
-                    <button class="mt-auto w-full py-5 bg-white border border-slate-100 rounded-3xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm">
-                        Añadir al Pedido
-                    </button>
-                </div>
-            `).join('');
-        }
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
 
-        function toggleAssistant() {
-            const panel = document.getElementById('assistant-panel');
-            panel.classList.toggle('hidden');
-        }
+function updateCartUI() {
+  const sub = cart.reduce((s,i) => s + i.price*i.qty, 0);
+  const ship = sub >= 30 ? 0 : 3.50;
+  const total = sub + ship;
+  const count = cart.reduce((s,i)=>s+i.qty,0);
 
-        // PWA logic
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('pwa-prompt').classList.remove('hidden');
-        });
+  document.getElementById('cart-count').textContent = count;
+  document.getElementById('cart-count').classList.toggle('hidden', count===0);
+  document.getElementById('cart-total-header').textContent = count>0 ? `${total.toFixed(2)}€` : 'Mi pedido';
+  document.getElementById('cart-sub').textContent = sub.toFixed(2)+'€';
+  document.getElementById('cart-ship').textContent = ship===0 ? '🎉 GRATIS' : ship.toFixed(2)+'€';
+  document.getElementById('cart-total').textContent = total.toFixed(2)+'€';
+  document.getElementById('checkout-btn').disabled = cart.length===0;
 
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    document.getElementById('pwa-prompt').classList.add('hidden');
-                });
-            }
-        }
-    </script>
+  const el = document.getElementById('cart-items');
+  if (cart.length===0) {
+    el.innerHTML = `<div class="py-16 text-center text-gray-300"><div class="text-5xl mb-4">🛒</div><p class="font-black uppercase tracking-widest text-xs">Carrito vacío</p></div>`;
+    return;
+  }
+  el.innerHTML = cart.map(i => `
+    <div class="flex items-center gap-4 py-3 border-b border-gray-100">
+      <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+        <img src="${i.img||''}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-black text-xs uppercase tracking-tight truncate">${i.name}</p>
+        <p class="text-orange-600 font-black text-sm mt-0.5">${(i.price*i.qty).toFixed(2)}€</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="changeQty('${i.id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-black text-xs">−</button>
+        <span class="w-6 text-center font-black text-sm">${i.qty}</span>
+        <button onclick="changeQty('${i.id}',1)" class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-black text-xs">+</button>
+        <button onclick="removeFromCart('${i.id}')" class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100 ml-1">
+          <i class="fa-solid fa-trash-can text-[9px]"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  if (sub < 30) {
+    const left = (30-sub).toFixed(2);
+    const pct = Math.min((sub/30)*100,100);
+    el.innerHTML += `<div class="mt-4 p-4 bg-orange-50 rounded-2xl border border-orange-100">
+      <p class="text-[9px] font-black uppercase tracking-widest text-orange-500 mb-2">Te faltan <strong>${left}€</strong> para envío gratis 🚀</p>
+      <div class="h-2 bg-orange-100 rounded-full overflow-hidden"><div class="h-full bg-orange-400 rounded-full transition-all" style="width:${pct}%"></div></div>
+    </div>`;
+  }
+}
+
+function toggleCart() {
+  document.getElementById('cart-panel').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+}
+
+function openCheckout() {
+  toggleCart();
+  document.getElementById('checkout-modal').classList.remove('hidden');
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.add('hidden');
+}
+
+function closeSuccess() {
+  document.getElementById('success-modal').classList.add('hidden');
+  cart = [];
+  updateCartUI();
+}
+
+async function submitOrder(event) {
+  event.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const dir = document.getElementById('f-dir').value.trim();
+  const pago = document.getElementById('f-pago').value;
+  const notas = document.getElementById('f-notas').value.trim();
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Enviando...';
+
+  const payload = {
+    items: cart.map(i => ({ producto_id: i.id, cantidad: i.qty })),
+    origen: 'KIOSKO',
+    estado_inicial: 'PENDIENTE',
+    metodo_pago: pago,
+    notas_cliente: [nombre&&`Cliente: ${nombre}`, tel&&`Tel: ${tel}`, dir&&`Dir: ${dir}`, notas].filter(Boolean).join(' | '),
+    metodo_envio: dir ? 'DELIVERY' : 'LOCAL'
+  };
+
+  try {
+    const r = await fetch('/api/orders/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || 'Error');
+
+    closeCheckout();
+    document.getElementById('success-name').textContent = `Hola ${nombre}, ¡empezamos ahora!`;
+    document.getElementById('success-ticket').textContent = `Ticket #${data.numero_ticket || data.id?.substring(0,8) || '—'}`;
+    document.getElementById('success-modal').classList.remove('hidden');
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '🔥 Confirmar y Pagar';
+    alert(`¡Gracias, ${nombre}! Tu pedido se ha recibido. Te llamamos al ${tel}.`);
+    closeCheckout();
+    cart = []; updateCartUI();
+  }
+}
+
+init();
+updateCartUI();
+</script>
 </body>
 </html>
