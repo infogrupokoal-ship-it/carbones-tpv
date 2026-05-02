@@ -485,6 +485,50 @@
         </div>
     </div>
 
+    <!-- Exit Intent Modal (Cart Abandonment) -->
+    <div id="exit-intent-modal" class="fixed inset-0 z-[130] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-gray-900/95 backdrop-blur-xl" onclick="closeExitIntent()"></div>
+        <div class="relative bg-white w-full max-w-lg rounded-[3rem] p-10 text-center animate__animated animate__tada shadow-2xl">
+            <div class="text-6xl mb-6">🥺</div>
+            <h3 class="text-4xl font-900 tracking-tighter uppercase mb-4 text-gray-900">¿Te vas sin probarlo?</h3>
+            <p class="text-gray-500 mb-8 text-lg">Tienes productos en tu carrito enfriándose. ¡Termina tu pedido ahora y te garantizamos que será el mejor pollo que hayas probado!</p>
+            <div class="space-y-4">
+                <button onclick="continueFromExit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 rounded-3xl font-900 uppercase tracking-widest text-sm shadow-xl transition-all transform active:scale-95">
+                    Ir a pagar ahora
+                </button>
+                <button onclick="closeExitIntent()" class="w-full bg-transparent text-gray-400 hover:text-gray-600 py-4 font-900 uppercase tracking-widest text-xs transition-all">
+                    Me lo pierdo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cinematic Success Screen -->
+    <div id="success-screen" class="fixed inset-0 z-[150] hidden flex-col items-center justify-center bg-gray-900 text-white px-4">
+        <div class="text-8xl mb-8 animate__animated animate__bounceIn">🔥</div>
+        <h2 class="text-5xl md:text-7xl font-900 tracking-tighter uppercase mb-4 text-center">¡Marchando!</h2>
+        <p class="text-xl text-gray-400 mb-12 text-center max-w-md">Carbonito acaba de recibir tu pedido. Hemos empezado a asar.</p>
+        
+        <div class="w-full max-w-md space-y-8">
+            <div class="flex items-center gap-4 text-green-500 font-900 uppercase tracking-widest animate__animated animate__fadeInLeft">
+                <i class="fa-solid fa-check-circle text-2xl"></i>
+                <span>Pedido Recibido</span>
+            </div>
+            <div class="flex items-center gap-4 text-orange-500 font-900 uppercase tracking-widest animate__animated animate__fadeInLeft" style="animation-delay: 1s">
+                <i class="fa-solid fa-fire text-2xl animate-pulse"></i>
+                <span>En las brasas</span>
+            </div>
+            <div class="flex items-center gap-4 text-gray-600 font-900 uppercase tracking-widest animate__animated animate__fadeInLeft" style="animation-delay: 2s">
+                <i class="fa-solid fa-motorcycle text-2xl"></i>
+                <span>Preparando Envío</span>
+            </div>
+        </div>
+        
+        <button onclick="closeSuccessScreen()" class="mt-16 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-3xl font-900 uppercase tracking-widest text-xs transition-all animate__animated animate__fadeInUp" style="animation-delay: 3s">
+            Volver al inicio
+        </button>
+    </div>
+
     <!-- Checkout Modal -->
     <div id="checkout-modal" class="fixed inset-0 z-[110] hidden items-center justify-center px-4">
         <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-md" onclick="closeCheckout()"></div>
@@ -657,15 +701,18 @@
                 if (p.categoria.toLowerCase().includes('postre')) img = '/static/assets/postre.png';
                 if (p.imagen_url && p.imagen_url !== 'None') img = p.imagen_url;
 
+                const isBestSeller = p.nombre.toLowerCase().includes('medio pollo asado');
+
                 return `
-                    <div class="product-card group bg-white p-8 rounded-[3rem] border border-gray-50 shadow-sm">
+                    <div class="product-card group bg-white p-8 rounded-[3rem] border ${isBestSeller ? 'border-orange-200' : 'border-gray-50'} shadow-sm relative">
+                        ${isBestSeller ? '<div class="absolute -top-4 -right-4 bg-orange-600 text-white text-[10px] font-900 uppercase tracking-widest px-4 py-2 rounded-2xl shadow-xl z-10 animate-bounce">🔥 Más Vendido</div>' : ''}
                         <div class="relative overflow-hidden rounded-[2.5rem] mb-8 aspect-square bg-gray-100">
                             <img src="${img}" 
                                  alt="${p.nombre}" 
                                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                  onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400'">
                             <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="absolute top-6 left-6 flex gap-2">
+                            <div class="absolute top-6 left-6 flex gap-2 flex-wrap">
                                 <span class="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl text-[8px] font-900 uppercase tracking-widest text-gray-900 shadow-sm">${p.categoria}</span>
                             </div>
                         </div>
@@ -999,30 +1046,50 @@
         }
 
         function showOrderSuccess(data, nombre, total) {
-            const numTicket = data.numero_ticket || data.id?.substring(0, 8) || '—';
-            const div = document.createElement('div');
-            div.id = 'order-success-overlay';
-            div.className = 'fixed inset-0 z-[999] flex items-center justify-center p-4';
-            div.style.background = 'rgba(0,0,0,0.7)';
-            div.innerHTML = `
-                <div class="bg-white rounded-[3rem] p-10 max-w-md w-full text-center shadow-2xl animate__animated animate__zoomIn">
-                    <div class="text-7xl mb-4">🔥</div>
-                    <h2 class="text-3xl font-900 text-gray-900 uppercase tracking-tight mb-2">¡Pedido Listo!</h2>
-                    <p class="text-gray-500 mb-1">Hola <strong>${nombre}</strong>, estamos en la cocina.</p>
-                    <p class="text-gray-400 text-sm mb-8">Ticket <strong class="text-orange-600">#${numTicket}</strong> | Total: <strong class="text-gray-900">${total.toFixed(2)}€</strong></p>
-                    <div class="bg-orange-50 rounded-2xl p-5 mb-8 border border-orange-100">
-                        <p class="text-[10px] font-900 uppercase tracking-widest text-orange-600 mb-1">Tiempo estimado</p>
-                        <p class="text-2xl font-900 text-gray-900">20 - 30 min</p>
-                    </div>
-                    <button onclick="document.getElementById('order-success-overlay').remove()" class="w-full btn-premium text-white py-5 rounded-3xl font-900 uppercase tracking-widest text-sm">
-                        ¡Perfecto, esperamos!
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(div);
+            const screen = document.getElementById('success-screen');
+            screen.classList.remove('hidden');
+            screen.classList.add('flex');
+            
+            // Re-trigger animations
+            const elements = screen.querySelectorAll('.animate__animated');
+            elements.forEach(el => {
+                const animationName = Array.from(el.classList).find(c => c.startsWith('animate__') && c !== 'animate__animated');
+                if (animationName) {
+                    el.classList.remove(animationName);
+                    void el.offsetWidth;
+                    el.classList.add(animationName);
+                }
+            });
         }
 
+        function closeSuccessScreen() {
+            const screen = document.getElementById('success-screen');
+            screen.classList.add('hidden');
+            screen.classList.remove('flex');
+            window.scrollTo(0,0);
+        }
 
+        // Exit Intent Logic
+        let exitIntentShown = false;
+        document.addEventListener('mouseleave', (e) => {
+            if (e.clientY < 0 && cart.length > 0 && !exitIntentShown) {
+                exitIntentShown = true;
+                const modal = document.getElementById('exit-intent-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        });
+
+        function closeExitIntent() {
+            const modal = document.getElementById('exit-intent-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function continueFromExit() {
+            closeExitIntent();
+            openCheckout();
+        }
         // Chat Logic
         function toggleChat() {
             const window = document.getElementById('chat-window');
