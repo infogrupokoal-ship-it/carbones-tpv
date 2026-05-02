@@ -145,18 +145,30 @@ async def startup_event():
     # 1. Base de Datos y Estructura
     try:
         migrate_schema()
-        # Seeding Industrial V11.0: Asegura que el catálogo exista si la DB está vacía
+        # Seeding Industrial: Ejecutar siempre (idempotente) para garantizar catálogo completo
         from sqlalchemy import text
         with engine.connect() as conn:
-            # Si no hay tiendas, ejecutamos el seed ultra industrial
             result = conn.execute(text("SELECT count(*) FROM tiendas")).fetchone()
-            if result and result[0] == 0:
-                logger.info("🧫 Base de Datos vacía detectada. Iniciando Seeding Industrial...")
-                from scripts.seed_ultra import seed_ultra_industrial
-                seed_ultra_industrial()
-                logger.info("✅ Seeding Industrial completado con éxito.")
+            tienda_vacia = result and result[0] == 0
+
+        # Si no hay tienda, seed básico para crear estructura
+        if tienda_vacia:
+            logger.info("🧫 BD vacía. Ejecutando seed base...")
+            from scripts.seed_ultra import seed_ultra_industrial
+            seed_ultra_industrial()
+
+        # Siempre ejecutar el catálogo completo (idempotente - no duplica)
+        logger.info("📦 Sincronizando catálogo completo de productos...")
+        try:
+            from scripts.seed_catalog_completo import seed_completo
+            seed_completo()
+            logger.info("✅ Catálogo sincronizado correctamente.")
+        except Exception as cat_err:
+            logger.warning(f"⚠️ Catálogo completo no ejecutado: {cat_err}")
+
     except Exception as e:
         logger.error(f"Error en migración/seeding: {e}")
+
 
     services_to_start = []
     
