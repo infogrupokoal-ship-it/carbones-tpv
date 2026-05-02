@@ -8,24 +8,60 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-base: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.05);
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            overflow-x: hidden;
+            color: #1e293b;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
+            z-index: -2;
+            pointer-events: none;
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+        }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen overflow-x-hidden page-fade-in">
+    <div class="bg-grid"></div>
     <!-- Enterprise Sidebar will be injected here -->
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative z-10">
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-10">
+        <main class="flex-1 overflow-y-auto p-8 lg:p-12 custom-scrollbar">
         
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-slate-100 pb-8">
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">BI <span class="text-blue-500">Analytics</span></h1>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Data-Driven Decision Making • Real Time</p>
+                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">BI <span class="text-indigo-600">Analytics</span></h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    Data-Driven Decision Making • Real Time v3.0
+                </p>
             </div>
             <div class="flex gap-4">
-                <button class="bg-blue-600 hover:bg-blue-500 text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/40 transition-all active:scale-95">Exportar Reporte PDF</button>
+                <button class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl transition-all active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Exportar Reporte
+                </button>
             </div>
         </header>
 

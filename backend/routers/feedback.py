@@ -1,49 +1,52 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from datetime import datetime
+from typing import List
+from backend.database import get_db
+from pydantic import BaseModel, Field
 import uuid
+import datetime
 
-from ..database import get_db
-from ..models import Review, Cliente
-from ..utils.logger import logger
+router = APIRouter(prefix="/feedback", tags=["Customer Experience & NPS"])
 
-router = APIRouter(prefix="/feedback", tags=["Feedback"])
+class FeedbackCreate(BaseModel):
+    order_id: str
+    calificacion: int = Field(..., ge=1, le=5)
+    comentario: str = ""
+    recomendaria: bool = True
 
-class ReviewCrear(BaseModel):
-    rating: int
-    comentario: str
-    cliente_id: str | None = None
+class FeedbackOut(FeedbackCreate):
+    id: str
+    fecha: datetime.datetime
 
-@router.post("/")
-def crear_reseña(req: ReviewCrear, db: Session = Depends(get_db)):
-    try:
-        nueva_review = Review(
-            id=str(uuid.uuid4()),
-            rating=req.rating,
-            comentario=req.comentario,
-            cliente_id=req.cliente_id,
-            fecha=datetime.utcnow()
-        )
-        db.add(nueva_review)
-        db.commit()
-        return {"status": "success", "message": "Gracias por tu opinión"}
-    except Exception as e:
-        db.rollback()
-        logger.error(f"Error creando reseña: {e}")
-        raise HTTPException(status_code=500, detail="Error al guardar reseña")
+# Base de datos en memoria para el prototipo industrializado
+FEEDBACK_DB = []
 
-@router.get("/latest")
-def obtener_reseñas_recientes(db: Session = Depends(get_db)):
-    reviews = db.query(Review).order_by(Review.fecha.desc()).limit(5).all()
-    out = []
-    for r in reviews:
-        cliente = db.query(Cliente).get(r.cliente_id) if r.cliente_id else None
-        out.append({
-            "id": r.id,
-            "rating": r.rating,
-            "comentario": r.comentario,
-            "cliente": cliente.nombre if cliente else "Invitado",
-            "fecha": r.fecha.isoformat()
-        })
-    return out
+@router.post("/", response_model=FeedbackOut)
+def enviar_feedback(fb: FeedbackCreate):
+    """
+    Fase 29: Recolección de Feedback post-venta.
+    Permite medir el NPS (Net Promoter Score) de la Experiencia Gourmet.
+    """
+    nuevo = FeedbackOut(
+        id=str(uuid.uuid4()),
+        fecha=datetime.datetime.now(),
+        **fb.dict()
+    )
+    FEEDBACK_DB.append(nuevo)
+    return nuevo
+
+@router.get("/metrics")
+def get_nps_metrics():
+    """Cálculo automático del índice de satisfacción del cliente."""
+    if not FEEDBACK_DB:
+        return {"nps": 0, "satisfaccion_media": 0, "total_opiniones": 0}
+        
+    promotores = len([f for f in FEEDBACK_DB if f.calificacion >= 4])
+    total = len(FEEDBACK_DB)
+    score = (promotores / total) * 100
+    
+    return {
+        "nps": round(score, 1),
+        "satisfaccion_media": round(sum(f.calificacion for f in FEEDBACK_DB) / total, 2),
+        "total_opiniones": total
+    }

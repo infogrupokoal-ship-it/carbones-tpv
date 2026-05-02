@@ -87,3 +87,10 @@
 - **Navigation**: Migrated flat sidebar to an accordion-style minimalist menu for optimal touchscreen interaction.
 - **Responsiveness**: Adjusted sidebar breakpoints (from lg to md) and width to ensure the menu is natively visible on TPV screens (like iPads and 1024x768 screens).
 - **Deployment**: Pushed updates to production repository to trigger Render CI/CD.
+
+## [2026-05-02] - Finalización de Industrialización y Telemetría V5.0
+- **Operaciones Backend**: Sincronización de importaciones y registro en main.py de routers modulares (delivery_aggregators, mantenimiento, hardware, commercial, customers).
+- **Logística B2B**: Implementado guardado real en base de datos para los webhooks de delivery (Glovo, Uber, JustEat).
+- **Marketing & BI**: Migración total al Light Theme, inyección de enterprise_shell.js en todos los portales administrativos y estandarización visual de Glassmorphism.
+- **Experiencia B2C**: Incorporación de botones de Apple Wallet y Google Wallet en el overlay de finalización del Kiosko.
+- **Despliegue**: Verificación libre de errores en startup y push al repositorio de Github para CI/CD hacia Render (Zero-Touch).
