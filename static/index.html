@@ -139,6 +139,15 @@
             <p class="text-xl text-gray-200 mb-12 font-light max-w-2xl mx-auto">
                 Pollos seleccionados, asados lentamente con carbón de encina y un toque secreto de especias mediterráneas.
             </p>
+            
+            <!-- Social Proof Floating Badge -->
+            <div class="absolute -top-10 md:-top-4 -right-4 md:-right-12 bg-white text-gray-900 px-4 py-2 rounded-2xl shadow-2xl rotate-6 animate-pulse z-20 flex items-center gap-2">
+                <span class="text-xl">🔥</span>
+                <div class="text-left leading-none">
+                    <p class="text-[10px] font-900 text-orange-600 uppercase">Recién salido</p>
+                    <p class="text-xs font-bold">+45 pollos hoy</p>
+                </div>
+            </div>
             <div class="flex flex-wrap justify-center gap-6">
                 <a href="#menu" class="btn-premium text-white px-12 py-5 rounded-3xl font-900 uppercase tracking-widest text-sm">Explorar Carta</a>
                 <button onclick="toggleChat()" class="px-12 py-5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-3xl font-900 uppercase tracking-widest text-sm hover:bg-white/20 transition-all">
@@ -488,6 +497,15 @@
                 <button type="submit" class="w-full btn-premium py-6 rounded-3xl font-900 uppercase tracking-widest text-sm shadow-2xl mt-10">
                     Pagar y Confirmar Pedido
                 </button>
+                
+                <!-- Payment Trust Badges -->
+                <div class="flex items-center justify-center gap-4 pt-6 text-gray-300">
+                    <i class="fa-brands fa-cc-visa text-3xl hover:text-gray-900 transition-colors"></i>
+                    <i class="fa-brands fa-cc-mastercard text-3xl hover:text-gray-900 transition-colors"></i>
+                    <i class="fa-brands fa-cc-apple-pay text-3xl hover:text-gray-900 transition-colors"></i>
+                    <i class="fa-brands fa-google-pay text-3xl hover:text-gray-900 transition-colors"></i>
+                    <i class="fa-solid fa-lock text-xl ml-2 hover:text-gray-900 transition-colors" title="Pago Seguro"></i>
+                </div>
             </form>
         </div>
     </div>
@@ -632,17 +650,39 @@
             saveCart();
             updateCartUI();
             
-            // Visual Feedback
+            // Visual Feedback (High Conversion Add Toast)
             const badge = document.getElementById('cart-count');
-            badge.classList.remove('animate-pulse');
+            badge.classList.remove('animate__animated', 'animate__rubberBand');
             void badge.offsetWidth; // Trigger reflow
-            badge.classList.add('animate-pulse');
-            
-            // Notification or small modal? Let's open the cart briefly
-            if (!document.getElementById('cart-drawer').classList.contains('open')) {
-                toggleCart();
-                setTimeout(() => toggleCart(), 2000);
+            badge.classList.add('animate__animated', 'animate__rubberBand');
+
+            showAddToCartToast(name, img);
+        }
+
+        function showAddToCartToast(name, img) {
+            let container = document.getElementById('add-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'add-toast-container';
+                container.className = 'fixed bottom-24 right-4 z-[60] flex flex-col gap-2 pointer-events-none';
+                document.body.appendChild(container);
             }
+
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 text-white rounded-2xl p-3 flex items-center gap-3 shadow-2xl animate__animated animate__fadeInUp';
+            toast.innerHTML = `
+                <img src="${img}" class="w-10 h-10 rounded-full object-cover border border-gray-700">
+                <div class="flex-1">
+                    <p class="text-[10px] font-900 uppercase tracking-widest text-orange-500">¡Añadido al carrito!</p>
+                    <p class="text-xs font-bold leading-none line-clamp-1">${name}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.replace('animate__fadeInUp', 'animate__fadeOutDown');
+                setTimeout(() => toast.remove(), 500);
+            }, 2500);
         }
 
         function addCombo(name, price) {
@@ -972,6 +1012,21 @@
         window.onload = () => {
             initMenu();
             simulateLiveActivity();
+            
+            // Countdown Timer Logic (Oferta Flash)
+            const timerEl = document.getElementById('countdown-timer');
+            if (timerEl) {
+                // Set to exactly 4 hours and 12 mins from load for FOMO
+                let timeRemaining = (4 * 3600) + (12 * 60) + Math.floor(Math.random() * 60);
+                setInterval(() => {
+                    timeRemaining--;
+                    if (timeRemaining < 0) timeRemaining = 0;
+                    const h = String(Math.floor(timeRemaining / 3600)).padStart(2, '0');
+                    const m = String(Math.floor((timeRemaining % 3600) / 60)).padStart(2, '0');
+                    const s = String(timeRemaining % 60).padStart(2, '0');
+                    timerEl.innerText = `${h}:${m}:${s}`;
+                }, 1000);
+            }
         };
     </script>
 </body>
