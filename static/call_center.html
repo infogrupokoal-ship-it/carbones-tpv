@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Center CRM | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+        .call-pulse { animation: ring-pulse 1.5s infinite; }
+        @keyframes ring-pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Call Center & CRM Hub</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión Centralizada de Pedidos Telefónicos y Soporte</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-200 call-pulse">
+                    <span class="material-symbols-outlined text-[18px]">call</span>
+                    Aceptar Llamada Entrante
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 flex gap-8">
+            <!-- Caller ID Panel -->
+            <div class="w-96 flex flex-col gap-6">
+                <div class="glass-panel p-6 border-t-4 border-t-indigo-500">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Llamada Actual (Reconocimiento Inteligente)</h3>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-black text-xl">JG</div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900">Javier Gómez</h2>
+                            <p class="text-xs font-mono text-slate-500">+34 600 123 456</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Segmento:</span>
+                            <span class="font-bold text-amber-600">Cliente Recurrente</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Último pedido:</span>
+                            <span class="font-bold text-slate-800">Hace 4 días</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Ticket Medio:</span>
+                            <span class="font-bold text-slate-800">€24.50</span>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg transition-colors">
+                        Repetir Último Pedido (1 Clic)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex-1 glass-panel p-6 flex flex-col">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Consola del Operador</h3>
+                
+                <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col">
+                    <p class="text-xs text-slate-500 mb-4 font-bold">Script Sugerido por IA:</p>
+                    <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm mb-6">
+                        <p class="text-sm text-slate-800 leading-relaxed italic">
+                            "Buenas tardes Javier, gracias por llamar a Carbones y Pollos. Veo que nos llamó hace 4 días para pedir un Pollo Asado con Patatas. ¿Desea repetir el mismo pedido o probar algo nuevo hoy?"
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-auto">
+                        <button class="p-4 bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 rounded-xl flex items-center justify-center gap-2 font-bold text-slate-700 transition-colors">
+                            <span class="material-symbols-outlined text-emerald-500">add_shopping_cart</span>
+                            Abrir Carrito Manual
+                        </button>
+                        <button class="p-4 bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 rounded-xl flex items-center justify-center gap-2 font-bold text-slate-700 transition-colors">
+                            <span class="material-symbols-outlined text-rose-500">support_agent</span>
+                            Registrar Queja / Incidencia
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Call Center');
+        });
+    </script>
+</body>
+</html>

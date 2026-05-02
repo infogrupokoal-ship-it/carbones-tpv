@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Robotics | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Kitchen Robotics & Automation</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Control de Autómatas, Freidoras Inteligentes y Dispensadores</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-rose-200">
+                    <span class="material-symbols-outlined text-[18px]">stop_circle</span>
+                    E-STOP (Parada de Emergencia Global)
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Fryer Bot -->
+                <div class="glass-panel p-6 border-l-4 border-l-indigo-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Freidora Robótica Automática (F-100)</h3>
+                            <p class="text-xs text-slate-500">Estación de Patatas - Local Centro</p>
+                        </div>
+                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-lg uppercase tracking-widest animate-pulse">En Producción</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Temperatura Aceite:</span>
+                            <span class="font-mono font-bold text-slate-900">175.4 °C <span class="text-emerald-500 material-symbols-outlined text-sm align-middle">check_circle</span></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Ciclos Restantes (Filtro):</span>
+                            <span class="font-mono font-bold text-amber-600">12 ciclos</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">Lote Actual:</span>
+                            <span class="font-bold text-slate-900">Patatas Grandes (Tiempo: 01:45)</span>
+                        </div>
+                        
+                        <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dispenser Bot -->
+                <div class="glass-panel p-6 border-l-4 border-l-emerald-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Dispensador Inteligente de Bebidas</h3>
+                            <p class="text-xs text-slate-500">Zona Takeaway - Local Centro</p>
+                        </div>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-widest">IDLE (Listo)</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Sirope Cola:</span>
+                            <span class="font-mono font-bold text-emerald-600">85% Volumen</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Sirope Naranja:</span>
+                            <span class="font-mono font-bold text-emerald-600">72% Volumen</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">CO2 Presión:</span>
+                            <span class="font-mono font-bold text-slate-900">Normal (60 PSI)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Robotics');
+        });
+    </script>
+</body>
+</html>

@@ -118,3 +118,7 @@
 - Agregados ultimos 6 modulos para 20x features: Reservas, Aggregators, Fleet, B2B Sales, Loyalty, Maintenance y Hardware.
 - Shell unificado expandido a 26 modulos core.
 - Despliegue completo y sin intervencion.
+
+### V6.2 - Absolute Hyper-Industrialization
+- Añadidos modulos QSC Audits, Call Center, Digital Signage y Kitchen Robotics.
+- 29 modulos en total en el Enterprise Shell.

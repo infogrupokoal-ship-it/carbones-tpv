@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QSC Audits | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">QSC Audits (Quality, Service, Cleanliness)</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Auditorías de Calidad y Cumplimiento Normativo</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <span class="material-symbols-outlined text-[18px]">checklist</span>
+                    Iniciar Auditoría Flash
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- KPI General -->
+                <div class="glass-panel p-6 flex flex-col items-center justify-center text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Score Global QSC (Red)</p>
+                    <div class="w-32 h-32 rounded-full border-8 border-emerald-500 flex flex-col items-center justify-center mb-4 relative">
+                        <span class="text-4xl font-black text-slate-900 tracking-tighter">94<span class="text-lg">%</span></span>
+                        <span class="absolute -right-2 top-0 px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">+2%</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-bold">Estado: <span class="text-emerald-600">Certificación A (Excelente)</span></p>
+                </div>
+
+                <!-- Inspecciones Recientes -->
+                <div class="glass-panel p-6 lg:col-span-2">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Últimas Auditorías</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100">
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Local / Franquicia</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Auditor</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Calidad</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Servicio</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Limpieza</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-50 hover:bg-slate-50">
+                                    <td class="py-4 px-4 font-bold text-slate-800">Local Centro (Propio)</td>
+                                    <td class="py-4 px-4 text-slate-600 text-xs">A. Inspección Ext.</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-emerald-600">98%</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-emerald-600">95%</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-emerald-600">99%</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-4 px-4 font-bold text-slate-800">Franquicia Norte</td>
+                                    <td class="py-4 px-4 text-slate-600 text-xs">Auditor Interno</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-emerald-600">92%</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-amber-500">75%</td>
+                                    <td class="py-4 px-4 font-mono font-bold text-emerald-600">90%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Checklists Diarios -->
+            <div class="glass-panel p-6">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Muestreo de Temperaturas (APPCC)</h3>
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-sm text-slate-600">Todos los registros de temperatura de cámaras y vitrinas se están capturando automáticamente a través del módulo <a href="/static/iot.html" class="text-indigo-600 font-bold hover:underline">IoT Telemetry</a>. No es necesaria la intervención manual.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('QSC Audits');
+        });
+    </script>
+</body>
+</html>
