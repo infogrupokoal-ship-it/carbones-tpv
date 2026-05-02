@@ -27,7 +27,7 @@ class NotificationService:
     @staticmethod
     async def worker_loop():
         """Bucle infinito que procesa la cola de notificaciones en la base de datos."""
-        logger.info("📡 Iniciando Worker de Notificaciones Enterprise...")
+        logger.info("[LOG] Iniciando Worker de Notificaciones Enterprise...")
         while True:
             db = SessionLocal()
             try:

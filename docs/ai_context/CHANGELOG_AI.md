@@ -1,12 +1,13 @@
 # CHANGELOG_AI.md
 
-## [V10.0.0-QUANTUM] - 2026-05-02
-### Industrialización Total (Enterprise Singularity)
-- **Portal Quantum**: Interfaz administrativa central V10.0 con telemetría.
-- **Matrix Control**: Digital Twin operativo para monitoreo de sistemas.
-- **Kiosko V10**: Experiencia de cliente premium con Carbonito AI.
-- **Enterprise Shell V5**: Orquestador global con Neural Link y Command Palette.
-- **Integridad**: 100% de enlaces y assets verificados.
+## [10.0.0-QUANTUM] - 2026-05-02
+### Industrialización Total y Singularidad Operativa
+- **Quantum Portal**: Nueva puerta de enlace centralizada con telemetría en tiempo real.
+- **Matrix Control**: Interfaz de monitoreo "Digital Twin" activa.
+- **Kiosko B2C V10**: Rediseño premium con renderizado dinámico y Carbonito AI.
+- **Backend Architecture**: Consolidación de 37 routers y estabilización de servicios autónomos (Dispatch, Robotics, Yield).
+- **Bugfixes**: Resuelto crash de importación de dispatcher y desincronización de prefijos API.
+- **Infraestructura**: Verificación 100% online exitosa en Render.
 - **Backend**: Sincronización de 37 routers y motores autónomos.
 - **Hardware**: Estabilización de puentes de impresión y IoT.
 

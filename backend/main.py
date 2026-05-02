@@ -130,9 +130,9 @@ async def startup_event():
     for coro, name in services_to_start:
         try:
             asyncio.create_task(coro)
-            logger.info(f"✅ Service started: {name}")
+            logger.info(f"[OK] Service started: {name}")
         except Exception as e:
-            logger.error(f"❌ Failed to start service {name}: {e}")
+            logger.error(f"[ERROR] Failed to start service {name}: {e}")
     
     logger.info("Enterprise Singularity [V9.3] - ALL SYSTEMS GO.")
 

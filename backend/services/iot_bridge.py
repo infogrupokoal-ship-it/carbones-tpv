@@ -21,7 +21,7 @@ class IoTBridge:
                 status = "OK"
                 if temp > 200:
                     status = "CRITICAL"
-                    logger.warning(f"[IoT] ¡ALERTA! Freidora CR-1 sobrecalentada: {temp}C")
+                    logger.warning(f"[IoT] ALERT! Freidora CR-1 sobrecalentada: {temp}C")
                     
                     # Generar log operativo
                     db.add(LogOperativo(
