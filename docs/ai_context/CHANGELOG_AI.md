@@ -43,3 +43,19 @@
   - **Validación Premium**: Verificación del Portal de Staff (`portal.html`) para asegurar navegación 100% funcional.
 
 - **Estado**: Sistema estabilizado al 100%, listo para expansión de funcionalidades.
+
+## 2026-05-02 03:00:00
+
+- **Agente:** Antigravity (Gemini 2.0 Flash)
+
+- **Cambios:**
+
+  - **Mantenimiento Automático (Worker Manager):** Añadida tarea automatizada para expirar presupuestos viejos a "VENCIDO".
+
+  - **Auditoría de Código y Seguridad (Ruff):** Solucionados problemas menores de linting en `orders.py` y `rrhh.py`.
+
+  - **Liquidaciones Financieras:** Creada `liquidaciones.html` integrando el Enterprise Shell para la visualización de pagos de nóminas operativas y calculo financiero de repartidores. Integrado en menú de navegación.
+
+  - **Validación Offline PWA:** Verificado `sw.js` con soporte para Network First (API) y Cache First (Assets) con revalidación.
+
+- **Estado**: Fases 3 y 4 completadas. TPV Industrialización y automatización "Zero-Touch" validada en Backend y Frontend.

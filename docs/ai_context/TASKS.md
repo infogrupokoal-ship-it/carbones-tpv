@@ -20,7 +20,11 @@
 
 - [ ] Monitorear estabilidad de Render tras los últimos commits.
 
-- [ ] Implementar sistema de repartidores (Fase 4.4).
+- [x] Implementar sistema de repartidores y panel logístico (Fase 4.4 completada).
+
+- [x] Implementar cálculo de nóminas y liquidaciones financieras para staff.
+
+- [x] Optimizar Worker Manager para automatización 24/7 (limpieza y caducidad de presupuestos).
 
 - [ ] Integración de Carbonito AI en el Portal de Staff.
 
