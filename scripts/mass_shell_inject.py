@@ -56,11 +56,16 @@ def inject_shell():
             
         # Ensure sidebar div is there
         if SHELL_DIV not in content:
+            # Use translate="no" for the sidebar container
+            sidebar_div = '<div id="enterprise-sidebar" translate="no"></div>'
             if "<body>" in content:
-                content = content.replace("<body>", f"<body>\n    {SHELL_DIV}")
+                content = content.replace("<body>", f"<body>\n    {sidebar_div}")
             else:
-                # Handle cases with classes in body
-                content = re.sub(r'<body[^>]*>', lambda m: m.group(0) + f"\n    {SHELL_DIV}", content)
+                content = re.sub(r'<body[^>]*>', lambda m: m.group(0) + f"\n    {sidebar_div}", content)
+        
+        # Ensure notranslate meta is there
+        if 'name="google" content="notranslate"' not in content:
+            content = content.replace("</head>", '    <meta name="google" content="notranslate">\n</head>')
         
         # Ensure script is there
         if SHELL_JS not in content:
