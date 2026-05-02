@@ -44,6 +44,7 @@ class Categoria(Base):
     __tablename__ = "categorias"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nombre = Column(String(50), nullable=False)
+    imagen_url = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     productos = relationship("Producto", back_populates="categoria")
 

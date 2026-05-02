@@ -1,6 +1,5 @@
 import uuid
 import datetime
-import json
 from typing import Optional, List, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,8 +8,7 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, ItemPedido, MovimientoStock, Review, Usuario, ReporteZ, HardwareCommand, Categoria
-from ..services.reporting import ReportingService
+from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
 from scripts.seed_ultra import seed_ultra_industrial
@@ -151,3 +149,53 @@ async def abrir_cajon_remoto(db: Session = Depends(get_db)):
     db.commit()
     logger.warning("AUDITORÍA: Apertura de cajón solicitada remotamente por administrador.")
     return {"status": "success", "detail": "Comando de apertura encolado"}
+
+@router.get("/dashboard/kpis", response_model=DashboardOut)
+async def get_dashboard_kpis(db: Session = Depends(get_db)):
+    """
+    Motor de Inteligencia de Negocio: Agrega métricas críticas de la jornada.
+    """
+    hoy = datetime.date.today().strftime("%Y-%m-%d")
+    
+    try:
+        # KPIs
+        ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.date(Pedido.fecha) == hoy).scalar() or 0.0
+        coste_mermas = db.query(func.sum(ReporteZ.coste_mermas)).filter(func.date(ReporteZ.fecha) == hoy).scalar() or 0.0
+        pedidos_b2c = db.query(Pedido).filter(func.date(Pedido.fecha) == hoy).count()
+        pedidos_domicilio = db.query(Pedido).filter(func.date(Pedido.fecha) == hoy, Pedido.metodo_envio == "DOMICILIO").count()
+        avg_rating = db.query(func.avg(Review.rating)).scalar() or 0.0
+        
+        kpis = KPIOut(
+            ventas_hoy=float(ventas_hoy),
+            coste_mermas=float(coste_mermas),
+            pedidos_b2c=pedidos_b2c,
+            pedidos_domicilio=pedidos_domicilio,
+            avg_rating=round(float(avg_rating), 1)
+        )
+        
+        # Charts (Mock industrial para visualización)
+        charts = {
+            "ventas_semanales": [450, 520, 380, 610, 890, 1200, 950],
+            "categorias_top": ["Pollos", "Pizzas", "Bebidas", "Complementos"]
+        }
+        
+        # Reviews recientes
+        recent_reviews = db.query(Review).order_by(Review.fecha.desc()).limit(5).all()
+        reviews_list = [
+            {"rating": r.rating, "comentario": r.comentario, "fecha": r.fecha.isoformat()} 
+            for r in recent_reviews
+        ]
+        
+        return DashboardOut(
+            kpis=kpis,
+            charts=charts,
+            reviews=reviews_list
+        )
+    except Exception as e:
+        logger.error(f"Error en Dashboard KPIs: {e}")
+        # Fallback para no bloquear la UI
+        return DashboardOut(
+            kpis=KPIOut(ventas_hoy=0, coste_mermas=0, pedidos_b2c=0, pedidos_domicilio=0, avg_rating=0),
+            charts={},
+            reviews=[]
+        )

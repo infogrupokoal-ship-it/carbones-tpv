@@ -1,10 +1,9 @@
-import logging
 import os
 import requests
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
-from ..models import Ingrediente, MovimientoStock, Producto, RecetaItem
+from ..models import MovimientoStock, Producto
 from ..utils.logger import logger
 
 def enviar_alerta_whatsapp(mensaje: str):

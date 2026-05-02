@@ -1,8 +1,7 @@
-import uuid
 import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from ..models import Pedido, ReporteZ
+from ..models import Pedido
 from ..utils.logger import logger
 from .reporting import ReportingService
 

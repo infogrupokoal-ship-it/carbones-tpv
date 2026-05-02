@@ -1,5 +1,4 @@
 import logging
-from sqlalchemy.orm import Session
 from .ai_agent import ask_asador_ai
 from .models import MovimientoStock, Producto, LogOperativo
 from .database import SessionLocal

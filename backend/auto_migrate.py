@@ -27,7 +27,7 @@ def migrate_schema():
                     logger.warning(f"COLUMNA FALTANTE DETECTADA: {table_name}.{column_name}. Migrando...")
                     
                     # Generar el tipo de dato para SQL
-                    type_str = str(column_obj.type).split('(')[0] # Simplificado para SQLite/PG
+                    str(column_obj.type).split('(')[0] # Simplificado para SQLite/PG
                     
                     # Caso especial para SQLite (ALTER TABLE es limitado)
                     try:

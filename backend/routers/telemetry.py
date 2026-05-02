@@ -20,7 +20,7 @@ async def get_system_status(current_user: dict = Depends(get_current_user)):
     if current_user.get("rol") != "ADMIN":
         raise HTTPException(status_code=403, detail="Acceso denegado")
 
-    uptime = str(datetime.fromtimestamp(START_TIME))
+    str(datetime.fromtimestamp(START_TIME))
     process = psutil.Process(os.getpid())
     
     return {

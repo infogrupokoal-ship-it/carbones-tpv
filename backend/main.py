@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 import psutil
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,14 +18,14 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from .config import settings
-from .database import Base, engine
+from .database import engine
+from .auto_migrate import migrate_schema
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial
+    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial, marketing
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
-from .utils.openapi import custom_openapi
 from .services.scheduler import scheduler_loop
 from .services.notification_service import NotificationService
 from .services.worker_manager import WorkerManager
@@ -87,9 +87,6 @@ async def startup_event():
             pass
 
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
-    
-    # Asegurar esquemas y datos iniciales
-    from .auto_migrate import migrate_schema
     migrate_schema()
     
     from .seeding import run_auto_seeding
@@ -192,6 +189,7 @@ app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
 app.include_router(payments.router, prefix="/api", tags=["Pagos"])
 app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artificial"])
 app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
+app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
 app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)

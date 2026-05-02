@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Hub | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #020617; color: #f1f5f9; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .nav-active { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        .wa-card { background: linear-gradient(145deg, rgba(37, 211, 102, 0.05) 0%, rgba(15, 23, 42, 0.6) 100%); transition: all 0.3s ease; }
+        .wa-card:hover { transform: translateY(-5px); border-color: rgba(37, 211, 102, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 hidden lg:flex">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg">⚡</div>
+            <h2 class="text-xl font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
+        </div>
+        <nav class="space-y-1 flex-1 overflow-y-auto custom-scrollbar pr-2">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-4">Core Operativo</p>
+            <a href="/static/portal.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🏠 Portal de Inicio</a>
+            <a href="/static/dashboard.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Business Intelligence</a>
+            <a href="/static/caja.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">💰 Control de Caja</a>
+            <a href="/static/kds.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🍳 Cocina KDS</a>
+
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Logística y Stock</p>
+            <a href="/static/inventario.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📦 Inventario Central</a>
+            
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Ventas y Marketing</p>
+            <a href="/static/presupuestos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📄 Presupuestos</a>
+            <a href="/static/referidos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🔗 Programa de Referidos</a>
+            <a href="/static/marketing.html" class="flex items-center gap-3 p-3 rounded-xl nav-active text-xs font-bold uppercase tracking-tight">📣 Marketing Hub</a>
+
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Administración</p>
+            <a href="/static/rrhh.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">👥 RRHH y Personal</a>
+            <a href="/static/repartidores.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🛵 Repartidores</a>
+            <a href="/static/dashboard_produccion.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Producción Live</a>
+            <a href="/static/stats.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📈 BI Analytics</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Growth <span class="text-emerald-500">Hub</span></h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">WhatsApp Business Integration • Automation</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('modalTemplate').classList.remove('hidden')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-900/40 transition-all active:scale-95">Nueva Plantilla</button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-emerald-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Mensajes Enviados (30d)</p>
+                <h3 class="text-3xl font-black text-white">1,240</h3>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Tasa de Apertura</p>
+                <h3 class="text-3xl font-black text-white">92.4%</h3>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-amber-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Clics en Ofertas</p>
+                <h3 class="text-3xl font-black text-white">185</h3>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-black text-white uppercase mb-8">Plantillas WhatsApp</h3>
+        
+        <!-- Templates Grid -->
+        <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Loading -->
+            <div class="glass-panel h-48 animate-pulse rounded-3xl"></div>
+            <div class="glass-panel h-48 animate-pulse rounded-3xl"></div>
+            <div class="glass-panel h-48 animate-pulse rounded-3xl"></div>
+        </div>
+
+    </main>
+
+    <!-- Modal Nueva Plantilla -->
+    <div id="modalTemplate" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden flex items-center justify-center z-[100] p-6">
+        <div class="glass-panel max-w-lg w-full p-10 rounded-[2.5rem] relative">
+            <button onclick="document.getElementById('modalTemplate').classList.add('hidden')" class="absolute top-6 right-6 text-slate-500 hover:text-white">✕</button>
+            <h3 class="text-3xl font-black text-white mb-8 uppercase tracking-tighter">Crear Plantilla</h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase block mb-2">Nombre Identificador</label>
+                    <input id="t-nombre" type="text" placeholder="Ej: BIENVENIDA_CLIENTE" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase block mb-2">Categoría</label>
+                    <select id="t-categoria" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 transition-all outline-none">
+                        <option value="COMERCIAL">Marketing Comercial</option>
+                        <option value="RECORDATORIO">Recordatorio Operativo</option>
+                        <option value="ALERTA">Alerta Crítica</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase block mb-2">Contenido (Soporta {{nombre}}, {{link}})</label>
+                    <textarea id="t-contenido" rows="5" placeholder="Hola {{nombre}}, tenemos una oferta para ti..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 transition-all outline-none resize-none"></textarea>
+                </div>
+                <button onclick="saveTemplate()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-black uppercase tracking-widest transition-all active:scale-95">Guardar Plantilla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchTemplates() {
+            try {
+                const res = await fetch('/api/marketing/templates');
+                const data = await res.json();
+                renderTemplates(data);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderTemplates(data) {
+            const grid = document.getElementById('templates-grid');
+            if (data.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-20 text-center opacity-30 font-black uppercase tracking-widest">No hay plantillas configuradas</div>';
+                return;
+            }
+
+            grid.innerHTML = data.map(t => `
+                <div class="glass-panel wa-card p-8 rounded-[2.5rem] border border-white/5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[9px] font-black uppercase tracking-widest">${t.categoria}</span>
+                            <div class="text-slate-600 text-xl">📱</div>
+                        </div>
+                        <h4 class="text-white font-black text-lg mb-4 uppercase tracking-tighter">${t.nombre}</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed italic line-clamp-3">"${t.contenido}"</p>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-white/5 flex gap-3">
+                        <button class="flex-1 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase py-2 rounded-lg transition-all">Editar</button>
+                        <button class="px-4 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase py-2 rounded-lg hover:bg-emerald-500/20 transition-all">Test</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveTemplate() {
+            const template = {
+                nombre: document.getElementById('t-nombre').value,
+                categoria: document.getElementById('t-categoria').value,
+                contenido: document.getElementById('t-contenido').value
+            };
+
+            const res = await fetch('/api/marketing/templates', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(template)
+            });
+
+            if (res.ok) {
+                document.getElementById('modalTemplate').classList.add('hidden');
+                fetchTemplates();
+            }
+        }
+
+        fetchTemplates();
+    </script>
+</body>
+</html>

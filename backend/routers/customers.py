@@ -3,7 +3,7 @@ import random
 import string
 import requests
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import jwt
@@ -49,7 +49,7 @@ def solicitar_otp(req: OTPRequest, db: Session = Depends(get_db)):
     codigo = ''.join(random.choices(string.digits, k=6))
     
     # Invalidate previous ones
-    db.query(VerificacionOTP).filter(VerificacionOTP.telefono == req.telefono, VerificacionOTP.usado == False).update({"usado": True})
+    db.query(VerificacionOTP).filter(VerificacionOTP.telefono == req.telefono, not VerificacionOTP.usado).update({"usado": True})
     
     nuevo_otp = VerificacionOTP(
         id=str(uuid.uuid4()),
@@ -77,7 +77,7 @@ def verificar_otp(req: OTPVerify, db: Session = Depends(get_db)):
     verificacion = db.query(VerificacionOTP).filter(
         VerificacionOTP.telefono == req.telefono,
         VerificacionOTP.codigo == req.codigo,
-        VerificacionOTP.usado == False
+        not VerificacionOTP.usado
     ).first()
     
     if not verificacion or verificacion.fecha_expiracion < datetime.utcnow():

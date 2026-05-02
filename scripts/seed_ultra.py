@@ -1,4 +1,5 @@
 import uuid
+import sys
 from backend.database import SessionLocal, Base, engine
 from backend.models import Categoria, Producto, Usuario, Tienda, Ingrediente, Proveedor
 from backend.utils.auth import get_password_hash
@@ -42,19 +43,28 @@ def seed_ultra_industrial():
 
         # 3. Categorías con Iconos Visuales (Simulados en el nombre para el Kiosko)
         cat_data = [
-            ("Pollos Asados 🔥", "pollos"),
-            ("Combos Ahorro 🛍️", "combos"),
-            ("Complementos 🍟", "lados"),
-            ("Bebidas Frías 🥤", "bebidas"),
-            ("Postres Caseros 🍰", "postres")
+            ("Pollos Asados 🔥", "pollos", "/static/assets/minimalist/pollo.png"),
+            ("Pizzas Artesanas 🍕", "pizzas", "/static/assets/minimalist/pizza.png"),
+            ("Bocadillos & Baguettes 🥖", "bocadillos", "/static/assets/minimalist/bocadillo.png"),
+            ("Hamburguesas Pro 🍔", "burgers", "/static/assets/minimalist/burger.png"),
+            ("Arroces & Paellas 🥘", "arroz", "/static/assets/minimalist/arroz.png"),
+            ("Sándwiches & Snacks 🥪", "sandwiches", "/static/assets/minimalist/sandwich.png"),
+            ("Bebidas Frías 🥤", "bebidas", "/static/assets/minimalist/refresco.png"),
+            ("Combos Ahorro 🛍️", "combos", "/static/assets/minimalist/refresco.png"), # Generic
+            ("Complementos 🍟", "lados", "/static/assets/minimalist/burger.png"), # Generic
+            ("Postres Caseros 🍰", "postres", "/static/assets/minimalist/sandwich.png") # Generic
         ]
         
         categorias = {}
-        for nombre, key in cat_data:
+        for nombre, key, img in cat_data:
             c = db.query(Categoria).filter_by(nombre=nombre).first()
             if not c:
-                c = Categoria(id=str(uuid.uuid4()), nombre=nombre)
+                c = Categoria(id=str(uuid.uuid4()), nombre=nombre, imagen_url=img)
                 db.add(c)
+                db.commit()
+            else:
+                # Actualizar imagen si ha cambiado o no existía
+                c.imagen_url = img
                 db.commit()
             categorias[key] = c
 
@@ -119,23 +129,63 @@ def seed_ultra_industrial():
             },
             # BEBIDAS
             {
-                "nombre": "Cerveza Artesana 'La Flama'",
-                "desc": "Rubia, ligera y con un toque ahumado. Elaborada para nosotros.",
-                "precio": 3.80,
+                "nombre": "Refresco Coca-Cola 33cl",
+                "desc": "Bebida refrescante clásica.",
+                "precio": 2.20,
                 "cat": "bebidas",
-                "img": "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&q=80&w=800",
-                "alergenos": "Gluten",
-                "nutri": "Alcohol: 4.5%"
+                "img": "/static/assets/minimalist/refresco.png",
+                "alergenos": "Ninguno",
+                "nutri": "Contiene azúcar."
             },
-            # POSTRES
+            # PIZZAS
             {
-                "nombre": "Tarta de Queso Fluida",
-                "desc": "Nuestra tarta de queso al horno, cremosa y con base de galleta.",
+                "nombre": "Pizza Margarita Minimal",
+                "desc": "Mozzarella, tomate y albahaca fresca.",
+                "precio": 10.50,
+                "cat": "pizzas",
+                "img": "/static/assets/minimalist/pizza.png",
+                "alergenos": "Gluten, Lactosa",
+                "nutri": "Calorías: 250kcal/porción"
+            },
+            # BOCADILLOS
+            {
+                "nombre": "Bocadillo de Serranito",
+                "desc": "Lomo, jamón, pimiento frito y tomate.",
                 "precio": 6.50,
-                "cat": "postres",
-                "img": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=800",
-                "alergenos": "Lactosa, Huevo, Gluten",
-                "nutri": "El capricho final."
+                "cat": "bocadillos",
+                "img": "/static/assets/minimalist/bocadillo.png",
+                "alergenos": "Gluten",
+                "nutri": "Proteína pura."
+            },
+            # HAMBURGUESAS
+            {
+                "nombre": "Burger Koal Classic",
+                "desc": "Ternera premium, queso, lechuga y salsa secreta.",
+                "precio": 12.00,
+                "cat": "burgers",
+                "img": "/static/assets/minimalist/burger.png",
+                "alergenos": "Gluten, Lactosa",
+                "nutri": "Sabor intenso."
+            },
+            # ARROZ
+            {
+                "nombre": "Arroz con Pollo",
+                "desc": "Arroz tradicional cocinado con el jugo de nuestros pollos.",
+                "precio": 9.50,
+                "cat": "arroz",
+                "img": "/static/assets/minimalist/arroz.png",
+                "alergenos": "Ninguno",
+                "nutri": "Carbohidratos complejos."
+            },
+            # SANDWICH
+            {
+                "nombre": "Sandwich Mixto",
+                "desc": "Jamón york y queso fundido.",
+                "precio": 4.50,
+                "cat": "sandwiches",
+                "img": "/static/assets/minimalist/sandwich.png",
+                "alergenos": "Gluten, Lactosa",
+                "nutri": "Ligero."
             }
         ]
 

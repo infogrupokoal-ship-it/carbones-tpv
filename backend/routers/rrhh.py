@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any
 import uuid
 
 from ..database import get_db
@@ -33,10 +32,9 @@ def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
     """
     # Buscamos el usuario por el hash del PIN (simplificado para el ejemplo con comparación directa si no hay hash complejo)
     # En un entorno real usaríamos verify_password
-    usuario = db.query(Usuario).filter(Usuario.is_active == True).all()
+    usuario = db.query(Usuario).filter(Usuario.is_active).all()
     target_user = None
     
-    from ..utils.auth import get_password_hash # Para propósitos de demo
     
     for u in usuario:
         # Aquí asumimos que el pin_hash se verifica contra el pin enviado
@@ -45,7 +43,7 @@ def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
             break
             
     if not target_user:
-        logger.warning(f"Intento de fichaje fallido con PIN incorrecto.")
+        logger.warning("Intento de fichaje fallido con PIN incorrecto.")
         raise HTTPException(status_code=401, detail="PIN incorrecto o usuario no activo")
 
     nuevo_fichaje = Fichaje(
@@ -71,7 +69,7 @@ def obtener_estado_plantilla(db: Session = Depends(get_db)):
     Retorna la lista de empleados y su último estado de fichaje hoy.
     """
     today = datetime.utcnow().date()
-    usuarios = db.query(Usuario).filter(Usuario.is_active == True).all()
+    usuarios = db.query(Usuario).filter(Usuario.is_active).all()
     
     resultado = []
     for u in usuarios:

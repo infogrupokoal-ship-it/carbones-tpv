@@ -12,7 +12,7 @@ from ..database import get_db
 from ..models import Producto
 from ..config import settings
 from ..utils.logger import logger
-from ..utils.ai_model_manager import ai_manager, generate_ai_response
+from ..utils.ai_model_manager import ai_manager
 
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 
@@ -46,7 +46,6 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
     try:
         productos = db.query(Producto).all()
         menu_text = "\n".join([f"- {p.nombre}: {p.precio}€" for p in productos])
-        model_info = ai_manager.current_model_info
 
         system_prompt = f"""
         Eres "Carbonito", el asistente gourmet de Carbones y Pollos.
@@ -74,7 +73,6 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
 
         if reply_text is None:
             reply_text = "Lo siento, estoy avivando las brasas ahora mismo. ¿Puedo ayudarte con otra cosa? 🔥"
-            model_used = "fallback"
 
         final_model_info = ai_manager.current_model_info
         return ChatResponse(

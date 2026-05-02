@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -50,6 +50,7 @@ class ProductoOut(BaseModel):
 class CategoriaOut(BaseModel):
     id: str
     nombre: str
+    imagen_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -87,7 +88,7 @@ def listar_ingredientes(db: Session = Depends(get_db)):
     """
     try:
         # Respetar Soft Deletes
-        ingredientes = db.query(Ingrediente).filter(Ingrediente.is_active == True).all()
+        ingredientes = db.query(Ingrediente).filter(Ingrediente.is_active).all()
         out = []
         for ing in ingredientes:
             out.append(IngredienteOut(
@@ -110,7 +111,7 @@ def listar_productos(db: Session = Depends(get_db)):
     """
     Lista el catálogo de productos activos con su estado de stock actual y categoría.
     """
-    prods = db.query(Producto).filter(Producto.is_active == True).all()
+    prods = db.query(Producto).filter(Producto.is_active).all()
     out = []
     for p in prods:
         out.append(ProductoOut(
@@ -179,7 +180,7 @@ def listar_categorias(db: Session = Depends(get_db)):
     Obtiene las categorías activas disponibles para el filtrado en el Kiosko.
     """
     from ..models import Categoria
-    cats = db.query(Categoria).filter(Categoria.is_active == True).all()
+    cats = db.query(Categoria).filter(Categoria.is_active).all()
     return cats
 
 @router.post("/produccion", status_code=status.HTTP_201_CREATED)
@@ -236,7 +237,7 @@ def realizar_pedido_proveedor(req: PedidoProveedorRequest, db: Session = Depends
     try:
         db.commit()
         return {"status": "success", "message": "Stock de materia prima repuesto"}
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(status_code=500, detail="Error procesando entrada de mercancía")
 
@@ -249,12 +250,14 @@ def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db)):
         target_name = ""
         if req.producto_id:
             item = db.query(Producto).get(req.producto_id)
-            if not item: raise HTTPException(404, "Producto no encontrado")
+            if not item:
+                raise HTTPException(404, "Producto no encontrado")
             item.stock_actual += req.cantidad
             target_name = item.nombre
         elif req.ingrediente_id:
             item = db.query(Ingrediente).get(req.ingrediente_id)
-            if not item: raise HTTPException(404, "Ingrediente no encontrado")
+            if not item:
+                raise HTTPException(404, "Ingrediente no encontrado")
             item.stock_actual += req.cantidad
             target_name = item.nombre
         else:
@@ -310,14 +313,16 @@ def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
         
         if req.entidad_tipo == "PRODUCTO":
             item = db.query(Producto).get(req.entidad_id)
-            if not item: raise HTTPException(404, "Producto no encontrado")
+            if not item:
+                raise HTTPException(404, "Producto no encontrado")
             # Coste estimado basado en un % del precio o cálculo de ingredientes
             coste_unitario_estimado = item.precio * 0.35 
             item.stock_actual -= req.cantidad
             nombre_entidad = item.nombre
         else:
             item = db.query(Ingrediente).get(req.entidad_id)
-            if not item: raise HTTPException(404, "Ingrediente no encontrado")
+            if not item:
+                raise HTTPException(404, "Ingrediente no encontrado")
             # Fallback seguro para modelos que no tienen coste_unitario aún
             coste_unitario_estimado = getattr(item, "coste_unitario", 0.0)
             item.stock_actual -= req.cantidad

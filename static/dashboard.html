@@ -58,16 +58,17 @@
 
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Logística y Stock</p>
                 <a href="/static/inventario.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📦 Inventario Central</a>
-                <a href="/static/repartidores.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🛵 Gestión de Reparto</a>
-
+                
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Ventas y Marketing</p>
                 <a href="/static/presupuestos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📄 Presupuestos</a>
                 <a href="/static/referidos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🔗 Programa de Referidos</a>
-                <a href="/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🖥️ Kiosko Online</a>
+                <a href="/static/marketing.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📣 Marketing Hub</a>
 
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Administración</p>
-                <a href="/static/rrhh.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">👥 Capital Humano</a>
-                <a href="/static/setup.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">⚙️ Configuración</a>
+                <a href="/static/rrhh.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">👥 RRHH y Personal</a>
+                <a href="/static/repartidores.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🛵 Repartidores</a>
+                <a href="/static/dashboard_produccion.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Producción Live</a>
+                <a href="/static/stats.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📈 BI Analytics</a>
             </nav>
 
             <div class="pt-6 border-t border-white/5">
@@ -332,8 +333,6 @@
 
                 // Actualizar Gráfica
                 updateSalesChart(data.charts.horas);
-
-                `).join('');
 
                 // 4. Update Live Feed & Stock Alerts
                 updateLiveFeed(data.recent_orders);

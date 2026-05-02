@@ -1,11 +1,10 @@
 import stripe
-from fastapi import APIRouter, Depends, HTTPException, Request, Header
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Pedido, Producto, Notificacion
 from ..config import settings
 from ..utils.logger import logger
-from typing import Optional
 import requests
 
 router = APIRouter(prefix="/payments", tags=["Pagos"])
@@ -80,7 +79,8 @@ async def create_checkout_session(pedido_id: str, db: Session = Depends(get_db))
 async def send_payment_link_whatsapp(pedido_id: str, telefono: str, db: Session = Depends(get_db)):
     """Genera un enlace de pago y lo envía por WhatsApp al cliente."""
     pedido = db.query(Pedido).get(pedido_id)
-    if not pedido: raise HTTPException(404, "Pedido inexistente")
+    if not pedido:
+        raise HTTPException(404, detail="Pedido inexistente")
     
     # Generar sesión de Stripe primero
     session_data = await create_checkout_session(pedido_id, db)
@@ -133,10 +133,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             # Fallback para desarrollo sin secreto configurado
             event = await request.json()
             logger.warning("⚠️ WEBHOOK_SECURITY: Procesando evento sin validación de firma (STRIPE_WEBHOOK_SECRET no configurado).")
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(status_code=400, detail="Invalid payload")
-    except stripe.error.SignatureVerificationError as e:
-        logger.error(f"❌ WEBHOOK_AUTH_FAILED: Firma de Stripe inválida.")
+    except stripe.error.SignatureVerificationError:
+        logger.error("❌ WEBHOOK_AUTH_FAILED: Firma de Stripe inválida.")
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     if event['type'] == 'checkout.session.completed':

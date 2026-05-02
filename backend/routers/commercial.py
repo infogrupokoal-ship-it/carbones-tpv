@@ -1,11 +1,11 @@
 import datetime
 import uuid
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Presupuesto, ItemPresupuesto, Producto, Cliente, Referido, WhatsAppTemplate
+from ..models import Presupuesto, ItemPresupuesto, Producto, Referido, WhatsAppTemplate
 from ..utils.logger import logger
 
 router = APIRouter(prefix="/commercial", tags=["Gestión Comercial"])
@@ -104,7 +104,8 @@ def crear_presupuesto(data: PresupuestoCrear, db: Session = Depends(get_db)):
         total = 0
         for item in data.items:
             prod = db.query(Producto).filter(Producto.id == item.producto_id).first()
-            if not prod: continue
+            if not prod:
+                continue
             
             it = ItemPresupuesto(
                 id=str(uuid.uuid4()),
@@ -128,7 +129,8 @@ def crear_presupuesto(data: PresupuestoCrear, db: Session = Depends(get_db)):
 @router.put("/quotes/{id}/status")
 def actualizar_estado_presupuesto(id: str, estado: str, db: Session = Depends(get_db)):
     p = db.query(Presupuesto).filter(Presupuesto.id == id).first()
-    if not p: raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
+    if not p:
+        raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
     p.estado = estado
     db.commit()
     return {"status": "ok", "nuevo_estado": estado}

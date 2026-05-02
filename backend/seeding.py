@@ -1,9 +1,7 @@
 import logging
-from sqlalchemy.orm import Session
-from .database import SessionLocal, engine
+from .database import SessionLocal
 from .models import Producto, Usuario
 from scripts.seed_ultra import seed_ultra_industrial
-from scripts.seed_financial import seed_financial_intelligence
 from .utils.auth import get_password_hash
 import uuid
 

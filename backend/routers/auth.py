@@ -1,5 +1,3 @@
-import datetime
-from typing import Dict, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -44,7 +42,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     """
     payload = decode_access_token(token)
     if not payload:
-        logger.warning(f"Intento de acceso con token inválido o expirado.")
+        logger.warning("Intento de acceso con token inválido o expirado.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="La sesión ha expirado o es inválida. Por favor, identifíquese de nuevo.",

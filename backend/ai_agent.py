@@ -6,7 +6,6 @@ Modelo primario: gemini-2.5-pro → fallback automático si hay errores de cuota
 """
 
 import datetime
-import asyncio
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from .models import Producto, Pedido, Ingrediente

@@ -1,6 +1,5 @@
 import asyncio
 import httpx
-from sqlalchemy.orm import Session
 from ..database import SessionLocal
 from ..models import Notificacion
 from ..utils.logger import logger
