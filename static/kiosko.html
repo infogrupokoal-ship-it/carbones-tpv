@@ -176,7 +176,8 @@
 
         async function initKiosko() {
             try {
-                const res = await fetch('/api/commercial/products');
+                const res = await fetch('/api/productos/');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const products = await res.json();
                 
                 renderCategories(products);
@@ -212,7 +213,7 @@
             ` + categories.map(cat => `
                 <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group" onclick="filterCategory('${cat}')">
                     <span class="text-xs font-black uppercase tracking-tight">${cat}</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🔥</span>
+                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">✨</span>
                 </div>
             `).join('');
         }
