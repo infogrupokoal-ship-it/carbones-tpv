@@ -108,3 +108,8 @@
 - **IA Kiosko**: Integrado motor NLP (/api/ai/nlp-parse) en el asistente Carbonito del Kiosko para conversión automatizada de texto a pedidos en carrito.
 - **Enterprise Shell**: Actualizados enlaces del menú lateral hacia los nuevos módulos de KDS Cocina y Logística (Flota).
 - **Deploy**: Pusheado código a GitHub para auto-deploy en Render.
+
+## [2026-05-02] - Expansión Enterprise: Módulos Franchise y ESG
+- **Franquicias (ranchise.py y ranchise.html)**: Creado módulo maestro para gestión de prospectos, auditorías de calidad (QSC) y cálculo de royalties en la red de tiendas.
+- **ESG (esg.py y esg.html)**: Incorporado tracking de sostenibilidad, con medición de envases ecológicos, impacto de CO2 y reducción de desperdicio alimentario (food waste).
+- **Shell UI**: Inyectados enlaces operativos en el sidebar enterprise_shell.js.

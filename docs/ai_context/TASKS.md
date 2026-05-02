@@ -33,3 +33,7 @@
 
 - [x] Integrar parseo NLP en el chat Carbonito del Kiosko B2C.
 - [x] Corregir enlaces del Enterprise Shell hacia las vistas KDS y Fleet.
+
+- [x] Desarrollar backend y frontend de Gestión de Franquicias (Franchise).
+- [x] Desarrollar backend y frontend de Panel de Sostenibilidad (ESG).
+- [x] Conectar módulos al Enterprise Shell.
