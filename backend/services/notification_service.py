@@ -25,6 +25,33 @@ class NotificationService:
             return False
 
     @staticmethod
+    def create_notification(db, tipo, destino, mensaje):
+        """Helper para crear una notificación persistente."""
+        notif = Notificacion(
+            tipo=tipo,
+            destino=destino,
+            mensaje=mensaje,
+            estado="PENDIENTE",
+            fecha_creacion=datetime.utcnow()
+        )
+        db.add(notif)
+        db.commit()
+        return notif
+
+    @staticmethod
+    async def broadcast_alert(mensaje: str, level: str = "INFO"):
+        """Emite una alerta global al sistema (Quantum Broadcast)."""
+        logger.warning(f"[BROADCAST_{level}] {mensaje}")
+        # En una versión real, esto podría usar WebSockets para alertar a todos los clientes conectados.
+        # Por ahora lo dejamos en logs y persistencia si es crítico.
+        if level == "CRITICAL":
+            db = SessionLocal()
+            try:
+                NotificationService.create_notification(db, "SYSTEM", "ADMIN", f"CRITICAL: {mensaje}")
+            finally:
+                db.close()
+
+    @staticmethod
     async def worker_loop():
         """Bucle infinito que procesa la cola de notificaciones en la base de datos."""
         logger.info("[LOG] Iniciando Worker de Notificaciones Enterprise...")

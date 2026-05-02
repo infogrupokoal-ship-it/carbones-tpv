@@ -4,7 +4,8 @@ AI Assistant Router - Asistente de Ventas Koal-AI
 Usa AIModelManager para rotación automática de modelos Gemini.
 Endpoint: POST /api/ai/chat
 """
-
+import os
+import psutil
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -13,13 +14,14 @@ from ..models import Producto
 from ..config import settings
 from ..utils.logger import logger
 from ..utils.ai_model_manager import ai_manager
+from .admin_audit import log_audit_action
 
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 
 
 class ChatRequest(BaseModel):
     message: str
-    context: str = ""
+    context: dict = {}
 
 
 class ChatResponse(BaseModel):
@@ -47,9 +49,25 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         productos = db.query(Producto).all()
         menu_text = "\n".join([f"- {p.nombre}: {p.precio}€" for p in productos])
 
+        # Telemetría en tiempo real para el contexto de la IA
+        process = psutil.Process(os.getpid())
+        system_context = {
+            "version": settings.APP_VERSION,
+            "cpu_usage": f"{psutil.cpu_percent()}%",
+            "memory_usage": f"{psutil.virtual_memory().percent}%",
+            "process_rss": f"{process.memory_info().rss / 1024 / 1024:.2f} MB",
+            "db_status": "ONLINE"
+        }
+
         system_prompt = f"""
         Eres "Carbonito", el asistente gourmet de Carbones y Pollos.
         Tu objetivo es ayudar a los clientes a elegir su comida y AUMENTAR LAS VENTAS.
+        
+        SISTEMA (UEOS V11.0):
+        - Estado: {system_context['db_status']}
+        - Carga CPU: {system_context['cpu_usage']}
+        - RAM: {system_context['memory_usage']}
+        - Versión: {system_context['version']}
 
         MENÚ ACTUAL:
         {menu_text}
@@ -66,7 +84,8 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         full_prompt = (
             f"{system_prompt}\n\n"
             f"Mensaje del cliente: {req.message}\n"
-            f"Contexto adicional: {req.context}"
+            f"Contexto del Sistema (Ruta): {req.context.get('path', 'n/a')}\n"
+            f"Contexto del Sistema (Módulo): {req.context.get('module', 'n/a')}"
         )
 
         reply_text, model_used = await ai_manager.generate_content_async(full_prompt)

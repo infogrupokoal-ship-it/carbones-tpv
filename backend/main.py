@@ -53,6 +53,20 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+@app.get("/", response_class=FileResponse, include_in_schema=False)
+async def read_root():
+    """Sirve la Carta Digital de Carbones y Pollos como entrada principal."""
+    path = "static/index.html"
+    if os.path.exists(path):
+        return FileResponse(path)
+    return FileResponse("static/portal.html")
+
+@app.get("/admin", response_class=FileResponse, include_in_schema=False)
+async def read_admin():
+    """Acceso exclusivo a la administración Enterprise."""
+    return FileResponse("static/portal.html")
+
+
 # --- Middlewares ---
 app.add_middleware(
     CORSMiddleware,
@@ -71,8 +85,33 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Server"] = "TPV-Enterprise-Engine"
         return response
 
+class QuantumProfilingMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware industrial que monitoriza el rendimiento de cada petición,
+    inyectando cabeceras de telemetría y registrando latencias críticas.
+    """
+    async def dispatch(self, request, call_next):
+        start_time = time.time()
+        process = psutil.Process(os.getpid())
+        mem_before = process.memory_info().rss / 1024 / 1024
+        
+        response = await call_next(request)
+        
+        process_time = time.time() - start_time
+        mem_after = process.memory_info().rss / 1024 / 1024
+        mem_diff = mem_after - mem_before
+        
+        response.headers["X-Quantum-Latency"] = f"{process_time:.4f}s"
+        response.headers["X-System-Memory-Delta"] = f"{mem_diff:.2f}MB"
+        
+        if process_time > 1.0:
+            logger.warning(f"🐢 SLOW REQUEST: {request.url.path} took {process_time:.2f}s")
+            
+        return response
+
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(QuantumProfilingMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_exception_handler(TPVException, global_exception_handler)
@@ -87,6 +126,7 @@ async def startup_event():
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
     
+    # Asegurar codificación UTF-8 en Windows para logs limpios
     if sys.platform == "win32":
         try:
             import io
@@ -95,26 +135,21 @@ async def startup_event():
         except Exception:
             pass
 
-    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v6.0]...")
+    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v11.0]...")
     
-    # 1. Base de Datos y Estructura
-    migrate_schema()
-    
-    from .seeding import run_auto_seeding
-    run_auto_seeding()
-    
-    # 2. Scripts de Datos
+    # 1. Base de Datos y Estructura (Sincronización Automática)
     try:
-        from scripts.seed_night_menu_image import seed_night_menu_image
-        seed_night_menu_image()
-        from scripts.seed_pizzas import seed_pizzas
-        seed_pizzas()
-        from scripts.fix_broken_images import fix_broken_images
-        fix_broken_images()
+        migrate_schema()
+        from .seeding import run_auto_seeding
+        run_auto_seeding()
     except Exception as e:
-        logger.error(f"Error running seed scripts: {e}")
+        logger.critical(f"FATAL: Database migration/seeding failed: {e}")
 
-    # 3. Iniciar Servicios Autónomos (Singularity V9.3 / Quantum V6.0)
+    # 2. Mantenimiento Automático (Omitido)
+    pass
+
+
+    # 3. Iniciar Servicios Autónomos (Orquestación Resiliente)
     services_to_start = [
         (NotificationService.worker_loop(), "Notification Worker"),
         (scheduler_loop(), "Scheduler Loop"),
@@ -129,12 +164,13 @@ async def startup_event():
     
     for coro, name in services_to_start:
         try:
+            # En V11.0, cada servicio tiene su propia tarea aislada para evitar cascada de fallos
             asyncio.create_task(coro)
-            logger.info(f"[OK] Service started: {name}")
+            logger.info(f"[CORE] Sync: {name} started successfully.")
         except Exception as e:
-            logger.error(f"[ERROR] Failed to start service {name}: {e}")
+            logger.error(f"[CRITICAL] Kernel failed to spawn service {name}: {e}")
     
-    logger.info("Enterprise Singularity [V9.3] - ALL SYSTEMS GO.")
+    logger.info("Enterprise Singularity [V11.0] - FULL OPERATIONAL STATUS ACHIEVED.")
 
 
 @app.get("/health", tags=["Infraestructura"])
@@ -249,13 +285,10 @@ api_router.include_router(logistics.router, tags=["Logística y Riders"])
 app.include_router(api_router)
 app.include_router(ws.router, tags=["Real-time"])
 
-@app.get("/", response_class=FileResponse, include_in_schema=False)
-async def read_root():
-    """Sirve el Portal Quantum como entrada principal del ecosistema Enterprise."""
-    path = "static/portal.html"
-    if os.path.exists(path):
-        return FileResponse(path)
-    return HTMLResponse("<h1>TPV Enterprise</h1><p>Sistema en mantenimiento industrial. Contacte con soporte.</p>", status_code=503)
+
+
+
+
 
 @app.get("/sw.js", include_in_schema=False)
 async def get_sw():

@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from pydantic import BaseModel
 import datetime
+import uuid
 
 from ..database import get_db
 from ..models import AuditLog, Usuario
-from .auth import require_admin
+# from .auth import require_admin  <-- Movido a los endpoints para evitar circular import
+
 from ..utils.logger import logger
 
 router = APIRouter(prefix="/admin/audit", tags=["Auditoría y Seguridad"])
@@ -16,12 +18,13 @@ router = APIRouter(prefix="/admin/audit", tags=["Auditoría y Seguridad"])
 
 class AuditLogResponse(BaseModel):
     id: str
-    fecha: datetime.datetime
-    usuario_id: Optional[str]
-    accion: str
-    entidad: Optional[str]
-    entidad_id: Optional[str]
-    ip_origen: Optional[str]
+    timestamp: datetime.datetime
+    user_id: Optional[str]
+    action: str
+    resource: Optional[str]
+    resource_id: Optional[str]
+    ip_address: Optional[str]
+    details: Optional[str]
     
     class Config:
         from_attributes = True
@@ -33,19 +36,23 @@ async def get_audit_logs(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    admin_user: Usuario = Depends(require_admin)
+    # Importación diferida para evitar circular import
+    admin_user = Depends(__import__('backend.routers.auth', fromlist=['require_admin']).require_admin)
+
 ):
     """
     Recupera el historial de auditoría del sistema.
     Solo accesible por usuarios con rol ADMIN.
     """
-    logs = db.query(AuditLog).order_by(desc(AuditLog.fecha)).offset(offset).limit(limit).all()
+    logs = db.query(AuditLog).order_by(desc(AuditLog.timestamp)).offset(offset).limit(limit).all()
     return logs
 
 @router.get("/export/csv")
 async def export_audit_csv(
     db: Session = Depends(get_db),
-    admin_user: Usuario = Depends(require_admin)
+    # Importación diferida
+    admin_user = Depends(__import__('backend.routers.auth', fromlist=['require_admin']).require_admin)
+
 ):
     """Genera un reporte CSV de la auditoría para cumplimiento legal."""
     import csv
@@ -54,18 +61,19 @@ async def export_audit_csv(
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["ID", "FECHA", "USUARIO", "ACCION", "ENTIDAD", "ENTIDAD_ID", "IP"])
+    writer.writerow(["ID", "TIMESTAMP", "USER_ID", "ACTION", "RESOURCE", "RESOURCE_ID", "IP", "DETAILS"])
     
-    logs = db.query(AuditLog).order_by(desc(AuditLog.fecha)).all()
+    logs = db.query(AuditLog).order_by(desc(AuditLog.timestamp)).all()
     for log in logs:
         writer.writerow([
             log.id, 
-            log.fecha.isoformat(), 
-            log.usuario.username if log.usuario else "SISTEMA",
-            log.accion,
-            log.entidad,
-            log.entidad_id,
-            log.ip_origen
+            log.timestamp.isoformat(), 
+            log.user_id or "SISTEMA",
+            log.action,
+            log.resource,
+            log.resource_id,
+            log.ip_address,
+            log.details
         ])
     
     output.seek(0)
@@ -88,17 +96,23 @@ def log_audit_action(
 ):
     """
     Función helper para registrar una acción en el AuditLog.
-    Debe llamarse desde otros endpoints cuando se realice una acción crítica.
+    Traduce los parámetros a los campos del modelo actual.
     """
     try:
+        import json
+        details_dict = {}
+        if payload_previo: details_dict["prev"] = payload_previo
+        if payload_nuevo: details_dict["new"] = payload_nuevo
+        
         nuevo_log = AuditLog(
-            usuario_id=usuario_id,
-            accion=accion,
-            entidad=entidad,
-            entidad_id=entidad_id,
-            ip_origen=ip_origen,
-            payload_previo=payload_previo,
-            payload_nuevo=payload_nuevo
+            id=str(uuid.uuid4()),
+            user_id=usuario_id,
+            action=accion,
+            resource=entidad,
+            resource_id=entidad_id,
+            ip_address=ip_origen,
+            details=json.dumps(details_dict) if details_dict else None,
+            timestamp=datetime.datetime.utcnow()
         )
         db.add(nuevo_log)
         db.commit()

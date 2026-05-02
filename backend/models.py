@@ -495,3 +495,16 @@ class GlobalState(Base):
     key = Column(String(50), unique=True)
     value = Column(Text)
     last_updated = Column(DateTime, default=datetime.utcnow)
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    action = Column(String(50))  # CREATE, UPDATE, DELETE, LOGIN
+    resource = Column(String(50))  # PRODUCT, USER, ORDER
+    resource_id = Column(String(36), nullable=True)
+    details = Column(Text)  # JSON details
+    ip_address = Column(String(45), nullable=True)

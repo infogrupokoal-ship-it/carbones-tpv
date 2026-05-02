@@ -109,7 +109,7 @@
                 <h3 id="kpi-cocina" class="text-4xl font-black text-slate-900 tracking-tighter">14m</h3>
                 <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">Target: < 15 min</p>
             </div>
-            <div class="glass-panel p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-200">
+            <div data-role="ADMIN,MANAGER" class="glass-panel p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-200">
                 <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-4">Estado de Nodo</p>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center text-[10px] font-black uppercase">
@@ -211,6 +211,24 @@
             <div class="flex gap-4">
                 <button onclick="closeCierreZModal()" class="flex-1 py-5 bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all">Cancelar</button>
                 <button onclick="confirmCierreZ()" class="flex-1 py-5 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95">Sellar Cierre Z</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telemetria Flotante (Solo ADMIN) -->
+    <div id="neural-metrics-overlay" data-role="ADMIN" class="fixed top-24 right-8 z-40 hidden lg:block">
+        <div class="glass-panel p-6 rounded-3xl bg-slate-900 text-white w-64 shadow-2xl border border-white/5">
+            <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-4">Neural Pulse</p>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                    <span class="text-slate-500">LOAD</span> <span id="pulse-load">12.5%</span>
+                </div>
+                <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div id="pulse-bar" class="h-full bg-indigo-500 w-[12.5%] transition-all duration-1000"></div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] font-black uppercase pt-2 border-t border-white/5">
+                    <span class="text-slate-500">SYNC</span> <span class="text-emerald-400">ENFORCED</span>
+                </div>
             </div>
         </div>
     </div>

@@ -8,6 +8,8 @@ from ..database import get_db
 from ..models import Usuario
 from ..utils.auth import verify_password, create_access_token, decode_access_token
 from ..utils.logger import logger
+# from .admin_audit import log_audit_action  <-- Movido a funciones para evitar circular import
+
 
 router = APIRouter(prefix="/auth", tags=["Seguridad e Identidad"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
@@ -106,6 +108,18 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
         
         logger.info(f"Sesión Iniciada: {user.username} (Rol: {user.rol})")
         
+        # Auditoría de Seguridad
+        from .admin_audit import log_audit_action
+        log_audit_action(
+
+            db=db,
+            usuario_id=user.id,
+            accion="LOGIN",
+            entidad="USUARIO",
+            entidad_id=user.id,
+            payload_nuevo=f"Sesión iniciada con rol {user.rol}"
+        )
+        
         return TokenResponse(
             access_token=access_token,
             role=user.rol,
@@ -128,9 +142,21 @@ async def read_users_me(current_user: Usuario = Depends(get_current_user)):
     return current_user
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(current_user: Usuario = Depends(get_current_user)):
+async def logout(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Finaliza la sesión del operador y registra el evento para auditoría.
     """
     logger.info(f"Sesión Cerrada: {current_user.username}")
+    
+    # Auditoría de Seguridad
+    from .admin_audit import log_audit_action
+    log_audit_action(
+
+        db=db,
+        usuario_id=current_user.id,
+        accion="LOGOUT",
+        entidad="USUARIO",
+        entidad_id=current_user.id
+    )
+    
     return None

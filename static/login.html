@@ -159,7 +159,7 @@
                 const r = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ username: form.user.value, password: form.pass.value })
+                    body: JSON.stringify({ username: form.user.value, pin: form.pass.value })
                 });
                 
                 if(r.ok) {

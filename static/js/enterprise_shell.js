@@ -1,92 +1,385 @@
 /**
- * Carbones y Pollos - Enterprise Shell v6.0
+ * Carbones y Pollos - Enterprise Shell v10.0
  * Quantum Singularity Orchestrator - Industrial Grade
+ * Secured with RBAC & Neural Telemetry
  */
 
 const EnterpriseShell = {
-    version: '6.0.0-Singularity',
+    version: '11.0.0-UEOS',
+    user: null,
     modules: [
-        { id: 'Analytics', icon: '📈', path: '/static/predictive_analytics.html', category: 'Core' },
-        { id: 'Matrix', icon: '🌌', path: '/static/matrix.html', category: 'Core' },
-        { id: 'Portal', icon: '🏠', path: '/static/portal.html', category: 'Core' },
-        { id: 'Caja', icon: '💰', path: '/static/financial.html', category: 'Core' },
-        { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
-        { id: 'Dashboard', icon: '📊', path: '/static/dashboard.html', category: 'Core' },
-        { id: 'Engines', icon: '⚙️', path: '/static/engines.html', category: 'Core' },
-        
-        { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
-        { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
-        { id: 'Reparto', icon: '🛵', path: '/static/repartidores.html', category: 'Logistics' },
-        { id: 'Procurement', icon: '🛒', path: '/static/procurement.html', category: 'Logistics' },
-        { id: 'Fleet', icon: '🚚', path: '/static/fleet_map.html', category: 'Logistics' },
-        { id: 'Traceability', icon: '🔍', path: '/static/supply_chain.html', category: 'Logistics' },
-        { id: 'Aggregators', icon: '🍔', path: '/static/delivery_aggregators.html', category: 'Logistics' },
-        
-        { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
-        { id: 'RRHH', icon: '👥', path: '/static/rrhh.html', category: 'Management' },
-        { id: 'Marketing', icon: '📣', path: '/static/marketing.html', category: 'Management' },
-        { id: 'Referidos', icon: '🔗', path: '/static/referidos.html', category: 'Management' },
-        { id: 'Franquicias', icon: '🏢', path: '/static/franchise.html', category: 'Management' },
-        { id: 'ESG & Eco', icon: '🌱', path: '/static/esg.html', category: 'Management' },
-        { id: 'Menu Eng.', icon: '📜', path: '/static/menu_engineering.html', category: 'Management' },
-        { id: 'B2B Sales', icon: '🤝', path: '/static/commercial.html', category: 'Management' },
-        { id: 'Loyalty', icon: '🏆', path: '/static/loyalty.html', category: 'Management' },
-        { id: 'Yield Mgt.', icon: '📈', path: '/static/yield_management.html', category: 'Management' },
-        { id: 'Call Center', icon: '🎧', path: '/static/call_center.html', category: 'Management' },
-        { id: 'QSC Audits', icon: '✅', path: '/static/qsc_audits.html', category: 'Management' },
-        { id: 'Investors', icon: '🏦', path: '/static/investor_relations.html', category: 'Management' },
-        
-        { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' },
-        { id: 'IoT Equipos', icon: '🌡️', path: '/static/iot.html', category: 'System' },
-        { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' },
-        { id: 'Maintenance', icon: '🛠️', path: '/static/mantenimiento.html', category: 'System' },
-        { id: 'Hardware', icon: '🖨️', path: '/static/hardware.html', category: 'System' },
-        { id: 'Robotics', icon: '🤖', path: '/static/robotics.html', category: 'System' },
-        { id: 'Settings', icon: '⚙️', path: '/static/settings.html', category: 'System' }
+        { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/static/dashboard.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'caja', label: 'Terminal Venta', icon: '💰', path: '/static/financial.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { id: 'inventario', label: 'Almacén', icon: '📦', path: '/static/inventario.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'pedidos', label: 'Pedidos', icon: '📝', path: '/static/pedidos.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { id: 'clientes', label: 'Fidelización', icon: '👥', path: '/static/loyalty.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'telemetria', label: 'Quantum Metrics', icon: '⚡', path: '/static/telemetria.html', roles: ['ADMIN'] },
+        { id: 'config', label: 'Sistema', icon: '⚙️', path: '/static/settings.html', roles: ['ADMIN'] },
+        { id: 'marketing', label: 'Marketing', icon: '🚀', path: '/static/marketing.html', roles: ['ADMIN', 'MANAGER'] }
     ],
 
-    init(activeId) {
-        if (!activeId) {
-            activeId = document.body.getAttribute('data-active-module') || 'Portal';
+    async checkAuth() {
+        try {
+            const token = localStorage.getItem('auth_token');
+            if (!token) throw new Error("No token");
+
+            const response = await fetch('/api/auth/me', {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'X-Quantum-Profile': 'Handshake-v11'
+                }
+            });
+            if (!response.ok) throw new Error("Session expired");
+            this.user = await response.json();
+            console.log(`[Auth] User authenticated: ${this.user.username} (${this.user.rol})`);
+        } catch (e) {
+            console.warn("[Auth] Guest mode active.");
+            this.user = null;
         }
+    },
+
+    async init() {
+        console.log("%c[QuantumShell] Starting Secure Core V11...", "color: #f59e0b; font-weight: bold;");
+        await this.checkAuth();
+        
+        // Gatekeep check before rendering
+        if (!this.gatekeep()) return;
+
         this.injectGlobalStyles();
-        this.renderSidebar(activeId);
+        this.renderBase();
+        this.renderSecureUI();
+        this.applyRoleShields();
+        this.bindEvents();
+        
         this.injectSystemBanner();
         this.injectCarbonitoUI();
-        this.injectCommandPalette();
-        this.injectNeuralMonitor();
-        this.startTelemetry();
-        this.startNotificationPoller();
-        this.handleResponsive();
         
-        // Shortcuts
+        if (this.user && (this.user.rol === 'ADMIN' || this.user.rol === 'MANAGER')) {
+            this.injectNeuralMonitor();
+            this.injectCommandPalette();
+            this.startTelemetry();
+            this.pollNotifications();
+        }
+
+        // Handle browser navigation
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.moduleId) this.loadModule(e.state.moduleId, true);
+        });
+        
+        console.log("%c[QuantumShell] Core Stabilized.", "color: #10b981; font-weight: bold;");
+    },
+
+    async loadModule(moduleId, skipPushState = false) {
+        const module = this.modules.find(m => m.id === moduleId);
+        if (!module) return;
+
+        console.log(`[SPA] Loading module: ${moduleId}`);
+        if (typeof EnterpriseUI !== 'undefined') {
+            EnterpriseUI.showLoading(`Synapsing ${module.id} Node...`);
+        }
+
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch(module.path, {
+                headers: { 
+                    'X-SPA-Request': 'true',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Intentar encontrar el contenedor principal en la página destino
+            const content = doc.querySelector('#module-container') || doc.body;
+            
+            const container = document.getElementById('module-container');
+            if (container) {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    container.innerHTML = content.innerHTML;
+                    document.getElementById('module-title').innerText = module.label;
+                    
+                    // Re-ejecutar scripts
+                    content.querySelectorAll('script').forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        container.appendChild(newScript);
+                    });
+
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                    if (typeof EnterpriseUI !== 'undefined') EnterpriseUI.hideLoading();
+                }, 300);
+
+                if (!skipPushState) {
+                    history.pushState({ moduleId }, module.label, module.path);
+                }
+            } else {
+                window.location.href = module.path;
+            }
+        } catch (e) {
+            console.error("Neural Link Interrupted:", e);
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.hideLoading();
+                EnterpriseUI.notify("Neural Link Failure: " + e.message, "error");
+            }
+            window.location.href = module.path;
+        }
+    },
+
+    gatekeep() {
+        const path = window.location.pathname;
+        if (path === '/static/login.html' || path === '/static/index.html' || path === '/') return true;
+
+        const currentModule = this.modules.find(m => path.includes(m.path) || path.includes(m.id));
+        if (!currentModule) return true; // Pagina no catalogada, permitida por ahora
+
+        if (!this.user) {
+            console.error("[Gatekeeper] Unauthorized access detected. Redirecting to login.");
+            window.location.href = '/static/login.html';
+            return false;
+        }
+
+        if (!currentModule.roles.includes(this.user.rol)) {
+            console.error(`[Gatekeeper] Access Denied for role ${this.user.rol} on module ${currentModule.id}`);
+            this.renderAccessDenied();
+            return false;
+        }
+        return true;
+    },
+
+    renderAccessDenied() {
+        document.body.innerHTML = `
+            <div style="height: 100vh; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; text-align: center; padding: 2rem;">
+                <div style="font-size: 5rem; margin-bottom: 1rem;">🚫</div>
+                <h1 style="font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase;">Acceso Restringido</h1>
+                <p style="color: #94a3b8; max-width: 500px; margin-bottom: 2rem;">Tus credenciales actuales (${this.user ? this.user.rol : 'GUEST'}) no poseen los privilegios neuronales necesarios para acceder a este nodo de la Singularity.</p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/static/portal.html" style="background: #4f46e5; color: white; padding: 1rem 2rem; border-radius: 1rem; text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Volver al Portal</a>
+                    <button onclick="localStorage.clear(); location.href='/static/login.html'" style="background: rgba(255,255,255,0.1); color: white; padding: 1rem 2rem; border-radius: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Cambiar Usuario</button>
+                </div>
+            </div>
+        `;
+    },
+
+    applyRoleShields() {
+        if (!this.user) return;
+        const role = this.user.rol;
+        document.querySelectorAll('[data-role]').forEach(el => {
+            const allowedRoles = el.getAttribute('data-role').split(',');
+            if (!allowedRoles.includes(role)) {
+                el.style.display = 'none';
+                el.remove(); // Seguridad extra eliminando el nodo
+            }
+        });
+    },
+
+    renderBase() {
+        if (document.getElementById('quantum-shell')) return;
+        const shell = document.createElement('div');
+        shell.id = 'quantum-shell';
+        shell.innerHTML = `
+            <div id="neural-overlay"></div>
+            <aside id="shell-sidebar">
+                <div class="sidebar-brand">
+                    <div class="brand-logo">🔥</div>
+                    <span>SINGULARITY V10</span>
+                </div>
+                <nav id="shell-nav">
+                    <!-- Dynamic Nav -->
+                </nav>
+                <div class="sidebar-footer">
+                    <div class="user-pill">
+                        <div class="user-avatar">${this.user ? this.user.username[0].toUpperCase() : '?'}</div>
+                        <div class="user-info">
+                            <span class="user-name">${this.user ? this.user.full_name : 'Invitado'}</span>
+                            <span class="user-role">${this.user ? this.user.rol : 'Sin Acceso'}</span>
+                        </div>
+                    </div>
+                    ${this.user ? '<button id="btn-logout" class="btn-logout">Salir</button>' : '<a href="/login.html" class="btn-login">Login</a>'}
+                </div>
+            </aside>
+
+            <main id="shell-viewport">
+                <header id="shell-topbar">
+                    <div class="topbar-left">
+                        <button id="sidebar-toggle">☰</button>
+                        <h1 id="module-title">Neural Matrix</h1>
+                    </div>
+                    <div class="topbar-right">
+                        <div id="neural-load" class="telemetry-item" style="display:none">
+                            <span class="label">CPU</span>
+                            <div class="bar-container"><div id="cpu-bar" class="bar" style="width: 0%"></div></div>
+                        </div>
+                        <div id="neural-latency" class="telemetry-item" style="display:none">
+                            <span class="label">LAT</span>
+                            <span id="latency-val" class="value">0ms</span>
+                        </div>
+                        <button id="btn-notifications" class="shell-icon-btn">
+                            🔔<span id="notif-badge" class="notif-badge" style="display:none">0</span>
+                        </button>
+                        <button id="btn-command" class="shell-icon-btn" style="display:none">⌨️</button>
+                    </div>
+                </header>
+                <section id="module-container">
+                    <!-- App content -->
+                </section>
+            </main>
+
+            <div id="notification-panel" class="shell-panel hidden">
+                <div class="panel-header">
+                    <h3>Centro de Control</h3>
+                    <button class="close-panel" onclick="EnterpriseShell.toggleNotifications()">×</button>
+                </div>
+                <div id="notif-list" class="panel-body">
+                    <div class="empty-state">No hay alertas activas.</div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(shell);
+    },
+
+    renderSecureUI() {
+        const nav = document.getElementById('shell-nav');
+        if (!nav) return;
+
+        const currentPath = window.location.pathname;
+
+        nav.innerHTML = this.modules
+            .filter(m => !this.user || m.roles.includes(this.user.rol))
+            .map(m => `
+                <a href="${m.path}" class="nav-item ${currentPath.includes(m.id) ? 'active' : ''}" data-module="${m.id}">
+                    <span class="nav-icon">${m.icon}</span>
+                    <span class="nav-label">${m.label}</span>
+                </a>
+            `).join('');
+
+        if (this.user && this.user.rol === 'ADMIN') {
+            document.querySelectorAll('.telemetry-item').forEach(el => el.style.display = 'flex');
+            const btnCmd = document.getElementById('btn-command');
+            if (btnCmd) btnCmd.style.display = 'block';
+        }
+    },
+
+    bindEvents() {
+        document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+            document.getElementById('shell-sidebar').classList.toggle('collapsed');
+        });
+
+        document.getElementById('btn-logout')?.addEventListener('click', () => {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_role');
+            window.location.href = '/login.html';
+        });
+
+        document.getElementById('btn-notifications')?.addEventListener('click', () => {
+            this.toggleNotifications();
+        });
+
+        document.getElementById('btn-command')?.addEventListener('click', () => {
+            this.toggleCommandPalette();
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleCommandPalette(); }
             if (e.ctrlKey && e.key === 'j') { e.preventDefault(); this.toggleNeuralMonitor(); }
             if (e.key === 'Escape') { 
                 document.getElementById('command-palette')?.classList.add('hidden');
                 document.getElementById('neural-monitor')?.classList.add('translate-x-full');
+                document.getElementById('notification-panel')?.classList.add('hidden');
             }
         });
-        
-        console.log(`[Enterprise Shell ${this.version}] Initiated.`);
+    },
+
+    toggleNotifications() {
+        document.getElementById('notification-panel')?.classList.toggle('hidden');
+    },
+
+    async pollNotifications() {
+        if (!this.user) return;
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch('/api/notifications/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.updateNotifications(data);
+            }
+        } catch (e) {
+            console.error("[Shell] Polling Error:", e);
+        }
+        setTimeout(() => this.pollNotifications(), 15000);
+    },
+
+    updateNotifications(notifs) {
+        const list = document.getElementById('notif-list');
+        const badge = document.getElementById('notif-badge');
+        if (!list) return;
+
+        if (notifs.length === 0) {
+            list.innerHTML = '<div class="empty-state">No hay alertas activas.</div>';
+            if (badge) badge.style.display = 'none';
+            return;
+        }
+
+        if (badge) {
+            badge.innerText = notifs.length;
+            badge.style.display = 'block';
+        }
+
+        list.innerHTML = notifs.map(n => `
+            <div class="notif-item ${n.type}">
+                <div class="notif-icon">${n.type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+                <div class="notif-content">
+                    <p class="notif-title">${n.title}</p>
+                    <p class="notif-msg">${n.message}</p>
+                    <span class="notif-time">${new Date(n.timestamp).toLocaleTimeString()}</span>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    startTelemetry() {
+        setInterval(async () => {
+            if (this.user?.rol !== 'ADMIN') return;
+            try {
+                const res = await fetch('/api/health');
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                const latEl = document.getElementById('latency-val');
+                if (latEl) latEl.innerText = `${data.telemetry.database.latency_ms.toFixed(1)}ms`;
+                
+                const cpuBar = document.getElementById('cpu-bar');
+                if (cpuBar) cpuBar.style.width = `${data.telemetry.cpu_usage}%`;
+
+                // Update neural monitor if open
+                const logsCont = document.getElementById('neural-logs');
+                if (logsCont && !document.getElementById('neural-monitor').classList.contains('translate-x-full')) {
+                    const log = document.createElement('div');
+                    log.className = "flex gap-2 text-[9px] border-l border-white/10 pl-2";
+                    log.innerHTML = `<span class="text-indigo-400">[${new Date().toLocaleTimeString()}]</span> <span>NODE_SYNC: OK</span>`;
+                    logsCont.appendChild(log);
+                    logsCont.scrollTop = logsCont.scrollHeight;
+                    if (logsCont.children.length > 50) logsCont.removeChild(logsCont.firstChild);
+                }
+            } catch(e) {}
+        }, 5000);
     },
 
     injectSystemBanner() {
-        if (document.getElementById('enterprise-banner')) return;
-        const banner = document.createElement('div');
-        banner.id = 'enterprise-banner';
-        banner.className = "fixed top-0 right-0 left-24 lg:left-80 h-1 bg-slate-100 z-[2000] flex overflow-hidden";
-        banner.innerHTML = `<div id="shell-progress-bar" class="h-full bg-indigo-600 transition-all duration-1000" style="width: 100%"></div>`;
-        document.body.appendChild(banner);
-        
+        if (document.getElementById('shell-clock')) return;
         const info = document.createElement('div');
-        info.className = "fixed top-4 right-10 z-[2000] flex items-center gap-4 text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pointer-events-none select-none";
-        info.innerHTML = `
-            <span id="shell-node-id">CP-QUANTUM-NODE-01</span>
-            <span class="w-1 h-1 rounded-full bg-slate-200"></span>
-            <span id="shell-clock">00:00:00</span>
-        `;
+        info.className = "fixed bottom-4 right-24 z-[2000] flex items-center gap-4 text-[9px] font-mono text-slate-400 pointer-events-none select-none";
+        info.innerHTML = `<span id="shell-clock">00:00:00</span> <span class="opacity-30">|</span> <span>SINGULARITY-NODE-01</span>`;
         document.body.appendChild(info);
         setInterval(() => {
             const clockEl = document.getElementById('shell-clock');
@@ -98,377 +391,152 @@ const EnterpriseShell = {
         if (document.getElementById('neural-monitor')) return;
         const monitor = document.createElement('div');
         monitor.id = 'neural-monitor';
-        monitor.className = "fixed top-0 right-0 w-full lg:w-[450px] h-screen bg-slate-900 text-slate-400 font-mono text-[10px] p-8 z-[2500] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/10 overflow-hidden";
+        monitor.className = "fixed top-0 right-0 w-[400px] h-screen bg-slate-900 text-white p-8 z-[2500] transform translate-x-full transition-transform duration-500 shadow-2xl font-mono";
         monitor.innerHTML = `
             <div class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                    <span class="text-white font-black uppercase tracking-widest">Neural Stream Matrix</span>
-                </div>
-                <button onclick="EnterpriseShell.toggleNeuralMonitor()" class="text-slate-600 hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+                <span class="text-xs font-bold text-indigo-400">NEURAL STREAM [DECRYPTED]</span>
+                <button onclick="EnterpriseShell.toggleNeuralMonitor()" class="opacity-50 hover:opacity-100">✕</button>
             </div>
-            <div id="neural-logs" class="space-y-2 overflow-y-auto h-[70vh] custom-scrollbar pr-4">
-                <div class="text-indigo-400 opacity-50">[INIT] Attaching to local quantum node...</div>
-                <div class="text-emerald-400 opacity-50">[OK] Handshake successful. Data stream active.</div>
-            </div>
-            <div class="mt-8 pt-8 border-t border-white/5 space-y-6">
-                <div class="grid grid-cols-2 gap-8">
-                    <div>
-                        <p class="text-[8px] uppercase font-black mb-2 text-slate-500">Neural Load</p>
-                        <div class="flex items-end gap-3">
-                            <span id="neural-cpu-val" class="text-xl font-bold text-white tracking-tighter">0%</span>
-                            <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden mb-1.5">
-                                <div id="neural-cpu" class="h-full bg-indigo-500 transition-all duration-1000" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="text-[8px] uppercase font-black mb-2 text-slate-500">Synapse Flux</p>
-                        <div class="flex items-end gap-3">
-                            <span id="neural-flux-val" class="text-xl font-bold text-white tracking-tighter">0%</span>
-                            <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden mb-1.5">
-                                <div id="neural-flux" class="h-full bg-emerald-500 transition-all duration-1000" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-indigo-500/10 p-4 rounded-2xl border border-indigo-500/20">
-                    <p class="text-[8px] font-black uppercase text-indigo-400 mb-1">Autonomous Intelligence</p>
-                    <p class="text-[10px] text-white font-bold leading-relaxed">System is operating in <span class="text-emerald-400 italic">Self-Healing</span> mode. No critical anomalies detected in the last 1024 cycles.</p>
-                </div>
+            <div id="neural-logs" class="space-y-1 h-[70vh] overflow-y-auto custom-scrollbar text-[10px] opacity-70">
+                <div>[INIT] Handshake with Quantum Core...</div>
             </div>
         `;
         document.body.appendChild(monitor);
     },
 
     toggleNeuralMonitor() {
-        const mon = document.getElementById('neural-monitor');
-        if (mon) mon.classList.toggle('translate-x-full');
-    },
-
-    startTelemetry() {
-        setInterval(async () => {
-            try {
-                const res = await fetch('/api/health');
-                const data = await res.json();
-                
-                const latencyEl = document.getElementById('shell-latency');
-                if (latencyEl) latencyEl.innerText = `${data.telemetry.database.latency_ms.toFixed(2)}ms`;
-                
-                const cpuEl = document.getElementById('neural-cpu');
-                const cpuValEl = document.getElementById('neural-cpu-val');
-                if (cpuEl) {
-                    cpuEl.style.width = `${data.telemetry.cpu_usage}%`;
-                    if (cpuValEl) cpuValEl.innerText = `${Math.round(data.telemetry.cpu_usage)}%`;
-                }
-                
-                const fluxEl = document.getElementById('neural-flux');
-                const fluxValEl = document.getElementById('neural-flux-val');
-                if (fluxEl) {
-                    fluxEl.style.width = `${data.telemetry.memory_usage}%`;
-                    if (fluxValEl) fluxValEl.innerText = `${Math.round(data.telemetry.memory_usage)}%`;
-                }
-
-                const nodeEl = document.getElementById('shell-node-id');
-                if (nodeEl) nodeEl.innerText = data.deployment.node.toUpperCase();
-
-                const logsCont = document.getElementById('neural-logs');
-                if (logsCont) {
-                    const log = document.createElement('div');
-                    log.className = "flex gap-4 animate-in";
-                    log.innerHTML = `
-                        <span class="text-slate-700 shrink-0">${new Date().toLocaleTimeString()}</span>
-                        <div class="flex-1">
-                            <span class="text-indigo-400">[SYS]</span> 
-                            <span class="text-slate-300">NODE_SYNC:</span> <span class="text-emerald-500">OK</span> | 
-                            <span class="text-slate-300">HEAL:</span> <span class="${data.integrity.self_healing === 'ACTIVE' ? 'text-emerald-500' : 'text-rose-500'}">${data.integrity.self_healing}</span>
-                        </div>
-                    `;
-                    logsCont.appendChild(log);
-                    logsCont.scrollTop = logsCont.scrollHeight;
-                    if (logsCont.children.length > 30) logsCont.removeChild(logsCont.firstChild);
-                }
-            } catch(e) {
-                console.warn("[Shell] Telemetry Sync Fail");
-            }
-        }, 5000);
-    },
-
-    startNotificationPoller() {
-        const poll = async () => {
-            try {
-                const res = await fetch('/api/notifications/');
-                if (res.ok) {
-                    const notifs = await res.json();
-                    notifs.forEach(n => {
-                        if (typeof EnterpriseUI !== 'undefined') {
-                            EnterpriseUI.showToast(n.message, n.type);
-                        } else {
-                            alert(`[NOTIF] ${n.message}`);
-                        }
-                    });
-                }
-            } catch (e) {}
-        };
-        setInterval(poll, 15000);
-    },
-
-    toggleCategory(catName) {
-        const content = document.getElementById(`cat-content-${catName}`);
-        const icon = document.getElementById(`cat-icon-${catName}`);
-        if (content && icon) {
-            const isHidden = content.classList.toggle('hidden');
-            icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(90deg)';
-        }
-    },
-
-    renderSidebar(activeId) {
-        const sidebar = document.getElementById('enterprise-sidebar');
-        if (!sidebar) return;
-
-        sidebar.className = "fixed left-0 top-0 h-full bg-white border-r border-slate-100 flex flex-col z-[1000] transition-all duration-300 w-24 lg:w-80 shadow-2xl shadow-slate-200/40";
-        
-        const categories = [...new Set(this.modules.map(m => m.category))];
-        let navHtml = '';
-        categories.forEach(cat => {
-            const modulesInCat = this.modules.filter(m => m.category === cat);
-            const hasActive = modulesInCat.some(m => m.id === activeId);
-            navHtml += `
-                <div class="mb-2">
-                    <button onclick="EnterpriseShell.toggleCategory('${cat}')" class="w-full flex items-center justify-between px-8 py-4 group">
-                        <span class="text-[10px] font-black text-slate-300 group-hover:text-slate-900 uppercase tracking-[0.3em] transition-colors">${cat}</span>
-                        <span id="cat-icon-${cat}" class="text-[10px] text-slate-300 transition-transform duration-300 ${hasActive ? 'rotate-90' : ''}">▶</span>
-                    </button>
-                    <div id="cat-content-${cat}" class="${hasActive ? '' : 'hidden'} space-y-1">
-            `;
-            modulesInCat.forEach(m => {
-                const isActive = m.id === activeId;
-                navHtml += `
-                    <a href="${m.path}" class="flex items-center gap-4 py-3 px-8 lg:px-10 transition-all duration-300 group relative ${isActive ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-900'}">
-                        <div class="w-10 h-10 lg:w-9 lg:h-9 rounded-2xl flex items-center justify-center text-xl lg:text-lg ${isActive ? 'bg-indigo-50 shadow-inner' : 'bg-transparent group-hover:bg-slate-50'}">
-                            ${m.icon}
-                        </div>
-                        <span class="hidden lg:block text-[11px] font-black uppercase tracking-tight">${m.id}</span>
-                        ${isActive ? '<div class="absolute right-0 top-1/4 bottom-1/4 w-1.5 bg-indigo-600 rounded-l-full"></div>' : ''}
-                    </a>
-                `;
-            });
-            navHtml += `</div></div>`;
-        });
-
-        sidebar.innerHTML = `
-            <div class="p-8 flex items-center gap-4 mb-8">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-indigo-200 animate-pulse text-white">⚡</div>
-                <div class="hidden lg:block">
-                    <h1 class="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">Carbones <span class="text-indigo-600">Quantum</span></h1>
-                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Industrial Control Node</p>
-                </div>
-            </div>
-            <div class="flex-1 overflow-y-auto custom-scrollbar">
-                ${navHtml}
-            </div>
-            <div class="p-8 border-t border-slate-50 space-y-4 bg-slate-50/30">
-                <button onclick="EnterpriseShell.toggleCommandPalette()" class="w-full flex items-center justify-between px-4 py-2 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-400 hover:border-indigo-600 transition-all shadow-sm">
-                    <span>Ctrl + K</span>
-                    <i class="fas fa-search"></i>
-                </button>
-                <div onclick="EnterpriseShell.toggleNeuralMonitor()" class="flex items-center gap-4 cursor-pointer hover:bg-white p-2 rounded-2xl transition-all">
-                    <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center font-black text-xs text-white border-2 border-white shadow-xl">AD</div>
-                    <div class="hidden lg:block">
-                        <p class="text-[10px] font-black text-slate-900 uppercase">Master Admin</p>
-                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Neural Secured</p>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-widest">
-                    <span class="text-slate-300">Sync: <span id="shell-latency" class="text-slate-600">--ms</span></span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[7px] text-emerald-500 animate-pulse">Singularity V6.0</span>
-                    </div>
-                </div>
-            </div>
-        `;
+        document.getElementById('neural-monitor')?.classList.toggle('translate-x-full');
     },
 
     injectCommandPalette() {
         if (document.getElementById('command-palette')) return;
         const palette = document.createElement('div');
         palette.id = 'command-palette';
-        palette.className = "fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[3000] hidden flex items-start justify-center pt-32 p-4";
+        palette.className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[3000] hidden flex items-start justify-center pt-32";
         palette.innerHTML = `
-            <div class="w-full max-w-2xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden animate-in">
-                <div class="p-10 border-b border-slate-100 flex items-center gap-8">
-                    <i class="fas fa-search text-slate-400 text-2xl"></i>
-                    <input type="text" id="palette-search" placeholder="Search modules, products or orders..." class="flex-1 border-none focus:ring-0 text-xl font-black text-slate-900 bg-transparent placeholder:text-slate-200">
-                    <div class="flex gap-2">
-                        <span class="px-2 py-1 bg-slate-100 rounded text-[8px] font-black text-slate-400">ESC</span>
-                    </div>
-                </div>
-                <div id="palette-results" class="max-h-[500px] overflow-y-auto p-8 space-y-3 custom-scrollbar">
+            <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden p-4">
+                <input type="text" id="palette-search" placeholder="Comando rápido..." class="w-full p-6 text-xl font-bold border-none focus:ring-0">
+                <div id="palette-results" class="max-h-96 overflow-y-auto p-4 space-y-2">
                     ${this.modules.map(m => `
-                        <a href="${m.path}" class="flex items-center gap-6 p-6 rounded-[2rem] hover:bg-indigo-50 transition-all group border border-transparent hover:border-indigo-100">
-                            <span class="text-3xl grayscale group-hover:grayscale-0 transition-all">${m.icon}</span>
-                            <div class="flex-1">
-                                <p class="text-[14px] font-black uppercase text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">${m.id}</p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
-                            </div>
-                            <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
-                                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Jump to module</span>
-                                <i class="fas fa-chevron-right text-indigo-300"></i>
-                            </div>
+                        <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('${m.id}'); EnterpriseShell.toggleCommandPalette()" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-indigo-50 transition-colors">
+                            <span>${m.icon}</span>
+                            <span class="font-bold">${m.label}</span>
                         </a>
                     `).join('')}
-                </div>
-                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center px-10">
-                    <div class="flex gap-6">
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 flex items-center justify-center bg-white border border-slate-200 rounded text-[7px] font-black">↑↓</span> <span class="text-[8px] font-black uppercase text-slate-400">Navigate</span></div>
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 flex items-center justify-center bg-white border border-slate-200 rounded text-[7px] font-black">↵</span> <span class="text-[8px] font-black uppercase text-slate-400">Open</span></div>
-                    </div>
-                    <p class="text-[8px] font-black text-slate-300 uppercase tracking-widest">Quantum Engine V6.0</p>
                 </div>
             </div>
         `;
         palette.onclick = (e) => { if (e.target === palette) this.toggleCommandPalette(); };
         document.body.appendChild(palette);
-        
-        document.getElementById('palette-search')?.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const results = document.getElementById('palette-results');
-            const filtered = this.modules.filter(m => m.id.toLowerCase().includes(query) || m.category.toLowerCase().includes(query));
-            results.innerHTML = filtered.map(m => `
-                <a href="${m.path}" class="flex items-center gap-6 p-6 rounded-[2rem] hover:bg-indigo-50 transition-all group border border-transparent hover:border-indigo-100">
-                    <span class="text-3xl grayscale group-hover:grayscale-0 transition-all">${m.icon}</span>
-                    <div class="flex-1">
-                        <p class="text-[14px] font-black uppercase text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">${m.id}</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
-                    </div>
-                    <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
-                        <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Jump to module</span>
-                        <i class="fas fa-chevron-right text-indigo-300"></i>
-                    </div>
-                </a>
-            `).join('') || '<div class="p-20 text-center opacity-30 font-black uppercase tracking-[0.4em] text-xs">No active nodes found in Matrix</div>';
-        });
     },
 
     toggleCommandPalette() {
         const p = document.getElementById('command-palette');
         if (p) {
-            const isHidden = p.classList.toggle('hidden');
-            if (!isHidden) document.getElementById('palette-search')?.focus();
+            p.classList.toggle('hidden');
+            if (!p.classList.contains('hidden')) document.getElementById('palette-search')?.focus();
         }
     },
 
     injectCarbonitoUI() {
         if (document.getElementById('carbonito-launcher')) return;
+        
+        // Launcher
         const launcher = document.createElement('button');
         launcher.id = 'carbonito-launcher';
-        launcher.className = "fixed bottom-10 right-10 w-20 h-20 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center text-3xl hover:scale-110 hover:rotate-6 transition-all active:scale-95 z-[2000] border-4 border-white group";
-        launcher.innerHTML = `
-            <span class="relative">
-                🧠
-                <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-4 border-indigo-600 rounded-full animate-ping"></span>
-            </span>
-        `;
+        launcher.className = "fixed bottom-10 right-10 w-16 h-16 rounded-3xl bg-indigo-600 text-white shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition-all z-[2000] border-4 border-white";
+        launcher.innerHTML = `🤖`;
         launcher.onclick = () => this.toggleCarbonito();
-        
+        document.body.appendChild(launcher);
+
+        // Chat Panel
         const chat = document.createElement('div');
         chat.id = 'carbonito-chat';
-        chat.className = "fixed bottom-36 right-10 w-full lg:w-[450px] h-[650px] bg-white rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
+        chat.className = "fixed bottom-32 right-10 w-[400px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_-10px_rgba(79,70,229,0.3)] border border-slate-100 z-[3000] hidden flex flex-col overflow-hidden transform transition-all duration-300 translate-y-10 opacity-0 scale-95";
         chat.innerHTML = `
-            <div class="p-12 bg-indigo-600 text-white relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
-                <div class="flex items-center justify-between relative z-10">
-                    <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-3xl bg-white/20 flex items-center justify-center text-3xl">🤖</div>
-                        <div>
-                            <h3 class="text-lg font-black uppercase tracking-tight">Carbonito <span class="text-indigo-200">AI</span></h3>
-                            <p class="text-[9px] text-indigo-200 uppercase font-black tracking-[0.4em] opacity-80">Quantum Intelligence Layer</p>
-                        </div>
-                    </div>
-                    <button onclick="EnterpriseShell.toggleCarbonito()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-xs">✕</button>
+            <div class="p-8 bg-indigo-600 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-black tracking-tight uppercase">Carbonito AI</h3>
+                    <p class="text-[10px] font-bold opacity-60 uppercase tracking-widest">Enterprise Assistant v2.0</p>
+                </div>
+                <button onclick="EnterpriseShell.toggleCarbonito()" class="text-2xl opacity-50 hover:opacity-100">×</button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 space-y-4 overflow-y-auto max-h-[400px] custom-scrollbar bg-slate-50/50">
+                <div class="message system bg-white border border-slate-100 p-4 rounded-2xl text-xs text-slate-600">
+                    Hola ${this.user ? this.user.full_name : 'invitado'}, soy Carbonito. Estoy analizando el flujo de trabajo en tiempo real para asistirte.
                 </div>
             </div>
-            <div id="carbonito-messages" class="flex-1 p-10 overflow-y-auto space-y-6 text-[11px] font-bold text-slate-600 custom-scrollbar bg-slate-50/50">
-                <div class="bg-white p-8 rounded-[2rem] rounded-tl-none shadow-sm border border-slate-100 leading-relaxed animate-in">
-                    <p class="mb-4">Protocolo **Quantum Singularity v6.0** iniciado con éxito. Estoy conectado al nodo central y analizando telemetría en tiempo real.</p>
-                    <p>¿Qué optimización deseas ejecutar en el ecosistema hoy?</p>
-                </div>
-            </div>
-            <div class="p-10 bg-white border-t border-slate-50">
-                <div class="relative">
-                    <input type="text" id="carbonito-input" placeholder="Consult quantum node..." class="w-full bg-slate-100 border-none rounded-[2rem] py-7 px-10 text-[12px] font-black focus:ring-4 focus:ring-indigo-600/10 shadow-inner placeholder:text-slate-300">
-                    <button id="carbonito-send-btn" onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-indigo-600 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all text-lg">➔</button>
-                </div>
+            <div class="p-4 bg-white border-t border-slate-100 flex gap-2">
+                <input type="text" id="chat-input" placeholder="Pregúntame algo sobre la operativa..." class="flex-1 bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-indigo-600 transition-all">
+                <button id="btn-send-chat" class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center">🚀</button>
             </div>
         `;
-        document.body.appendChild(launcher);
         document.body.appendChild(chat);
-        document.getElementById('carbonito-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.sendCarbonitoMessage(); });
+
+        document.getElementById('chat-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendChatMessage();
+        });
+        document.getElementById('btn-send-chat')?.addEventListener('click', () => this.sendChatMessage());
     },
 
     toggleCarbonito() {
-        const c = document.getElementById('carbonito-chat');
-        if (!c) return;
-        if (c.classList.contains('hidden')) {
-            c.classList.remove('hidden');
-            setTimeout(() => c.classList.remove('translate-y-10', 'opacity-0'), 10);
+        const chat = document.getElementById('carbonito-chat');
+        if (!chat) return;
+        const isHidden = chat.classList.contains('hidden');
+        if (isHidden) {
+            chat.classList.remove('hidden');
+            setTimeout(() => {
+                chat.classList.remove('translate-y-10', 'opacity-0', 'scale-95');
+                document.getElementById('chat-input')?.focus();
+            }, 10);
         } else {
-            c.classList.add('translate-y-10', 'opacity-0');
-            setTimeout(() => c.classList.add('hidden'), 500);
+            chat.classList.add('translate-y-10', 'opacity-0', 'scale-95');
+            setTimeout(() => chat.classList.add('hidden'), 300);
         }
     },
 
-    async sendCarbonitoMessage() {
-        const input = document.getElementById('carbonito-input');
-        const cont = document.getElementById('carbonito-messages');
-        const btn = document.getElementById('carbonito-send-btn');
-        if (!input || !input.value.trim()) return;
-        const msg = input.value;
+    async sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const messages = document.getElementById('chat-messages');
+        const userMsg = document.createElement('div');
+        userMsg.className = "message user ml-12 bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none text-xs font-bold";
+        userMsg.innerText = text;
+        messages.appendChild(userMsg);
         input.value = '';
-        
-        const uDiv = document.createElement('div');
-        uDiv.className = "bg-indigo-600 text-white p-6 rounded-[2rem] rounded-tr-none ml-12 text-right shadow-xl shadow-indigo-100 animate-in text-[12px] font-black";
-        uDiv.innerText = msg;
-        cont.appendChild(uDiv);
-        cont.scrollTop = cont.scrollHeight;
+        messages.scrollTop = messages.scrollHeight;
 
-        const bDiv = document.createElement('div');
-        bDiv.className = "bg-white p-8 rounded-[2rem] rounded-tl-none border border-slate-100 shadow-sm animate-pulse leading-relaxed";
-        bDiv.innerHTML = `<div class="flex gap-2"><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></span></div>`;
-        cont.appendChild(bDiv);
-        cont.scrollTop = cont.scrollHeight;
-
-        btn.disabled = true;
+        // Artificial intelligence delay
+        const typing = document.createElement('div');
+        typing.className = "message ai mr-12 bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none text-xs text-slate-600 italic";
+        typing.innerText = "Pensando...";
+        messages.appendChild(typing);
 
         try {
-            const res = await fetch('/api/ai/chat', {
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch('/api/ai/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg, context: `Página actual: ${window.location.pathname}` })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    message: text,
+                    context: {
+                        path: window.location.pathname,
+                        module: document.getElementById('module-title')?.innerText || 'Unknown'
+                    }
+                })
             });
-            const data = await res.json();
-            
-            bDiv.classList.remove('animate-pulse');
-            bDiv.innerHTML = `
-                <div>${data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>
-                <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
-                    <span class="text-[7px] text-slate-300 uppercase tracking-widest font-black">Node: ${data.model_used} | Tier: ${data.model_tier}</span>
-                    <div class="flex gap-2">
-                        <button class="text-[8px] font-black text-indigo-400 hover:text-indigo-600">👍</button>
-                        <button class="text-[8px] font-black text-slate-300 hover:text-slate-600">👎</button>
-                    </div>
-                </div>
-            `;
-            
-            cont.scrollTop = cont.scrollHeight;
-        } catch(e) { 
-            bDiv.innerText = "Quantum sync error. Matrix disconnected. Please retry query."; 
-            bDiv.classList.remove('animate-pulse');
-        } finally {
-            btn.disabled = false;
+            const data = await response.json();
+            typing.innerText = data.response || "No puedo procesar esa solicitud en este momento.";
+            typing.classList.remove('italic');
+        } catch (e) {
+            typing.innerText = "Error de conexión con el núcleo neural.";
         }
+        messages.scrollTop = messages.scrollHeight;
     },
 
     injectGlobalStyles() {
@@ -476,25 +544,49 @@ const EnterpriseShell = {
         const s = document.createElement('style');
         s.id = 'shell-global-styles';
         s.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
-            body { padding-left: 6rem; background: #fbfcfe; font-family: 'Outfit', sans-serif; transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-            @media (min-width: 1024px) { body { padding-left: 20rem; } }
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&display=swap');
+            :root { --sidebar-w: 280px; }
+            body { font-family: 'Outfit', sans-serif; background: #f8fafc; padding-left: var(--sidebar-w); margin: 0; }
+            #shell-sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: white; border-right: 1px solid #f1f5f9; display: flex; flex-col: column; z-index: 1000; transition: width 0.3s; }
+            #shell-sidebar.collapsed { width: 80px; }
+            #shell-sidebar.collapsed .nav-label, #shell-sidebar.collapsed .user-info { display: none; }
+            .sidebar-brand { padding: 2rem; display: flex; items-center: center; gap: 1rem; font-weight: 900; color: #0f172a; }
+            #shell-nav { flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+            .nav-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 1rem; text-decoration: none; color: #64748b; font-weight: 600; transition: all 0.2s; }
+            .nav-item:hover { background: #f1f5f9; color: #0f172a; }
+            .nav-item.active { background: #eef2ff; color: #4f46e5; }
+            .sidebar-footer { padding: 1.5rem; border-top: 1px solid #f1f5f9; }
+            .user-pill { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+            .user-avatar { w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold; width: 40px; height: 40px; border-radius: 10px; }
+            .user-info { display: flex; flex-direction: column; }
+            .user-name { font-size: 0.8rem; font-weight: 900; }
+            .user-role { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
+            .btn-logout { width: 100%; padding: 0.8rem; border-radius: 0.8rem; background: #fef2f2; color: #ef4444; border: none; font-weight: 900; cursor: pointer; }
+            
+            #shell-topbar { height: 80px; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; background: white/80; backdrop-filter: blur(10px); border-bottom: 1px solid #f1f5f9; position: sticky; top: 0; z-index: 900; }
+            .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
+            .telemetry-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; font-weight: 900; color: #64748b; }
+            .bar-container { width: 60px; height: 4px; background: #f1f5f9; border-radius: 2px; overflow: hidden; }
+            .bar { height: 100%; background: #4f46e5; transition: width 1s; }
+            .shell-icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #f1f5f9; background: white; cursor: pointer; display: flex; items-center: center; justify-content: center; position: relative; }
+            .notif-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; border: 2px solid white; }
+            
+            .shell-panel { position: fixed; top: 90px; right: 2rem; width: 350px; background: white; border-radius: 2rem; shadow: 0 20px 50px -10px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; z-index: 2000; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+            .panel-header { padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+            .panel-body { padding: 1rem; max-height: 400px; overflow-y: auto; }
+            .notif-item { display: flex; gap: 1rem; padding: 1rem; border-radius: 1rem; margin-bottom: 0.5rem; border: 1px solid #f1f5f9; }
+            .notif-item.warning { border-left: 4px solid #f59e0b; background: #fffbeb; }
+            .notif-item.error { border-left: 4px solid #ef4444; background: #fef2f2; }
+            .notif-title { font-size: 0.8rem; font-weight: 900; margin: 0; }
+            .notif-msg { font-size: 0.75rem; color: #64748b; margin: 0.2rem 0; }
+            .notif-time { font-size: 0.6rem; color: #94a3b8; }
+            
+            .hidden { display: none !important; }
+            .translate-x-full { transform: translateX(100%); }
             .custom-scrollbar::-webkit-scrollbar { width: 4px; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-            @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-            .animate-in { animation: slideIn 0.4s ease-out forwards; }
-            .collapsed body { padding-left: 6rem !important; }
-            #enterprise-sidebar.collapsed { width: 6rem !important; }
-            #enterprise-sidebar.collapsed .lg\:block { display: none !important; }
-            #enterprise-sidebar.collapsed .lg\:px-10 { padding-left: 1.5rem !important; }
-            #neural-monitor.hidden { display: none; }
         `;
         document.head.appendChild(s);
-    },
-
-    handleResponsive() {
-        const h = () => { if (window.innerWidth < 1024) document.getElementById('enterprise-sidebar')?.classList.add('collapsed'); };
-        window.addEventListener('resize', h); h();
     }
 };
 

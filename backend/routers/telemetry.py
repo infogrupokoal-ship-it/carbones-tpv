@@ -46,3 +46,52 @@ def get_system_load():
         "active_threads": psutil.Process(os.getpid()).num_threads(),
         "uptime_sec": int(datetime.utcnow().timestamp() - psutil.boot_time()) if hasattr(psutil, "boot_time") else 0
     }
+
+@router.get("/advanced")
+def get_advanced_telemetry():
+    """
+    Detailed hardware-level profiling for UEOS Singularity Matrix.
+    Provides per-core metrics and IO pressure.
+    """
+    import psutil
+    import os
+    
+    vm = psutil.virtual_memory()
+    disk = psutil.disk_usage('/')
+    net = psutil.net_io_counters()
+    proc = psutil.Process(os.getpid())
+    
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "cpu": {
+            "overall": psutil.cpu_percent(interval=0.1),
+            "per_core": psutil.cpu_percent(percpu=True),
+            "count": psutil.cpu_count(),
+            "freq": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None
+        },
+        "memory": {
+            "total": vm.total,
+            "available": vm.available,
+            "percent": vm.percent,
+            "process_rss": proc.memory_info().rss,
+            "process_vms": proc.memory_info().vms
+        },
+        "storage": {
+            "total": disk.total,
+            "used": disk.used,
+            "free": disk.free,
+            "percent": disk.percent
+        },
+        "network": {
+            "bytes_sent": net.bytes_sent,
+            "bytes_recv": net.bytes_recv,
+            "packets_sent": net.packets_sent,
+            "packets_recv": net.packets_recv
+        },
+        "process": {
+            "pid": os.getpid(),
+            "threads": proc.num_threads(),
+            "create_time": proc.create_time(),
+            "status": proc.status()
+        }
+    }

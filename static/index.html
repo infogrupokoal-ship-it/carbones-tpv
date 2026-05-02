@@ -1,50 +1,380 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta http-equiv="refresh" content="0; url=/static/kiosko.html">
-    <title>Redirigiendo a Carbones y Pollos...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbones y Pollos | Tradición a la Brasa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #fcfcfc;
+            color: #1a1a1a;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('/static/assets/pollo_asado.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .product-card img {
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        /* Carbonito Chat Widget */
+        #carbonito-chat {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .chat-bubble {
+            width: 60px;
+            height: 60px;
+            background: #ea580c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .chat-bubble:hover { transform: scale(1.1); }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #f1f1f1;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #fcfcfc;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .message.bot { background: #f1f5f9; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .message.user { background: #ea580c; color: white; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #f1f1f1;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem 1.25rem;
+            background: #f8fafc;
+            border: none;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            outline: none;
+        }
+    </style>
 </head>
-<body>
-    <p>Si no eres redirigido, <a href="/static/kiosko.html">haz clic aquí</a>.</p>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="sticky-nav border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">🔥</span>
+                    <h1 class="text-2xl font-800 tracking-tighter text-gray-900 uppercase">Carbones <span class="text-orange-600">& Pollos</span></h1>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#menu" class="text-sm font-600 text-gray-600 hover:text-orange-600 uppercase tracking-widest">La Carta</a>
+                    <a href="#nosotros" class="text-sm font-600 text-gray-600 hover:text-orange-600 uppercase tracking-widest">Nosotros</a>
+                    <a href="#contacto" class="text-sm font-600 text-gray-600 hover:text-orange-600 uppercase tracking-widest">Contacto</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 text-gray-600 hover:text-orange-600 transition-colors">
+                        <i class="fa-solid fa-cart-shopping text-xl"></i>
+                        <span id="cart-count" class="cart-badge">0</span>
+                    </button>
+                    <a href="/admin" class="text-xs font-800 text-gray-400 hover:text-gray-900 uppercase tracking-tighter">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient h-[60vh] flex items-center justify-center text-center text-white px-4">
+        <div class="max-w-3xl">
+            <p class="text-orange-400 font-800 uppercase tracking-[0.5em] text-xs mb-4">Sabor Tradicional</p>
+            <h2 class="text-5xl md:text-7xl font-800 tracking-tighter mb-6">EL MEJOR POLLO A LA BRASA</h2>
+            <p class="text-lg text-gray-200 mb-8 font-light">Asado lentamente con carbón de encina para conseguir ese sabor ahumado y jugoso que nos caracteriza.</p>
+            <a href="#menu" class="bg-orange-600 hover:bg-orange-700 text-white px-10 py-4 rounded-full font-800 uppercase tracking-widest transition-all shadow-xl inline-block">Hacer Pedido</a>
+        </div>
+    </header>
+
+    <!-- Categories Nav -->
+    <div class="bg-white border-b border-gray-100 overflow-x-auto whitespace-nowrap py-4 px-4 sticky top-20 z-40">
+        <div id="categories-tabs" class="max-w-7xl mx-auto flex gap-4">
+            <!-- Dynamically loaded -->
+            <button onclick="filterMenu('all')" class="px-6 py-2 rounded-full bg-gray-900 text-white text-xs font-600 uppercase tracking-widest">Todo</button>
+        </div>
+    </div>
+
+    <!-- Main Menu -->
+    <main id="menu" class="max-w-7xl mx-auto px-4 py-16">
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <!-- Products loaded via API -->
+            <div class="animate-pulse col-span-full py-20 text-center">
+                <p class="text-gray-400 font-600 uppercase tracking-widest">Cocinando el menú...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-20 px-4">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-gray-800 pb-16">
+            <div>
+                <h3 class="text-white text-lg font-800 uppercase tracking-widest mb-6">Carbones & Pollos</h3>
+                <p class="text-sm leading-relaxed mb-6">Tradición familiar en cada bocado. Somos especialistas en cocina al carbón desde 2010.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="text-xl hover:text-white transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="text-xl hover:text-white transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-white text-lg font-800 uppercase tracking-widest mb-6">Horario</h3>
+                <ul class="space-y-3 text-sm">
+                    <li>Lunes - Jueves: 12:00 - 16:30</li>
+                    <li>Viernes - Domingo: 12:00 - 23:00</li>
+                </ul>
+            </div>
+            <div id="contacto">
+                <h3 class="text-white text-lg font-800 uppercase tracking-widest mb-6">Contacto</h3>
+                <p class="text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i> Calle de la Brasa, 12 - La Granja</p>
+                <p class="text-sm"><i class="fa-solid fa-phone mr-2"></i> +34 912 345 678</p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto pt-8 flex justify-between items-center text-[10px] font-700 uppercase tracking-widest">
+            <p>© 2026 Carbones y Pollos La Granja S.L.</p>
+            <a href="/admin" class="hover:text-white">Acceso Profesional</a>
+        </div>
+    </footer>
+
+    <!-- Carbonito Chat -->
+    <div id="carbonito-chat">
+        <div id="chat-window" class="chat-window">
+            <div class="chat-header">
+                <div class="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center text-xl">🔥</div>
+                <div>
+                    <h4 class="font-800 text-sm tracking-tight">Carbonito AI</h4>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Asistente Gourmet</p>
+                </div>
+                <button onclick="toggleChat()" class="ml-auto text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="chat-messages" class="chat-messages custom-scrollbar">
+                <div class="message bot">¡Hola! Soy Carbonito. 🔥 ¿En qué puedo ayudarte hoy? ¿Te apetece un pollo asado recién hecho?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input-field" placeholder="Pregúntame algo..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" class="bg-orange-600 text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+            </div>
+        </div>
+        <div class="chat-bubble" onclick="toggleChat()">
+            <i class="fa-solid fa-fire"></i>
+        </div>
+    </div>
 
     <script>
-        window.addEventListener('load', () => {
-            if (typeof EnterpriseUI !== 'undefined') {
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Estado del Nodo',
-                    value: 'ACTIVO',
-                    unit: 'SECURE',
-                    trend: 'up',
-                    trendValue: '100%',
-                    icon: 'fa-server'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Carga de Trabajo',
-                    value: Math.floor(Math.random() * 40 + 20),
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'LOW',
-                    icon: 'fa-microchip'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Latencia Sync',
-                    value: Math.floor(Math.random() * 50 + 10),
-                    unit: 'ms',
-                    trend: 'down',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-bolt'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Seguridad',
-                    value: 'V4.0',
-                    unit: 'SSL',
-                    trend: 'up',
-                    trendValue: 'MAX',
-                    icon: 'fa-shield-halved'
-                });
+        let allProducts = [];
+        let currentCategory = 'all';
+
+        async function initMenu() {
+            try {
+                const response = await fetch('/api/productos/');
+                if (!response.ok) throw new Error('API Error');
+                allProducts = await response.json();
+                
+                renderCategories();
+                renderProducts();
+            } catch (error) {
+                console.error('Error loading menu:', error);
+                document.getElementById('products-grid').innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <p class="text-gray-500 font-600 uppercase tracking-widest mb-4">No pudimos cargar el menú</p>
+                        <button onclick="location.reload()" class="bg-gray-900 text-white px-8 py-3 rounded-full text-xs font-800 uppercase tracking-widest">Reintentar</button>
+                    </div>
+                `;
             }
-        });
-    </script>
+        }
+
+        function renderCategories() {
+            const tabs = document.getElementById('categories-tabs');
+            const categories = [...new Set(allProducts.map(p => p.categoria))];
             
+            tabs.innerHTML = `<button onclick="filterMenu('all')" class="category-btn px-6 py-2 rounded-full ${currentCategory === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'} text-xs font-600 uppercase tracking-widest transition-all">Todo</button>` +
+                categories.map(cat => `
+                    <button onclick="filterMenu('${cat}')" class="category-btn px-6 py-2 rounded-full ${currentCategory === cat ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'} text-xs font-600 uppercase tracking-widest transition-all">${cat}</button>
+                `).join('');
+        }
+
+        function filterMenu(category) {
+            currentCategory = category;
+            renderCategories();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const filtered = currentCategory === 'all' ? allProducts : allProducts.filter(p => p.categoria === currentCategory);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center py-20 text-gray-400">No hay productos en esta categoría.</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-card group">
+                    <div class="relative overflow-hidden rounded-3xl mb-6 aspect-square bg-gray-100">
+                        <img src="${p.imagen_url || '/static/assets/placeholder.png'}" alt="${p.nombre}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-800 uppercase tracking-tight text-gray-900">${p.nombre}</h3>
+                        <span class="text-orange-600 font-800">${p.precio.toFixed(2)}€</span>
+                    </div>
+                    <p class="text-gray-500 text-sm font-light mb-6 line-clamp-2">${p.descripcion || 'Sabor tradicional cocinado con amor.'}</p>
+                    <button class="w-full py-4 border-2 border-gray-900 rounded-full text-xs font-800 uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all">Añadir al Carrito</button>
+                </div>
+            `).join('');
+        }
+
+        // Chat Logic
+        function toggleChat() {
+            const window = document.getElementById('chat-window');
+            window.style.display = window.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input-field');
+            const container = document.getElementById('chat-messages');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.innerText = message;
+            container.appendChild(userDiv);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, context: { path: window.location.pathname } })
+                });
+                const data = await response.json();
+                
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot';
+                botDiv.innerText = data.reply;
+                container.appendChild(botDiv);
+                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                console.error('Chat error:', error);
+            }
+        }
+
+        window.onload = initMenu;
+    </script>
 </body>
 </html>

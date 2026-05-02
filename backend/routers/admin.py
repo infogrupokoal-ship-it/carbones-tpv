@@ -12,6 +12,7 @@ from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCom
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
 from scripts.seed_ultra import seed_ultra_industrial
+from .admin_audit import log_audit_action
 
 router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"])
 
@@ -112,6 +113,16 @@ async def seed_production_data(db: Session = Depends(get_db)):
     try:
         # Ejecutamos la lógica centralizada del seeder ultra
         seed_ultra_industrial()
+        
+        # Auditoría Industrial
+        log_audit_action(
+            db=db,
+            usuario_id=None,
+            accion="SEED_PRODUCTION_DATA",
+            entidad="SISTEMA",
+            payload_nuevo="Ejecución de seeding ultra industrial premium."
+        )
+        
         return {"status": "success", "message": "Ecosistema de datos Ultra-Premium inicializado."}
     except Exception as e:
         logger.error(f"Fallo en Seeding: {e}")
@@ -128,6 +139,16 @@ async def factory_reset(db: Session = Depends(get_db)):
         db.query(Pedido).delete()
         db.query(Producto).delete()
         db.query(Categoria).delete()
+        
+        # Auditoría Industrial
+        log_audit_action(
+            db=db,
+            usuario_id=None,
+            accion="FACTORY_RESET",
+            entidad="SISTEMA",
+            payload_nuevo="Reseteo completo de tablas transaccionales y catálogo."
+        )
+        
         db.commit()
         return {"status": "success", "message": "Sistema reseteado a valores de fábrica."}
     except Exception as e:
@@ -146,6 +167,16 @@ async def abrir_cajon_remoto(db: Session = Depends(get_db)):
         origen="admin_remote_dashboard"
     )
     db.add(cmd)
+    
+    # Auditoría Industrial
+    log_audit_action(
+        db=db,
+        usuario_id=None,
+        accion="ABRIR_CAJON_REMOTO",
+        entidad="HARDWARE",
+        payload_nuevo="Solicitud remota de apertura de caja desde admin dashboard."
+    )
+    
     db.commit()
     logger.warning("AUDITORÍA: Apertura de cajón solicitada remotamente por administrador.")
     return {"status": "success", "detail": "Comando de apertura encolado"}
