@@ -1,7 +1,14 @@
 import logging
 from sqlalchemy import inspect, text
 from backend.database import engine, Base
-from backend.models import * # Import all models to ensure they are registered
+# Import all models to ensure they are registered with Base.metadata
+from backend.models import ( # noqa: F401
+    Tienda, Usuario, Categoria, Producto, Ingrediente, Proveedor, 
+    RecetaItem, Cliente, VerificacionOTP, Pedido, ItemPedido, 
+    HardwareCommand, LogOperativo, AuditLog, ReporteZ, MovimientoStock, 
+    Review, Fichaje, Merma, Horario, Notificacion, Traduccion,
+    Presupuesto, ItemPresupuesto, Referido, WhatsAppTemplate
+)
 
 logger = logging.getLogger("TPV_ENTERPRISE")
 

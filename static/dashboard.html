@@ -6,79 +6,18 @@
     <title>Enterprise BI - Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         body { font-family: 'Outfit', sans-serif; background: #020617; }
-        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
-        .stat-card { background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0.8) 100%); }
-        .nav-active { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
         .chart-container { height: 280px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .status-online { background: #10b981; box-shadow: 0 0 10px #10b981; }
-        .status-offline { background: #64748b; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .toast {
-            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards, slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards 3s;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            pointer-events: auto;
-            color: white;
-        }
-        @keyframes slideIn { from { transform: translateX(100%) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
-        @keyframes slideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(100%) scale(0.95); opacity: 0; } }
     </style>
 </head>
 <body class="min-h-screen text-slate-300 overflow-x-hidden">
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+    <!-- Enterprise Sidebar will be injected here -->
 
     <div class="flex h-screen overflow-hidden">
-        
-        <!-- Sidebar - Staff & Navigation -->
-        <aside class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 hidden lg:flex">
-            <div class="flex items-center gap-3 mb-12">
-                <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg">⚡</div>
-                <h2 class="text-xl font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
-            </div>
-
-            <nav class="space-y-1 flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-4">Core Operativo</p>
-                <a href="/static/portal.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🏠 Portal de Inicio</a>
-                <a href="/static/dashboard.html" class="flex items-center gap-3 p-3 rounded-xl nav-active text-xs font-bold uppercase tracking-tight">📊 Business Intelligence</a>
-                <a href="/static/caja.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">💰 Control de Caja</a>
-                <a href="/static/kds.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🍳 Cocina KDS</a>
-
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Logística y Stock</p>
-                <a href="/static/inventario.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📦 Inventario Central</a>
-                
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Ventas y Marketing</p>
-                <a href="/static/presupuestos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📄 Presupuestos</a>
-                <a href="/static/referidos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🔗 Programa de Referidos</a>
-                <a href="/static/marketing.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📣 Marketing Hub</a>
-
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Administración</p>
-                <a href="/static/rrhh.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">👥 RRHH y Personal</a>
-                <a href="/static/repartidores.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🛵 Repartidores</a>
-                <a href="/static/dashboard_produccion.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Producción Live</a>
-                <a href="/static/stats.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📈 BI Analytics</a>
-            </nav>
-
-            <div class="pt-6 border-t border-white/5">
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Plantilla en Turno</p>
-                <div id="staff-list" class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                    <!-- Injected by JS -->
-                </div>
-            </div>
-        </aside>
-
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
             
@@ -98,27 +37,27 @@
 
             <!-- KPIs -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-blue-500">
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
                     <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Ventas Hoy</p>
                     <h3 id="kpi-ventas" class="text-2xl font-black text-white tracking-tighter">0.00€</h3>
                     <p id="kpi-trend-ventas" class="text-[10px] text-emerald-500 font-bold mt-2">↑ 0% vs ayer</p>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-emerald-500">
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-emerald-500">
                     <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Tickets</p>
                     <h3 id="kpi-pedidos" class="text-2xl font-black text-white tracking-tighter">0</h3>
                     <p class="text-[10px] text-slate-500 font-bold mt-2"><span id="kpi-avg-ticket">0€</span> avg</p>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-orange-500">
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-orange-500">
                     <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Margen Est.</p>
                     <h3 id="kpi-margen" class="text-2xl font-black text-white tracking-tighter">--%</h3>
                     <p class="text-[10px] text-orange-500 font-bold mt-2">Target: 70%</p>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-purple-500">
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-purple-500">
                     <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Servicio</p>
                     <h3 id="kpi-cocina" class="text-2xl font-black text-white tracking-tighter">OK</h3>
                     <p class="text-[10px] text-purple-400 font-bold mt-2">14m entrega avg</p>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl stat-card border-l-4 border-slate-700 bg-slate-900/40">
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-slate-700 bg-slate-900/40">
                     <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Telemetría Core</p>
                     <div class="space-y-1">
                         <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">CPU</span> <span id="tele-cpu">--%</span></div>
@@ -557,6 +496,7 @@
         }
 
         window.onload = () => {
+            EnterpriseShell.init('Business Intelligence');
             updateDashboard();
             updateAuditLogs();
             setInterval(() => {

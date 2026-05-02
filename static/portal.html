@@ -3,132 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management Hub | Carbones y Pollos</title>
+    <title>Enterprise Portal | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent),
-                        radial-gradient(circle at bottom left, rgba(20, 20, 20, 1), #000);
-        }
-        .portal-card {
-            background: rgba(20, 20, 20, 0.6);
+        .portal-grid-card {
+            background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
         }
-        .portal-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(245, 158, 11, 0.4);
-            background: rgba(30, 30, 30, 0.8);
+        .portal-grid-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
         }
-        .glow { box-shadow: 0 0 30px rgba(245, 158, 11, 0.1); }
+        .portal-grid-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.02), transparent);
+            transform: translateX(-100%);
+            transition: 0.8s;
+        }
+        .portal-grid-card:hover::before { transform: translateX(100%); }
     </style>
 </head>
-<body class="hero-gradient min-h-screen flex flex-col items-center justify-center p-6">
+<body class="flex min-h-screen">
 
-    <nav class="fixed top-0 w-full bg-black/50 backdrop-blur-md border-b border-white/5 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <span class="text-white font-black tracking-widest text-xs uppercase">Carbones <span class="text-amber-500">Enterprise</span></span>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-2 text-stone-400">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-[10px] uppercase font-bold tracking-widest" id="nav-role">Administrador</span>
-                </div>
-                <button onclick="logout()" class="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors border border-transparent hover:border-red-500/20">Cerrar Sesión</button>
-            </div>
-        </div>
-    </nav>
+    <!-- Enterprise Sidebar will be injected here -->
 
-    <div class="max-w-6xl w-full mt-24">
-        <header class="text-center mb-16 relative">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 rounded-full blur-[50px] -z-10"></div>
-            <h1 class="text-5xl md:text-6xl font-black tracking-tighter mb-4 text-white">Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">Hub</span></h1>
-            <p class="text-stone-400 text-sm font-medium tracking-widest uppercase">Consola Operativa Central v4.0</p>
+    <main class="flex-1 p-6 lg:p-12 overflow-y-auto">
+        
+        <header class="mb-12 relative">
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-[120px]"></div>
+            <div class="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/10 rounded-full blur-[100px]"></div>
+            
+            <h1 class="text-5xl lg:text-7xl font-black text-white tracking-tighter uppercase mb-4">
+                Staff <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Entrance</span>
+            </h1>
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Consola de Mando Centralizada • v4.1 Industrial</p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Business Intelligence (BI) -->
-            <button onclick="window.location.href='/static/dashboard.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-blue-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 transition-colors">📈</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Business Intelligence</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Márgenes, KPIs en tiempo real y proyecciones de venta.</p>
-            </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-20">
+            
+            <!-- BI & Performance -->
+            <a href="/static/dashboard.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-blue-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-500">📊</div>
+                    <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest border border-blue-500/30 px-3 py-1 rounded-full">Real-Time</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Inteligencia de Negocio</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Control total sobre márgenes, proyecciones de venta y rendimiento operativo por sucursal.</p>
+                <div class="flex items-center gap-2 text-blue-500 text-[10px] font-black uppercase tracking-widest">
+                    Acceder al Dashboard <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- Growth Center (Referidos) -->
-            <button onclick="window.location.href='/static/referidos.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-emerald-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-emerald-600 transition-colors">🔗</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Growth Center</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Programa de referidos, embajadores y marketing viral.</p>
-            </button>
+            <!-- Operación KDS -->
+            <a href="/static/kds.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-orange-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-orange-600 group-hover:scale-110 transition-all duration-500">🍗</div>
+                    <span class="text-[8px] font-black text-orange-500 uppercase tracking-widest border border-orange-500/30 px-3 py-1 rounded-full">Cocina</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Producción & KDS</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Gestión de tiempos de preparación, comandas en vivo y optimización del flujo de cocina.</p>
+                <div class="flex items-center gap-2 text-orange-500 text-[10px] font-black uppercase tracking-widest">
+                    Lanzar Pantalla KDS <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- Presupuestos Comerciales -->
-            <button onclick="window.location.href='/static/presupuestos.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-amber-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-amber-600 transition-colors">📄</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Presupuestos</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Gestión de cotizaciones, WhatsApp Business y cierre comercial.</p>
-            </button>
+            <!-- Logística Avanzada -->
+            <a href="/static/inventario.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-indigo-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-indigo-600 group-hover:scale-110 transition-all duration-500">📦</div>
+                    <span class="text-[8px] font-black text-indigo-500 uppercase tracking-widest border border-indigo-500/30 px-3 py-1 rounded-full">Stock Control</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Inventario Central</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Auditoría de almacén, trazabilidad de pedidos a proveedores y control de mermas industrial.</p>
+                <div class="flex items-center gap-2 text-indigo-500 text-[10px] font-black uppercase tracking-widest">
+                    Gestionar Logística <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- Punto de Venta (Kiosko) -->
-            <button onclick="window.location.href='/static/kiosko.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-red-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-red-600 transition-colors">🔥</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Punto de Venta</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Interfaz de ventas ultrarrápida para mostrador y autoservicio.</p>
-            </button>
+            <!-- Caja & Finanzas -->
+            <a href="/static/caja.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-emerald-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-emerald-600 group-hover:scale-110 transition-all duration-500">💰</div>
+                    <span class="text-[8px] font-black text-emerald-500 uppercase tracking-widest border border-emerald-500/30 px-3 py-1 rounded-full">Finanzas</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Arqueo de Caja</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Cierre de turnos, gestión de efectivo y reconciliación de pagos con tarjeta y delivery.</p>
+                <div class="flex items-center gap-2 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                    Abrir Control de Caja <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- Logística e Inventario -->
-            <button onclick="window.location.href='/static/inventario.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-indigo-600 transition-colors">📦</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Logística</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Control de stock, escandallos y gestión de mermas.</p>
-            </button>
+            <!-- Comercial Center -->
+            <a href="/static/presupuestos.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-amber-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-amber-600 group-hover:scale-110 transition-all duration-500">📄</div>
+                    <span class="text-[8px] font-black text-amber-500 uppercase tracking-widest border border-amber-500/30 px-3 py-1 rounded-full">Ventas</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Ventas & Cotizaciones</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Generación de presupuestos rápidos, integración con WhatsApp y seguimiento comercial.</p>
+                <div class="flex items-center gap-2 text-amber-500 text-[10px] font-black uppercase tracking-widest">
+                    Gestión Comercial <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- Cocina (KDS) -->
-            <button onclick="window.location.href='/static/kds.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-orange-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-orange-600 transition-colors">🍗</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Kitchen (KDS)</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Gestión de pedidos en cocina y tiempos de preparación.</p>
-            </button>
+            <!-- RRHH -->
+            <a href="/static/rrhh.html" class="portal-grid-card p-10 rounded-[3rem] group">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="w-16 h-16 bg-purple-600/10 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-purple-600 group-hover:scale-110 transition-all duration-500">👥</div>
+                    <span class="text-[8px] font-black text-purple-500 uppercase tracking-widest border border-purple-500/30 px-3 py-1 rounded-full">Personal</span>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-3">Recursos Humanos</h3>
+                <p class="text-slate-400 text-xs font-bold leading-relaxed mb-8">Gestión de equipo, turnos de trabajo y liquidación de incentivos por rendimiento.</p>
+                <div class="flex items-center gap-2 text-purple-500 text-[10px] font-black uppercase tracking-widest">
+                    Panel de RRHH <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+            </a>
 
-            <!-- RRHH y Personal -->
-            <button onclick="window.location.href='/static/rrhh.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-purple-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-purple-600 transition-colors">👥</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Recursos Humanos</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Control de turnos, nóminas y rendimiento de equipo.</p>
-            </button>
-
-            <!-- Monitor de Producción -->
-            <button onclick="window.location.href='/static/dashboard_produccion.html'" class="portal-card p-8 rounded-[2rem] text-left hover:scale-[1.02] transition-all group border border-white/5 shadow-2xl">
-                <div class="h-16 w-16 bg-slate-600/20 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-slate-600 transition-colors">📊</div>
-                <h3 class="text-lg font-black text-white mb-1 uppercase tracking-tighter">Producción Live</h3>
-                <p class="text-stone-400 text-[10px] font-medium leading-relaxed">Visión global de la operación en tiempo real e IA Insights.</p>
-            </button>
         </div>
 
-        <footer class="mt-20 text-center text-gray-600 text-[10px] uppercase tracking-[0.3em]">
-            &copy; 2026 Carbones y Pollos Enterprise Edition | High Availability Infrastructure
+        <footer class="mt-auto pt-12 border-t border-white/5 flex justify-between items-center opacity-40">
+            <span class="text-[9px] font-black uppercase tracking-[0.4em]">TPV Ultra Industrial Edition &copy; 2026</span>
+            <span class="text-[9px] font-black uppercase tracking-[0.4em]">System Status: Online</span>
         </footer>
-    </div>
+    </main>
 
-    <script>
-        // Check Auth
-        const role = localStorage.getItem('auth_role');
-        if(!role) { window.location.href = '/static/login.html'; }
-        
-        // Setup UI
-        document.getElementById('nav-role').innerText = role === 'admin' ? 'Super Administrador' : 'Staff Operativo';
-
-        function logout() {
-            localStorage.removeItem('auth_user');
-            localStorage.removeItem('auth_role');
-            window.location.href = '/static/login.html';
-        }
-    </script>
+    <script src="/static/js/enterprise_shell.js"></script>
 </body>
 </html>
