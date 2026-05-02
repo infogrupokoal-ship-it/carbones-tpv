@@ -3,437 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise BI - Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>Enterprise BI | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         :root {
-            --primary: #3b82f6; /* blue-500 */
-            --bg-base: #f8fafc; /* slate-50 */
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.05);
+            --brand-primary: #4f46e5;
+            --bg-base: #f8fafc;
         }
         body { 
             font-family: 'Outfit', sans-serif; 
             background-color: var(--bg-base); 
+            color: #1e293b;
             margin: 0;
             overflow-x: hidden;
         }
-        
-        /* Premium Background Grid */
         .bg-grid {
             position: fixed;
             inset: 0;
             background-size: 50px 50px;
             background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-        
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            right: -10%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
-            filter: blur(80px);
+                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
             z-index: -1;
             pointer-events: none;
         }
-
-        /* Glass Panels */
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.5);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
         .glass-panel:hover {
-            border-color: rgba(37, 99, 235, 0.15);
+            border-color: var(--brand-primary);
+            box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.1);
         }
-        
-        /* KPI Cards */
-        .kpi-card {
-            position: relative;
-            overflow: hidden;
-        }
-        .kpi-card::before {
+        .kpi-card { position: relative; overflow: hidden; }
+        .kpi-card::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--card-color, #3b82f6);
-            border-radius: 4px 0 0 4px;
+            background: var(--accent, var(--brand-primary));
         }
-
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .chart-container { height: 320px; }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
-<body class="min-h-screen text-slate-600">
-    
+<body class="min-h-screen text-slate-700">
     <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
+    <div id="toast-container" class="fixed bottom-10 right-10 z-[100] flex flex-col gap-4"></div>
 
-    <!-- Enterprise Sidebar will be injected here -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-12 custom-scrollbar">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
+            <div>
+                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-2">Operational BI Unit</p>
+                <h1 class="text-6xl font-black text-slate-900 tracking-tighter uppercase">Enterprise <span class="text-indigo-600">Dashboard</span></h1>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="exportFiscalCSV()" class="bg-white border border-slate-100 hover:bg-slate-50 text-slate-900 font-black text-[10px] uppercase tracking-widest px-6 py-4 rounded-2xl shadow-sm transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    EXPORTAR CSV
+                </button>
+                <button onclick="triggerCierreZ()" class="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    CIERRE JORNADA
+                </button>
+                <button onclick="updateDashboard()" class="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest px-6 py-4 rounded-2xl transition-all shadow-xl shadow-slate-200 active:rotate-12">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+            </div>
+        </header>
 
-    <div class="flex h-screen overflow-hidden relative z-10">
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-8 xl:p-12 custom-scrollbar">
-            
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-                <div>
-                    <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Operational <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Dashboard</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Carbones y Pollos • Control Center v4.1
-                    </p>
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 mb-12">
+            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #4f46e5;">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Ventas Brutas Hoy</p>
+                <h3 id="kpi-ventas" class="text-4xl font-black text-slate-900 tracking-tighter">0.00€</h3>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-1 rounded-lg">↑ En Tiempo Real</span>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="exportFiscalCSV()" class="bg-white shadow-sm border border-slate-100 hover:bg-slate-700 backdrop-blur-md border border-slate-600/50 text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Exportar CSV
-                    </button>
-                    <a href="/static/repartidores.html" target="_blank" class="bg-amber-600/90 hover:bg-amber-500 backdrop-blur-md text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(217,119,6,0.5)] transition-all active:scale-95 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Reparto
-                    </a>
-                    <button onclick="triggerCierreZ()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_20px_-5px_rgba(234,88,12,0.6)] transition-all active:scale-95 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        Cierre Z
-                    </button>
-                    <button onclick="updateDashboard()" class="bg-blue-600/90 hover:bg-blue-500 backdrop-blur-md text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] transition-all active:scale-95">
-                        <svg class="w-4 h-4 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        Sync
-                    </button>
-                </div>
-            </header>
-
-            <!-- KPIs -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6 mb-10">
-                <div class="glass-panel kpi-card p-6 rounded-2xl bg-white shadow-sm" style="--card-color: #3b82f6;">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Ventas Hoy</p>
-                    <h3 id="kpi-ventas" class="text-3xl font-black text-slate-900 tracking-tighter">0.00€</h3>
-                    <div class="mt-4 flex items-center gap-2">
-                        <div class="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-bold" id="kpi-trend-ventas">↑ 0% vs ayer</div>
+            </div>
+            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #10b981;">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Volumen Operativo</p>
+                <h3 id="kpi-pedidos" class="text-4xl font-black text-slate-900 tracking-tighter">0</h3>
+                <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase">Ticket Avg: <span id="kpi-avg-ticket" class="text-slate-900">0€</span></p>
+            </div>
+            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #f59e0b;">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Satisfacción AI</p>
+                <h3 id="kpi-margen" class="text-4xl font-black text-slate-900 tracking-tighter">--%</h3>
+                <div class="mt-4 h-1 bg-slate-50 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[85%]"></div></div>
+            </div>
+            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #ec4899;">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Tiempo avg Cocina</p>
+                <h3 id="kpi-cocina" class="text-4xl font-black text-slate-900 tracking-tighter">14m</h3>
+                <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">Target: < 15 min</p>
+            </div>
+            <div class="glass-panel p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-200">
+                <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-4">Estado de Nodo</p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                        <span class="text-slate-400">CPU</span> <span id="tele-cpu">--%</span>
                     </div>
-                </div>
-                
-                <div class="glass-panel kpi-card p-6 rounded-2xl bg-white shadow-sm" style="--card-color: #10b981;">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Tickets (Transacciones)</p>
-                    <h3 id="kpi-pedidos" class="text-3xl font-black text-slate-900 tracking-tighter">0</h3>
-                    <div class="mt-4 flex items-center gap-2">
-                        <div class="px-2 py-1 bg-white text-slate-600 rounded-lg text-[10px] font-bold tracking-wide">Ticket Promedio: <span id="kpi-avg-ticket" class="text-slate-900">0€</span></div>
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                        <span class="text-slate-400">RAM</span> <span id="tele-ram">--%</span>
                     </div>
-                </div>
-                
-                <div class="glass-panel kpi-card p-6 rounded-2xl bg-white shadow-sm" style="--card-color: #f59e0b;">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Margen Estimado</p>
-                    <h3 id="kpi-margen" class="text-3xl font-black text-slate-900 tracking-tighter">--%</h3>
-                    <div class="mt-4 flex items-center gap-2">
-                        <div class="px-2 py-1 bg-orange-500/10 text-orange-400 rounded-lg text-[10px] font-bold">Target Operativo: 70%</div>
-                    </div>
-                </div>
-                
-                <div class="glass-panel kpi-card p-6 rounded-2xl bg-white shadow-sm" style="--card-color: #8b5cf6;">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Nivel de Servicio</p>
-                    <h3 id="kpi-cocina" class="text-3xl font-black text-slate-900 tracking-tighter">OK</h3>
-                    <div class="mt-4 flex items-center gap-2">
-                        <div class="px-2 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-[10px] font-bold">Tiempo avg: 14m</div>
-                    </div>
-                </div>
-                
-                <div class="glass-panel p-6 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/50 border border-slate-200/50 relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
-                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Telemetría Core</p>
-                    <div class="space-y-3 relative z-10">
-                        <div class="flex justify-between items-center text-xs font-bold">
-                            <span class="text-slate-500 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg> CPU</span> 
-                            <span id="tele-cpu" class="text-slate-900">--%</span>
-                        </div>
-                        <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-2"><div class="h-full bg-indigo-500 w-[45%]"></div></div>
-                        
-                        <div class="flex justify-between items-center text-xs font-bold">
-                            <span class="text-slate-500 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> RAM</span> 
-                            <span id="tele-ram" class="text-slate-900">--%</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center text-xs font-bold pt-1">
-                            <span class="text-slate-500 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg> Latencia DB</span> 
-                            <span id="tele-db" class="text-emerald-400">--ms</span>
-                        </div>
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase border-t border-white/5 pt-2">
+                        <span class="text-slate-400">Latency</span> <span id="tele-db" class="text-emerald-400">--ms</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-                <!-- Main Chart -->
-                <div class="lg:col-span-2 glass-panel p-6 lg:p-8 rounded-3xl">
-                    <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
-                            Tendencia de Ventas Intradía
-                        </h4>
-                        <span class="text-[10px] bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg font-black tracking-widest shadow-[0_0_10px_rgba(59,130,246,0.2)] flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                            LIVE
-                        </span>
-                    </div>
-                    <div class="chart-container relative">
-                        <canvas id="salesChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Products Ranking -->
-                <div class="glass-panel p-6 lg:p-8 rounded-3xl">
-                    <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-8 border-b border-slate-100 pb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                        Top Productos (Hoy)
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-2 glass-panel p-10 rounded-[3rem]">
+                <div class="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-ping"></span>
+                        Tendencia de Ventas Intradía
                     </h4>
-                    <div class="space-y-6" id="top-products-list">
-                        <!-- Injected by JS -->
-                        <div class="animate-pulse space-y-4">
-                            <div class="h-4 bg-white/5 rounded w-full"></div>
-                            <div class="h-4 bg-white/5 rounded w-5/6"></div>
-                            <div class="h-4 bg-white/5 rounded w-4/6"></div>
-                        </div>
-                    </div>
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Dataset: Global 24h</span>
+                </div>
+                <div class="chart-container relative">
+                    <canvas id="salesChart"></canvas>
                 </div>
             </div>
 
-            <!-- Live Feed & Stock -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
-                <!-- Live Order Feed -->
-                <div class="lg:col-span-3 glass-panel p-6 lg:p-8 rounded-3xl border-t-[3px] border-t-blue-500">
-                    <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
-                            <span class="relative flex h-3 w-3">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-                            </span>
-                            Live Order Feed
-                        </h4>
-                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">Polling 30s</span>
-                    </div>
-                    <div id="live-order-feed" class="space-y-3 h-[400px] overflow-y-auto custom-scrollbar pr-4">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center py-20 animate-pulse">Sincronizando flujo de pedidos...</p>
-                    </div>
+            <div class="glass-panel p-10 rounded-[3rem]">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 pb-6 border-b border-slate-50 flex items-center gap-3">
+                    🚀 Top Desempeño Productos
+                </h4>
+                <div class="space-y-8" id="top-products-list">
+                    <!-- Dynamic Ranking -->
                 </div>
+            </div>
+        </div>
 
-                <!-- Stock Alerts -->
-                <div class="glass-panel p-6 lg:p-8 rounded-3xl border-t-[3px] border-t-orange-500">
-                    <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            Stock Alerts
-                        </h4>
-                    </div>
-                    <div id="stock-alerts-list" class="space-y-4 h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center py-10 animate-pulse">Escaneando niveles...</p>
-                    </div>
+        <!-- Feeds Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 glass-panel p-10 rounded-[3rem]">
+                <div class="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em]">Flujo de Operaciones</h4>
+                    <button class="text-[8px] font-black text-indigo-600 uppercase tracking-widest border-b border-indigo-200">Ver todo</button>
+                </div>
+                <div id="live-order-feed" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-4">
+                    <!-- Orders -->
                 </div>
             </div>
 
-            <!-- Audit & Security Logs -->
-            <div class="glass-panel p-6 lg:p-8 rounded-3xl">
-                <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-                    <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        Security & Audit Logs
-                    </h4>
-                    <span class="text-[9px] bg-white text-slate-500 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200">Últimos 10 eventos</span>
+            <div class="glass-panel p-10 rounded-[3rem] border-orange-100">
+                <div class="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] text-orange-600">Alertas Inventario</h4>
+                    <span class="text-[8px] font-black text-slate-400 uppercase">Filtro: Crítico</span>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar pb-4">
-                    <table class="w-full text-left border-collapse min-w-[800px]">
-                        <thead>
-                            <tr class="text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-slate-200">
-                                <th class="pb-4 px-4 font-black">Timestamp</th>
-                                <th class="pb-4 px-4 font-black">Usuario</th>
-                                <th class="pb-4 px-4 font-black">Acción</th>
-                                <th class="pb-4 px-4 font-black">Entidad</th>
-                                <th class="pb-4 px-4 text-right font-black">IP Origen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="audit-logs-list" class="text-sm text-slate-600">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
+                <div id="stock-alerts-list" class="space-y-6">
+                    <!-- Stock Alerts -->
                 </div>
             </div>
+        </div>
+    </main>
 
-            <!-- Footer Meta -->
-            <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
-                <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
-                    <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
-                    <span class="text-blue-500 border-l border-slate-200 pl-4">Build: v3.0-PRO</span>
+    <!-- Modal Cierre Z -->
+    <div id="modal-cierre-z" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white rounded-[3rem] p-12 max-w-xl w-full mx-4 shadow-2xl transform scale-95 transition-all" id="modal-cierre-z-content">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">📊</div>
+                <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Protocolo de Cierre</h2>
+                <p id="cierre-z-fecha" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Validando transacciones...</p>
+            </div>
+
+            <div class="space-y-4 mb-10">
+                <div class="bg-slate-50 border border-slate-100 p-8 rounded-[2rem] text-center">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Consolidado</p>
+                    <p class="text-6xl font-black text-indigo-600 tracking-tighter" id="cierre-z-total">0.00€</p>
                 </div>
-            </footer>
-        </main>
-    </div>
-
-    <!-- Modal de Previsualización Cierre Z -->
-    <div id="modal-cierre-z" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white border border-slate-200 rounded-3xl p-8 max-w-lg w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-cierre-z-content">
-            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-widest mb-2 flex items-center gap-3">
-                <span class="text-orange-500">📊</span> Previsualización Cierre Z
-            </h2>
-            <p class="text-xs text-slate-500 mb-6 font-bold uppercase tracking-widest" id="cierre-z-fecha">Cargando...</p>
-
-            <div class="space-y-4 mb-6">
-                <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl border border-slate-200">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Total Ingresos Sistema</p>
-                    <p class="text-3xl font-black text-emerald-400" id="cierre-z-total">0.00€</p>
-                </div>
-                
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl border border-slate-200">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Efectivo</p>
+                    <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 text-center">
+                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Efectivo</p>
                         <p class="text-xl font-black text-slate-900" id="cierre-z-efectivo">0.00€</p>
                     </div>
-                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl border border-slate-200">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Tarjeta / TPV</p>
+                    <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 text-center">
+                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">TPV / Digital</p>
                         <p class="text-xl font-black text-slate-900" id="cierre-z-tarjeta">0.00€</p>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Efectivo Físico en Caja (Caja Ciega)</label>
+            <div class="mb-10">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 px-2">Efectivo Declarado (Auditoría Ciega)</label>
                 <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-black">€</span>
-                    <input type="number" id="caja-ciega-input" step="0.01" class="w-full bg-white border border-slate-200 rounded-xl py-3 pl-8 pr-4 text-slate-900 font-black focus:outline-none focus:border-orange-500 transition-colors" placeholder="0.00">
+                    <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-black">€</span>
+                    <input type="number" id="caja-ciega-input" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-10 pr-6 text-2xl font-black text-slate-900 focus:outline-none focus:border-indigo-600 transition-all shadow-inner" placeholder="0.00">
                 </div>
             </div>
 
             <div class="flex gap-4">
-                <button onclick="closeCierreZModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-900 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all">Cancelar</button>
-                <button onclick="confirmCierreZ()" class="flex-1 py-3 bg-orange-600 hover:bg-orange-500 text-slate-900 font-black text-[10px] uppercase tracking-widest rounded-xl shadow-[0_0_15px_rgba(234,88,12,0.3)] transition-all">Sellar y Cerrar Día</button>
+                <button onclick="closeCierreZModal()" class="flex-1 py-5 bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all">Cancelar</button>
+                <button onclick="confirmCierreZ()" class="flex-1 py-5 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95">Sellar Cierre Z</button>
             </div>
         </div>
     </div>
 
+    <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        // Función para mostrar notificaciones Toast
-        function showToast(title, message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            
-            let iconHtml;
-            if (type === 'error') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>`;
-            } else if (type === 'success') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>`;
-            } else {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>`;
-            }
-
-            toast.innerHTML = `
-                ${iconHtml}
-                <div>
-                    <p class="text-slate-900 font-black text-xs">${title}</p>
-                    <p class="text-slate-500 text-[10px] font-medium">${message}</p>
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
-        }
-
         let salesChart;
+        const API_URL = "/api";
 
-        const updateDashboard = async () => {
+        async function updateDashboard() {
             try {
-                // 1. Fetch KPIs & Charts desde Motor Unificado v5.0
-                const res = await fetch('/api/stats/dashboard');
+                const res = await fetch(`${API_URL}/stats/dashboard`);
                 const data = await res.json();
                 
-                // Actualizar KPIs
-                document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
                 document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_count;
                 document.getElementById('kpi-margen').innerText = data.kpis.satisfaccion + "/5.0";
+                document.getElementById('kpi-avg-ticket').innerText = (data.kpis.ventas_hoy / (data.kpis.pedidos_count || 1)).toFixed(2) + '€';
 
-                // 2. Telemetría de Sistema
-                try {
-                    const healthRes = await fetch('/api/health');
-                    const health = await healthRes.json();
-                    // Actualizar telemetría visual
-                    document.getElementById('tele-cpu').innerText = `${health.telemetry.cpu_usage || 0}%`;
-                    document.getElementById('tele-ram').innerText = `${health.telemetry.memory_usage || 0}%`;
-                    document.getElementById('tele-db').innerText = `${(health.telemetry.db_latency_ms || 0).toFixed(1)}ms`;
-                } catch(e) { console.warn("Health check fail", e); }
-
-                // Actualizar Top Productos
-                const topList = document.getElementById('top-products-list');
-                topList.innerHTML = data.charts.top_pollos.labels.map((name, i) => `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-black text-slate-500 w-4">${i+1}</span>
-                            <span class="text-xs font-bold text-slate-900">${name}</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="h-1.5 w-20 bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-500" style="width: ${100 - (i*20)}%"></div>
-                            </div>
-                            <span class="text-[10px] font-black text-blue-400">${data.charts.top_pollos.data[i]} ud</span>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Actualizar Gráfica
                 updateSalesChart(data.charts.horas);
+                renderTopProducts(data.charts.top_pollos);
+                renderLiveFeed(data.recent_orders);
+                renderStockAlerts(data.stock_alerts);
+                updateTelemetry();
+            } catch (e) { console.error("BI Sync Error:", e); }
+        }
 
-                // 4. Update Live Feed & Stock Alerts
-                updateLiveFeed(data.recent_orders);
-                updateStockAlerts(data.stock_alerts);
+        async function updateTelemetry() {
+            try {
+                const res = await fetch(`${API_URL}/health`);
+                const health = await res.json();
+                document.getElementById('tele-cpu').innerText = `${health.telemetry.cpu_usage || 0}%`;
+                document.getElementById('tele-ram').innerText = `${health.telemetry.memory_usage || 0}%`;
+                document.getElementById('tele-db').innerText = `${(health.telemetry.db_latency_ms || 0).toFixed(1)}ms`;
+            } catch(e) {}
+        }
 
-            } catch (e) { console.error("Error en Dashboard:", e); }
-        };
-
-        const updateSalesChart = (chartData) => {
+        function updateSalesChart(chartData) {
             if (salesChart) salesChart.destroy();
             const ctx = document.getElementById('salesChart').getContext('2d');
-            
             const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-            gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.1)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
 
             salesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: chartData.labels,
                     datasets: [{
-                        label: 'Ventas (€)',
                         data: chartData.data,
-                        borderColor: '#3b82f6',
+                        borderColor: '#4f46e5',
                         borderWidth: 4,
                         fill: true,
                         backgroundColor: gradient,
                         tension: 0.4,
                         pointRadius: 0,
                         pointHoverRadius: 6,
-                        pointHoverBackgroundColor: '#3b82f6',
+                        pointHoverBackgroundColor: '#4f46e5',
                         pointHoverBorderColor: '#fff',
                         pointHoverBorderWidth: 3
                     }]
@@ -444,196 +277,139 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { 
-                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-                            ticks: { color: '#64748b', font: { size: 10, weight: 'bold' }, callback: v => v + '€' }
+                            grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                            ticks: { color: '#94a3b8', font: { size: 10, weight: '900' }, callback: v => v + '€' }
                         },
                         x: { 
                             grid: { display: false },
-                            ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }
+                            ticks: { color: '#94a3b8', font: { size: 10, weight: '900' } }
                         }
                     }
                 }
             });
-        };
+        }
 
-        const updateLiveFeed = (orders) => {
+        function renderTopProducts(data) {
+            const list = document.getElementById('top-products-list');
+            list.innerHTML = data.labels.map((name, i) => `
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <span class="text-[10px] font-black text-slate-300 w-4">${i+1}</span>
+                        <span class="text-xs font-black text-slate-800 uppercase tracking-tighter">${name}</span>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="h-1.5 w-24 bg-slate-50 rounded-full overflow-hidden">
+                            <div class="h-full bg-indigo-600 rounded-full transition-all duration-1000" style="width: ${Math.max(10, 100 - (i*15))}%"></div>
+                        </div>
+                        <span class="text-[10px] font-black text-indigo-600 w-12 text-right">${data.data[i]} ud</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLiveFeed(orders) {
             const feed = document.getElementById('live-order-feed');
             if(!orders || orders.length === 0) {
-                feed.innerHTML = '<p class="text-[10px] text-slate-600 text-center py-10 uppercase font-black tracking-widest">Sin actividad reciente</p>';
+                feed.innerHTML = '<p class="text-center py-20 text-[10px] font-black text-slate-300 uppercase tracking-widest">Sin actividad</p>';
                 return;
             }
             feed.innerHTML = orders.map(o => `
-                <div class="bg-white/5 p-4 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white/10 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center font-black text-xs text-blue-400 group-hover:scale-110 transition-transform">#${o.numero_ticket}</div>
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-white hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50/50 transition-all group">
+                    <div class="flex items-center gap-5">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center font-black text-sm text-slate-900 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">#${o.numero_ticket.slice(-3)}</div>
                         <div>
-                            <p class="text-xs font-black text-slate-900">${o.items.length} Items • ${o.metodo_pago}</p>
-                            <p class="text-[9px] text-slate-500 font-bold uppercase">${o.metodo_envio} • ${o.fecha}</p>
+                            <p class="text-xs font-black text-slate-900 uppercase tracking-tight">${o.items.length} Items • ${o.metodo_pago}</p>
+                            <p class="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-1">${o.metodo_envio} • ${o.fecha.split('T')[1].substring(0,5)}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <p class="text-sm font-black text-slate-900">${o.total.toFixed(2)}€</p>
-                            <span class="text-[8px] px-2 py-0.5 rounded-full font-black ${o.estado === 'COMPLETADO' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'} uppercase">${o.estado}</span>
-                        </div>
-                        ${o.cliente_telefono ? `
-                        <a href="https://wa.me/${o.cliente_telefono.replace(/\s+/g, '')}?text=Hola ${o.cliente_nombre}, contactamos de Carbones y Pollos sobre su pedido #${o.numero_ticket}" 
-                           target="_blank" 
-                           class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-900 transition-all"
-                           title="Contactar por WhatsApp">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                        </a>
-                        ` : ''}
+                    <div class="text-right">
+                        <p class="text-lg font-black text-slate-900 tracking-tighter">${o.total.toFixed(2)}€</p>
+                        <span class="text-[7px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-md ${o.estado === 'COMPLETADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}">${o.estado}</span>
                     </div>
                 </div>
             `).join('');
-        };
+        }
 
-        const updateStockAlerts = (alerts) => {
+        function renderStockAlerts(alerts) {
             const list = document.getElementById('stock-alerts-list');
             if(!alerts || alerts.length === 0) {
-                list.innerHTML = '<p class="text-[10px] text-emerald-500/50 text-center py-10 uppercase font-black tracking-widest">Inventario Óptimo ✅</p>';
+                list.innerHTML = '<div class="py-20 text-center"><span class="text-4xl block mb-4">✅</span><p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Inventario Balanceado</p></div>';
                 return;
             }
             list.innerHTML = alerts.map(a => `
-                <div class="bg-orange-500/5 p-3 rounded-xl border border-orange-500/10 flex flex-col gap-1">
-                    <div class="flex justify-between items-start">
-                        <p class="text-[10px] font-black text-slate-900 uppercase">${a.nombre}</p>
-                        <span class="text-[9px] text-orange-500 font-black">${a.stock_actual} ud</span>
+                <div class="p-5 rounded-2xl bg-orange-50/50 border border-orange-100/50">
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-tight">${a.nombre}</p>
+                        <span class="text-xs font-black text-orange-600">${a.stock_actual} ud</span>
                     </div>
-                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-1.5 bg-white rounded-full overflow-hidden mb-2 shadow-inner">
                         <div class="h-full bg-orange-500" style="width: ${(a.stock_actual / a.stock_minimo) * 100}%"></div>
                     </div>
-                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-tighter">Min: ${a.stock_minimo} • Reorden sugerido</p>
+                    <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest">Reorden Crítico: < ${a.stock_minimo}</p>
                 </div>
             `).join('');
-        };
+        }
 
-        const triggerFichaje = () => {
-            window.location.href = 'rrhh.html';
-        };
-
-        const updateAuditLogs = async () => {
+        async function triggerCierreZ() {
             try {
-                const res = await fetch('/api/admin/audit/logs?limit=10');
-                if(!res.ok) return;
+                const res = await fetch(`${API_URL}/orders/cierre-z`);
                 const data = await res.json();
-                
-                const tbody = document.getElementById('audit-logs-list');
-                tbody.innerHTML = data.map(log => {
-                    const date = new Date(log.fecha).toLocaleString('es-ES', {hour: '2-digit', minute:'2-digit', second:'2-digit', day:'2-digit', month:'short'});
-                    // Badge color logic
-                    let actionClass = "bg-slate-500/10 text-slate-500";
-                    if(log.accion.includes('CREATE')) actionClass = "bg-emerald-500/10 text-emerald-400";
-                    if(log.accion.includes('DELETE') || log.accion.includes('MERMA')) actionClass = "bg-red-500/10 text-red-400";
-                    if(log.accion.includes('CIERRE_Z')) actionClass = "bg-orange-500/10 text-orange-400";
-
-                    return `
-                        <tr class="border-b border-slate-100 hover:bg-white/5 transition-colors">
-                            <td class="py-3 text-[11px] text-slate-500">${date}</td>
-                            <td class="py-3 font-bold">${log.usuario}</td>
-                            <td class="py-3"><span class="text-[9px] px-2 py-1 rounded font-black tracking-wider uppercase ${actionClass}">${log.accion}</span></td>
-                            <td class="py-3 text-xs">${log.entidad} <span class="text-slate-600">(${log.entidad_id.substring(0,8)})</span></td>
-                            <td class="py-3 text-right text-[10px] font-mono text-slate-500">${log.ip_origen || '127.0.0.1'}</td>
-                        </tr>
-                    `;
-                }).join('');
-            } catch(e) { console.error("Error fetching audit logs", e); }
-        };
-
-        const triggerCierreZ = async () => {
-            try {
-                // Fetch the preview data
-                const res = await fetch('/api/orders/cierre-z');
-                if(!res.ok) throw new Error("Error obteniendo previsualización");
-                const data = await res.json();
-                
-                document.getElementById('cierre-z-fecha').innerText = `Jornada: ${data.fecha} | Pedidos: ${data.pedidos_completados}`;
+                document.getElementById('cierre-z-fecha').innerText = `Jornada Operativa: ${data.fecha} | TKT: ${data.pedidos_completados}`;
                 document.getElementById('cierre-z-total').innerText = data.total_ingresos.toFixed(2) + '€';
                 document.getElementById('cierre-z-efectivo').innerText = data.desglose.EFECTIVO.toFixed(2) + '€';
                 document.getElementById('cierre-z-tarjeta').innerText = data.desglose.TARJETA.toFixed(2) + '€';
-                document.getElementById('caja-ciega-input').value = '';
                 
-                // Show Modal
                 const modal = document.getElementById('modal-cierre-z');
                 const content = document.getElementById('modal-cierre-z-content');
                 modal.classList.remove('opacity-0', 'pointer-events-none');
                 setTimeout(() => content.classList.remove('scale-95'), 10);
-                
-            } catch(e) {
-                showToast('Error', 'No se pudo obtener la previsualización del Cierre Z.', 'error');
-            }
-        };
+            } catch(e) { showToast('Error', 'Fallo en la sincronización del Cierre', 'error'); }
+        }
 
-        const closeCierreZModal = () => {
+        function closeCierreZModal() {
             const modal = document.getElementById('modal-cierre-z');
             const content = document.getElementById('modal-cierre-z-content');
             content.classList.add('scale-95');
             setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 300);
-        };
+        }
 
-        const confirmCierreZ = async () => {
-            const efectivoStr = document.getElementById('caja-ciega-input').value;
-            const efectivo = parseFloat(efectivoStr);
-            if (isNaN(efectivo)) return showToast('Atención', 'Cantidad de efectivo en caja inválida.', 'error');
+        async function confirmCierreZ() {
+            const efectivo = parseFloat(document.getElementById('caja-ciega-input').value);
+            if (isNaN(efectivo)) return showToast('Error Auditoría', 'Introduce la cantidad física de caja', 'error');
 
             try {
-                const res = await fetch(`/api/stats/cierre-z`, { 
+                const res = await fetch(`${API_URL}/stats/cierre-z`, { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ efectivo_declarado: efectivo })
                 });
                 const d = await res.json();
-                
-                if (res.ok && d.status === 'success') {
-                    let diffMsg = d.diferencia === 0 ? "CUADRE PERFECTO 🎯" : `Descuadre de ${d.diferencia}€ ⚠️`;
-                    showToast('Cierre Z Ejecutado', `Efectivo: ${efectivo}€ | ${diffMsg}`, 'success');
+                if (res.ok) {
+                    showToast('Cierre Ejecutado', `Diferencia: ${d.diferencia}€`, 'success');
                     closeCierreZModal();
                     updateDashboard();
-                    updateAuditLogs();
-                } else {
-                    showToast('Error', d.detail || "Fallo al ejecutar el Cierre Z", 'error');
                 }
-            } catch(e) {
-                showToast('Error de Red', 'Fallo de conexión al ejecutar Cierre Z', 'error');
-            }
-        };
+            } catch(e) { showToast('Error Sync', 'Fallo en la comunicación final', 'error'); }
+        }
 
         async function exportFiscalCSV() {
-            try {
-                window.location.href = '/api/admin/audit/export/csv';
-                showToast("Audit", "Iniciando descarga fiscal...", "info");
-            } catch(e) {
-                showToast("Error", "No se pudo exportar", "error");
-            }
+            window.location.href = `${API_URL}/admin/audit/export/csv`;
+            showToast("Exportación", "Descargando dataset fiscal...", "info");
         }
 
         function showToast(title, msg, type) {
             const container = document.getElementById('toast-container');
-            if(!container) return;
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `
-                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-blue-500/10 text-blue-400">
-                    ${type === 'error' ? '❌' : 'ℹ️'}
-                </div>
-                <div>
-                    <p class="text-xs font-black uppercase">${title}</p>
-                    <p class="text-[10px] text-slate-500 font-bold">${msg}</p>
-                </div>
-            `;
+            toast.className = 'bg-white text-slate-900 px-8 py-5 rounded-[2rem] shadow-2xl border border-slate-100 flex items-center gap-4 animate-pop';
+            toast.innerHTML = `<div class="w-2 h-2 ${type === 'error' ? 'bg-red-500' : 'bg-indigo-600'} rounded-full animate-ping"></div> <div><p class="font-black text-[10px] uppercase tracking-widest">${title}</p><p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">${msg}</p></div>`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 500); }, 3500);
         }
 
         window.onload = () => {
-            EnterpriseShell.init('Business Intelligence');
+            EnterpriseShell.init('Operational BI');
             updateDashboard();
-            updateAuditLogs();
-            setInterval(() => {
-                updateDashboard();
-                updateAuditLogs();
-            }, 60000);
+            setInterval(updateDashboard, 60000);
         };
     </script>
 </body>

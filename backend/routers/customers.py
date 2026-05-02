@@ -125,3 +125,64 @@ def obtener_mis_pedidos(cliente_id: str, db: Session = Depends(get_db)):
             "origen": p.origen
         })
     return {"status": "success", "orders": results}
+
+@router.get("/loyalty/{cliente_id}")
+def obtener_puntos_fidelidad(cliente_id: str, db: Session = Depends(get_db)):
+    """Obtiene los puntos y nivel de un cliente."""
+    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+        
+    # Calcular progreso para el siguiente nivel
+    puntos = cliente.puntos_fidelidad
+    nivel = cliente.nivel_fidelidad
+    
+    progreso = 0
+    siguiente_nivel = "POLLO ORO"
+    puntos_siguiente = 500
+    
+    if nivel == "BRONCE":
+        siguiente_nivel = "PLATA"
+        puntos_siguiente = 100
+        progreso = min(100, (puntos / 100) * 100)
+    elif nivel == "PLATA":
+        siguiente_nivel = "ORO"
+        puntos_siguiente = 500
+        progreso = min(100, ((puntos - 100) / 400) * 100)
+    elif nivel == "ORO":
+        siguiente_nivel = "PLATINO"
+        puntos_siguiente = 1000
+        progreso = min(100, ((puntos - 500) / 500) * 100)
+    else:
+        siguiente_nivel = "MAX"
+        puntos_siguiente = puntos
+        progreso = 100
+
+    return {
+        "status": "success", 
+        "loyalty": {
+            "puntos": puntos,
+            "nivel": nivel,
+            "progreso_porcentaje": progreso,
+            "siguiente_nivel": siguiente_nivel,
+            "puntos_faltantes": max(0, puntos_siguiente - puntos)
+        }
+    }
+
+@router.post("/loyalty/{cliente_id}/redeem")
+def canjear_puntos(cliente_id: str, puntos_a_canjear: int, db: Session = Depends(get_db)):
+    """Canjea puntos por descuentos."""
+    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+        
+    if cliente.puntos_fidelidad < puntos_a_canjear:
+        raise HTTPException(status_code=400, detail="Puntos insuficientes")
+        
+    cliente.puntos_fidelidad -= puntos_a_canjear
+    db.commit()
+    
+    return {
+        "status": "success", 
+        "message": f"Se han canjeado {puntos_a_canjear} puntos. Saldo restante: {cliente.puntos_fidelidad}"
+    }

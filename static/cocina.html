@@ -3,158 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDS - Cocina | Carbones</title>
+    <title>KDS Cocina | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        :root {
+            --bg-base: #f1f5f9;
+            --column-bg: rgba(255, 255, 255, 0.6);
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            color: #1e293b;
+        }
+        .kanban-column {
+            background: var(--column-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 2.5rem;
+        }
+        .order-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-900 text-white h-screen flex flex-col overflow-hidden font-sans">
+<body class="h-screen flex flex-col overflow-hidden">
     
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-md z-10">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-amber-500 rounded flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.5)]">🔥</div>
-            <h1 class="text-2xl font-black tracking-widest uppercase">KDS Cocina</h1>
-            <span id="status-indicator" class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-green-500/50 flex items-center gap-2">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Online
-            </span>
-            <span id="status-offline" class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-500/50 flex items-center gap-2 hidden">
-                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Offline
+    <header class="p-6 flex justify-between items-center z-10">
+        <div class="flex items-center gap-6">
+            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-xl shadow-indigo-100">🔥</div>
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase leading-none">KDS <span class="text-indigo-600">Cocina</span></h1>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Gestión de Comandas en Tiempo Real</p>
+            </div>
+            <div class="h-8 w-px bg-slate-200 mx-2"></div>
+            <span id="status-indicator" class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-emerald-100 flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> ONLINE
             </span>
         </div>
-        <div class="text-slate-400 font-mono text-xl" id="clock">00:00:00</div>
+        <div class="text-slate-900 font-black text-3xl tracking-tighter" id="clock">00:00:00</div>
     </header>
 
-    <!-- Kanban Board -->
-    <main class="flex-1 p-4 flex gap-4 overflow-hidden">
+    <main class="flex-1 p-6 flex gap-8 overflow-hidden">
         
-        <!-- Columna 1: Nuevos -->
-        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col overflow-hidden">
-            <div class="p-4 bg-slate-800 border-b border-slate-700">
-                <h2 class="text-lg font-black text-white uppercase flex justify-between items-center">
-                    Nuevos (Pagados) <span id="count-nuevos" class="bg-blue-500 text-white text-xs px-2 py-1 rounded">0</span>
-                </h2>
+        <!-- Col 1: Nuevos -->
+        <div class="flex-1 kanban-column flex flex-col overflow-hidden shadow-sm">
+            <div class="p-6 border-b border-white/40 flex justify-between items-center">
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Nuevos Ingresos</h2>
+                <span id="count-nuevos" class="bg-indigo-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg shadow-indigo-100">0</span>
             </div>
-            <div id="col-nuevos" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
-                <!-- Tarjetas -->
-            </div>
+            <div id="col-nuevos" class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-6"></div>
         </div>
 
-        <!-- Columna 2: En Preparación -->
-        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-amber-900/50 flex flex-col overflow-hidden shadow-[inset_0_0_50px_rgba(245,158,11,0.05)]">
-            <div class="p-4 bg-slate-800 border-b border-amber-500/30">
-                <h2 class="text-lg font-black text-amber-400 uppercase flex justify-between items-center">
-                    En Preparación <span id="count-prep" class="bg-amber-500 text-black text-xs px-2 py-1 rounded">0</span>
-                </h2>
+        <!-- Col 2: Preparación -->
+        <div class="flex-1 kanban-column flex flex-col overflow-hidden shadow-sm border-indigo-200/50">
+            <div class="p-6 border-b border-white/40 flex justify-between items-center bg-indigo-50/30">
+                <h2 class="text-xs font-black text-indigo-600 uppercase tracking-widest">En los Fogones</h2>
+                <span id="count-prep" class="bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg shadow-amber-100">0</span>
             </div>
-            <div id="col-prep" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
-                <!-- Tarjetas -->
-            </div>
+            <div id="col-prep" class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-6"></div>
         </div>
 
-        <!-- Columna 3: Listos -->
-        <div class="flex-1 bg-slate-800/50 rounded-2xl border border-green-900/50 flex flex-col overflow-hidden shadow-[inset_0_0_50px_rgba(34,197,94,0.05)]">
-            <div class="p-4 bg-slate-800 border-b border-green-500/30">
-                <h2 class="text-lg font-black text-green-400 uppercase flex justify-between items-center">
-                    Listos (Recoger) <span id="count-listos" class="bg-green-500 text-black text-xs px-2 py-1 rounded">0</span>
-                </h2>
+        <!-- Col 3: Listos -->
+        <div class="flex-1 kanban-column flex flex-col overflow-hidden shadow-sm border-emerald-200/50">
+            <div class="p-6 border-b border-white/40 flex justify-between items-center bg-emerald-50/30">
+                <h2 class="text-xs font-black text-emerald-600 uppercase tracking-widest">Para Entrega</h2>
+                <span id="count-listos" class="bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg shadow-emerald-100">0</span>
             </div>
-            <div id="col-listos" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
-                <!-- Tarjetas -->
-            </div>
+            <div id="col-listos" class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-6"></div>
         </div>
 
     </main>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-10 right-10 z-50 flex flex-col gap-3"></div>
 
     <script>
         function showToast(title, message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const bg = type === 'error' ? 'bg-red-500' : (type === 'warning' ? 'bg-amber-500' : 'bg-green-500');
-            toast.className = `${bg} text-white px-6 py-4 rounded-xl shadow-xl transform transition-all duration-300 translate-y-full opacity-0 max-w-sm pointer-events-auto`;
+            const colorClass = type === 'error' ? 'border-red-100 bg-red-50 text-red-700' : 'border-indigo-100 bg-white text-slate-900';
+            toast.className = `p-6 rounded-[1.5rem] shadow-2xl border ${colorClass} min-w-[300px] animate-pop transition-all`;
             toast.innerHTML = `
-                <div class="font-black text-sm uppercase tracking-widest">${title}</div>
-                <div class="text-xs opacity-90 mt-1">${message}</div>
+                <div class="font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full ${type === 'error' ? 'bg-red-500' : 'bg-indigo-600'}"></span> ${title}
+                </div>
+                <div class="text-[11px] font-bold mt-1 opacity-60 uppercase tracking-tight">${message}</div>
             `;
             container.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-y-full', 'opacity-0');
-            }, 10);
-            
-            // Remove after 3s
-            setTimeout(() => {
-                toast.classList.add('translate-y-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 500); }, 3000);
         }
 
-        // Reloj
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('es-ES', { hour12: false });
         }, 1000);
 
-        async function fetchOrders() {
-            try {
-                const res = await fetch('/api/orders/today');
-                if(!res.ok) throw new Error("Error fetching orders");
-                const pedidos = await res.json();
-                renderBoard(pedidos);
-                document.getElementById('status-indicator').classList.remove('hidden');
-                document.getElementById('status-offline').classList.add('hidden');
-            } catch(e) {
-                document.getElementById('status-indicator').classList.add('hidden');
-                document.getElementById('status-offline').classList.remove('hidden');
-            }
-        }
-
-        function renderBoard(pedidos) {
-            const cols = {
-                nuevos: document.getElementById('col-nuevos'),
-                prep: document.getElementById('col-prep'),
-                listos: document.getElementById('col-listos')
-            };
-
-            // Limpiar columnas
-            Object.values(cols).forEach(c => c.innerHTML = '');
-            
-            let counts = { nuevos: 0, prep: 0, listos: 0 };
-
-            pedidos.forEach(p => {
-                // Solo renderizar si los items están disponibles, pero como /today no los trae,
-                // usaremos /api/orders/?limit=50 para traer los items,
-                // vamos a cambiar la url de fetchOrders
-            });
-        }
-        
         async function fetchOrdersDetailed() {
             try {
                 const res = await fetch('/api/orders/?limit=100');
-                if(!res.ok) throw new Error("Error fetching");
+                if(!res.ok) throw new Error("Sync error");
                 const pedidos = await res.json();
-                
-                // Filtrar solo los de hoy que no estén COMPLETADO (ya entregados y cerrados) o CANCELADO
-                // Wait, if it's completed we might want to hide it.
                 const todayStr = new Date().toISOString().split('T')[0];
-                const activeOrders = pedidos.filter(p => 
-                    p.fecha.startsWith(todayStr) && 
-                    !['COMPLETADO', 'CANCELADO'].includes(p.estado)
-                );
-                
+                const activeOrders = pedidos.filter(p => p.fecha.startsWith(todayStr) && !['COMPLETADO', 'CANCELADO'].includes(p.estado));
                 renderDetailedBoard(activeOrders);
-                document.getElementById('status-indicator').classList.remove('hidden');
-                document.getElementById('status-offline').classList.add('hidden');
-            } catch(e) {
-                document.getElementById('status-indicator').classList.add('hidden');
-                document.getElementById('status-offline').classList.remove('hidden');
-            }
+            } catch(e) { console.error(e); }
         }
 
         function renderDetailedBoard(pedidos) {
@@ -170,49 +132,45 @@
 
             pedidos.forEach(p => {
                 let col = cols[p.estado] || cols['EN_PREPARACION'];
-                
                 if(p.estado === 'NUEVO' || p.estado === 'ESPERANDO_PAGO') counts.nuevos++;
                 else if(p.estado === 'EN_PREPARACION') counts.prep++;
                 else if(p.estado === 'LISTO') counts.listos++;
 
-                // Agrupar items
                 let itemsList = (p.items || []).map(it => 
-                    `<li class="flex justify-between items-center text-sm py-1 border-b border-slate-700/50 last:border-0">
-                        <span class="font-bold">x${it.cantidad} ${it.nombre}</span>
+                    `<li class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                        <span class="font-black text-xs text-slate-700 uppercase tracking-tighter">
+                            <span class="text-indigo-600 mr-2">x${it.cantidad}</span> ${it.nombre}
+                        </span>
                     </li>`
                 ).join('');
 
-                // Time diff
                 const orderDate = new Date(p.fecha + 'Z');
                 const diffMins = Math.floor((new Date() - orderDate) / 60000);
-                let timeColor = diffMins > 15 ? 'text-red-400' : 'text-slate-400';
+                let timeColor = diffMins > 15 ? 'text-red-500' : 'text-slate-400';
 
-                // Botones de acción
                 let actionBtn = '';
                 if(p.estado === 'ESPERANDO_PAGO' || p.estado === 'NUEVO') {
-                    actionBtn = `<button onclick="changeStatus('${p.id}', 'EN_PREPARACION')" class="w-full mt-3 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase text-xs py-3 rounded active:scale-95 transition-all">Empezar a Cocinar</button>`;
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'EN_PREPARACION')" class="w-full mt-4 bg-indigo-600 text-white font-black uppercase text-[9px] tracking-widest py-4 rounded-xl shadow-lg shadow-indigo-100 transition-all active:scale-95">Iniciar Preparación</button>`;
                 } else if(p.estado === 'EN_PREPARACION') {
-                    actionBtn = `<button onclick="changeStatus('${p.id}', 'LISTO')" class="w-full mt-3 bg-green-500 hover:bg-green-400 text-black font-black uppercase text-xs py-3 rounded active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">Marcar como Listo</button>`;
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'LISTO')" class="w-full mt-4 bg-emerald-500 text-white font-black uppercase text-[9px] tracking-widest py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all active:scale-95">Completado & Enviar</button>`;
                 } else if(p.estado === 'LISTO') {
-                    actionBtn = `<button onclick="changeStatus('${p.id}', 'COMPLETADO')" class="w-full mt-3 border border-slate-600 hover:bg-slate-700 text-white font-black uppercase text-xs py-3 rounded active:scale-95 transition-all">Entregado (Cerrar)</button>`;
+                    actionBtn = `<button onclick="changeStatus('${p.id}', 'COMPLETADO')" class="w-full mt-4 border border-slate-200 text-slate-500 font-black uppercase text-[9px] tracking-widest py-4 rounded-xl hover:bg-slate-50 transition-all active:scale-95">Cerrar Orden</button>`;
                 }
 
                 const cardHtml = `
-                    <div class="bg-slate-700 rounded-xl p-4 shadow-lg border border-slate-600 animate-fade">
-                        <div class="flex justify-between items-start mb-3 border-b border-slate-600 pb-2">
+                    <div class="order-card p-6">
+                        <div class="flex justify-between items-start mb-4 border-b border-slate-50 pb-4">
                             <div>
-                                <span class="text-2xl font-black tracking-tighter text-white">#${p.numero_ticket}</span>
-                                <div class="text-[10px] text-slate-400 uppercase font-bold mt-1">Origen: ${p.origen}</div>
+                                <span class="text-3xl font-black tracking-tighter text-slate-900 uppercase">#${p.numero_ticket.slice(-4)}</span>
+                                <div class="text-[8px] text-slate-400 uppercase font-black tracking-widest mt-1">${p.origen}</div>
                             </div>
                             <div class="text-right">
-                                <div class="${timeColor} font-bold text-sm">Hace ${diffMins} min</div>
-                                <div class="text-xs text-slate-400 mt-1">${orderDate.toLocaleTimeString('es-ES', {hour12:false}).substring(0,5)}</div>
+                                <div class="${timeColor} font-black text-xs tracking-tighter">${diffMins} min</div>
+                                <div class="text-[8px] font-bold text-slate-300 mt-0.5">${orderDate.toLocaleTimeString('es-ES', {hour12:false}).substring(0,5)}</div>
                             </div>
                         </div>
-                        <ul class="mb-2">
-                            ${itemsList}
-                        </ul>
-                        ${p.notas_cliente ? `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs p-2 rounded mb-2">⚠️ ${p.notas_cliente}</div>` : ''}
+                        <ul class="mb-4"> ${itemsList} </ul>
+                        ${p.notas_cliente ? `<div class="bg-amber-50 border border-amber-100 text-amber-700 text-[9px] font-bold p-3 rounded-xl mb-4 uppercase tracking-tighter">⚠️ ${p.notas_cliente}</div>` : ''}
                         ${actionBtn}
                     </div>
                 `;
@@ -227,73 +185,27 @@
         async function changeStatus(id, newStatus) {
             try {
                 const res = await fetch(`/api/orders/${id}/estado?estado=${newStatus}`, { method: 'PUT' });
-                if(!res.ok) throw new Error("Fallo de red");
-                showToast("Éxito", "Estado del pedido actualizado");
+                if(!res.ok) throw new Error("API Failure");
+                showToast("KDS Sync", `Orden ${newStatus} actualizada`);
                 fetchOrdersDetailed();
-            } catch(e) {
-                showToast("Error de conexión", "No se pudo actualizar el estado. Revisa la red.", "error");
-            }
+            } catch(e) { showToast("Error", "Fallo en la comunicación", "error"); }
         }
 
-        // Auto-refresh fallback
         fetchOrdersDetailed();
-        setInterval(fetchOrdersDetailed, 30000); // Polling relajado a 30s
+        setInterval(fetchOrdersDetailed, 10000);
 
-        // WebSocket en Tiempo Real
-        let ws;
         function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws/orders`;
-            ws = new WebSocket(wsUrl);
-
-            ws.onopen = () => {
-                console.log("WebSocket connected");
-                document.getElementById('status-indicator').classList.remove('hidden');
-                document.getElementById('status-offline').classList.add('hidden');
-            };
-
+            const ws = new WebSocket(`${protocol}//${window.location.host}/ws/orders`);
             ws.onmessage = (event) => {
                 const payload = JSON.parse(event.data);
                 if(payload.type === "NEW_ORDER") {
-                    showToast("¡NUEVO PEDIDO!", `Ticket #${payload.data.ticket} recibido`, 'warning');
-                    playAlertSound();
+                    showToast("Comanda Entrante", `Ticket #${payload.data.ticket}`, 'info');
                     fetchOrdersDetailed();
                 }
             };
-
-            ws.onclose = () => {
-                console.log("WebSocket disconnected. Reconnecting in 3s...");
-                document.getElementById('status-indicator').classList.add('hidden');
-                document.getElementById('status-offline').classList.remove('hidden');
-                setTimeout(connectWebSocket, 3000);
-            };
-
-            ws.onerror = (e) => {
-                console.error("WebSocket Error:", e);
-                ws.close();
-            };
+            ws.onclose = () => setTimeout(connectWebSocket, 3000);
         }
-
-        function playAlertSound() {
-            // Sintetizador básico de sonido (no requiere MP3)
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
-            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.5);
-        }
-
         connectWebSocket();
     </script>
 </body>

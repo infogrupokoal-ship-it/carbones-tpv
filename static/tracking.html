@@ -3,118 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracking - Carbones y Pollos</title>
+    <title>Tracking | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
-                    colors: {
-                        amber: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
-                        slate: { 800: '#1e293b', 900: '#0f172a' }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        body { background-color: #f8fafc; }
-        .progress-bar { transition: width 1s ease-in-out; }
+        :root {
+            --primary: #4f46e5;
+            --bg-base: #f8fafc;
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            color: #1e293b;
+            margin: 0;
+        }
+        .glass-panel {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+        .progress-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
+            z-index: -1;
+        }
+        .status-dot { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="font-sans antialiased text-slate-800 flex flex-col min-h-screen">
-    <header class="bg-slate-900 text-white p-4 shadow-md text-center sticky top-0 z-50">
-        <h1 class="text-xl font-black uppercase tracking-widest"><span class="text-amber-500">🔥</span> Carbones <span class="text-amber-500">Tracker</span></h1>
-    </header>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="bg-grid"></div>
 
-    <main class="flex-1 p-6 flex flex-col items-center justify-center max-w-lg mx-auto w-full">
-        
-        <div id="loading" class="text-center animate-pulse">
-            <div class="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Buscando Pedido...</p>
+    <main class="w-full max-w-lg mx-auto">
+        <div id="loading" class="text-center animate-pulse py-20">
+            <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Sincronizando Orden...</p>
         </div>
 
-        <div id="tracking-content" class="w-full hidden opacity-0 transition-opacity duration-500">
-            <div class="bg-white rounded-[2rem] shadow-xl p-8 text-center border border-slate-100 relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 to-amber-600"></div>
-                
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Ticket #</p>
-                <h2 id="ticket-number" class="text-4xl font-black text-slate-900 mb-8 tracking-tighter">--</h2>
+        <div id="tracking-content" class="hidden opacity-0 transform translate-y-4 transition-all duration-700">
+            <div class="glass-panel rounded-[3rem] p-10 text-center relative overflow-hidden bg-white/80 backdrop-blur-xl">
+                <div class="flex justify-between items-center mb-10">
+                    <div class="text-left">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Orden Localizada</p>
+                        <h2 id="ticket-number" class="text-5xl font-black text-slate-900 tracking-tighter">#--</h2>
+                    </div>
+                    <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-3xl">📦</div>
+                </div>
 
-                <!-- Barra de Progreso -->
-                <div class="relative pt-1 mb-12">
-                    <div class="flex justify-between mb-2">
-                        <div class="text-center w-1/4">
-                            <div id="icon-nuevo" class="w-10 h-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-xl transition-colors duration-500 mb-2 shadow-sm">🧾</div>
-                            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 block">Recibido</span>
-                        </div>
-                        <div class="text-center w-1/4">
-                            <div id="icon-prep" class="w-10 h-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-xl transition-colors duration-500 mb-2 shadow-sm">👨‍🍳</div>
-                            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 block">Cocina</span>
-                        </div>
-                        <div class="text-center w-1/4">
-                            <div id="icon-listo" class="w-10 h-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-xl transition-colors duration-500 mb-2 shadow-sm">🛍️</div>
-                            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 block">Listo</span>
-                        </div>
-                        <div class="text-center w-1/4">
-                            <div id="icon-comp" class="w-10 h-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-xl transition-colors duration-500 mb-2 shadow-sm">✅</div>
-                            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 block">Entregado</span>
-                        </div>
+                <!-- Progress Visual -->
+                <div class="relative mb-12 px-2">
+                    <div class="overflow-hidden h-2.5 mb-6 flex rounded-full bg-slate-100 p-0.5 shadow-inner">
+                        <div id="progress-bar" style="width: 0%" class="progress-bar rounded-full bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.3)]"></div>
                     </div>
                     
-                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-slate-100 mx-4">
-                        <div id="progress-bar" style="width: 0%" class="progress-bar shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500"></div>
+                    <div class="flex justify-between">
+                        <div class="flex flex-col items-center gap-2 group">
+                            <div id="dot-nuevo" class="status-dot w-3 h-3 rounded-full bg-slate-200"></div>
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Recibido</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <div id="dot-prep" class="status-dot w-3 h-3 rounded-full bg-slate-200"></div>
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Cocina</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <div id="dot-listo" class="status-dot w-3 h-3 rounded-full bg-slate-200"></div>
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Listo</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <div id="dot-comp" class="status-dot w-3 h-3 rounded-full bg-slate-200"></div>
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Finalizado</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
-                    <p id="status-message" class="text-amber-800 font-bold text-sm">Cargando estado actual...</p>
+                <div id="status-card" class="bg-indigo-50/50 border border-indigo-100 rounded-[2rem] p-8 mb-8 transition-all duration-500">
+                    <h3 id="status-title" class="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Procesando...</h3>
+                    <p id="status-message" class="text-xs font-medium text-slate-600 leading-relaxed">Estamos verificando el estado de tu pedido en tiempo real.</p>
                 </div>
 
-                <div id="delivery-info" class="hidden mt-6 bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="text-2xl">🛵</div>
-                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Dirección de Entrega</p>
-                    </div>
-                    <p id="delivery-address" class="text-slate-800 font-bold text-sm leading-tight ml-9 italic">--</p>
+                <div id="delivery-info" class="hidden text-left p-6 bg-slate-50 rounded-2xl border border-slate-100 mb-8">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Dirección de Envío
+                    </p>
+                    <p id="delivery-address" class="text-sm font-bold text-slate-800 leading-tight">--</p>
                 </div>
+
+                <button onclick="window.location.href='/static/kiosko.html'" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all active:scale-95">Realizar nuevo pedido</button>
             </div>
 
             <div class="mt-8 text-center">
-                <button onclick="window.location.href='/static/kiosko.html'" class="text-slate-500 hover:text-slate-900 font-bold text-xs uppercase tracking-widest underline transition-colors">Volver al Kiosko</button>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carbones y Pollos Enterprise Hub</p>
             </div>
         </div>
 
-        <div id="error-screen" class="hidden text-center">
-            <div class="text-5xl mb-4">🤷‍♂️</div>
-            <h2 class="text-xl font-black text-slate-900 uppercase tracking-tighter mb-2">Pedido no encontrado</h2>
-            <p class="text-slate-500 text-sm mb-6">Asegúrate de que el número de ticket es correcto.</p>
-            <button onclick="window.location.href='/static/kiosko.html'" class="bg-slate-900 text-white px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-md">Volver al Kiosko</button>
+        <div id="error-screen" class="hidden text-center py-20">
+            <div class="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">🤷‍♂️</div>
+            <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-3">Orden Extraviada</h2>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-10">No hemos podido localizar este ticket.</p>
+            <button onclick="window.location.href='/static/kiosko.html'" class="bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100">Volver al Kiosko</button>
         </div>
     </main>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        // Soporte tanto para ?pedido=UUID (nuevo) como ?ticket=NUMERO (antiguo)
         const pedidoId = urlParams.get('pedido') || urlParams.get('ticket');
 
         if (!pedidoId) {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('error-screen').classList.remove('hidden');
         } else {
-            // Asumimos que se pasó UUID si la longitud es grande, si no, es ticket number
-            document.getElementById('ticket-number').innerText = pedidoId.length > 10 ? 'Consultando...' : pedidoId;
             pollOrder();
-            setInterval(pollOrder, 5000);
+            setInterval(pollOrder, 10000);
         }
 
         async function pollOrder() {
             try {
-                // Buscamos el pedido en los recientes
                 const res = await fetch(`/api/orders/?limit=100`);
-                if(!res.ok) throw new Error("Fallo en la red");
+                if(!res.ok) throw new Error("Network error");
                 const orders = await res.json();
                 
                 const order = orders.find(o => o.numero_ticket === pedidoId || o.id === pedidoId);
@@ -124,19 +133,16 @@
                 if (order) {
                     const content = document.getElementById('tracking-content');
                     content.classList.remove('hidden');
-                    // Forzamos reflow para transición
-                    void content.offsetWidth;
-                    content.classList.remove('opacity-0');
+                    setTimeout(() => {
+                        content.classList.remove('opacity-0', 'translate-y-4');
+                    }, 50);
                     
-                    document.getElementById('ticket-number').innerText = order.numero_ticket;
+                    document.getElementById('ticket-number').innerText = '#' + order.numero_ticket;
                     updateStatusUI(order.estado);
 
-                    // Información de Domicilio
                     if (order.metodo_envio === 'DOMICILIO') {
                         document.getElementById('delivery-info').classList.remove('hidden');
-                        document.getElementById('delivery-address').innerText = order.direccion || 'Pendiente de especificar';
-                    } else {
-                        document.getElementById('delivery-info').classList.add('hidden');
+                        document.getElementById('delivery-address').innerText = order.direccion || 'Domicilio en proceso...';
                     }
                 } else {
                     document.getElementById('error-screen').classList.remove('hidden');
@@ -148,76 +154,52 @@
 
         function updateStatusUI(estado) {
             const bar = document.getElementById('progress-bar');
+            const title = document.getElementById('status-title');
             const msg = document.getElementById('status-message');
             
-            // Reset icons
+            // Reset status dots
             ['nuevo', 'prep', 'listo', 'comp'].forEach(id => {
-                document.getElementById('icon-' + id).className = "w-10 h-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-xl transition-colors duration-500 mb-2 shadow-sm opacity-50 grayscale";
+                document.getElementById('dot-' + id).className = "status-dot w-3 h-3 rounded-full bg-slate-200";
             });
 
-            // Activar iconos
-            const activate = (id, colorClass) => {
-                const el = document.getElementById('icon-' + id);
-                el.className = `w-12 h-12 mx-auto rounded-full ${colorClass} text-white flex items-center justify-center text-2xl transition-all duration-500 mb-1 shadow-lg transform scale-110`;
+            const activate = (id, color) => {
+                const dot = document.getElementById('dot-' + id);
+                dot.className = `status-dot w-4 h-4 rounded-full ${color} ring-4 ring-white shadow-sm`;
             };
 
             if (estado === 'NUEVO' || estado === 'ESPERANDO_PAGO') {
                 bar.style.width = '15%';
-                msg.innerText = "¡Hemos recibido tu pedido! En breve entra a cocina.";
-                activate('nuevo', 'bg-blue-500');
+                title.innerText = "¡Orden Recibida!";
+                msg.innerText = "Tu pedido ha sido registrado con éxito. Entrará a cocina en unos instantes.";
+                activate('nuevo', 'bg-indigo-600');
             } else if (estado === 'EN_PREPARACION') {
-                bar.style.width = '50%';
-                msg.innerText = "Nuestros cocineros están preparando tu pedido con amor 🍗🔥";
-                activate('nuevo', 'bg-amber-500');
-                activate('prep', 'bg-amber-500');
+                bar.style.width = '45%';
+                title.innerText = "En los Fogones";
+                msg.innerText = "Nuestros chefs están preparando tu pedido con carbón de encina seleccionado.";
+                activate('nuevo', 'bg-indigo-600');
+                activate('prep', 'bg-indigo-600');
             } else if (estado === 'LISTO') {
                 bar.style.width = '80%';
-                msg.innerHTML = "¡TU PEDIDO ESTÁ LISTO!<br><span class='text-xs font-normal'>Acércate a mostrador para recogerlo o espera al repartidor.</span>";
-                activate('nuevo', 'bg-amber-500');
-                activate('prep', 'bg-amber-500');
-                activate('listo', 'bg-green-500');
+                title.innerText = "¡Todo Listo!";
+                title.classList.add('text-indigo-600');
+                msg.innerText = "Tu pedido está listo para ser recogido o entregado. ¡Ya casi está!";
+                activate('nuevo', 'bg-indigo-600');
+                activate('prep', 'bg-indigo-600');
+                activate('listo', 'bg-indigo-600');
             } else if (estado === 'COMPLETADO') {
                 bar.style.width = '100%';
-                msg.innerText = "Pedido entregado. ¡Que aproveche!";
-                activate('nuevo', 'bg-green-500');
-                activate('prep', 'bg-green-500');
-                activate('listo', 'bg-green-500');
-                activate('comp', 'bg-green-500');
+                bar.className = "progress-bar rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+                title.innerText = "¡Disfrútalo!";
+                title.className = "text-xl font-black text-emerald-600 uppercase tracking-tight mb-2";
+                msg.innerText = "La orden ha sido finalizada con éxito. ¡Gracias por confiar en nosotros!";
+                ['nuevo', 'prep', 'listo', 'comp'].forEach(id => activate(id, 'bg-emerald-500'));
             } else if (estado === 'CANCELADO') {
                 bar.style.width = '100%';
-                bar.classList.replace('bg-amber-500', 'bg-red-500');
-                msg.innerText = "El pedido ha sido cancelado.";
+                bar.className = "progress-bar rounded-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]";
+                title.innerText = "Orden Cancelada";
+                title.className = "text-xl font-black text-red-600 uppercase tracking-tight mb-2";
+                msg.innerText = "Este pedido ha sido anulado. Contacta con nosotros si tienes dudas.";
             }
-        }
-
-        // --- Telemetría GPS (Rider/Client Tracking) ---
-        function startTelemetry() {
-            if (!navigator.geolocation) return;
-            
-            // Intentamos obtener la ubicación cada 15 segundos si está permitido
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    
-                    // Cálculo de distancia dummy o real si tuviéramos lat/lon del local
-                    // Asumimos distancia dummy para el payload
-                    try {
-                        await fetch(`/api/orders/${pedidoId}/ubicacion`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ lat, lon, distancia_metros: Math.floor(Math.random() * 1000) })
-                        });
-                    } catch(e) { /* silent fail for telemetry */ }
-                }, (err) => {
-                    // console.warn("Telemetría deshabilitada o denegada");
-                }, { enableHighAccuracy: true });
-            }, 15000);
-        }
-
-        // Iniciar telemetría si se pasó el UUID largo
-        if(pedidoId && pedidoId.length > 10) {
-            setTimeout(startTelemetry, 3000);
         }
     </script>
 </body>

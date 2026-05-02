@@ -7,31 +7,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
-    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-base: #f8fafc;
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            color: #1e293b;
+        }
         .portal-grid-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(20px);
+            background: white;
             border: 1px solid rgba(0, 0, 0, 0.05);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             position: relative;
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
         }
         .portal-grid-card:hover {
-            transform: translateY(-8px) scale(1.01);
-            background: rgba(255, 255, 255, 1);
-            border-color: rgba(37, 99, 235, 0.2);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.1);
         }
         .portal-grid-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(37,99,235,0.05), transparent);
+            background: linear-gradient(45deg, transparent, rgba(79, 70, 229, 0.05), transparent);
             transform: translateX(-100%);
             transition: 0.8s;
         }
         .portal-grid-card:hover::before { transform: translateX(100%); }
-    </style>
 </head>
 <body class="flex min-h-screen">
 
@@ -39,42 +46,48 @@
 
     <main class="flex-1 p-6 lg:p-12 overflow-y-auto relative z-10">
         
-        <header class="mb-12 relative">
-            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-100 rounded-full blur-[120px] -z-10"></div>
-            <div class="absolute -top-12 -left-12 w-48 h-48 bg-amber-50 rounded-full blur-[100px] -z-10"></div>
-            
-            <div class="flex justify-between items-end mb-4">
+        <header class="mb-16 relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
                 <div>
-                    <h1 class="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase mb-2">
-                        Staff <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Entrance</span>
+                    <h1 class="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase mb-4">
+                        Staff <span class="text-indigo-600">Entrance</span>
                     </h1>
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Consola de Mando Centralizada • v4.1 Industrial</p>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Consola de Mando Centralizada • v4.5 Industrial
+                    </p>
                 </div>
                 <div class="hidden lg:flex items-center gap-4">
-                    <div class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold flex items-center gap-2 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en Línea
+                    <div class="px-6 py-3 bg-white text-emerald-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-slate-100 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online Hub
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- KPI Strip -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ventas Hoy</span>
-                <span class="text-3xl font-black text-slate-900">€2,450<span class="text-emerald-500 text-sm ml-2">↑ 12%</span></span>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Ventas Hoy</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-black text-slate-900">2.450€</span>
+                    <span class="text-[10px] font-bold text-emerald-500">+12%</span>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tickets Abiertos</span>
-                <span class="text-3xl font-black text-slate-900">24</span>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Tickets Abiertos</span>
+                <span class="text-4xl font-black text-slate-900">24</span>
             </div>
-            <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Alertas Stock</span>
-                <span class="text-3xl font-black text-red-500">3<span class="text-slate-500 text-sm ml-2 font-medium tracking-normal">Pollo, Arroz</span></span>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Alertas Stock</span>
+                <span class="text-4xl font-black text-red-500">03</span>
             </div>
-            <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Repartidores</span>
-                <span class="text-3xl font-black text-slate-900">4 / 6<span class="text-blue-500 text-sm ml-2 font-medium tracking-normal">Activos</span></span>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Repartidores</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-black text-slate-900">04</span>
+                    <span class="text-[10px] font-bold text-indigo-500">/ 06</span>
+                </div>
             </div>
         </div>
 
