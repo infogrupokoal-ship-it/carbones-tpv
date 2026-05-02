@@ -20,8 +20,8 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from backend.routers import orders, inventory, clients, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty
-from backend.services import sync_daemon, ai_bi_agent
+from backend.routers import orders, inventory, customers, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty, logistics, admin, telemetry, webhooks, admin_audit, ws, hardware, commercial
+from backend.services import ai_bi_agent
 
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler

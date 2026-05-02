@@ -261,7 +261,8 @@
 
                 if (!res.ok) throw new Error('Error al calcular liquidaciones');
 
-                const data = await res.json();
+                const responseData = await res.json();
+                const data = responseData.detalles || [];
                 
                 if (data.length === 0) {
                     tbody.innerHTML = `
@@ -280,20 +281,20 @@
                 let html = '';
 
                 data.forEach(item => {
-                    totalGlobal += item.total_a_pagar;
+                    totalGlobal += item.total_pagar;
                     html += `
                         <tr class="border-b border-slate-100 hover:bg-white/5 transition-colors group">
                             <td class="py-4 px-4 font-bold text-slate-900 flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[10px] font-black text-violet-400">
-                                    ${item.repartidor.substring(0, 2).toUpperCase()}
+                                    ${item.usuario.substring(0, 2).toUpperCase()}
                                 </div>
-                                ${item.repartidor}
+                                ${item.usuario}
                             </td>
                             <td class="py-4 px-4 text-center font-mono text-slate-500 group-hover:text-slate-900 transition-colors">
-                                <span class="bg-white px-2 py-1 rounded-md border border-slate-200">${item.entregas_completadas}</span>
+                                <span class="bg-white px-2 py-1 rounded-md border border-slate-200">${item.total_pedidos}</span>
                             </td>
                             <td class="py-4 px-4 text-right font-mono text-slate-500">1.50€</td>
-                            <td class="py-4 px-4 text-right font-black text-emerald-400 text-lg">${item.total_a_pagar.toFixed(2)}€</td>
+                            <td class="py-4 px-4 text-right font-black text-emerald-400 text-lg">${item.total_pagar.toFixed(2)}€</td>
                         </tr>
                     `;
                 });

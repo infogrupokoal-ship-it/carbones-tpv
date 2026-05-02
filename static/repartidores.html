@@ -2,181 +2,185 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repartidores Pro | TPV Enterprise</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Driver Unit | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
+            --brand-primary: #4f46e5;
             --bg-base: #f8fafc;
         }
         body { 
             font-family: 'Outfit', sans-serif; 
-            background: var(--bg-base); 
-            color: #1e293b; 
+            background-color: var(--bg-base); 
             margin: 0;
+            color: #1e293b;
             user-select: none;
-            -webkit-user-select: none;
-        }
-        .glass-card { 
-            background: white; 
-            border: 1px solid rgba(0, 0, 0, 0.05); 
-            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
-        }
-        .order-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        .order-card:active { transform: scale(0.98); }
-        .status-badge { 
-            font-size: 0.65rem; 
-            font-weight: 900; 
-            padding: 0.4rem 1rem; 
-            border-radius: 12px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em;
+            -webkit-tap-highlight-color: transparent;
         }
         .bg-grid {
             position: fixed;
             inset: 0;
-            background-size: 40px 40px;
+            background-size: 50px 50px;
             background-image: 
                 linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
             z-index: -1;
+            pointer-events: none;
         }
-        .nav-active {
-            color: var(--primary);
+        .order-card {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-active .icon-bg {
-            background: rgba(79, 70, 229, 0.1);
+        .order-card:active { transform: scale(0.97); }
+        .btn-action {
+            transition: all 0.2s ease;
+        }
+        .btn-action:active { transform: scale(0.95); }
+        .status-pill {
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 99px;
         }
     </style>
 </head>
-<body class="min-h-screen p-6 pb-32 max-w-lg mx-auto">
+<body class="min-h-screen pb-32">
     <div class="bg-grid"></div>
-    
-    <header class="flex justify-between items-center mb-10">
-        <div>
-            <h1 class="text-3xl font-black uppercase tracking-tighter text-slate-900">Panel <span class="text-indigo-600">Reparto</span></h1>
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                Delivery Engine v4.0
-            </p>
-        </div>
-        <div class="h-12 w-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-200 text-xl">🛵</div>
-    </header>
 
-    <div class="grid grid-cols-2 gap-4 mb-10">
-        <div class="glass-card p-6 rounded-[2rem] text-center border-b-4 border-emerald-500">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Entregados</p>
-            <p class="text-3xl font-black text-slate-900">12</p>
-        </div>
-        <div class="glass-card p-6 rounded-[2rem] text-center border-b-4 border-indigo-500">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Comisión Est.</p>
-            <p class="text-3xl font-black text-slate-900">24<span class="text-indigo-600 text-sm ml-0.5">.50€</span></p>
-        </div>
-    </div>
+    <main class="max-w-md mx-auto p-6 pt-12">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-1">Logistics Terminal</p>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Rutas <span class="text-indigo-600">Activas</span></h1>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-2xl shadow-xl shadow-slate-200">🛵</div>
+        </header>
 
-    <div class="flex items-center justify-between mb-6 px-2">
-        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Órdenes en Proceso</h2>
-        <span class="text-[10px] font-bold text-slate-400">Total: 03</span>
-    </div>
-    
-    <div id="orders-container" class="space-y-6">
-        <!-- Dinámico -->
-        <div class="animate-pulse space-y-6">
-            <div class="h-40 bg-white rounded-[2rem] border border-slate-100"></div>
-            <div class="h-40 bg-white rounded-[2rem] border border-slate-100"></div>
+        <!-- Driver Stats -->
+        <div class="grid grid-cols-2 gap-4 mb-10">
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Completados</p>
+                <p class="text-3xl font-black text-slate-900" id="stat-delivered">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Comisión Hoy</p>
+                <p class="text-3xl font-black text-indigo-600" id="stat-earnings">0.00€</p>
+            </div>
         </div>
-    </div>
 
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-8 left-6 right-6 h-20 glass-card rounded-[2.5rem] flex items-center justify-around px-2 z-50 shadow-2xl border-white mx-auto max-w-lg">
-        <button class="nav-active flex flex-col items-center gap-1 group">
-            <div class="icon-bg w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all">📦</div>
+        <div class="flex items-center justify-between mb-6 px-2">
+            <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Próximas Entregas</h2>
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        </div>
+
+        <div id="orders-list" class="space-y-6">
+            <!-- Dynamic Orders -->
+            <div class="py-20 text-center">
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Cargando Logística...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Mobile Nav -->
+    <nav class="fixed bottom-8 left-6 right-6 h-20 bg-white/90 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-2xl flex items-center justify-around px-4 z-50 max-w-md mx-auto">
+        <button onclick="loadOrders()" class="flex flex-col items-center gap-1 group text-indigo-600">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-xl transition-all group-active:scale-90">📦</div>
             <span class="text-[8px] font-black uppercase tracking-widest">Pedidos</span>
         </button>
-        <button class="text-slate-400 flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl group-hover:bg-slate-50 transition-all">📍</div>
-            <span class="text-[8px] font-black uppercase tracking-widest">Ruta</span>
+        <button class="flex flex-col items-center gap-1 group text-slate-400">
+            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-all group-active:scale-90">🗺️</div>
+            <span class="text-[8px] font-black uppercase tracking-widest">Mapa</span>
         </button>
-        <button class="text-slate-400 flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl group-hover:bg-slate-50 transition-all">📊</div>
-            <span class="text-[8px] font-black uppercase tracking-widest">Stats</span>
-        </button>
-        <button class="text-slate-400 flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl group-hover:bg-slate-50 transition-all">👤</div>
+        <button class="flex flex-col items-center gap-1 group text-slate-400">
+            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-all group-active:scale-90">👤</div>
             <span class="text-[8px] font-black uppercase tracking-widest">Perfil</span>
         </button>
     </nav>
 
+    <script src="/static/js/enterprise_shell.js"></script>
     <script>
+        const API_URL = "/api";
+        const driverId = localStorage.getItem('auth_user') || 'DRIVER_1';
+
         async function loadOrders() {
             try {
-                const res = await fetch('/api/orders/activas');
-                const orders_all = await res.json();
-                const orders = orders_all.filter(o => o.metodo_envio === 'DOMICILIO' && ['PREPARADO', 'EN_CAMINO'].includes(o.estado));
-                const container = document.getElementById('orders-container');
+                const res = await fetch(`${API_URL}/orders/list`);
+                const allOrders = await res.json();
+                const myOrders = allOrders.filter(o => o.metodo_envio === 'DOMICILIO' && (o.repartidor === driverId || !o.repartidor));
                 
-                if(orders.length === 0) {
-                    container.innerHTML = `
-                        <div class="py-24 text-center">
-                            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏜️</div>
-                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Todo Despejado</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Sin entregas pendientes</p>
-                        </div>
-                    `;
-                    return;
-                }
+                renderOrders(myOrders);
+                updateStats(allOrders.filter(o => o.repartidor === driverId && o.estado === 'COMPLETADO'));
+            } catch(e) { console.error("Logistics Error:", e); }
+        }
 
-                container.innerHTML = orders.map(o => `
-                    <div class="order-card glass-card p-8 rounded-[2.5rem] flex flex-col gap-6 relative overflow-hidden ${o.estado === 'EN_CAMINO' ? 'border-indigo-500/20 ring-4 ring-indigo-50' : ''}">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Ticket #${o.numero_ticket}</span>
-                                <h3 class="text-3xl font-black text-slate-900 tracking-tighter mt-1">${o.total.toFixed(2)}<span class="text-sm ml-0.5">€</span></h3>
-                            </div>
-                            <span class="status-badge ${o.estado === 'EN_CAMINO' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-700'}">${o.estado.replace('_', ' ')}</span>
-                        </div>
-                        
-                        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="text-xl">📍</span>
-                            <div>
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dirección de Entrega</p>
-                                <p class="text-xs font-bold text-slate-700 leading-tight">${o.direccion || 'Sin dirección registrada'}</p>
-                            </div>
-                        </div>
+        function updateStats(completed) {
+            document.getElementById('stat-delivered').innerText = completed.length;
+            document.getElementById('stat-earnings').innerText = (completed.length * 2.5).toFixed(2) + '€';
+        }
 
-                        <div class="flex gap-3">
-                            ${o.estado === 'PREPARADO' 
-                                ? `<button onclick="updateStatus('${o.id}', 'EN_CAMINO')" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95">Iniciar Ruta</button>`
-                                : `<button onclick="updateStatus('${o.id}', 'ENTREGADO')" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-200 transition-all active:scale-95">Finalizar Entrega</button>`
-                            }
-                            <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.direccion || '')}')" class="w-14 h-14 bg-white border border-slate-200 flex items-center justify-center rounded-2xl text-xl shadow-sm hover:bg-slate-50 transition-all">🗺️</button>
-                            ${o.cliente_telefono ? `
-                            <a href="https://wa.me/${o.cliente_telefono.replace(/\s+/g, '')}?text=Hola ${o.cliente_nombre}, soy tu repartidor de Carbones y Pollos. Estoy en camino con tu pedido #${o.numero_ticket}." 
-                               target="_blank"
-                               class="w-14 h-14 bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center rounded-2xl text-xl shadow-sm hover:bg-emerald-100 transition-all">
-                                💬
-                            </a>
-                            ` : ''}
+        function renderOrders(orders) {
+            const list = document.getElementById('orders-list');
+            if (orders.length === 0) {
+                list.innerHTML = '<div class="py-20 text-center"><span class="text-4xl mb-4 block">☕</span><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Sin entregas pendientes</p></div>';
+                return;
+            }
+
+            list.innerHTML = orders.map(o => `
+                <div class="order-card p-8 rounded-[2.5rem] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50/30 rounded-full -mr-16 -mt-16 -z-10"></div>
+                    
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <span class="status-pill ${o.estado === 'REPARTO' ? 'bg-orange-50 text-orange-600' : 'bg-indigo-50 text-indigo-600'} mb-2 inline-block">${o.estado}</span>
+                            <h3 class="text-xl font-black text-slate-900 uppercase tracking-tighter">#${o.numero_ticket.slice(-3)}</h3>
+                        </div>
+                        <p class="text-2xl font-black text-slate-900">${o.total.toFixed(2)}€</p>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-sm shrink-0">📍</div>
+                            <p class="text-xs font-bold text-slate-600 uppercase tracking-tight leading-relaxed">${o.cliente_nombre || 'Cliente Final'}<br><span class="text-slate-400 font-medium">${o.direccion || 'Calle Mayor 12, Planta 2'}</span></p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-sm shrink-0">📱</div>
+                            <p class="text-xs font-black text-indigo-600 tracking-widest">${o.telefono || '+34 600 000 000'}</p>
                         </div>
                     </div>
-                `).join('');
-            } catch(e) { console.error(e); }
+
+                    <div class="flex gap-3">
+                        <button onclick="callCustomer('${o.telefono}')" class="btn-action flex-1 py-4 bg-slate-100 text-slate-900 font-black text-[10px] uppercase tracking-widest rounded-2xl">Llamar</button>
+                        <button onclick="updateOrderState('${o.id}', '${o.estado === 'PREPARADO' ? 'REPARTO' : 'COMPLETADO'}')" class="btn-action flex-[2] py-4 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-100">
+                            ${o.estado === 'PREPARADO' ? 'Iniciar Entrega' : 'Confirmar Entrega'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        async function updateStatus(id, status) {
+        async function updateOrderState(id, newState) {
             try {
-                await fetch(`/api/orders/${id}/estado?estado=${status}`, { method: 'PUT' });
-                loadOrders();
-            } catch(e) { console.error(e); }
+                const res = await fetch(`${API_URL}/orders/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: newState, repartidor: driverId })
+                });
+                if (res.ok) loadOrders();
+            } catch(e) {}
         }
 
-        setInterval(loadOrders, 10000);
-        loadOrders();
+        function callCustomer(tel) { window.location.href = `tel:${tel}`; }
+
+        window.onload = () => {
+            loadOrders();
+            setInterval(loadOrders, 30000);
+        };
     </script>
 </body>
 </html>
