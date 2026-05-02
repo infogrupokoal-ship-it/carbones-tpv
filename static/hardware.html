@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Edge Network | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Hardware & Edge Network</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Impresoras Térmicas, KDS y Cajones Portamonedas</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">print</span>
+                    Prueba de Impresión Global
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Impresoras -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Red de Impresión Térmica</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 border border-slate-200 rounded-xl flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-slate-400 text-2xl">print</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">Epson TM-T20III (Cocina 1)</h4>
+                                    <p class="text-[10px] font-mono text-slate-500">192.168.1.150:9100</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">ONLINE</span>
+                        </div>
+                        <div class="p-4 border border-slate-200 rounded-xl flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-slate-400 text-2xl">print</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">Bixolon SRP-350plus (Caja Frontal)</h4>
+                                    <p class="text-[10px] font-mono text-slate-500">USB001</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">ONLINE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kitchen Display System (KDS) -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Pantallas KDS (Kitchen Display System)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 border border-slate-200 rounded-xl flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-slate-400 text-2xl">desktop_windows</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">iPad Pro (Estación Brasa)</h4>
+                                    <p class="text-[10px] font-mono text-slate-500">Conectado vía WebSocket</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">SYNCED</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Hardware');
+        });
+    </script>
+</body>
+</html>

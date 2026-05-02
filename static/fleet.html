@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Tracking | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Fleet & Dispatch</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión de Flota de Reparto Propia</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <span class="material-symbols-outlined text-[18px]">route</span>
+                    Optimizar Rutas (IA)
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 flex gap-8">
+            <div class="w-96 flex flex-col gap-6">
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Repartidores Activos</h3>
+                    <div class="space-y-4">
+                        <div class="p-3 border border-emerald-200 bg-emerald-50 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 font-bold">M</div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">Miguel A.</p>
+                                    <p class="text-[10px] text-slate-500">Moto 1 - Matricula 1234ABC</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-200 text-emerald-800 text-[9px] font-black rounded-lg">EN RUTA</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-800 font-bold">L</div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">Laura G.</p>
+                                    <p class="text-[10px] text-slate-500">Moto 2 - Matricula 5678XYZ</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-slate-200 text-slate-600 text-[9px] font-black rounded-lg">ESPERANDO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa / Simulador -->
+            <div class="flex-1 glass-panel p-6 flex flex-col items-center justify-center bg-slate-100/50">
+                <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">map</span>
+                <p class="text-sm font-bold text-slate-500">Mapa de Telemetría GPS</p>
+                <p class="text-xs text-slate-400 text-center mt-2 max-w-sm">Integración con API de Google Maps pendiente de activación de clave de facturación corporativa.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Fleet');
+        });
+    </script>
+</body>
+</html>

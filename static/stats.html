@@ -42,10 +42,12 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
-    <div class="bg-grid"></div>
-    <!-- Enterprise Sidebar will be injected here -->
+<body class="min-h-screen" data-active-module="Analytics">
+    <div class="bg-grid-industrial"></div>
 
     <div class="flex h-screen overflow-hidden relative z-10">
+        <div id="enterprise-sidebar"></div>
+        
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-8 lg:p-12 custom-scrollbar">
         

@@ -9,11 +9,14 @@ const EnterpriseShell = {
         { id: 'Caja', icon: '💰', path: '/static/caja.html', category: 'Core' },
         { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
         { id: 'Producción', icon: '🔥', path: '/static/dashboard_produccion.html', category: 'Core' },
+        { id: 'Reservas', icon: '🍷', path: '/static/reservas.html', category: 'Core' },
         
         { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
         { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
         { id: 'Reparto', icon: '🛵', path: '/static/reparto.html', category: 'Logistics' },
         { id: 'Procurement', icon: '📦', path: '/static/procurement.html', category: 'Logistics' },
+        { id: 'Aggregators', icon: '🍔', path: '/static/delivery_aggregators.html', category: 'Logistics' },
+        { id: 'Fleet', icon: '🚚', path: '/static/fleet.html', category: 'Logistics' },
         
         { id: 'Analytics', icon: '📊', path: '/static/analytics.html', category: 'Management' },
         { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
@@ -23,11 +26,15 @@ const EnterpriseShell = {
         { id: 'Franquicias', icon: '🏢', path: '/static/franchise.html', category: 'Management' },
         { id: 'ESG & Eco', icon: '🌱', path: '/static/esg.html', category: 'Management' },
         { id: 'Menu Eng.', icon: '🧠', path: '/static/menu_engineering.html', category: 'Management' },
+        { id: 'B2B Sales', icon: '🤝', path: '/static/commercial.html', category: 'Management' },
+        { id: 'Loyalty', icon: '🏆', path: '/static/loyalty.html', category: 'Management' },
         
         { id: 'Ajustes', icon: '⚙️', path: '/static/settings.html', category: 'System' },
         { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' },
         { id: 'IoT Equipos', icon: '🌡️', path: '/static/iot.html', category: 'System' },
-        { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' }
+        { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' },
+        { id: 'Maintenance', icon: '🛠️', path: '/static/mantenimiento.html', category: 'System' },
+        { id: 'Hardware', icon: '🖨️', path: '/static/hardware.html', category: 'System' }
     ],
 
     init(activeId) {

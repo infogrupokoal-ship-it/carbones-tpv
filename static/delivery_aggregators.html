@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Aggregators Hub | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+        .platform-logo { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 1.2rem; }
+        .bg-uber { background-color: #06C167; }
+        .bg-glovo { background-color: #FFC244; color: #00a082 !important; }
+        .bg-justeat { background-color: #FF8000; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Delivery Aggregators Hub</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Control Unificado de Plataformas de Terceros</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">stop_circle</span>
+                    Pausar Todos (Busy Mode)
+                </button>
+                <button class="h-10 px-4 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">sync</span>
+                    Sincronizar Menús
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Uber Eats -->
+                <div class="glass-panel p-6 flex flex-col">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex gap-4 items-center">
+                            <div class="platform-logo bg-uber">UE</div>
+                            <div>
+                                <h3 class="font-black text-slate-900">Uber Eats</h3>
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Pedidos (Hoy)</p>
+                            <p class="text-xl font-black text-slate-900">42</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Facturación</p>
+                            <p class="text-xl font-black text-slate-900">€854<span class="text-xs text-slate-400">.20</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-slate-100 flex gap-2">
+                        <button class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] uppercase rounded-lg transition-colors">Ajustar Precios (+15%)</button>
+                    </div>
+                </div>
+
+                <!-- Glovo -->
+                <div class="glass-panel p-6 flex flex-col">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex gap-4 items-center">
+                            <div class="platform-logo bg-glovo">GL</div>
+                            <div>
+                                <h3 class="font-black text-slate-900">Glovo</h3>
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Pedidos (Hoy)</p>
+                            <p class="text-xl font-black text-slate-900">28</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Facturación</p>
+                            <p class="text-xl font-black text-slate-900">€512<span class="text-xs text-slate-400">.80</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-slate-100 flex gap-2">
+                        <button class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] uppercase rounded-lg transition-colors">Ajustar Precios (+18%)</button>
+                    </div>
+                </div>
+
+                <!-- Just Eat -->
+                <div class="glass-panel p-6 flex flex-col">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex gap-4 items-center">
+                            <div class="platform-logo bg-justeat">JE</div>
+                            <div>
+                                <h3 class="font-black text-slate-900">Just Eat</h3>
+                                <p class="text-[10px] font-bold text-amber-500 uppercase flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pausado (Pico)</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Pedidos (Hoy)</p>
+                            <p class="text-xl font-black text-slate-900">12</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">Facturación</p>
+                            <p class="text-xl font-black text-slate-900">€240<span class="text-xs text-slate-400">.00</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-slate-100 flex gap-2">
+                        <button class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] uppercase rounded-lg transition-colors">Ajustar Precios (+10%)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Registro de Errores e Integración</h3>
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                    <p class="text-sm text-slate-600">Todos los menús, fotos y descripciones están <strong class="text-emerald-600">100% sincronizados</strong> con la base de datos central. No hay errores de inyección de pedidos en TPV.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Aggregators');
+        });
+    </script>
+</body>
+</html>

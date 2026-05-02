@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial & Catering | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Commercial & Catering (B2B)</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión de Grandes Volúmenes y Eventos</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <span class="material-symbols-outlined text-[18px]">post_add</span>
+                    Nuevo Presupuesto B2B
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Kanban Board Style for Budgets -->
+                <div class="glass-panel p-6 bg-slate-50/50">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Nuevos Leads (Leads)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-sm font-bold text-slate-800">Cena Empresa 'TechCorp'</h4>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-[9px] font-black rounded-md">150 Pax</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-3">Interés en Menú Gourmet (Brasa).</p>
+                            <p class="text-lg font-black text-indigo-600">~€2,500</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 bg-slate-50/50">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Presupuestado (Sent)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-sm font-bold text-slate-800">Boda 'García-López'</h4>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-[9px] font-black rounded-md">80 Pax</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-3">Enviado hace 2 días. Seguimiento requerido.</p>
+                            <p class="text-lg font-black text-indigo-600">€1,840</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 bg-emerald-50/30">
+                    <h3 class="text-xs font-black text-emerald-900 uppercase tracking-wider mb-4 border-b border-emerald-200 pb-2">Confirmados (Won)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white border border-emerald-200 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-sm font-bold text-slate-800">Rodaje Netflix (Día 1)</h4>
+                                <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded-md">200 Pax</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-3">Fecha: 15 de Junio. Pagado 50% anticipo.</p>
+                            <p class="text-lg font-black text-emerald-600">€4,200</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 bg-slate-50/50">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Ejecutados (Done)</h3>
+                    <p class="text-xs text-slate-400 italic">No hay eventos recientes finalizados esta semana.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('B2B Sales');
+        });
+    </script>
+</body>
+</html>

@@ -17,7 +17,7 @@
         .production-card:hover { transform: translateY(-5px); border-top-color: var(--brand-primary); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen" data-active-module="Producción">
     <div class="bg-grid-industrial"></div>
 
     <div class="flex h-screen overflow-hidden">
@@ -33,8 +33,8 @@
                 </div>
                 <div class="flex gap-4">
                     <div class="glass-panel px-8 py-5 rounded-2xl flex items-center gap-4">
-                        <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Hornos al 85%</p>
+                        <div id="temp-indicator" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                        <p id="temp-text" class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Hornos al 85%</p>
                     </div>
                 </div>
             </header>
@@ -50,14 +50,14 @@
                     <div class="space-y-6">
                         <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
                             <span class="text-slate-400">Capacidad</span>
-                            <span class="text-slate-900">12 / 15 Pollos</span>
+                            <span id="capacity-val" class="text-slate-900">12 / 15 Pollos</span>
                         </div>
                         <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-red-500" style="width: 80%"></div>
+                            <div id="capacity-bar" class="h-full bg-red-500 transition-all duration-1000" style="width: 80%"></div>
                         </div>
                         <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
                             <span class="text-slate-400">Tiempo Restante</span>
-                            <span class="text-red-600 font-black">22 min</span>
+                            <span id="timer-val" class="text-red-600 font-black">22 min</span>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                         <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Optimizada</span>
                     </div>
                     <div class="space-y-4">
-                        <p class="text-5xl font-black text-slate-900 tracking-tighter">94%</p>
+                        <p id="efficiency-val" class="text-5xl font-black text-slate-900 tracking-tighter">94%</p>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio de merma: 1.2% (Muy Bajo)</p>
                     </div>
                 </div>
@@ -99,27 +99,59 @@
                 <div class="h-px flex-1 bg-slate-50 mx-10"></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Orders -->
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-l-red-500">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido #402</p>
-                    <p class="text-sm font-black text-slate-900 uppercase">2x Pollo XL + Bravas</p>
-                    <p class="text-[9px] font-bold text-red-600 uppercase mt-4">Prioridad Alta • 12min</p>
-                </div>
-                <div class="glass-panel p-6 rounded-3xl">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido #403</p>
-                    <p class="text-sm font-black text-slate-900 uppercase">1x Combo Familiar</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-4">Pendiente • 18min</p>
-                </div>
+            <div id="order-queue" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Orders will be injected here -->
             </div>
         </main>
     </div>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        window.onload = () => {
-            EnterpriseShell.init('Producción');
+        // Production Unit Logic
+        const ProductionHub = {
+            init() {
+                this.updateClock();
+                this.loadQueue();
+                this.simulateSensors();
+                console.log("[Production Hub] System Ready.");
+            },
+
+            updateClock() {
+                // Future implementation for real-time clock if needed
+            },
+
+            loadQueue() {
+                const queue = [
+                    { id: '402', desc: '2x Pollo XL + Bravas', status: 'Prioridad Alta', time: '12min', color: 'red' },
+                    { id: '403', desc: '1x Combo Familiar', status: 'Pendiente', time: '18min', color: 'slate' },
+                    { id: '404', desc: '3x Menú Infantil', status: 'En preparación', time: '5min', color: 'emerald' },
+                    { id: '405', desc: '1x Costillar BBQ', status: 'Pendiente', time: '25min', color: 'slate' }
+                ];
+
+                const container = document.getElementById('order-queue');
+                container.innerHTML = queue.map(order => `
+                    <div class="glass-panel p-6 rounded-3xl border-l-4 border-l-${order.color}-500 hover:scale-105 transition-all duration-300">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido #${order.id}</p>
+                        <p class="text-sm font-black text-slate-900 uppercase">${order.desc}</p>
+                        <p class="text-[9px] font-bold text-${order.color}-600 uppercase mt-4">${order.status} • ${order.time}</p>
+                    </div>
+                `).join('');
+            },
+
+            simulateSensors() {
+                setInterval(() => {
+                    const efficiency = 90 + Math.floor(Math.random() * 8);
+                    const effEl = document.getElementById('efficiency-val');
+                    if (effEl) effEl.innerText = `${efficiency}%`;
+
+                    const temp = 180 + Math.floor(Math.random() * 20);
+                    const tempEl = document.getElementById('temp-text');
+                    if (tempEl) tempEl.innerText = `Temp: ${temp}°C (Estable)`;
+                }, 3000);
+            }
         };
+
+        window.onload = () => ProductionHub.init();
     </script>
 </body>
 </html>
