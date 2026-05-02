@@ -1,27 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
-from backend.services.aoi_engine import aoi_engine
-from typing import List, Dict
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from backend.database import get_db
+from backend.services.aoi_engine import AOIEngine
 
-router = APIRouter(prefix="/api/aoi", tags=["AOI"])
+router = APIRouter(prefix="/api/aoi", tags=["AI Intelligence"])
 
-@router.get("/status")
-async def get_aoi_status():
-    return {
-        "engine": "Singularity AOI",
-        "version": aoi_engine.version,
-        "status": "OPERATIONAL",
-        "health": 99.8
-    }
+@router.get("/predictive")
+def get_predictive_analysis(db: Session = Depends(get_db)):
+    return AOIEngine.predict_sales_next_24h(db)
 
-@router.get("/forecast")
-async def get_forecast(days: int = 7):
-    return aoi_engine.generate_future_forecast(days)
+@router.get("/esg")
+def get_esg_report(db: Session = Depends(get_db)):
+    return AOIEngine.get_esg_impact_summary(db)
 
-@router.get("/insights")
-async def get_insights():
-    # In a real app, we'd pass real data here
-    return aoi_engine.analyze_business_state([])
-
-@router.get("/actions")
-async def get_actions():
-    return aoi_engine.get_strategic_actions()
+@router.get("/optimization")
+def get_menu_optimization(db: Session = Depends(get_db)):
+    return AOIEngine.get_menu_optimization_tips(db)

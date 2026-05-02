@@ -3,190 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Analytics | Carbones y Pollos</title>
+    <title>Quantum Analytics | Carbones Singularity</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
-    <meta name="google" content="notranslate">
+    <script src="/static/js/enterprise_ui.js"></script>
+    <style>
+        body { background: #0a0a0f; color: #fff; font-family: 'Outfit', sans-serif; overflow: hidden; }
+        .quantum-canvas { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0f 100%); }
+        .glass-container { backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 3s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .metric-card { border-left: 4px solid #4f46e5; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .metric-card:hover { transform: translateY(-5px) scale(1.02); background: rgba(255,255,255,0.05); border-left-width: 8px; }
+    </style>
 </head>
-<body data-active-module="Analytics" class="min-h-screen">
-    <div class="bg-grid-industrial"></div>
+<body class="h-screen flex flex-col">
+    <div class="quantum-canvas"></div>
+    
+    <!-- Enterprise Shell Integration -->
+    <div id="shell-root"></div>
 
-    <div class="flex h-screen overflow-hidden">
-        <div id="enterprise-sidebar"></div>
+    <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <header class="mb-12">
+            <div class="flex items-center gap-4 mb-4">
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-[10px] font-black rounded-full border border-indigo-500/30 tracking-widest uppercase">Singularity v9.0</span>
+                <div class="h-px flex-1 bg-white/5"></div>
+            </div>
+            <h1 class="text-7xl font-black tracking-tighter uppercase mb-2">Quantum <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Analytics</span></h1>
+            <p class="text-slate-400 text-sm font-light tracking-wide uppercase">Unidad de Inteligencia Operativa y Predictiva</p>
+        </header>
 
-        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
-                <div>
-                    <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Business Intelligence Unit</p>
-                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
-                        Master <span class="text-indigo-600">Analytics</span>
-                    </h1>
-                </div>
-                <div class="flex gap-4">
-                    <div class="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4">
-                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Periodo: Hoy</p>
+        <!-- Dynamic Metrics -->
+        <div id="telemetry-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Predictive Trends -->
+            <div class="lg:col-span-2 glass-container p-8 rounded-[2.5rem]">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xs font-black uppercase tracking-[0.4em] text-slate-300">Proyección de Demanda (AI)</h3>
+                    <div class="flex gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[9px] font-bold text-emerald-500 uppercase">Live Optimizer Active</span>
                     </div>
                 </div>
-            </header>
-
-        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
-
-            <!-- Intelligence Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
-                <div class="lg:col-span-3 glass-panel p-10 rounded-[3rem]">
-                    <div class="flex justify-between items-center mb-10">
-                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em]">Curva de Rendimiento Operativo</h4>
-                        <div class="flex gap-2">
-                            <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
-                        </div>
-                    </div>
-                    <canvas id="performanceChart" height="120"></canvas>
-                </div>
-                <div class="space-y-8">
-                    <div class="glass-panel p-8 rounded-[2.5rem] bg-indigo-600 text-white shadow-xl shadow-indigo-200">
-                        <p class="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2">Ticket Promedio</p>
-                        <h3 class="text-4xl font-black tracking-tighter mb-4">24.50€</h3>
-                        <div class="h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                            <div class="h-full w-3/4 bg-white rounded-full"></div>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-8 rounded-[2.5rem]">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Conversión Kiosko</p>
-                        <h3 class="text-4xl font-black text-slate-900 tracking-tighter">68%</h3>
-                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-2">+12% vs ayer</p>
-                    </div>
+                <div class="h-[400px]">
+                    <canvas id="predictiveChart"></canvas>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Top Products -->
-                <div class="glass-panel p-10 rounded-[3rem]">
-                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-8 pb-6 border-b border-slate-50">Top Performance Products</h4>
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center font-black text-orange-600">01</div>
-                                <div>
-                                    <p class="text-sm font-black text-slate-900 uppercase">Pollo Asado XL</p>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase">142 Unidades vendidas</p>
-                                </div>
+            <!-- Yield & Market -->
+            <div class="flex flex-col gap-6">
+                <div class="glass-container p-8 rounded-[2.5rem] flex-1">
+                    <h3 class="text-xs font-black uppercase tracking-[0.4em] text-slate-300 mb-6">Yield Pricing Engine</h3>
+                    <div id="yield-status" class="space-y-6">
+                        <!-- Dynamic Content -->
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Multiplier</p>
+                                <p id="yield-multiplier" class="text-5xl font-black text-indigo-400">1.000x</p>
                             </div>
-                            <p class="text-sm font-black text-slate-900">1.846€</p>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Sentiment</p>
+                                <p id="market-sentiment" class="text-xl font-black text-emerald-400">STABLE</p>
+                            </div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center font-black text-indigo-600">02</div>
-                                <div>
-                                    <p class="text-sm font-black text-slate-900 uppercase">Costillas Barbacoa</p>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase">86 Unidades vendidas</p>
-                                </div>
-                            </div>
-                            <p class="text-sm font-black text-slate-900">1.240€</p>
+                        <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div id="yield-progress" class="h-full bg-indigo-500 transition-all duration-1000" style="width: 50%"></div>
+                        </div>
+                        <div id="yield-factors" class="grid grid-cols-2 gap-4">
+                            <!-- Factors -->
                         </div>
                     </div>
                 </div>
-
-                <!-- Driver Performance -->
-                <div class="glass-panel p-10 rounded-[3rem]">
-                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-8 pb-6 border-b border-slate-50">Logistics Efficiency</h4>
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiempo Medio Entrega</p>
-                            <p class="text-xl font-black text-slate-900">22 min</p>
+                
+                <div class="glass-container p-8 rounded-[2.5rem] border-emerald-500/20">
+                    <h3 class="text-xs font-black uppercase tracking-[0.4em] text-emerald-400 mb-6">Logistics Optimization</h3>
+                    <div id="logistics-status" class="space-y-4">
+                        <div class="flex justify-between text-[10px] font-black uppercase">
+                            <span class="text-slate-500">Efficiency Score</span>
+                            <span id="log-score" class="text-white">94.5%</span>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pedidos / Hora</p>
-                            <p class="text-xl font-black text-emerald-600">4.2</p>
+                        <div class="flex justify-between text-[10px] font-black uppercase">
+                            <span class="text-slate-500">Active Drivers</span>
+                            <span id="log-drivers" class="text-white">4</span>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Calificación Media</p>
-                            <p class="text-xl font-black text-amber-500">4.8 / 5.0</p>
+                        <div class="flex justify-between text-[10px] font-black uppercase">
+                            <span class="text-slate-500">AVG ETA</span>
+                            <span id="log-eta" class="text-white">12.4m</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+
+        <!-- Global Node Matrix -->
+        <div class="glass-container p-10 rounded-[3rem] mb-12">
+            <h3 class="text-xs font-black uppercase tracking-[0.4em] text-slate-300 mb-10 pb-6 border-b border-white/5">Matriz de Rendimiento por Nodo</h3>
+            <div id="nodes-table"></div>
+        </div>
+    </main>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        window.onload = () => {
-            EnterpriseShell.init('Analytics Master');
-            initChart();
-        };
+        let predictiveChart;
 
-        function initChart() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            new Chart(ctx, {
+        async function initAnalytics() {
+            EnterpriseShell.init('Quantum Analytics');
+            await refreshData();
+            setInterval(refreshData, 15000);
+            initPredictiveChart();
+        }
+
+        async function refreshData() {
+            try {
+                const res = await fetch('/api/enterprise/global-status');
+                const data = await res.json();
+                
+                renderTelemetry(data);
+                updateYield(data.market);
+                updateLogistics(data.logistics);
+                renderNodesTable(data.nodes);
+            } catch (e) { console.error("Quantum Sync Error:", e); }
+        }
+
+        function renderTelemetry(data) {
+            const container = document.getElementById('telemetry-grid');
+            container.innerHTML = '';
+            
+            const metrics = [
+                { title: 'Global Sales', val: (data.market.multiplier * 450).toFixed(2), unit: '€', icon: 'fa-money-bill-trend-up', color: 'indigo' },
+                { title: 'IoT Fleet', val: data.nodes.iot_devices, unit: 'UNITS', icon: 'fa-robot', color: 'purple' },
+                { title: 'Efficiency', val: data.performance.delivery_efficiency, unit: '', icon: 'fa-bolt-lightning', color: 'emerald' },
+                { title: 'AI Status', val: 'OPTIMAL', unit: 'SECURE', icon: 'fa-brain', color: 'blue' }
+            ];
+
+            metrics.forEach(m => {
+                const card = document.createElement('div');
+                card.className = `glass-container p-6 rounded-3xl metric-card border-${m.color}-500/20`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest">${m.title}</p>
+                        <i class="fa-solid ${m.icon} text-${m.color}-500 text-xs"></i>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-black tracking-tighter">${m.val}</span>
+                        <span class="text-[10px] font-bold text-slate-500">${m.unit}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateYield(market) {
+            document.getElementById('yield-multiplier').innerText = market.multiplier.toFixed(3) + 'x';
+            document.getElementById('market-sentiment').innerText = market.sentiment;
+            document.getElementById('market-sentiment').className = `text-xl font-black ${market.sentiment === 'BULLISH' ? 'text-indigo-400' : 'text-emerald-400'}`;
+            document.getElementById('yield-progress').style.width = (market.multiplier - 0.9) * 500 + '%';
+            
+            const factors = document.getElementById('yield-factors');
+            factors.innerHTML = Object.entries(market.active_factors).map(([k, v]) => `
+                <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                    <p class="text-[8px] font-black text-slate-500 uppercase mb-1">${k.replace('_', ' ')}</p>
+                    <p class="text-xs font-black text-white">${v.toFixed(2)}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateLogistics(log) {
+            document.getElementById('log-score').innerText = log.score + '%';
+            document.getElementById('log-drivers').innerText = log.drivers_active;
+            document.getElementById('log-eta').innerText = log.average_eta;
+        }
+
+        function renderNodesTable(nodes) {
+            const container = document.getElementById('nodes-table');
+            const tableData = [
+                { id: 'NODE-01', location: 'Main Kitchen', status: 'ONLINE', capacity: '84%', health: '99%' },
+                { id: 'NODE-02', location: 'Ghost Brand A', status: 'ONLINE', capacity: '42%', health: '98%' },
+                { id: 'NODE-03', location: 'Logistics Hub', status: 'STANDBY', capacity: '12%', health: '100%' },
+                { id: 'NODE-04', location: 'B2C Kiosk', status: 'ONLINE', capacity: '91%', health: '99.9%' }
+            ];
+
+            container.innerHTML = EnterpriseUI.createTable(
+                ['NODE ID', 'UBICACIÓN', 'ESTADO', 'CARGA', 'HEALTH'],
+                tableData.map(n => [
+                    `<span class="font-black text-indigo-400">${n.id}</span>`,
+                    n.location,
+                    `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-black">${n.status}</span>`,
+                    n.capacity,
+                    `<span class="text-emerald-500 font-bold">${n.health}</span>`
+                ])
+            );
+        }
+
+        function initPredictiveChart() {
+            const ctx = document.getElementById('predictiveChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
+
+            predictiveChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                    labels: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
                     datasets: [{
-                        label: 'Ventas (€)',
-                        data: [120, 450, 180, 240, 890, 1100],
+                        label: 'Demanda Real',
+                        data: [45, 52, 98, 85, 40, 35, 60, 110, 145, 120],
                         borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                        fill: true,
-                        tension: 0.4,
                         borderWidth: 4,
-                        pointRadius: 0
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.4
+                    }, {
+                        label: 'Proyección AI',
+                        data: [45, 55, 100, 90, 45, 38, 65, 120, 150, 135],
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { display: false },
-                        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 } } }
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b', font: { family: 'Outfit', weight: 'bold' } }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { family: 'Outfit', weight: 'bold' } }
+                        }
                     }
                 }
             });
         }
-    </script>
-    <script src="/static/js/enterprise_ui.js"></script>
 
-    <script>
-        window.addEventListener('load', () => {
-            if (typeof EnterpriseUI !== 'undefined') {
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Estado del Nodo',
-                    value: 'ACTIVO',
-                    unit: 'SECURE',
-                    trend: 'up',
-                    trendValue: '100%',
-                    icon: 'fa-server'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Carga de Trabajo',
-                    value: Math.floor(Math.random() * 40 + 20),
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'LOW',
-                    icon: 'fa-microchip'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Latencia Sync',
-                    value: Math.floor(Math.random() * 50 + 10),
-                    unit: 'ms',
-                    trend: 'down',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-bolt'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Seguridad',
-                    value: 'V4.0',
-                    unit: 'SSL',
-                    trend: 'up',
-                    trendValue: 'MAX',
-                    icon: 'fa-shield-halved'
-                });
-            }
-        });
+        window.onload = initAnalytics;
     </script>
-            
 </body>
 </html>

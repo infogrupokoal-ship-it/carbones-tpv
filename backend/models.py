@@ -479,3 +479,17 @@ class BatchTraceability(Base):
     temperatura_recepcion = Column(Float)
     blockchain_hash = Column(String(128))
     status = Column(String(20)) # OK, QUARANTINE, REJECTED
+
+class AIConfig(Base):
+    __tablename__ = "ai_configs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    clave = Column(String(50), unique=True)
+    valor = Column(Text)
+    description = Column(String(255))
+
+class GlobalState(Base):
+    __tablename__ = "global_state"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    key = Column(String(50), unique=True)
+    value = Column(Text)
+    last_updated = Column(DateTime, default=datetime.utcnow)

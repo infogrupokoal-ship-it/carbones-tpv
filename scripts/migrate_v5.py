@@ -4,7 +4,12 @@ import os
 # Añadir path del proyecto
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from sqlalchemy import text
 from backend.database import engine, Base
+from backend.models import (
+    FinancialSnapshot, FranchiseContract, CallInteraction, MenuPerformance,
+    BatchTraceability, AIConfig, GlobalState
+)
 
 def run_migration():
     print("🚀 INICIANDO MIGRACIÓN ESTRUCTURAL V5.1...")
@@ -12,29 +17,28 @@ def run_migration():
         # 1. Crear tablas si no existen
         Base.metadata.create_all(bind=engine)
         
-        # 2. Inyección manual de columnas (SQLite no soporta ADD COLUMN condicional nativo en una sola sentencia simple para todas)
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             # Productos
             try:
-                conn.execute("ALTER TABLE productos ADD COLUMN alergenos VARCHAR")
+                conn.execute(text("ALTER TABLE productos ADD COLUMN alergenos VARCHAR"))
                 print("➕ Columna 'alergenos' añadida.")
             except: pass
             try:
-                conn.execute("ALTER TABLE productos ADD COLUMN info_nutricional TEXT")
+                conn.execute(text("ALTER TABLE productos ADD COLUMN info_nutricional TEXT"))
                 print("➕ Columna 'info_nutricional' añadida.")
             except: pass
             
             # Soft Deletes (is_active)
             try:
-                conn.execute("ALTER TABLE categorias ADD COLUMN is_active BOOLEAN DEFAULT 1")
+                conn.execute(text("ALTER TABLE categorias ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en categorias añadida.")
             except: pass
             try:
-                conn.execute("ALTER TABLE ingredientes ADD COLUMN is_active BOOLEAN DEFAULT 1")
+                conn.execute(text("ALTER TABLE ingredientes ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en ingredientes añadida.")
             except: pass
             try:
-                conn.execute("ALTER TABLE proveedores ADD COLUMN is_active BOOLEAN DEFAULT 1")
+                conn.execute(text("ALTER TABLE proveedores ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en proveedores añadida.")
             except: pass
                 

@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from backend.database import get_db
@@ -87,12 +87,10 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         top_labels = [p["nombre"] for p in top_productos]
         top_data = [p["ventas"] for p in top_productos]
 
-        # 4. Alertas de Stock (CrÃ­ticas)
-        # Simulado por ahora
-        alerts = [
-            {"item": "Pollo Fresco", "stock": 5, "min": 20},
-            {"item": "Aceite Girasol", "stock": 2, "min": 10}
-        ]
+        # 4. Alertas de Stock (Reales)
+        from backend.models import Ingrediente
+        stock_alerts = db.query(Ingrediente).filter(Ingrediente.stock_actual <= Ingrediente.stock_minimo).all()
+        alerts = [{"item": i.nombre, "stock": i.stock_actual, "min": i.stock_minimo} for i in stock_alerts]
 
         # 5. Pedidos Recientes
         recent = db.query(Pedido).order_by(Pedido.fecha.desc()).limit(5).all()
@@ -100,17 +98,28 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         for r in recent:
             recent_mapped.append({
                 "id": r.id,
-                "cliente": r.cliente.nombre if r.cliente else "AnÃ³nimo",
+                "cliente": r.cliente.nombre if r.cliente else "Anónimo",
                 "total": r.total,
                 "estado": r.estado,
-                "fecha": r.fecha.strftime("%H:%M")
+                "fecha": r.fecha.strftime("%H:%M"),
+                "numero_ticket": r.numero_ticket or "TKT-000",
+                "metodo_pago": r.metodo_pago or "EFECTIVO",
+                "metodo_envio": r.metodo_envio or "LOCAL",
+                "items": [] 
             })
+
+        # 6. Métricas Enterprise V9.2 (ESG & Robotics)
+        from backend.models import ESGMétrics, RoboticsTelemetry
+        esg = db.query(ESGMétrics).order_by(ESGMétrics.fecha.desc()).first()
+        robotics = db.query(RoboticsTelemetry).filter(RoboticsTelemetry.status == "CRITICAL").count()
 
         return {
             "kpis": {
                 "ventas_hoy": float(ventas_hoy),
                 "pedidos_count": pedidos_hoy,
-                "satisfaccion": 4.8
+                "satisfaccion": 4.8,
+                "esg_score": esg.co2_saved_kg if esg else 0,
+                "robotics_incidents": robotics
             },
             "charts": {
                 "horas": {"labels": horas_labels, "data": horas_data},

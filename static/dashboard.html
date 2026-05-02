@@ -229,6 +229,12 @@
                 document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_count;
                 document.getElementById('kpi-margen').innerText = data.kpis.satisfaccion + "/5.0";
                 document.getElementById('kpi-avg-ticket').innerText = (data.kpis.ventas_hoy / (data.kpis.pedidos_count || 1)).toFixed(2) + '€';
+                
+                // Update Enterprise Nodes
+                if (data.kpis.esg_score) {
+                    const esgNode = document.querySelector('[title="Seguridad"]'); // Reusing slot
+                    if(esgNode) esgNode.querySelector('.text-2xl').innerText = data.kpis.esg_score + ' kg CO2';
+                }
 
                 updateSalesChart(data.charts.horas);
                 renderTopProducts(data.charts.top_pollos);

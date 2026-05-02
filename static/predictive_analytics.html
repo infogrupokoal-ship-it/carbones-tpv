@@ -3,149 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Predictive Analytics | Carbones y Pollos</title>
+    <title>AOI - Predictive Intelligence | TPV Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #1e293b; }
-        .bg-grid-industrial {
-            position: fixed; inset: 0; z-index: -1; pointer-events: none;
-            background-image: radial-gradient(#6366f1 0.5px, transparent 0.5px);
-            background-size: 30px 30px; opacity: 0.05;
-        }
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .gradient-text { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-shadow { box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body class="min-h-screen p-8 lg:p-20">
-    <div class="bg-grid-industrial"></div>
-    
-    <header class="mb-20 flex justify-between items-end">
+<body class="p-4 lg:p-10">
+    <!-- Shell Header -->
+    <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6">
         <div>
-            <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Autonomous Operational Intelligence</p>
-            <h1 class="text-7xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
-                Predicción <span class="text-indigo-600">Cuántica</span>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-brain gradient-text"></i>
+                AOI <span class="text-slate-300 font-light">|</span> <span class="gradient-text">Predictive Analytics</span>
             </h1>
+            <p class="text-slate-500 font-medium mt-1 uppercase text-[10px] tracking-[0.3em]">Advanced Operations Intelligence V9.2</p>
         </div>
-        <div class="text-right">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Engine Status</p>
-            <div class="flex items-center gap-2 text-emerald-500 font-black text-sm uppercase tracking-tighter mt-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Operational V5.0
-            </div>
+        <div class="flex gap-3">
+            <button onclick="fetchData()" class="px-6 py-3 bg-white text-slate-900 font-black rounded-2xl border border-slate-100 hover:border-indigo-200 transition-all shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-rotate"></i> ACTUALIZAR
+            </button>
+            <button class="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-200 hover:scale-105 active:scale-95 transition-all">
+                EXPORTAR INFORME
+            </button>
         </div>
     </header>
 
-    <!-- Telemetry Stats -->
-    <div id="telemetry-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"></div>
-
-    <!-- Main Forecast Chart -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-        <div class="lg:col-span-2 quantum-glass p-12 rounded-[4rem]">
-            <h3 class="text-lg font-black text-slate-900 tracking-tight uppercase mb-8">Proyección de Demanda (Próximos 7 Días)</h3>
-            <canvas id="forecast-chart" class="w-full"></canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Revenue Prediction -->
+        <div class="lg:col-span-2 glass p-8 rounded-[40px] card-shadow relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-8">
+                <span class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Confidence: <span id="confidence">--</span>%</span>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 mb-8 uppercase tracking-tighter flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-indigo-500"></i> Previsión de Ingresos (24h)
+            </h3>
+            <div class="flex items-end gap-2 mb-10">
+                <span class="text-7xl font-black tracking-tighter text-slate-900" id="predicted-rev">€0.00</span>
+                <span class="text-slate-400 font-bold mb-3 text-xl">estimados</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="factors-container">
+                <!-- Factors will be injected here -->
+            </div>
         </div>
-        <div id="strategic-actions" class="flex flex-col gap-6">
-            <!-- Strategic actions injected here -->
+
+        <!-- ESG Monitoring -->
+        <div class="bg-slate-900 p-8 rounded-[40px] text-white card-shadow relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/20 blur-3xl rounded-full"></div>
+            <h3 class="text-xl font-black mb-8 uppercase tracking-tighter flex items-center gap-2">
+                <i class="fa-solid fa-leaf text-emerald-400"></i> ESG Impact Tracker
+            </h3>
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-sm font-bold">CO2 Ahorrado</span>
+                    <span class="text-xl font-black text-emerald-400" id="co2-saved">-- kg</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-sm font-bold">Desperdicio Evitado</span>
+                    <span class="text-xl font-black text-emerald-400" id="waste-saved">-- kg</span>
+                </div>
+                <div class="pt-6 border-t border-slate-800">
+                    <div class="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                        <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-1">Status Ambiental</span>
+                        <span class="text-lg font-black" id="esg-rating">Analizando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Engineering -->
+        <div class="lg:col-span-3 glass p-8 rounded-[40px] card-shadow">
+            <h3 class="text-xl font-black text-slate-900 mb-8 uppercase tracking-tighter flex items-center gap-2">
+                <i class="fa-solid fa-utensils text-indigo-500"></i> Optimizador de Carta (AI-Driven)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="opt-container">
+                <!-- Optimization tips will be injected here -->
+            </div>
         </div>
     </div>
 
-    <script src="/static/js/enterprise_shell.js"></script>
-    <script src="/static/js/enterprise_ui.js"></script>
     <script>
-        async function loadPredictiveData() {
+        async function fetchData() {
             try {
-                // Load Insights
-                const insightRes = await fetch('/api/aoi/insights');
-                const insightData = await insightRes.json();
+                // Prediction
+                const predRes = await fetch('/api/aoi/predictive');
+                const predData = await predRes.json();
+                document.getElementById('predicted-rev').innerText = `€${predData.predicted_revenue.toFixed(2)}`;
+                document.getElementById('confidence').innerText = predData.confidence_score;
                 
-                EnterpriseUI.renderKPICard('telemetry-grid', {
-                    title: 'Puntuación de Salud',
-                    value: insightData.health_score,
-                    unit: 'pts',
-                    trend: 'up',
-                    trendValue: '+2.4%',
-                    icon: 'fa-heart-pulse'
-                });
-                
-                EnterpriseUI.renderKPICard('telemetry-grid', {
-                    title: 'Eficiencia Operativa',
-                    value: insightData.efficiency,
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-gears'
-                });
+                const factorsCont = document.getElementById('factors-container');
+                factorsCont.innerHTML = predData.factors.map(f => `
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Factor de Impacto</span>
+                        <span class="text-sm font-bold text-slate-800">${f}</span>
+                    </div>
+                `).join('');
 
-                // Load Forecast
-                const forecastRes = await fetch('/api/aoi/forecast');
-                const forecastData = await forecastRes.json();
-                renderForecastChart(forecastData);
+                // ESG
+                const esgRes = await fetch('/api/aoi/esg');
+                const esgData = await esgRes.json();
+                document.getElementById('co2-saved').innerText = `${esgData.co2_saved_kg} kg`;
+                document.getElementById('waste-saved').innerText = `${esgData.food_waste_saved_kg} kg`;
+                document.getElementById('esg-rating').innerText = esgData.rating;
 
-                // Load Actions
-                const actionsRes = await fetch('/api/aoi/actions');
-                const actionsData = await actionsRes.json();
-                renderActions(actionsData);
+                // Optimization
+                const optRes = await fetch('/api/aoi/optimization');
+                const optData = await optRes.json();
+                const optCont = document.getElementById('opt-container');
+                optCont.innerHTML = optData.map(o => `
+                    <div class="p-6 bg-white border border-slate-100 rounded-3xl hover:shadow-xl transition-all">
+                        <span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">${o.action}</span>
+                        <h4 class="text-lg font-black text-slate-900 mt-4">${o.product}</h4>
+                        <p class="text-slate-500 text-xs font-medium mt-1">${o.reason}</p>
+                    </div>
+                `).join('');
 
-            } catch (e) {
-                console.error("AOI Loading Error:", e);
-                EnterpriseUI.showToast("Error conectando con el motor AOI", "error");
+            } catch (error) {
+                console.error("Error fetching AOI data:", error);
             }
         }
 
-        function renderForecastChart(data) {
-            const ctx = document.getElementById('forecast-chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => d.date),
-                    datasets: [{
-                        label: 'Ventas Proyectadas',
-                        data: data.map(d => d.expected_sales),
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 4,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#6366f1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { display: false }, border: { display: false } },
-                        x: { grid: { display: false }, border: { display: false } }
-                    }
-                }
-            });
-        }
-
-        function renderActions(actions) {
-            const container = document.getElementById('strategic-actions');
-            container.innerHTML = `
-                <div class="quantum-glass p-10 rounded-[3rem] bg-indigo-600 text-white shadow-indigo-200">
-                    <p class="text-[9px] font-black uppercase tracking-[0.3em] mb-4 opacity-70 text-indigo-100">AI Recommendation</p>
-                    <h4 class="text-xl font-black tracking-tight leading-tight">Optimización Automática Detectada</h4>
-                    <p class="text-xs font-bold text-indigo-100 mt-4 leading-relaxed">El motor AOI sugiere re-balancear el personal del KDS ante el pico de demanda del Sábado.</p>
-                </div>
-            ` + actions.map(a => `
-                <div class="quantum-glass p-10 rounded-[3rem] group hover:bg-white transition-all cursor-pointer">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">${a.module}</p>
-                    <h4 class="text-sm font-black text-slate-900 uppercase tracking-tight mb-4">${a.action}</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-full bg-slate-50 text-slate-400 text-[8px] font-black uppercase tracking-widest">${a.impact} IMPACT</span>
-                        <span class="text-indigo-600 text-[10px] font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform">Ejecutar <i class="fas fa-arrow-right ml-1"></i></span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.onload = () => {
-            EnterpriseShell.init('Analytics');
-            loadPredictiveData();
-        };
+        window.onload = fetchData;
     </script>
 </body>
 </html>

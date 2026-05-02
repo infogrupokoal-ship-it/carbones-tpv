@@ -6,6 +6,9 @@
 const EnterpriseShell = {
     version: '4.0.0-Singularity',
     modules: [
+        { icon: 'fa-chart-pie', label: 'Predictive BI', url: '/static/analytics.html' },
+        { icon: 'fa-cube', label: 'Matrix', url: '/static/matrix.html' },
+        { icon: 'fa-box', label: 'Inventario', url: '/static/stock.html' },
         { id: 'Portal', icon: '🏠', path: '/static/portal.html', category: 'Core' },
         { id: 'Caja', icon: '💰', path: '/static/caja.html', category: 'Core' },
         { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
@@ -22,6 +25,7 @@ const EnterpriseShell = {
         { id: 'Fleet', icon: '🚚', path: '/static/fleet_map.html', category: 'Logistics' },
         { id: 'Traceability', icon: 'qr_code_scanner', path: '/static/supply_chain.html', category: 'Logistics' },
         
+        { id: 'Predicción', icon: '🧠', path: '/static/predictive_analytics.html', category: 'Management' },
         { id: 'Analytics', icon: '📊', path: '/static/stats.html', category: 'Management' },
         { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
         { id: 'RRHH', icon: '👥', path: '/static/rrhh.html', category: 'Management' },
@@ -183,7 +187,7 @@ const EnterpriseShell = {
             <div class="p-8 flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-indigo-200 animate-pulse">⚡</div>
                 <div class="hidden lg:block">
-                    <h1 class="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">Carbones <span class="text-indigo-600">Enterprise</span></h1>
+                    <h1 class="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">Carbones <span class="text-indigo-600">Quantum</span></h1>
                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Industrial Control Node</p>
                 </div>
             </div>

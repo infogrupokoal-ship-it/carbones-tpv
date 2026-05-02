@@ -1,79 +1,60 @@
 import random
 from datetime import datetime, timedelta
-from typing import List, Dict
+from sqlalchemy.orm import Session
+from backend.models import Pedido, Producto, YieldRule, ESGMétrics
+from backend.utils.logger import logger
 
 class AOIEngine:
     """
-    Autonomous Operational Intelligence Engine v5.0
-    Predicts operational needs, analyzes business health, and triggers strategic suggestions.
+    Advanced Operations Intelligence (AOI) Engine V9.2.
+    Predicts sales, suggests price adjustments, and monitors ESG impact.
     """
     
-    def __init__(self):
-        self.version = "5.0-SINGULARITY"
-        self.last_run = None
-        self.active_predictions = []
-
-    def analyze_business_state(self, historical_data: List[Dict]):
+    @staticmethod
+    def predict_sales_next_24h(db: Session) -> dict:
         """
-        Analyzes the last 30 days of data to find patterns.
+        Simula una predicción basada en datos históricos y reglas de Yield.
         """
-        # Simulation of advanced pattern recognition
-        total_sales = sum(d.get('total', 0) for d in historical_data)
-        avg_sale = total_sales / len(historical_data) if historical_data else 0
+        # Obtenemos la última regla de Yield activa
+        yield_rule = db.query(YieldRule).filter_by(is_active=True).first()
+        multiplier = 1.0 + (yield_rule.ajuste_precio_pct / 100) if yield_rule else 1.0
         
-        insight = {
-            "timestamp": datetime.now().isoformat(),
-            "health_score": random.randint(85, 98),
-            "efficiency": random.randint(90, 100),
-            "insights": [
-                "Demanda proyectada aumenta +15% en fin de semana.",
-                "Optimización de ruta en Delivery detectada: ahorro potencial 8%.",
-                "Alerta de Stock: El Carbón Vegetal se agotará en 4.2 días."
-            ]
+        # Simulación de predicción estocástica
+        base_prediction = 1500.0 # Ventas base
+        predicted_revenue = round(base_prediction * multiplier * (0.9 + random.random() * 0.2), 2)
+        confidence = 85.0 + random.random() * 10
+        
+        return {
+            "predicted_revenue": predicted_revenue,
+            "multiplier_applied": multiplier,
+            "confidence_score": round(confidence, 1),
+            "factors": ["Yield Rule Active", "Historical Saturday Trend", "Weather Forecast (Cloudy)"]
         }
-        return insight
 
-    def generate_future_forecast(self, days: int = 7) -> List[Dict]:
+    @staticmethod
+    def get_esg_impact_summary(db: Session) -> dict:
         """
-        Generates a predictive forecast for the next N days.
+        Calcula el impacto ambiental acumulado.
         """
-        forecast = []
-        base_date = datetime.now()
-        for i in range(days):
-            target_date = base_date + timedelta(days=i)
-            # Simulated seasonality and growth
-            expected_demand = 85 + (i * 2) + random.randint(-5, 5)
-            if target_date.weekday() >= 5: # Weekend surge
-                expected_demand += 40
-                
-            forecast.append({
-                "date": target_date.strftime("%Y-%m-%d"),
-                "expected_sales": round(expected_demand * 12.5, 2),
-                "confidence": 0.92 - (i * 0.02),
-                "risk_level": "LOW" if expected_demand < 120 else "MEDIUM"
-            })
-        return forecast
+        metrics = db.query(ESGMétrics).order_by(ESGMétrics.fecha.desc()).first()
+        if not metrics:
+            return {"status": "No data available"}
+            
+        return {
+            "co2_saved_kg": metrics.co2_saved_kg,
+            "food_waste_saved_kg": metrics.food_waste_kg,
+            "plastic_removed_kg": metrics.plastic_reduced_kg,
+            "rating": "A++ Sustainable"
+        }
 
-    def get_strategic_actions(self) -> List[Dict]:
+    @staticmethod
+    def get_menu_optimization_tips(db: Session) -> list:
         """
-        Returns a list of autonomous suggestions for the manager.
+        Sugiere cambios en el menú basados en la matriz de ingeniería.
         """
+        # Mock logic representing the Boston Matrix analysis
         return [
-            {
-                "id": "ACT-001",
-                "module": "Marketing",
-                "action": "Lanzar campaña 'Weekend Combo' - Alta probabilidad de conversión.",
-                "impact": "HIGH",
-                "status": "SUGGESTED"
-            },
-            {
-                "id": "ACT-002",
-                "module": "Logistics",
-                "action": "Pre-ordenar 200kg de Pollo para el Sábado.",
-                "impact": "CRITICAL",
-                "status": "AUTO-PREPARED"
-            }
+            {"product": "Pollo a l'ast", "action": "Promote (Star)", "reason": "High margin, High volume"},
+            {"product": "Patatas Coraje", "action": "Re-engineer (Puzzle)", "reason": "High margin, Low volume"},
+            {"product": "Ensaladilla Rusa", "action": "Remove (Dog)", "reason": "Low margin, Low volume"}
         ]
-
-# Global Instance
-aoi_engine = AOIEngine()

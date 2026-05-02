@@ -63,34 +63,6 @@ const QuantumUI = {
         document.head.appendChild(style);
     },
 
-    renderKPICard(containerId, { title, value, unit, trend, trendValue, icon }) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        this.injectQuantumStyles();
-        
-        const trendColor = trend === 'up' ? 'text-emerald-500' : 'text-rose-500';
-        const trendBg = trend === 'up' ? 'bg-emerald-50' : 'bg-rose-50';
-
-        const card = document.createElement('div');
-        card.className = "quantum-glass p-10 quantum-card group cursor-pointer";
-        card.innerHTML = `
-            <div class="quantum-shimmer"></div>
-            <div class="flex items-start justify-between mb-8">
-                <div class="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="flex items-center gap-2 px-4 py-1.5 rounded-full ${trendBg} ${trendColor} text-[10px] font-black uppercase tracking-widest border border-current opacity-70">
-                    <i class="fas fa-arrow-${trend === 'up' ? 'up' : 'down'}"></i>
-                    ${trendValue}
-                </div>
-            </div>
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">${title}</h3>
-            <div class="flex items-baseline gap-3">
-                <span class="text-5xl font-black text-quantum tracking-tighter">${value}</span>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${unit}</span>
-            </div>
-            <div class="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Quantum Telemetry Active</span>
                 <div class="flex gap-1">
                     <div class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></div>
                     <div class="w-1 h-1 rounded-full bg-emerald-400 opacity-50"></div>
