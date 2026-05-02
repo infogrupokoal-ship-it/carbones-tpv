@@ -3,319 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal HR - Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>Enterprise HR | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <!-- Design System Enterprise -->
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
-    <style>
-        :root {
-            --primary: #3b82f6; /* blue-500 */
-            --bg-base: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.05);
-        }
-        body { 
-            user-select: none; 
-            -webkit-user-select: none; 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            overflow-x: hidden;
-            color: #1e293b;
-        }
-        
-        /* Premium Background Grid */
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-        
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
-            filter: blur(80px);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Glass Panels */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Keypad Styles */
-        .keypad-btn {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            color: #1e293b;
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .keypad-btn:hover {
-            background: #f1f5f9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        .keypad-btn:active {
-            transform: scale(0.95);
-        }
-
-        .action-btn {
-            position: relative;
-            overflow: hidden;
-        }
-        .action-btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        @keyframes pulse-bg {
-            0% { opacity: 0.6; }
-            50% { opacity: 0.3; }
-            100% { opacity: 0.6; }
-        }
-        .skeleton-loader {
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            animation: pulse-bg 1.5s infinite;
-        }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-    </style>
 </head>
-<body class="min-h-screen text-slate-600">
-    
-    <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
+<body class="min-h-screen">
+    <div class="bg-grid-industrial"></div>
 
-    <!-- Enterprise Sidebar will be injected here -->
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
 
-    <div class="flex h-screen overflow-hidden relative z-10">
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-8 xl:p-12 custom-scrollbar">
-            
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        <main class="flex-1 p-8 lg:p-20 overflow-y-auto">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
                 <div>
-                    <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Recursos <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Humanos</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Staff Portal • Control Center v3.0
-                    </p>
+                    <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Human Resources Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Gestión <span class="text-indigo-600">Talento</span>
+                    </h1>
+                </div>
+                <div id="clock-display" class="glass-panel px-10 py-6 rounded-3xl font-black text-4xl text-slate-900 tracking-tighter">
+                    00:00:00
                 </div>
             </header>
 
-            <div class="flex flex-col lg:flex-row gap-8">
-                
-                <!-- Panel Izquierdo: Fichaje -->
-                <div class="w-full lg:w-5/12 xl:w-4/12 flex-shrink-0">
-                    <div class="glass-panel rounded-3xl p-8 text-center relative overflow-hidden">
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
-                        
-                        <h2 class="text-lg font-black mb-8 tracking-widest text-slate-900 uppercase flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            Terminal de Fichaje
-                        </h2>
-                        
-                        <div id="pin-display" class="text-5xl tracking-[0.4em] text-center bg-white/80 text-slate-900 p-6 rounded-2xl min-h-[96px] mb-8 font-mono border border-slate-100 shadow-inner flex items-center justify-center"></div>
-                        
-                        <div class="grid grid-cols-3 gap-4 mb-10 place-items-center max-w-[260px] mx-auto">
-                            <button class="keypad-btn" onclick="addPin('1')">1</button>
-                            <button class="keypad-btn" onclick="addPin('2')">2</button>
-                            <button class="keypad-btn" onclick="addPin('3')">3</button>
-                            <button class="keypad-btn" onclick="addPin('4')">4</button>
-                            <button class="keypad-btn" onclick="addPin('5')">5</button>
-                            <button class="keypad-btn" onclick="addPin('6')">6</button>
-                            <button class="keypad-btn" onclick="addPin('7')">7</button>
-                            <button class="keypad-btn" onclick="addPin('8')">8</button>
-                            <button class="keypad-btn" onclick="addPin('9')">9</button>
-                            <button class="keypad-btn bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20" onclick="clearPin()">C</button>
-                            <button class="keypad-btn" onclick="addPin('0')">0</button>
-                            <button class="keypad-btn bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20" onclick="delPin()">⌫</button>
-                        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Clock-in Keypad -->
+                <div class="glass-panel p-16 rounded-[4rem] flex flex-col items-center">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-12">Autenticación de Turno</h4>
+                    
+                    <div id="pin-display" class="flex gap-4 mb-12">
+                        <div class="w-4 h-4 rounded-full border-2 border-slate-200"></div>
+                        <div class="w-4 h-4 rounded-full border-2 border-slate-200"></div>
+                        <div class="w-4 h-4 rounded-full border-2 border-slate-200"></div>
+                        <div class="w-4 h-4 rounded-full border-2 border-slate-200"></div>
+                    </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <button class="action-btn bg-emerald-600 hover:bg-emerald-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(16,185,129,0.5)] border border-emerald-500" onclick="fichar('ENTRADA')">Entrada</button>
-                            <button class="action-btn bg-red-600 hover:bg-red-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(239,68,68,0.5)] border border-red-500" onclick="fichar('SALIDA')">Salida</button>
-                            <button class="action-btn bg-amber-500 hover:bg-amber-400 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(245,158,11,0.5)] border border-amber-400" onclick="fichar('INICIO_PAUSA')">Pausa</button>
-                            <button class="action-btn bg-blue-600 hover:bg-blue-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] border border-blue-500" onclick="fichar('FIN_PAUSA')">Fin Pausa</button>
-                        </div>
+                    <div class="grid grid-cols-3 gap-8">
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">1</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">2</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">3</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">4</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">5</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">6</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">7</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">8</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">9</button>
+                        <button class="w-20 h-20 rounded-full bg-slate-50 border border-slate-100 font-black text-xl hover:bg-slate-100 transition-all active:scale-90 flex items-center justify-center">C</button>
+                        <button class="w-20 h-20 rounded-full bg-white border border-slate-100 font-black text-2xl hover:bg-slate-50 transition-all active:scale-90">0</button>
+                        <button class="w-20 h-20 rounded-full bg-indigo-600 text-white font-black text-xl hover:bg-indigo-700 transition-all active:scale-90 flex items-center justify-center">OK</button>
+                    </div>
+
+                    <div class="mt-12 flex gap-4 w-full">
+                        <button class="flex-1 py-6 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-3xl shadow-xl shadow-emerald-100 hover:scale-105 transition-all">Entrada</button>
+                        <button class="flex-1 py-6 bg-rose-500 text-white font-black text-[10px] uppercase tracking-widest rounded-3xl shadow-xl shadow-rose-100 hover:scale-105 transition-all">Salida</button>
                     </div>
                 </div>
-                
-                <!-- Panel Derecho: Historial -->
-                <div class="w-full lg:w-7/12 xl:w-8/12 flex-1">
-                    <div class="glass-panel rounded-3xl p-8 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-                            <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Registro Biométrico Reciente
-                            </h4>
-                            <span class="text-[9px] bg-white text-slate-500 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
-                            </span>
+
+                <!-- Active Shifts -->
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 pb-6 border-b border-slate-50">Personal en Turno</h4>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black">AM</div>
+                                <div>
+                                    <p class="text-sm font-black text-slate-900 uppercase">Alex Manager</p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Desde las 08:30</p>
+                                </div>
+                            </div>
+                            <span class="badge badge-success">Activo</span>
                         </div>
-                        
-                        <div class="overflow-x-auto flex-1 custom-scrollbar pb-4">
-                            <table class="w-full text-left border-collapse min-w-[500px]">
-                                <thead>
-                                    <tr class="text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-slate-200">
-                                        <th class="pb-4 px-4 font-black">Identidad</th>
-                                        <th class="pb-4 px-4 font-black">Evento</th>
-                                        <th class="pb-4 px-4 text-right font-black">Timestamp</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="fichajes-list" class="text-sm text-slate-600">
-                                    <!-- Skeleton Loaders -->
-                                    <tr class="border-b border-slate-100">
-                                        <td class="py-5 px-4"><div class="skeleton-loader w-32"></div></td>
-                                        <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
-                                        <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-40"></div></td>
-                                    </tr>
-                                    <tr class="border-b border-slate-100">
-                                        <td class="py-5 px-4"><div class="skeleton-loader w-24"></div></td>
-                                        <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
-                                        <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-36"></div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="flex items-center justify-between p-6 bg-white rounded-2xl border border-slate-100 opacity-60">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-black">JP</div>
+                                <div>
+                                    <p class="text-sm font-black text-slate-900 uppercase">Juan Parrilla</p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Fuera de turno</p>
+                                </div>
+                            </div>
+                            <span class="badge">Inactivo</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 p-8 bg-indigo-50 rounded-[2rem]">
+                        <p class="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-2">KPI Disponibilidad</p>
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tighter">85% Operativo</h3>
+                        <div class="mt-4 h-2 w-full bg-indigo-200 rounded-full overflow-hidden">
+                            <div class="h-full w-[85%] bg-indigo-600 rounded-full"></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Footer Meta -->
-            <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
-                <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
-                    <span class="text-purple-500 border-slate-200 pr-4">Módulo RRHH</span>
-                    <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
-                </div>
-            </footer>
         </main>
     </div>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        EnterpriseShell.init('RRHH & Personal');
+        window.onload = () => {
+            EnterpriseShell.init('Recursos Humanos');
+            setInterval(updateClock, 1000);
+        };
 
-        let currentPin = "";
-        const display = document.getElementById('pin-display');
-
-        function addPin(num) {
-            if(currentPin.length < 4) {
-                currentPin += num;
-                display.innerText = "*".repeat(currentPin.length);
-            }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock-display').innerText = now.toLocaleTimeString();
         }
-
-        function clearPin() {
-            currentPin = "";
-            display.innerText = "";
-        }
-
-        function delPin() {
-            currentPin = currentPin.slice(0, -1);
-            display.innerText = "*".repeat(currentPin.length);
-        }
-
-        async function fichar(tipo) {
-            if(currentPin.length < 3) {
-                EnterpriseShell.showToast("Atención", "Introduce un PIN válido", "error");
-                return;
-            }
-            try {
-                const res = await fetch('/api/rrhh/fichar', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ pin: currentPin, tipo: tipo })
-                });
-                if(res.ok) {
-                    const data = await res.json();
-                    EnterpriseShell.showToast('Fichaje Completado', data.msj, 'success');
-                    clearPin();
-                    loadFichajes();
-                } else {
-                    EnterpriseShell.showToast('Error', "PIN incorrecto o error en servidor", 'error');
-                    clearPin();
-                }
-            } catch(e) {
-                EnterpriseShell.showToast('Fallo de Red', "No se pudo contactar con el servidor", 'error');
-                console.error(e);
-            }
-        }
-
-        async function loadFichajes() {
-            try {
-                const res = await fetch('/api/rrhh/fichajes');
-                const data = await res.json();
-                const tbody = document.getElementById('fichajes-list');
-                tbody.innerHTML = "";
-                
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-500">
-                        <div class="text-5xl mb-4 opacity-50">📇</div>
-                        <h4 class="text-xl font-bold mb-1 text-slate-500">Sin Registros</h4>
-                        <p>No hay fichajes recientes.</p>
-                    </td></tr>`;
-                    return;
-                }
-                
-                data.forEach(f => {
-                    let badgeClass = "bg-slate-600 text-slate-900";
-                    if(f.tipo === "ENTRADA") badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                    if(f.tipo === "SALIDA") badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
-                    if(f.tipo === "INICIO_PAUSA") badgeClass = "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30";
-                    if(f.tipo === "FIN_PAUSA") badgeClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
-                    
-                    tbody.innerHTML += `<tr class="hover:bg-white/5 transition-colors">
-                        <td class="py-4 px-2 font-medium text-slate-900">${f.username}</td>
-                        <td class="py-4 px-2"><span class="px-3 py-1 rounded-full text-xs font-bold ${badgeClass}">${f.tipo}</span></td>
-                        <td class="py-4 px-2 text-slate-500">${f.fecha}</td>
-                    </tr>`;
-                });
-            } catch (e) {
-                console.error("Error al cargar fichajes", e);
-                document.getElementById('fichajes-list').innerHTML = `<tr><td colspan="3" class="text-center py-12 text-red-400">
-                    <div class="text-5xl mb-4 opacity-75">⚠️</div>
-                    <h4 class="text-xl font-bold mb-1">Error de Conexión</h4>
-                    <p>No se pudo contactar con el servidor.</p>
-                </td></tr>`;
-            }
-        }
-
-        loadFichajes();
     </script>
 </body>
 </html>

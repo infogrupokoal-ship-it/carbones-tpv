@@ -3,28 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logística Enterprise | Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>Enterprise Inventory | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Design System -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         :root {
-            --primary: #3b82f6; /* blue-500 */
+            --brand-primary: #10b981;
             --bg-base: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.05);
         }
         body { 
             font-family: 'Outfit', sans-serif; 
             background-color: var(--bg-base); 
             margin: 0;
-            overflow-x: hidden;
             color: #1e293b;
         }
-        
-        /* Premium Background Grid */
         .bg-grid {
             position: fixed;
             inset: 0;
@@ -32,505 +25,148 @@
             background-image: 
                 linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-        
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
-            filter: blur(80px);
             z-index: -1;
             pointer-events: none;
         }
-
-        /* Glass Panels */
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
         }
-        .glass-panel:hover {
-            border-color: rgba(16, 185, 129, 0.15);
+        .table-header {
+            background: #f1f5f9;
+            text-transform: uppercase;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: #64748b;
         }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .tr-hover:hover {
+            background: #f8fafc;
+        }
     </style>
 </head>
-<body class="min-h-screen flex text-slate-600">
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
-
+<body class="min-h-screen">
     <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
 
-    <!-- Enterprise Sidebar will be injected by shell.js -->
-
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 lg:p-8 xl:p-12 custom-scrollbar relative z-10 w-full">
-        
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+    <main class="max-w-[1600px] mx-auto p-8 lg:p-20">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
             <div>
-                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Gestión de <span class="text-emerald-600">Inventario</span></h1>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Real-Time Logistics • Control Center v3.0
-                </p>
+                <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.5em] mb-4">Logistics & Supply Unit</p>
+                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                    Gestión <span class="text-emerald-600">Stock</span>
+                </h1>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <button onclick="loadInventario()" class="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Sincronizar Stock
+            <div class="flex gap-4">
+                <button onclick="syncStock()" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-emerald-600 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <button onclick="openAddModal()" class="bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-emerald-100 hover:scale-105 active:scale-95 transition-all">
+                    Añadir Material
                 </button>
             </div>
         </header>
-        <!-- Stats Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="glass-panel p-6 border-l-4 border-l-emerald-500 rounded-3xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Referencias</p>
-                <h3 class="text-4xl font-black text-slate-900" id="stat-total">0</h3>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div class="glass-panel p-10 rounded-[3rem]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Total SKUs</p>
+                <h3 id="stat-total" class="text-4xl font-black text-slate-900 tracking-tighter">--</h3>
             </div>
-            <div class="glass-panel p-6 border-l-4 border-l-orange-500 rounded-3xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Alertas de Reposición</p>
-                <h3 class="text-4xl font-black text-orange-400" id="stat-low">0</h3>
+            <div class="glass-panel p-10 rounded-[3rem]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Alertas Críticas</p>
+                <h3 id="stat-alerts" class="text-4xl font-black text-red-500 tracking-tighter">--</h3>
             </div>
-            <div class="glass-panel p-6 border-l-4 border-l-blue-500 rounded-3xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Valor Estimado Stock</p>
-                <h3 class="text-4xl font-black text-blue-400">---</h3>
+            <div class="glass-panel p-10 rounded-[3rem]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Valor Inventario</p>
+                <h3 id="stat-value" class="text-4xl font-black text-slate-900 tracking-tighter">--€</h3>
+            </div>
+            <div class="glass-panel p-10 rounded-[3rem]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Mermas Hoy</p>
+                <h3 id="stat-wastage" class="text-4xl font-black text-orange-500 tracking-tighter">--</h3>
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="flex gap-4 mb-8 overflow-x-auto no-scrollbar pb-2">
-            <button onclick="filterStock('all')" id="btn-filter-all" class="filter-tab bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_5px_15px_-5px_rgba(255,255,255,0.2)]">TODOS</button>
-            <button onclick="filterStock('low')" id="btn-filter-low" class="filter-tab glass-panel text-slate-500 hover:text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">CRÍTICOS</button>
-            <button onclick="filterStock('ok')" id="btn-filter-ok" class="filter-tab glass-panel text-slate-500 hover:text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">ÓPTIMOS</button>
-            <div class="flex-1"></div>
-            <button onclick="loadCatalogo()" id="btn-filter-cat" class="filter-tab bg-blue-600/20 text-blue-400 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border border-blue-500/30 shadow-[0_5px_15px_-5px_rgba(59,130,246,0.3)] hover:bg-blue-600/30 hover:text-blue-300">VER CATÁLOGO</button>
-        </div>
-
-        <!-- Inventory Grid -->
-        <div id="inventario-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <!-- Skeletons -->
-            <div class="glass-panel h-64 animate-pulse rounded-3xl"></div>
-            <div class="glass-panel h-64 animate-pulse rounded-3xl"></div>
-            <div class="glass-panel h-64 animate-pulse rounded-3xl"></div>
-            <div class="glass-panel h-64 animate-pulse rounded-3xl"></div>
-        </div>
-
-        <!-- Footer Meta -->
-        <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
-            <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-            <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
-                <span class="text-emerald-500 border-slate-200 pr-4">Módulo Logística</span>
-                <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
+        <!-- Inventory Table -->
+        <div class="glass-panel rounded-[3rem] overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="px-10 py-6">Material / Recurso</th>
+                            <th class="px-10 py-6">Categoría</th>
+                            <th class="px-10 py-6 text-center">Stock Actual</th>
+                            <th class="px-10 py-6 text-center">Min. Reorden</th>
+                            <th class="px-10 py-6 text-right">Costo Unit.</th>
+                            <th class="px-10 py-6 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body" class="divide-y divide-slate-50">
+                        <!-- Items -->
+                    </tbody>
+                </table>
             </div>
-        </footer>
+        </div>
     </main>
 
-    <!-- Modal Pedido -->
-    <div id="modalPedido" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden flex-col justify-center items-center z-[100] p-6 transition-all duration-500">
-        <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden rounded-[3rem]" id="modal-content">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-            
-            <h3 class="text-3xl font-black text-slate-900 mb-2 tracking-tighter uppercase">Solicitar Reposición</h3>
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-8" id="modal-subtitle">Conexión directa con central de proveedores.</p>
-            
-            <div class="space-y-6">
-                <div class="bg-white/5 p-6 rounded-3xl border border-slate-200">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Material Seleccionado</p>
-                    <h4 id="ingrediente-name" class="text-xl font-bold text-slate-900 uppercase tracking-tight">---</h4>
-                    <p id="proveedor-name" class="text-emerald-400 font-bold mt-2 flex items-center gap-2 text-[10px] uppercase">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        PROVEEDOR VINCULADO
-                    </p>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Cantidad Industrial</label>
-                    <div class="flex items-center gap-4">
-                        <button onclick="adjCant(-10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
-                        <input type="number" id="pedido-cantidad" class="flex-1 bg-white/5 border-2 border-slate-200 rounded-2xl h-16 text-center text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all" value="50">
-                        <button onclick="adjCant(10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
-                    <button onclick="enviarPedido()" class="btn-primary flex-[2] !py-5 shadow-emerald-500/20">CONFIRMAR ORDEN</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Función para mostrar notificaciones Toast
-        function showToast(title, message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast bg-white border border-slate-200';
-            
-            let iconHtml;
-            if (type === 'error') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>`;
-            } else if (type === 'success') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>`;
-            } else {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>`;
-            }
-
-            toast.innerHTML = `
-                ${iconHtml}
-                <div>
-                    <p class="text-slate-900 font-black text-xs">${title}</p>
-                    <p class="text-slate-500 text-[10px] font-medium">${message}</p>
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
-        }
-
-        let allData = [];
-        let currentFilter = 'all';
-
-        async function loadInventario() {
-            try {
-                const res = await fetch('/api/inventory/ingredientes');
-                allData = await res.json();
-                updateStats();
-                renderGrid();
-            } catch (e) {
-                console.error("ERP Load Error", e);
-            }
-        }
-
-        function updateStats() {
-            document.getElementById('stat-total').innerText = allData.length;
-            document.getElementById('stat-low').innerText = allData.filter(i => i.stock_actual <= i.stock_minimo).length;
-        }
-
-        function filterStock(type) {
-            currentFilter = type;
-            document.querySelectorAll('.filter-tab').forEach(t => {
-                t.classList.remove('active', 'bg-white', 'text-slate-900');
-                t.classList.add('bg-white/5', 'text-slate-500');
-            });
-            const active = document.getElementById(`btn-filter-${type}`);
-            active.classList.add('active', 'bg-white', 'text-slate-900');
-            active.classList.remove('bg-white/5', 'text-slate-500');
-            renderGrid();
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('inventario-grid');
-            let filtered = allData;
-            if(currentFilter === 'low') filtered = allData.filter(i => i.stock_actual <= i.stock_minimo);
-            if(currentFilter === 'ok') filtered = allData.filter(i => i.stock_actual > i.stock_minimo);
-
-            grid.innerHTML = filtered.map(ing => {
-                const isLow = ing.stock_actual <= ing.stock_minimo;
-                const progress = Math.min(100, (ing.stock_actual / (ing.stock_minimo * 2)) * 100);
-                
-                return `
-                    <div class="glass-panel p-8 group hover:-translate-y-2 transition-all duration-300 ${isLow ? 'border-orange-500/30 shadow-orange-500/5' : ''}">
-                        <div class="flex justify-between items-start mb-6">
-                            <h3 class="text-xl font-black text-slate-900 leading-tight uppercase tracking-tighter">${ing.nombre}</h3>
-                            ${isLow ? '<span class="px-3 py-1 bg-orange-500/20 text-orange-400 text-[8px] font-black tracking-[0.2em] rounded-lg">REPOSICIÓN</span>' : ''}
-                        </div>
-
-                        <div class="flex items-baseline gap-2 mb-6">
-                            <span class="text-5xl font-black ${isLow ? 'text-orange-400' : 'text-emerald-400'}">${ing.stock_actual}</span>
-                            <span class="text-slate-500 font-bold text-xs uppercase">${ing.unidad}</span>
-                        </div>
-
-                        <div class="w-full bg-white/5 h-2 rounded-full mb-8 overflow-hidden">
-                            <div class="h-full ${isLow ? 'bg-orange-500' : 'bg-emerald-500'} transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]" style="width: ${progress}%"></div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-                                <span>Proveedor</span>
-                                <span class="text-slate-600">${ing.proveedor_nombre}</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/30 transition-all active:scale-95">
-                                    PEDIDO
-                                </button>
-                                <button onclick="abrirMerma('${ing.id}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all active:scale-95">
-                                    MERMA
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function abrirPedido(id, prov, name) {
-            document.getElementById('pedido-ingrediente-id-hidden').value = id;
-            document.getElementById('proveedor-name').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ${prov}`;
-            document.getElementById('ingrediente-name').innerText = name.toUpperCase();
-            document.getElementById('modalPedido').classList.remove('hidden');
-            document.getElementById('modalPedido').classList.add('flex');
-        }
-
-        function abrirMerma(id, name) {
-            document.getElementById('merma-ingrediente-id-hidden').value = id;
-            document.getElementById('merma-ingrediente-name').innerText = name.toUpperCase();
-            document.getElementById('modalMerma').classList.remove('hidden');
-            document.getElementById('modalMerma').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('modalPedido').classList.add('hidden');
-            document.getElementById('modalMerma').classList.add('hidden');
-            document.getElementById('modalEditarProducto').classList.add('hidden');
-        }
-
-        async function loadCatalogo() {
-            try {
-                currentFilter = 'cat';
-                document.querySelectorAll('.filter-tab').forEach(t => {
-                    t.classList.remove('active', 'bg-white', 'text-slate-900', 'bg-blue-500/10', 'text-blue-400');
-                    t.classList.add('bg-white/5', 'text-slate-500');
-                });
-                const active = document.getElementById('btn-filter-cat');
-                active.classList.add('bg-blue-500/10', 'text-blue-400');
-                active.classList.remove('bg-white/5', 'text-slate-500');
-                
-                const res = await fetch('/api/inventory/productos');
-                const prods = await res.json();
-                
-                const grid = document.getElementById('inventario-grid');
-                grid.innerHTML = prods.map(p => {
-                    const isOculto = !p.is_active;
-                    return `
-                    <div class="glass-panel p-8 group hover:-translate-y-2 transition-all duration-300 ${isOculto ? 'opacity-50 grayscale' : ''}">
-                        <div class="relative h-32 rounded-xl overflow-hidden mb-6">
-                            <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover">
-                            ${isOculto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-500 text-slate-900 text-[10px] px-3 py-1 font-black rounded-full uppercase">Oculto</span></div>' : ''}
-                        </div>
-                        <h3 class="text-xl font-black text-slate-900 leading-tight uppercase tracking-tighter mb-2">${p.nombre}</h3>
-                        <div class="flex justify-between items-baseline mb-6">
-                            <span class="text-2xl font-black text-blue-400">${p.precio.toFixed(2)}€</span>
-                            <span class="text-slate-500 font-bold text-[10px] uppercase">${p.categoria_nombre}</span>
-                        </div>
-                        <button onclick="abrirEditarProducto('${p.id}', \`${p.nombre}\`, ${p.precio}, '${p.imagen_url || ''}', ${p.is_active})" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-slate-900 transition-all active:scale-95">
-                            EDITAR PRODUCTO
-                        </button>
-                    </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error("Error loading catalog", e);
-            }
-        }
-
-        function abrirEditarProducto(id, nombre, precio, img, activo) {
-            document.getElementById('edit-prod-id').value = id;
-            document.getElementById('edit-prod-nombre').value = nombre;
-            document.getElementById('edit-prod-precio').value = precio;
-            document.getElementById('edit-prod-img').value = img;
-            document.getElementById('edit-prod-activo').value = activo.toString();
-            
-            document.getElementById('modalEditarProducto').classList.remove('hidden');
-            document.getElementById('modalEditarProducto').classList.add('flex');
-        }
-
-        async function guardarProducto() {
-            const id = document.getElementById('edit-prod-id').value;
-            const payload = {
-                nombre: document.getElementById('edit-prod-nombre').value,
-                precio: parseFloat(document.getElementById('edit-prod-precio').value),
-                imagen_url: document.getElementById('edit-prod-img').value,
-                is_active: document.getElementById('edit-prod-activo').value === 'true'
-            };
-            
-            try {
-                const res = await fetch(`/api/inventory/productos/${id}`, {
-                    method: 'PATCH',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                if(res.ok) {
-                    closeModal();
-                    loadCatalogo();
-                    showToast('Éxito', 'Producto actualizado', 'success');
-                } else {
-                    showToast('Error', 'No se pudo actualizar el producto', 'error');
-                }
-            } catch (e) {
-                showToast('Error', 'Fallo de red', 'error');
-            }
-        }
-
-        function adjCant(v, inputId) {
-            const inp = document.getElementById(inputId);
-            inp.value = Math.max(1, parseInt(inp.value) + v);
-        }
-
-        async function enviarPedido() {
-            const id = document.getElementById('pedido-ingrediente-id-hidden').value;
-            const qty = document.getElementById('pedido-cantidad').value;
-            
-            try {
-                const res = await fetch('/api/inventory/pedido_proveedor', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ ingrediente_id: id, cantidad: parseFloat(qty) })
-                });
-                if(res.ok) {
-                    showToast('Pedido Confirmado', 'Enviado a central de compras', 'success');
-                    closeModal();
-                    loadInventario();
-                }
-            } catch (e) {
-                showToast('Error', 'Fallo de red al enviar el pedido', 'error');
-            }
-        }
-
-        async function registrarMerma() {
-            const id = document.getElementById('merma-ingrediente-id-hidden').value;
-            const qty = document.getElementById('merma-cantidad').value;
-            const motivo = document.getElementById('merma-motivo').value;
-            
-            try {
-                const res = await fetch('/api/inventory/merma', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        entidad_tipo: 'INGREDIENTE', 
-                        entidad_id: id, 
-                        cantidad: parseFloat(qty), 
-                        motivo: motivo 
-                    })
-                });
-                const d = await res.json();
-                if(res.ok) {
-                    showToast('Merma Registrada', `Impacto: -${d.impacto_financiero}€`, 'success');
-                    closeModal();
-                    loadInventario();
-                } else {
-                    showToast('Error', d.detail || 'Error al registrar merma', 'error');
-                }
-            } catch (e) {
-                showToast('Error', 'Fallo de red', 'error');
-            }
-        }
-
-        loadInventario();
-    </script>
-    <input type="hidden" id="pedido-ingrediente-id-hidden">
-    <input type="hidden" id="merma-ingrediente-id-hidden">
-
-    <!-- Modal Merma -->
-    <div id="modalMerma" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden flex-col justify-center items-center z-[100] p-6 transition-all duration-500">
-        <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden" id="modal-content-merma">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
-            
-            <h3 class="text-3xl font-black text-slate-900 mb-2">Registrar Merma</h3>
-            <p class="text-slate-500 text-sm mb-8 font-medium">Declara pérdida o deterioro de inventario. Esto afectará a la contabilidad y márgenes de beneficio del sistema.</p>
-            
-            <div class="space-y-6">
-                <div class="bg-white/5 p-6 rounded-3xl border border-slate-200">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Producto a deducir</p>
-                    <h4 id="merma-ingrediente-name" class="text-xl font-bold text-slate-900">---</h4>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Cantidad Mermada</label>
-                    <div class="flex items-center gap-4">
-                        <button onclick="adjCant(-1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
-                        <input type="number" id="merma-cantidad" class="flex-1 bg-white/5 border-2 border-slate-200 rounded-2xl h-16 text-center text-3xl font-black text-slate-900 focus:border-red-500 outline-none transition-all" value="1">
-                        <button onclick="adjCant(1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Motivo</label>
-                    <select id="merma-motivo" class="w-full bg-white/5 border-2 border-slate-200 rounded-2xl h-14 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none transition-all">
-                        <option value="Caducidad">Caducidad</option>
-                        <option value="Rotura/Accidente">Rotura / Accidente</option>
-                        <option value="Error Preparacion">Error de Preparación</option>
-                        <option value="Robo/Perdida">Robo / Pérdida</option>
-                    </select>
-                </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
-                    <button onclick="registrarMerma()" class="btn-primary !bg-red-600 hover:!bg-red-500 flex-[2] !py-5 shadow-red-500/20">EJECUTAR MERMA</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal Editar Producto -->
-    <div id="modalEditarProducto" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden flex-col justify-center items-center z-[100] p-6 transition-all duration-500">
-        <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden" id="modal-content-producto">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-            
-            <h3 class="text-3xl font-black text-slate-900 mb-2">Editar Producto</h3>
-            <p class="text-slate-500 text-sm mb-6 font-medium">Actualiza precios, visibilidad e imágenes del catálogo en tiempo real.</p>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Nombre</label>
-                    <input type="text" id="edit-prod-nombre" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
-                </div>
-                
-                <div class="flex gap-4">
-                    <div class="flex-1">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Precio (€)</label>
-                        <input type="number" step="0.01" id="edit-prod-precio" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Estado</label>
-                        <select id="edit-prod-activo" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
-                            <option value="true">Activo / Visible</option>
-                            <option value="false">Oculto / Descatalogado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">URL de Imagen</label>
-                    <input type="text" id="edit-prod-img" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
-                </div>
-
-                <div class="flex gap-4 pt-6">
-                    <button onclick="closeModal()" class="flex-1 p-4 rounded-xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
-                    <button onclick="guardarProducto()" class="btn-primary !bg-blue-600 hover:!bg-blue-500 flex-[2] !py-4 shadow-blue-500/20">GUARDAR CAMBIOS</button>
-                </div>
-            </div>
-            <input type="hidden" id="edit-prod-id">
-        </div>
-    </div>
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        EnterpriseShell.init('Inventario');
+        const API_URL = "/api";
+
+        async function syncStock() {
+            try {
+                const res = await fetch(`${API_URL}/inventory/list`);
+                const data = await res.json();
+                renderInventory(data);
+                updateStats(data);
+            } catch(e) { console.error("Sync Failure:", e); }
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-total').innerText = data.length.toString().padStart(2, '0');
+            const alerts = data.filter(i => i.stock_actual <= i.stock_minimo).length;
+            document.getElementById('stat-alerts').innerText = alerts.toString().padStart(2, '0');
+            const value = data.reduce((acc, i) => acc + (i.stock_actual * i.precio_costo), 0);
+            document.getElementById('stat-value').innerText = value.toFixed(0) + '€';
+            document.getElementById('stat-wastage').innerText = '00';
+        }
+
+        function renderInventory(data) {
+            const body = document.getElementById('inventory-body');
+            body.innerHTML = data.map(i => `
+                <tr class="tr-hover transition-all">
+                    <td class="px-10 py-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-lg">${i.icon || '📦'}</div>
+                            <div>
+                                <p class="text-sm font-black text-slate-900 uppercase tracking-tighter">${i.nombre}</p>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">${i.proveedor || 'Sin Proveedor'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-10 py-8">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-3 py-1 rounded-full">${i.categoria}</span>
+                    </td>
+                    <td class="px-10 py-8 text-center">
+                        <p class="text-lg font-black ${i.stock_actual <= i.stock_minimo ? 'text-red-500' : 'text-slate-900'} tracking-tighter">${i.stock_actual} <span class="text-[10px] text-slate-400 uppercase">${i.unidad || 'ud'}</span></p>
+                    </td>
+                    <td class="px-10 py-8 text-center text-[10px] font-black text-slate-400 tracking-widest">${i.stock_minimo} ${i.unidad || 'ud'}</td>
+                    <td class="px-10 py-8 text-right font-black text-slate-900 text-sm">${i.precio_costo.toFixed(2)}€</td>
+                    <td class="px-10 py-8 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all">✏️</button>
+                            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.onload = () => {
+            EnterpriseShell.init('Gestión Stock');
+            syncStock();
+            setInterval(syncStock, 30000);
+        };
     </script>
 </body>
 </html>

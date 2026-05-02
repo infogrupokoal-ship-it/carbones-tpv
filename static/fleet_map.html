@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Map Tracker - Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            overflow: hidden;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+        }
+        
+        #map { height: 100vh; width: 100vw; z-index: 1; }
+        
+        .overlay {
+            position: absolute;
+            z-index: 1000;
+        }
+
+        /* Custom Leaflet Dark Mode styling overriding */
+        .leaflet-layer,
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out,
+        .leaflet-control-attribution {
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+
+        .rider-marker {
+            width: 32px;
+            height: 32px;
+            background: #6366f1;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 10px;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="overlay top-6 left-6 flex flex-col gap-4 w-80">
+        <header class="glass-panel rounded-2xl p-6 shadow-2xl">
+            <h1 class="text-2xl font-black tracking-tighter text-white uppercase flex items-center gap-2 mb-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Fleet <span class="text-indigo-500 font-light">Tracker</span>
+            </h1>
+            <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                Operaciones Logísticas v2.0
+            </p>
+        </header>
+
+        <div class="glass-panel rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <span class="text-xs font-black uppercase tracking-widest text-slate-400">Repartidores Activos</span>
+                <span class="bg-indigo-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full" id="active-count">0</span>
+            </div>
+            
+            <div id="riders-list" class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                <!-- Injected riders -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Init Map
+        const map = L.map('map', { zoomControl: false }).setView([40.4168, -3.7038], 13); // Madrid center
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // Simulated Riders Data
+        const riders = [
+            { id: 1, name: "CARLOS", status: "EN_CAMINO", lat: 40.4168, lng: -3.7038, battery: 85, orders: 2 },
+            { id: 2, name: "MARTA", status: "ESPERANDO", lat: 40.4268, lng: -3.7138, battery: 92, orders: 0 },
+            { id: 3, name: "JUAN", status: "ENTREGANDO", lat: 40.4068, lng: -3.6938, battery: 45, orders: 1 }
+        ];
+
+        const markers = {};
+
+        function renderRiders() {
+            const list = document.getElementById('riders-list');
+            list.innerHTML = '';
+            document.getElementById('active-count').innerText = riders.length;
+
+            riders.forEach(r => {
+                // Update map marker
+                if (!markers[r.id]) {
+                    const icon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div class="rider-marker">${r.name.substring(0,2)}</div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+                    markers[r.id] = L.marker([r.lat, r.lng], {icon}).addTo(map);
+                } else {
+                    markers[r.id].setLatLng([r.lat, r.lng]);
+                }
+
+                // Update UI list
+                let statusColor = "text-slate-400";
+                if(r.status === "EN_CAMINO") statusColor = "text-amber-400";
+                if(r.status === "ENTREGANDO") statusColor = "text-red-400";
+                if(r.status === "ESPERANDO") statusColor = "text-emerald-400";
+
+                list.innerHTML += `
+                    <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50 hover:bg-slate-700/50 transition-colors cursor-pointer" onclick="map.setView([${r.lat}, ${r.lng}], 16)">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-black text-white text-sm">${r.name}</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest ${statusColor} bg-slate-900 px-2 py-1 rounded">${r.status}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                            <span>🔋 ${r.battery}%</span>
+                            <span>📦 ${r.orders} Pedidos</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Simulate movement
+        setInterval(() => {
+            riders.forEach(r => {
+                if(r.status !== "ESPERANDO") {
+                    r.lat += (Math.random() - 0.5) * 0.002;
+                    r.lng += (Math.random() - 0.5) * 0.002;
+                }
+            });
+            renderRiders();
+        }, 3000);
+
+        renderRiders();
+    </script>
+</body>
+</html>

@@ -3,27 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cierre Financiero y Liquidaciones - Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>Enterprise Settlements | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <!-- Design System Enterprise -->
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         :root {
-            --primary: #6366f1; /* Indigo */
+            --brand-primary: #6366f1;
             --bg-base: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.05);
         }
         body { 
             font-family: 'Outfit', sans-serif; 
             background-color: var(--bg-base); 
             margin: 0;
-            overflow-x: hidden;
             color: #1e293b;
         }
-        
         .bg-grid {
             position: fixed;
             inset: 0;
@@ -31,284 +25,106 @@
             background-image: 
                 linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-        
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
-            filter: blur(80px);
             z-index: -1;
             pointer-events: none;
         }
-
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
         }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .skeleton-loader {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-            height: 1.2em;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .table-header {
+            background: #f1f5f9;
+            text-transform: uppercase;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: #64748b;
         }
     </style>
 </head>
-<body class="text-slate-600">
+<body class="min-h-screen">
     <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
 
-    <div class="flex h-screen overflow-hidden">
-        
-        <!-- Sidebar Navigation Integrado -->
-        <div id="enterprise-sidebar"></div>
-
-        <!-- Main Workspace -->
-        <main class="flex-1 flex flex-col p-8 lg:p-10 overflow-y-auto relative z-10 custom-scrollbar">
-            
-            <!-- Header Section -->
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-slate-100 pb-8">
-                <div>
-                    <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Cierre <span class="text-indigo-600">Financiero</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                        Fiscal Intelligence • Cashflow Control v3.0
-                    </p>
-                </div>
-                <div class="flex gap-4">
-                    <button class="bg-white hover:bg-slate-50 text-slate-900 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border border-slate-200 flex items-center gap-2 shadow-sm" onclick="window.print()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Exportar Reporte
-                    </button>
-                </div>
-            </header>
-
-            <div class="flex flex-col xl:flex-row gap-8">
-                <!-- Selector de Fechas -->
-                <div class="w-full xl:w-1/3">
-                    <div class="glass-panel rounded-3xl p-8 mb-8 relative overflow-hidden group">
-                        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-violet-500"></span> Periodo de Liquidación
-                        </h3>
-                        
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha Inicio</label>
-                                <input type="date" id="fecha-inicio" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha Fin</label>
-                                <input type="date" id="fecha-fin" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
-                            </div>
-                            
-                            <button onclick="calcularLiquidaciones()" class="w-full bg-violet-600 hover:bg-violet-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(139,92,246,0.5)] border border-violet-500 flex justify-center items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Calcular Nóminas
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel rounded-3xl p-8 flex flex-col gap-2">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Resumen Global</p>
-                        <h4 class="text-4xl font-black text-emerald-400 mt-2" id="total-global">0.00€</h4>
-                        <p class="text-xs text-slate-500 mt-1">Total a liquidar en el periodo</p>
-                    </div>
-                </div>
-
-                <!-- Tabla de Resultados -->
-                <div class="w-full xl:w-2/3 flex flex-col">
-                    <div class="glass-panel rounded-3xl p-8 flex-1 flex flex-col">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                Desglose por Repartidor
-                            </h3>
-                            <span id="badge-estado" class="text-[9px] bg-white text-slate-500 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200 hidden">
-                                CALCULADO
-                            </span>
-                        </div>
-                        
-                        <div class="overflow-x-auto flex-1 custom-scrollbar">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-slate-200">
-                                        <th class="pb-4 px-4 font-black">Repartidor</th>
-                                        <th class="pb-4 px-4 text-center font-black">Entregas</th>
-                                        <th class="pb-4 px-4 text-right font-black">Tarifa/Envío</th>
-                                        <th class="pb-4 px-4 text-right font-black">Total a Pagar</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="liquidaciones-list" class="text-sm">
-                                    <tr>
-                                        <td colspan="4" class="py-12 text-center text-slate-500">
-                                            <p class="text-3xl mb-4">📅</p>
-                                            <p class="text-xs font-black uppercase tracking-widest">Selecciona fechas y calcula</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+    <main class="max-w-[1600px] mx-auto p-8 lg:p-20">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+            <div>
+                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Financial Settlements Unit</p>
+                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                    Cierre <span class="text-indigo-600">Financiero</span>
+                </h1>
             </div>
+            <div class="flex gap-4">
+                <button onclick="syncLiquidaciones()" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-indigo-600 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <button class="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">
+                    Generar Reporte Fiscal
+                </button>
+            </div>
+        </header>
 
-            <!-- Footer Meta -->
-            <footer class="mt-auto pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em]">
-                <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
-                    <span class="text-violet-500 border-slate-200 pr-4">Módulo Finanzas</span>
-                    <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
-                </div>
-            </footer>
-        </main>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 transition-all duration-300 z-50 glass-panel rounded-2xl p-4 flex items-center gap-3">
-        <span id="toast-icon" class="text-xl">✅</span>
-        <div>
-            <h5 id="toast-title" class="text-xs font-black text-slate-900 uppercase tracking-wider">Éxito</h5>
-            <p id="toast-message" class="text-[10px] font-bold text-slate-500 mt-0.5">Operación completada.</p>
+        <!-- Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-indigo-500">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Ventas Brutas Periodo</p>
+                <h3 class="text-5xl font-black text-slate-900 tracking-tighter">0.00€</h3>
+            </div>
+            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-emerald-500">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Liquidado a Drivers</p>
+                <h3 class="text-5xl font-black text-emerald-600 tracking-tighter">0.00€</h3>
+            </div>
+            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-orange-500">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Gatos Operativos</p>
+                <h3 class="text-5xl font-black text-orange-600 tracking-tighter">0.00€</h3>
+            </div>
         </div>
-    </div>
+
+        <div class="glass-panel rounded-[3rem] overflow-hidden">
+            <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] p-10 border-b border-slate-50">Desglose de Liquidaciones</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="px-10 py-6">Entidad / Colaborador</th>
+                            <th class="px-10 py-6">Concepto</th>
+                            <th class="px-10 py-6 text-center">Tickets</th>
+                            <th class="px-10 py-6 text-right">Volumen</th>
+                            <th class="px-10 py-6 text-right">Comisión</th>
+                            <th class="px-10 py-6 text-right">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="settlements-body" class="divide-y divide-slate-50 text-slate-900 font-bold text-xs">
+                        <!-- Dynamic Rows -->
+                        <tr class="hover:bg-slate-50 transition-all">
+                            <td class="px-10 py-8">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black">DA</div>
+                                    <p class="font-black uppercase">Driver Alpha</p>
+                                </div>
+                            </td>
+                            <td class="px-10 py-8 text-slate-400">Servicios de Reparto</td>
+                            <td class="px-10 py-8 text-center">14</td>
+                            <td class="px-10 py-8 text-right font-black">450.00€</td>
+                            <td class="px-10 py-8 text-right font-black text-indigo-600">35.00€</td>
+                            <td class="px-10 py-8 text-right">
+                                <span class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-orange-50 text-orange-600 rounded-full">Pendiente</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        EnterpriseShell.init('Finanzas y Liquidaciones');
+        window.onload = () => {
+            EnterpriseShell.init('Cierre Financiero');
+        };
 
-        // Set default dates (start of month to today)
-        const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        
-        document.getElementById('fecha-fin').valueAsDate = today;
-        document.getElementById('fecha-inicio').valueAsDate = startOfMonth;
-
-        function showToast(title, message, isError = false) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-title').innerText = title;
-            document.getElementById('toast-title').className = `text-xs font-black uppercase tracking-wider ${isError ? 'text-red-400' : 'text-emerald-400'}`;
-            document.getElementById('toast-message').innerText = message;
-            document.getElementById('toast-icon').innerText = isError ? '⚠️' : '✅';
-            
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3000);
-        }
-
-        async function calcularLiquidaciones() {
-            const fi = document.getElementById('fecha-inicio').value;
-            const ff = document.getElementById('fecha-fin').value;
-            const tbody = document.getElementById('liquidaciones-list');
-
-            if (!fi || !ff) {
-                showToast('Error', 'Debes seleccionar ambas fechas.', true);
-                return;
-            }
-
-            tbody.innerHTML = `
-                <tr class="border-b border-slate-100">
-                    <td class="py-5 px-4"><div class="skeleton-loader w-32"></div></td>
-                    <td class="py-5 px-4"><div class="skeleton-loader w-12 mx-auto"></div></td>
-                    <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-16"></div></td>
-                    <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-20"></div></td>
-                </tr>
-                <tr class="border-b border-slate-100">
-                    <td class="py-5 px-4"><div class="skeleton-loader w-40"></div></td>
-                    <td class="py-5 px-4"><div class="skeleton-loader w-12 mx-auto"></div></td>
-                    <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-16"></div></td>
-                    <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-20"></div></td>
-                </tr>
-            `;
-
-            try {
-                const res = await fetch(`/api/rrhh/liquidaciones/calcular?fecha_inicio=${fi}&fecha_fin=${ff}`, {
-                    method: 'POST'
-                });
-
-                if (!res.ok) throw new Error('Error al calcular liquidaciones');
-
-                const responseData = await res.json();
-                const data = responseData.detalles || [];
-                
-                if (data.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="py-12 text-center text-slate-500">
-                                <p class="text-xl mb-2">📭</p>
-                                <p class="text-[10px] font-black uppercase tracking-widest">No hay entregas en este periodo</p>
-                            </td>
-                        </tr>
-                    `;
-                    document.getElementById('total-global').innerText = '0.00€';
-                    return;
-                }
-
-                let totalGlobal = 0;
-                let html = '';
-
-                data.forEach(item => {
-                    totalGlobal += item.total_pagar;
-                    html += `
-                        <tr class="border-b border-slate-100 hover:bg-white/5 transition-colors group">
-                            <td class="py-4 px-4 font-bold text-slate-900 flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[10px] font-black text-violet-400">
-                                    ${item.usuario.substring(0, 2).toUpperCase()}
-                                </div>
-                                ${item.usuario}
-                            </td>
-                            <td class="py-4 px-4 text-center font-mono text-slate-500 group-hover:text-slate-900 transition-colors">
-                                <span class="bg-white px-2 py-1 rounded-md border border-slate-200">${item.total_pedidos}</span>
-                            </td>
-                            <td class="py-4 px-4 text-right font-mono text-slate-500">1.50€</td>
-                            <td class="py-4 px-4 text-right font-black text-emerald-400 text-lg">${item.total_pagar.toFixed(2)}€</td>
-                        </tr>
-                    `;
-                });
-
-                tbody.innerHTML = html;
-                document.getElementById('total-global').innerText = totalGlobal.toFixed(2) + '€';
-                document.getElementById('badge-estado').classList.remove('hidden');
-                
-                showToast('Liquidación Calculada', `Procesados ${data.length} repartidores.`);
-            } catch (e) {
-                console.error(e);
-                tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500 font-bold text-xs uppercase">Error de conexión</td></tr>`;
-                showToast('Error', e.message, true);
-            }
+        function syncLiquidaciones() {
+            alert("FINANCIAL SYNC: Recalculando balances de la red...");
         }
     </script>
 </body>

@@ -20,8 +20,8 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from backend.routers import orders, inventory, customers, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty, logistics, admin, telemetry, webhooks, admin_audit, ws, hardware, commercial
-from backend.services import ai_bi_agent
+from backend.routers import orders, inventory, clients, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty
+from backend.services import sync_daemon, ai_bi_agent, self_healing
 
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -182,6 +182,13 @@ async def health_check() -> Dict[str, Any]:
         "ai_engine": __import__('backend.utils.ai_model_manager', fromlist=['ai_manager']).ai_manager.get_status()
     }
 
+@app.on_event("startup")
+async def startup_event():
+    # Inicializar motores autónomos V6.0
+    asyncio.create_task(sync_daemon.run())
+    asyncio.create_task(self_healing.SelfHealingService().monitor())
+    logger.info("Enterprise Singularity [V6.0] fully activated.")
+
 # --- Registro de Routers Modulares ---
 app.include_router(auth.router, prefix="/api", tags=["Seguridad"])
 app.include_router(orders.router, prefix="/api", tags=["Operaciones"])
@@ -194,20 +201,16 @@ app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
 app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
 app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
-app.include_router(payments.router, prefix="/api", tags=["Pagos"])
-app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artificial"])
-app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
-app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
-app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
-app.include_router(delivery_aggregators.router, prefix="/api", tags=["Delivery Aggregators"])
-app.include_router(mantenimiento.router, prefix="/api", tags=["Mantenimiento"])
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback & NPS"])
 app.include_router(escandallos.router, prefix="/api", tags=["Escandallos"])
 app.include_router(fleet.router, prefix="/api", tags=["Fleet"])
 app.include_router(loyalty.router, prefix="/api", tags=["Loyalty"])
+app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
+app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
+app.include_router(delivery_aggregators.router, prefix="/api", tags=["Delivery Aggregators"])
+app.include_router(mantenimiento.router, prefix="/api", tags=["Mantenimiento"])
 app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
-app.include_router(logistics.router, prefix="/api", tags=["Logística y Riders"])
 app.include_router(ws.router, tags=["Real-time"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)

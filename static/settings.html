@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Settings | Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
+    <style>
+        :root {
+            --brand-primary: #64748b;
+            --bg-base: #f8fafc;
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            color: #1e293b;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .glass-panel {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+        .input-premium {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .input-premium:focus {
+            border-color: #4f46e5;
+            background: white;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="bg-grid"></div>
+
+    <main class="max-w-[1200px] mx-auto p-8 lg:p-20">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+            <div>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mb-4">Core Infrastructure Unit</p>
+                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                    Ajustes <span class="text-indigo-600">Nícleo</span>
+                </h1>
+            </div>
+            <button onclick="saveConfig()" class="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">
+                Guardar Cambios
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            <!-- Sidebar Links -->
+            <div class="lg:col-span-1 space-y-4">
+                <button class="w-full text-left p-6 rounded-2xl bg-white border border-slate-100 font-black text-[10px] uppercase tracking-widest text-indigo-600 shadow-sm flex items-center gap-4">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> Conectividad & Nube
+                </button>
+                <button class="w-full text-left p-6 rounded-2xl hover:bg-white transition-all font-black text-[10px] uppercase tracking-widest text-slate-400 flex items-center gap-4">
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span> Perifericos (POS)
+                </button>
+                <button class="w-full text-left p-6 rounded-2xl hover:bg-white transition-all font-black text-[10px] uppercase tracking-widest text-slate-400 flex items-center gap-4">
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span> IA & Automatización
+                </button>
+                <button class="w-full text-left p-6 rounded-2xl hover:bg-white transition-all font-black text-[10px] uppercase tracking-widest text-slate-400 flex items-center gap-4">
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span> Seguridad (RBAC)
+                </button>
+            </div>
+
+            <!-- Form Workspace -->
+            <div class="lg:col-span-2 space-y-8">
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 pb-6 border-b border-slate-50">Configuración de Red</h4>
+                    
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Cloud Endpoint URL</label>
+                            <input type="text" id="cloudUrl" class="input-premium w-full py-4 px-6 rounded-xl font-black text-slate-900 text-sm" value="https://carbones-tpv.onrender.com">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Terminal ID</label>
+                            <input type="text" id="deviceId" class="input-premium w-full py-4 px-6 rounded-xl font-black text-slate-900 text-sm" value="CAJA-PRINCIPAL-01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 pb-6 border-b border-slate-50">Hardware & Perifericos</h4>
+                    
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Impresora de Tickets (System Name)</label>
+                            <input type="text" id="printerTicket" class="input-premium w-full py-4 px-6 rounded-xl font-black text-slate-900 text-sm" value="POS-80">
+                        </div>
+                        <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Apertura de Cajon Automática</p>
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Disparar pulso al cobrar ticket</p>
+                            </div>
+                            <div class="w-12 h-6 bg-indigo-600 rounded-full relative"><div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 pb-6 border-b border-slate-50">Inteligencia Artificial (Gemini)</h4>
+                    
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">API Key Personal</label>
+                            <input type="password" id="aiKey" class="input-premium w-full py-4 px-6 rounded-xl font-black text-slate-900 text-sm" placeholder="••••••••••••••••••••••••">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        window.onload = () => {
+            EnterpriseShell.init('Ajustes Núcleo');
+            const config = JSON.parse(localStorage.getItem('tpv_config') || '{}');
+            if(config.cloud_url) document.getElementById('cloudUrl').value = config.cloud_url;
+            if(config.device_id) document.getElementById('deviceId').value = config.device_id;
+            if(config.printer_ticket) document.getElementById('printerTicket').value = config.printer_ticket;
+        };
+
+        function saveConfig() {
+            const config = {
+                cloud_url: document.getElementById('cloudUrl').value,
+                device_id: document.getElementById('deviceId').value,
+                printer_ticket: document.getElementById('printerTicket').value,
+                ai_key: document.getElementById('aiKey').value
+            };
+            localStorage.setItem('tpv_config', JSON.stringify(config));
+            alert("INFRASTRUCTURE SYNC: Configuración guardada en el nodo local.");
+        }
+    </script>
+</body>
+</html>

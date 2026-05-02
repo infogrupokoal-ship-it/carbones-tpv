@@ -1207,6 +1207,42 @@
             history.scrollTop = history.scrollHeight;
 
             try {
+                // 1) Intentar hacer parsing con NLP
+                const nlpRes = await fetch('/api/ai/nlp-parse', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: msg})
+                });
+
+                if (nlpRes.ok) {
+                    const nlpData = await nlpRes.json();
+                    if (nlpData.status === 'success' && nlpData.parsed_items && nlpData.parsed_items.length > 0) {
+                        
+                        let addedAny = false;
+                        let addedNames = [];
+
+                        for(let item of nlpData.parsed_items) {
+                            // Buscar el producto más parecido en el catálogo global
+                            const prod = products.find(p => p.nombre.toLowerCase().includes(item.producto.toLowerCase()) || item.producto.toLowerCase().includes(p.nombre.toLowerCase()));
+                            if(prod) {
+                                for(let i=0; i<item.cantidad; i++) {
+                                    cart.push(prod);
+                                }
+                                addedAny = true;
+                                addedNames.push(`${item.cantidad}x ${prod.nombre}`);
+                            }
+                        }
+
+                        if(addedAny) {
+                            updateCartUI();
+                            history.innerHTML += `<div class="chat-msg msg-ai font-bold">¡Claro! He añadido a tu bandeja: ${addedNames.join(', ')}. ¿Te apetece algo más? 🔥</div>`;
+                            history.scrollTop = history.scrollHeight;
+                            return; // No llamar al chat genérico si hemos parseado un pedido
+                        }
+                    }
+                }
+
+                // 2) Si NLP no parseó productos, llamamos al chat genérico
                 const res = await fetch('/api/ai/chat', {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
