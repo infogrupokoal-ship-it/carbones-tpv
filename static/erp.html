@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP & Finanzas Globales | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">ERP & Tesorería Global</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Consolidación Financiera y Flujo de Caja</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">account_balance</span>
+                    Conciliar Cuentas
+                </button>
+                <button class="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-200">
+                    <span class="material-symbols-outlined text-[18px]">download</span>
+                    Exportar Modelo 303 (IVA)
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            
+            <!-- Global Financial KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="material-symbols-outlined text-indigo-500">point_of_sale</span>
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">+12.4%</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Facturación Bruta (YTD)</p>
+                    <h3 class="text-3xl font-black text-slate-900 tracking-tight mt-1">€842,500<span class="text-sm text-slate-400 font-medium">.00</span></h3>
+                </div>
+                
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="material-symbols-outlined text-rose-500">payments</span>
+                        <span class="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-black rounded-lg">+4.1%</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gastos Operativos (OPEX)</p>
+                    <h3 class="text-3xl font-black text-slate-900 tracking-tight mt-1">€410,230<span class="text-sm text-slate-400 font-medium">.50</span></h3>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="material-symbols-outlined text-emerald-500">savings</span>
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">+18.2%</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">EBITDA Mantenido</p>
+                    <h3 class="text-3xl font-black text-slate-900 tracking-tight mt-1">€185,400<span class="text-sm text-slate-400 font-medium">.00</span></h3>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="material-symbols-outlined text-amber-500">account_balance_wallet</span>
+                        <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg">Estable</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Liquidez Disponible (Cash)</p>
+                    <h3 class="text-3xl font-black text-slate-900 tracking-tight mt-1">€62,100<span class="text-sm text-slate-400 font-medium">.00</span></h3>
+                </div>
+            </div>
+
+            <!-- Ledger and Cash Flow -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="glass-panel p-6 lg:col-span-2">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Libro Mayor (Últimos Asientos)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100">
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ref</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Concepto</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cuenta Contable</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Debe</th>
+                                    <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Haber</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-50 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-xs text-slate-500">#TRX-982</td>
+                                    <td class="py-3 px-4 text-slate-600 text-xs">Hoy, 09:14</td>
+                                    <td class="py-3 px-4 font-bold text-slate-800">Liquidación Stripe</td>
+                                    <td class="py-3 px-4 text-xs text-slate-500">572 - Bancos e Inst. Crédito</td>
+                                    <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600">€2,450.00</td>
+                                    <td class="py-3 px-4 text-right font-mono text-slate-400">-</td>
+                                </tr>
+                                <tr class="border-b border-slate-50 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-xs text-slate-500">#TRX-981</td>
+                                    <td class="py-3 px-4 text-slate-600 text-xs">Hoy, 08:30</td>
+                                    <td class="py-3 px-4 font-bold text-slate-800">Pago Proveedor (Makro)</td>
+                                    <td class="py-3 px-4 text-xs text-slate-500">400 - Proveedores</td>
+                                    <td class="py-3 px-4 text-right font-mono text-slate-400">-</td>
+                                    <td class="py-3 px-4 text-right font-mono font-bold text-rose-600">€840.20</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-xs text-slate-500">#TRX-980</td>
+                                    <td class="py-3 px-4 text-slate-600 text-xs">Ayer</td>
+                                    <td class="py-3 px-4 font-bold text-slate-800">Nóminas Mes (Anticipo)</td>
+                                    <td class="py-3 px-4 text-xs text-slate-500">465 - Remuneraciones ptes.</td>
+                                    <td class="py-3 px-4 text-right font-mono text-slate-400">-</td>
+                                    <td class="py-3 px-4 text-right font-mono font-bold text-rose-600">€1,200.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 flex flex-col">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Previsión Tesorería (7 días)</h3>
+                    
+                    <div class="space-y-4 flex-1">
+                        <div class="p-4 border border-emerald-100 bg-emerald-50 rounded-xl">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-emerald-800">Cobros Esperados</span>
+                                <span class="material-symbols-outlined text-emerald-500 text-sm">arrow_downward</span>
+                            </div>
+                            <p class="text-2xl font-black text-emerald-900">€14,500.00</p>
+                            <p class="text-[10px] text-emerald-600 mt-1">TPV, Stripe, Delivery Apps</p>
+                        </div>
+                        
+                        <div class="p-4 border border-rose-100 bg-rose-50 rounded-xl">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-rose-800">Pagos Programados</span>
+                                <span class="material-symbols-outlined text-rose-500 text-sm">arrow_upward</span>
+                            </div>
+                            <p class="text-2xl font-black text-rose-900">€6,820.00</p>
+                            <p class="text-[10px] text-rose-600 mt-1">Impuestos, Proveedores, Suministros</p>
+                        </div>
+
+                        <div class="mt-auto pt-4 border-t border-slate-100">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-black text-slate-700">Flujo Neto Estimado</span>
+                                <span class="text-lg font-black text-emerald-600">+€7,680.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('ERP');
+        });
+    </script>
+</body>
+</html>

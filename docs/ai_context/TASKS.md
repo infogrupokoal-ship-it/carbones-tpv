@@ -37,3 +37,4 @@
 - [x] Desarrollar backend y frontend de Gestión de Franquicias (Franchise).
 - [x] Desarrollar backend y frontend de Panel de Sostenibilidad (ESG).
 - [x] Conectar módulos al Enterprise Shell.
+* [x] Implementación completa V6.0 Enterprise (IoT, Crisis, ERP, Procurement, Menu Engineering).

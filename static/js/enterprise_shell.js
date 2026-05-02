@@ -11,24 +11,42 @@ const EnterpriseShell = {
         { id: 'Producción', icon: '🔥', path: '/static/dashboard_produccion.html', category: 'Core' },
         
         { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
-        { id: 'Escandallos', icon: '⚖️', path: '/static/escandallos.html', category: 'Logistics' },
+        { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
         { id: 'Reparto', icon: '🛵', path: '/static/reparto.html', category: 'Logistics' },
+        { id: 'Procurement', icon: '📦', path: '/static/procurement.html', category: 'Logistics' },
         
         { id: 'Analytics', icon: '📊', path: '/static/analytics.html', category: 'Management' },
+        { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
         { id: 'RRHH', icon: '👥', path: '/static/rrhh.html', category: 'Management' },
         { id: 'Marketing', icon: '📣', path: '/static/marketing.html', category: 'Management' },
         { id: 'Referidos', icon: '🔗', path: '/static/referidos.html', category: 'Management' },
         { id: 'Franquicias', icon: '🏢', path: '/static/franchise.html', category: 'Management' },
         { id: 'ESG & Eco', icon: '🌱', path: '/static/esg.html', category: 'Management' },
+        { id: 'Menu Eng.', icon: '🧠', path: '/static/menu_engineering.html', category: 'Management' },
         
         { id: 'Ajustes', icon: '⚙️', path: '/static/settings.html', category: 'System' },
-        { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' }
+        { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' },
+        { id: 'IoT Equipos', icon: '🌡️', path: '/static/iot.html', category: 'System' },
+        { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' }
     ],
 
     init(activeId) {
+        if (!activeId) {
+            activeId = document.body.getAttribute('data-active-module') || 'Portal';
+        }
         this.renderSidebar(activeId);
         this.injectGlobalStyles();
+        this.startTelemetry();
         console.log(`[Enterprise Shell] Module "${activeId}" initialized.`);
+    },
+
+    startTelemetry() {
+        // Mock telemetry for industrial feel
+        setInterval(() => {
+            const latency = Math.floor(Math.random() * 50) + 10;
+            const latencyEl = document.getElementById('shell-latency');
+            if (latencyEl) latencyEl.innerText = `${latency}ms`;
+        }, 5000);
     },
 
     renderSidebar(activeId) {
@@ -72,6 +90,10 @@ const EnterpriseShell = {
                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Master Admin</p>
                         <p class="text-[10px] font-black text-slate-900 uppercase truncate">Admin Panel</p>
                     </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between px-2">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Status: <span class="text-emerald-500">Online</span></span>
+                    <span id="shell-latency" class="text-[8px] font-black text-slate-400 uppercase tracking-widest">--ms</span>
                 </div>
             </div>
         `;
