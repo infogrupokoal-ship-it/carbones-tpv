@@ -1,6 +1,21 @@
 # CHANGELOG_AI.md
 
-## [11.0.0-SINGULARITY] - 2026-05-02
+## [13.2.0-FULL-SALES-AUDIT] - 2026-05-02
+### Auditoría Completa de Ventas + Catálogo Real + Checkout Funcional
+- **Catálogo Completo**: `scripts/seed_catalog_completo.py` con **61 productos reales** en **10 categorías** (Pollos, Bocadillos, Hamburguesas, Pizzas, Arroces, Sándwiches, Complementos, Bebidas, Combos, Postres). Precios reales del negocio.
+- **Auto-Seed Startup**: El servidor ejecuta `seed_catalog_completo()` en cada arranque (idempotente, no duplica). Garantiza catálogo siempre actualizado en Render.
+- **Checkout B2C Funcional**: `processOrder()` en `index.html` ahora hace POST real a `/api/orders/` con nombre, teléfono, dirección, método de pago y notas. Antes usaba un `setTimeout` falso que nunca creaba pedidos.
+- **Modal de Éxito**: Al confirmar pedido en B2C, muestra modal premium con nº de ticket y tiempo estimado (20-30 min) en vez de `alert()`.
+- **Parsing API corregido**: Tanto `index.html` como `tpv.html` manejan correctamente respuesta array o `{value,Count}` del backend.
+- **Filtro precio**: Las tiendas B2C y TPV solo muestran productos con `precio > 0`.
+
+### [V13.1] - 2026-05-02
+- **TPV Mostrador** (`tpv.html`): Nueva interfaz de venta directa en mostrador. Endpoint corregido a `/api/productos/`.
+- **Login**: Selector de turno "Terminal TPV" redirige a `tpv.html`.
+- **Portal**: Separados módulos TPV Mostrador y Cola de Caja.
+
+## [V13.0-AUTONOMOUS-PROACTIVE] - 2026-05-02
+
 ### Priorización Comercial y Estabilización de Arquitectura
 - **B2C Storefront**: La raíz (`/`) ahora sirve el catálogo minimalista de alta conversión para clientes.
 - **Admin Portal**: Acceso industrial centralizado en la ruta `/admin`.
