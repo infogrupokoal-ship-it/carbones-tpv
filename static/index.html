@@ -2,8 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- SEO & Professional PWA Meta Tags -->
     <title>Carbones y Pollos | La Mejor Brasa de La Granja</title>
+    <meta name="description" content="El mejor pollo asado a la brasa de encina. Pide online con envío gratis y disfruta del sabor tradicional en tu casa.">
+    <meta name="theme-color" content="#ea580c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Open Graph / WhatsApp Preview -->
+    <meta property="og:title" content="Carbones y Pollos | Auténtica Brasa">
+    <meta property="og:description" content="Pide ahora el mejor pollo asado de La Granja. ¡Ofertas exclusivas en nuestra web!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=1200">
+    <meta property="og:type" content="restaurant.menu">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -450,6 +463,28 @@
     
     <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden animate__animated animate__fadeIn"></div>
 
+    <!-- Upsell Interstitial Modal -->
+    <div id="upsell-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-gray-900/90 backdrop-blur-lg" onclick="closeUpsell()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-[3rem] p-8 overflow-hidden animate__animated animate__zoomIn shadow-2xl border-4 border-orange-500">
+            <div class="absolute top-0 left-0 w-full bg-red-600 text-white text-[10px] font-900 uppercase tracking-widest text-center py-1 animate-pulse">
+                ¡ESPERA, NO TE OLVIDES!
+            </div>
+            <img src="/static/assets/guarniciones.png" class="w-32 h-32 mx-auto mb-6 mt-4 object-cover rounded-full shadow-lg border-4 border-white transform hover:scale-110 transition-transform">
+            <h3 class="text-3xl font-900 tracking-tighter text-center uppercase mb-2">¿Sin Patatas? 😱</h3>
+            <p class="text-gray-500 text-center text-sm font-light mb-8">El 95% de la gente acompaña su pollo con nuestras legendarias patatas asadas. ¡Añádelas ahora por solo 3.50€!</p>
+            
+            <div class="space-y-3">
+                <button onclick="acceptUpsell()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-5 rounded-3xl font-900 uppercase tracking-widest text-sm shadow-xl transition-all transform active:scale-95">
+                    ¡Sí, añadir Patatas (+3.50€)!
+                </button>
+                <button onclick="rejectUpsell()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-400 py-4 rounded-3xl font-900 uppercase tracking-widest text-xs transition-all">
+                    No gracias, solo pagar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Checkout Modal -->
     <div id="checkout-modal" class="fixed inset-0 z-[110] hidden items-center justify-center px-4">
         <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-md" onclick="closeCheckout()"></div>
@@ -542,6 +577,19 @@
         async function initMenu() {
             try {
                 updateCartUI();
+                
+                // Show Skeleton Loading state
+                const grid = document.getElementById('products-grid');
+                grid.innerHTML = Array(6).fill(`
+                    <div class="product-card bg-white p-8 rounded-[3rem] border border-gray-50 shadow-sm animate-pulse">
+                        <div class="rounded-[2.5rem] mb-8 aspect-square bg-gray-200"></div>
+                        <div class="h-6 bg-gray-200 rounded-full w-3/4 mb-4"></div>
+                        <div class="h-4 bg-gray-100 rounded-full w-full mb-2"></div>
+                        <div class="h-4 bg-gray-100 rounded-full w-2/3 mb-8"></div>
+                        <div class="h-12 bg-gray-200 rounded-3xl w-full"></div>
+                    </div>
+                `).join('');
+
                 const response = await fetch('/api/productos/?limit=300');
                 if (!response.ok) throw new Error('API Error');
                 const json = await response.json();
@@ -816,11 +864,42 @@
             updateCartUI();
         }
 
-        // Checkout Logic
+        // Checkout & Upsell Logic
         function openCheckout() {
+            // Check if they have patatas or guarnición
+            const hasSides = cart.some(item => item.name.toLowerCase().includes('patatas') || item.name.toLowerCase().includes('guarnición') || item.name.toLowerCase().includes('ensalada'));
+            
+            if (!hasSides && cart.length > 0) {
+                toggleCart(); // Close cart
+                document.getElementById('upsell-modal').classList.remove('hidden');
+                document.getElementById('upsell-modal').classList.add('flex');
+            } else {
+                proceedToCheckoutModal();
+            }
+        }
+
+        function closeUpsell() {
+            document.getElementById('upsell-modal').classList.add('hidden');
+            document.getElementById('upsell-modal').classList.remove('flex');
+        }
+
+        function acceptUpsell() {
+            closeUpsell();
+            addToCart('upsell-patatas', 'Ración de Patatas Asadas', 3.50, '/static/assets/guarniciones.png');
+            proceedToCheckoutModal(false); // Don't close cart again since it's already closed
+        }
+
+        function rejectUpsell() {
+            closeUpsell();
+            proceedToCheckoutModal(false);
+        }
+
+        function proceedToCheckoutModal(closeCart = true) {
             document.getElementById('checkout-modal').classList.remove('hidden');
             document.getElementById('checkout-modal').classList.add('flex');
-            toggleCart();
+            if(closeCart && document.getElementById('cart-drawer').classList.contains('open')) {
+                toggleCart();
+            }
         }
 
         function closeCheckout() {
