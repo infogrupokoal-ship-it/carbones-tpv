@@ -200,6 +200,7 @@ app.include_router(telemetry.router, prefix="/api/system", tags=["Mantenimiento"
 app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
 app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
 app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
+app.include_router(payments.router, prefix="/api", tags=["Pagos"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback & NPS"])
 app.include_router(escandallos.router, prefix="/api", tags=["Escandallos"])
 app.include_router(fleet.router, prefix="/api", tags=["Fleet"])
