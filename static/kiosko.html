@@ -348,11 +348,10 @@ async function submitOrder(event) {
     document.getElementById('success-modal').classList.remove('hidden');
 
   } catch(e) {
+    console.error("Order error:", e);
     btn.disabled = false;
     btn.innerHTML = '🔥 Confirmar y Pagar';
-    alert(`¡Gracias, ${nombre}! Tu pedido se ha recibido. Te llamamos al ${tel}.`);
-    closeCheckout();
-    cart = []; updateCartUI();
+    alert(`Ocurrió un error al enviar el pedido: ${e.message}. Por favor, inténtelo de nuevo.`);
   }
 }
 

@@ -567,18 +567,18 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
 
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const dir = document.getElementById('chk-dir').value;
             const orderData = {
                 items: cart.map(item => ({
                     producto_id: item.id,
-                    cantidad: item.qty,
-                    precio_unitario: item.price
+                    cantidad: item.qty
                 })),
-                total: subtotal + (subtotal > 30 ? 0 : 3.50),
+                origen: `B2C-${document.getElementById('chk-tel').value}`,
+                estado_inicial: 'PENDIENTE',
                 metodo_pago: document.getElementById('chk-pago').value,
-                notas: document.getElementById('chk-notas').value + ' | DIR: ' + document.getElementById('chk-dir').value,
-                cliente_nombre: document.getElementById('chk-nombre').value,
-                cliente_telefono: document.getElementById('chk-tel').value
+                notas_cliente: `Cliente: ${document.getElementById('chk-nombre').value} | Notas: ${document.getElementById('chk-notas').value}`,
+                metodo_envio: dir ? 'DOMICILIO' : 'LOCAL',
+                direccion: dir
             };
 
             try {
@@ -599,14 +599,11 @@
                     closeCheckout();
                     
                     // Show Success
-                    document.getElementById('success-name').innerText = orderData.cliente_nombre;
-                    document.getElementById('success-ticket').innerText = 'Ticket: #' + (result.id || Math.floor(Math.random()*10000));
+                    document.getElementById('success-name').innerText = document.getElementById('chk-nombre').value;
+                    document.getElementById('success-ticket').innerText = 'Ticket: #' + (result.numero_ticket || result.id?.substring(0,8) || Math.floor(Math.random()*10000));
                     document.getElementById('success-modal').classList.remove('hidden');
                     document.getElementById('success-modal').classList.add('flex');
                     
-                    // Send to printer logic if exists
-                    if(window.printOrder) window.printOrder(result);
-
                 } else {
                     alert('Error procesando el pedido. Por favor, intente de nuevo.');
                 }
