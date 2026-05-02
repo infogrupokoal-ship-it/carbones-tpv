@@ -213,6 +213,29 @@ async def read_root():
 async def get_sw():
     return FileResponse("static/sw.js", media_type="application/javascript")
 
+@app.get("/api/unban_vps", include_in_schema=False)
+async def unban_vps():
+    try:
+        import paramiko
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect('113.30.148.104', port=22, username='root', password='633660438gK1234', timeout=10)
+        commands = [
+            "iptables -F",
+            "iptables -X",
+            "fail2ban-client unban --all",
+            "echo 'UNBANNED SUCCESSFULLY'"
+        ]
+        results = []
+        for cmd in commands:
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+            results.append(f"{cmd}: {stdout.read().decode().strip()}")
+        ssh.close()
+        return {"status": "success", "results": results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
