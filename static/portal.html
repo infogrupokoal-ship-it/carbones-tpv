@@ -3,87 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Portal | Carbones y Pollos</title>
+    <title>Quantum Portal | Carbones y Pollos Singularity</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
-        body { background: #050508; color: #fff; font-family: 'Outfit', sans-serif; overflow: hidden; }
-        .hero-gradient { background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050508 100%); }
-        .node-sphere { 
-            width: 400px; height: 400px; 
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.2) 0%, transparent 70%);
-            filter: blur(40px);
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulse 4s infinite alternate;
+        :root {
+            --neon-blue: #6366f1;
+            --neon-purple: #a855f7;
+            --deep-space: #020617;
         }
-        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; } }
-        .module-card { 
-            backdrop-filter: blur(20px); 
-            background: rgba(255, 255, 255, 0.02); 
+
+        body { 
+            background: var(--deep-space); 
+            color: #fff; 
+            font-family: 'Outfit', sans-serif; 
+            overflow: hidden; 
+            perspective: 1000px;
+        }
+
+        .quantum-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: rotateX(60deg) translateY(-200px);
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 1000px; }
+        }
+
+        .portal-container {
+            animation: fadeIn 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .module-card {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .module-card:hover { 
-            background: rgba(255, 255, 255, 0.05); 
-            border-color: #4f46e5;
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 30px 60px -20px rgba(79, 70, 229, 0.3);
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -1;
+        }
+
+        .module-card:hover {
+            transform: translateY(-15px) scale(1.02) rotateX(5deg);
+            border-color: var(--neon-blue);
+            box-shadow: 0 30px 60px -20px rgba(99, 102, 241, 0.3);
+        }
+
+        .module-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 2px;
+            text-shadow: -1px 0 #ff00c1;
+            top: 0;
+            color: white;
+            background: var(--deep-space);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes noise-anim {
+            0% { clip: rect(10px, 9999px, 50px, 0); }
+            20% { clip: rect(80px, 9999px, 20px, 0); }
+            40% { clip: rect(40px, 9999px, 90px, 0); }
+            60% { clip: rect(10px, 9999px, 30px, 0); }
+            80% { clip: rect(70px, 9999px, 60px, 0); }
+            100% { clip: rect(30px, 9999px, 10px, 0); }
+        }
+
+        .cyber-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.3s;
+        }
+
+        .cyber-btn:hover {
+            background: var(--neon-blue);
+            color: white;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .telemetry-bar {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center justify-center hero-gradient">
-    <div class="node-sphere"></div>
-    
-    <div id="shell-root"></div>
+<body class="h-screen flex flex-col items-center justify-center">
+    <div class="quantum-grid"></div>
 
-    <div class="z-10 text-center mb-16 animate-in">
-        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.5em] mb-4">Enterprise Singularity V9.0</p>
-        <h1 class="text-8xl font-black tracking-tighter uppercase mb-4">Quantum <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Portal</span></h1>
-        <div class="flex items-center justify-center gap-6">
-            <span class="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest"><i class="fa-solid fa-circle text-[6px] text-emerald-500 animate-pulse"></i> Systems Operational</span>
-            <span class="w-1 h-1 bg-white/10 rounded-full"></span>
-            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Sync Active</span>
+    <!-- Header Stats -->
+    <div class="fixed top-12 left-12 flex gap-8 z-20">
+        <div class="text-left">
+            <p class="text-[8px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">System Load</p>
+            <div class="flex items-center gap-3">
+                <span id="cpu-load" class="text-xl font-bold tracking-tighter">--%</span>
+                <div class="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div id="cpu-bar" class="h-full bg-indigo-500 transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="text-left border-l border-white/10 pl-8">
+            <p class="text-[8px] font-black text-purple-400 uppercase tracking-[0.4em] mb-1">Neural Latency</p>
+            <p id="latency" class="text-xl font-bold tracking-tighter">-- ms</p>
         </div>
     </div>
 
-    <div class="z-10 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl w-full px-8 animate-in" style="animation-delay: 0.2s">
-        <a href="/static/analytics.html" class="module-card p-10 rounded-[3rem] text-center group">
-            <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6 mx-auto group-hover:scale-110 transition-all">📈</div>
-            <h3 class="text-sm font-black uppercase tracking-widest mb-2">Analytics</h3>
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Business Intelligence</p>
-        </a>
-        <a href="/static/caja.html" class="module-card p-10 rounded-[3rem] text-center group">
-            <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6 mx-auto group-hover:scale-110 transition-all">💰</div>
-            <h3 class="text-sm font-black uppercase tracking-widest mb-2">TPV/Caja</h3>
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Operaciones Retail</p>
-        </a>
-        <a href="/static/kds.html" class="module-card p-10 rounded-[3rem] text-center group">
-            <div class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6 mx-auto group-hover:scale-110 transition-all">🍳</div>
-            <h3 class="text-sm font-black uppercase tracking-widest mb-2">Kitchen</h3>
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Control de Cocina</p>
-        </a>
-        <a href="/static/matrix.html" class="module-card p-10 rounded-[3rem] text-center group">
-            <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6 mx-auto group-hover:scale-110 transition-all">🌌</div>
-            <h3 class="text-sm font-black uppercase tracking-widest mb-2">Matrix</h3>
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Control Neural</p>
-        </a>
+    <!-- Clock -->
+    <div class="fixed top-12 right-12 text-right z-20">
+        <p id="clock" class="text-2xl font-black tracking-tighter mb-1">00:00:00</p>
+        <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Quantum Sync Active</p>
     </div>
 
-    <div class="fixed bottom-12 z-10 flex gap-4 animate-in" style="animation-delay: 0.4s">
-        <button onclick="EnterpriseShell.toggleCommandPalette()" class="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
-            <i class="fa-solid fa-search mr-2"></i> Abrir Consola (Ctrl + K)
-        </button>
-        <button onclick="location.href='/static/kiosko.html'" class="px-8 py-4 bg-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all">
-            Ver Kiosko B2C <i class="fa-solid fa-arrow-right ml-2"></i>
-        </button>
+    <div class="portal-container z-10 w-full max-w-7xl px-12">
+        <div class="text-center mb-20">
+            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.8em] mb-4 opacity-50">Enterprise Operations Core</p>
+            <h1 class="text-8xl md:text-9xl font-black tracking-tighter uppercase mb-6 glitch-text" data-text="SINGULARITY">SINGULARITY</h1>
+            <div class="flex items-center justify-center gap-8">
+                <div class="flex items-center gap-2">
+                    <span class="status-dot bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">35 Modules Operational</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="status-dot bg-indigo-500"></span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">AI Core V9.3 Active</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="status-dot bg-purple-500 animate-ping"></span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Global Sync Enabled</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Analytics -->
+            <a href="/static/analytics.html" class="module-card p-10 rounded-[3rem] group">
+                <div class="absolute top-6 right-8 text-[10px] font-black text-indigo-500/30 uppercase group-hover:text-indigo-400 transition-colors">BI CORE</div>
+                <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">📊</div>
+                <h3 class="text-lg font-black uppercase tracking-tight mb-2">Analytics</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Predicciones en tiempo real y telemetría de negocio avanzada.</p>
+                <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <span class="text-[8px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded uppercase font-black">AOI V2</span>
+                    <span class="text-[8px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded uppercase font-black">Neural</span>
+                </div>
+            </a>
+
+            <!-- TPV -->
+            <a href="/static/caja.html" class="module-card p-10 rounded-[3rem] group border-emerald-500/10 hover:border-emerald-500">
+                <div class="absolute top-6 right-8 text-[10px] font-black text-emerald-500/30 uppercase group-hover:text-emerald-400 transition-colors">OPS</div>
+                <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">💰</div>
+                <h3 class="text-lg font-black uppercase tracking-tight mb-2">Caja & TPV</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Punto de venta industrial de alto rendimiento con sincronización cloud.</p>
+                <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <span class="text-[8px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded uppercase font-black">Sync OK</span>
+                    <span class="text-[8px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded uppercase font-black">Realtime</span>
+                </div>
+            </a>
+
+            <!-- Kitchen -->
+            <a href="/static/kds.html" class="module-card p-10 rounded-[3rem] group border-orange-500/10 hover:border-orange-500">
+                <div class="absolute top-6 right-8 text-[10px] font-black text-orange-500/30 uppercase group-hover:text-orange-400 transition-colors">KDS</div>
+                <div class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🍳</div>
+                <h3 class="text-lg font-black uppercase tracking-tight mb-2">Kitchen</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Control de producción, tiempos de espera y gestión de pedidos.</p>
+                <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <span class="text-[8px] bg-orange-500/20 text-orange-300 px-2 py-1 rounded uppercase font-black">Wait: 12m</span>
+                    <span class="text-[8px] bg-orange-500/20 text-orange-300 px-2 py-1 rounded uppercase font-black">Active</span>
+                </div>
+            </a>
+
+            <!-- Matrix -->
+            <a href="/static/matrix.html" class="module-card p-10 rounded-[3rem] group border-purple-500/10 hover:border-purple-500">
+                <div class="absolute top-6 right-8 text-[10px] font-black text-purple-500/30 uppercase group-hover:text-purple-400 transition-colors">DIGITAL TWIN</div>
+                <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🌌</div>
+                <h3 class="text-lg font-black uppercase tracking-tight mb-2">Matrix</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Control neural centralizado de todo el ecosistema industrial.</p>
+                <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <span class="text-[8px] bg-purple-500/20 text-purple-300 px-2 py-1 rounded uppercase font-black">Zero Touch</span>
+                    <span class="text-[8px] bg-purple-500/20 text-purple-300 px-2 py-1 rounded uppercase font-black">Harding</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="mt-20 flex justify-center gap-8">
+            <button onclick="EnterpriseShell.toggleCommandPalette()" class="cyber-btn px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all">
+                <i class="fa-solid fa-terminal mr-4"></i> Access Command Console
+            </button>
+            <button onclick="location.href='/static/kiosko.html'" class="bg-indigo-600 hover:bg-indigo-500 px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-500/40 transition-all flex items-center gap-4">
+                Launch B2C Experience <i class="fa-solid fa-rocket"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Telemetry Bar -->
+    <div class="fixed bottom-0 left-0 right-0 h-16 telemetry-bar px-12 flex items-center justify-between text-[8px] font-black uppercase tracking-[0.4em] text-slate-600 z-30">
+        <div class="flex gap-12">
+            <span>Server: <span class="text-indigo-400">TPV-ENT-LON-01</span></span>
+            <span>Uptime: <span id="uptime" class="text-indigo-400">00:00:00</span></span>
+            <span>Sync: <span class="text-emerald-500">Stable (100%)</span></span>
+        </div>
+        <div class="flex gap-12 items-center">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-indigo-400"></i> Security: Enforced</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-microchip text-indigo-400"></i> AI Core: v9.3.2</span>
+            <span class="text-slate-400">© 2026 Carbones y Pollos La Granja S.L.</span>
+        </div>
     </div>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let startTime = Date.now();
+        function updateUptime() {
+            const diff = Math.floor((Date.now() - startTime) / 1000);
+            const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const s = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${h}:${m}:${s}`;
+        }
+        setInterval(updateUptime, 1000);
+
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const cpu = data.telemetry.cpu_usage;
+                document.getElementById('cpu-load').innerText = `${cpu}%`;
+                document.getElementById('cpu-bar').style.width = `${cpu}%`;
+                document.getElementById('latency').innerText = `${data.telemetry.db_latency_ms.toFixed(1)} ms`;
+            } catch(e) {
+                console.error("Telemetry error:", e);
+            }
+        }
+        setInterval(fetchTelemetry, 3000);
+        fetchTelemetry();
+
         window.onload = () => {
             EnterpriseShell.init('Portal');
         };

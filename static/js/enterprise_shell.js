@@ -1,15 +1,15 @@
 /**
- * Carbones y Pollos - Enterprise Shell v4.0
- * Industrial Singularity Orchestrator
+ * Carbones y Pollos - Enterprise Shell v5.0
+ * Quantum Singularity Orchestrator
  */
 
 const EnterpriseShell = {
-    version: '4.0.0-Singularity',
+    version: '5.0.0-Quantum',
     modules: [
         { id: 'Analytics', icon: '📈', path: '/static/predictive_analytics.html', category: 'Core' },
         { id: 'Matrix', icon: '🌌', path: '/static/matrix.html', category: 'Core' },
         { id: 'Portal', icon: '🏠', path: '/static/portal.html', category: 'Core' },
-        { id: 'Caja', icon: '💰', path: '/static/caja.html', category: 'Core' },
+        { id: 'Caja', icon: '💰', path: '/static/financial.html', category: 'Core' },
         { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
         { id: 'Dashboard', icon: '📊', path: '/static/dashboard.html', category: 'Core' },
         { id: 'Engines', icon: '⚙️', path: '/static/engines.html', category: 'Core' },
@@ -54,76 +54,123 @@ const EnterpriseShell = {
         this.injectSystemBanner();
         this.injectCarbonitoUI();
         this.injectCommandPalette();
+        this.injectNeuralMonitor();
         this.startTelemetry();
         this.startNotificationPoller();
         this.handleResponsive();
         
-        if (activeId === 'KDS') {
+        if (activeId === 'KDS' || activeId === 'Matrix') {
             document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
             document.body.style.paddingLeft = '6rem';
         }
         
-        // Register Keyboard Shortcuts
+        // Shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'k') {
-                e.preventDefault();
-                this.toggleCommandPalette();
-            }
+            if (e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleCommandPalette(); }
+            if (e.ctrlKey && e.key === 'j') { e.preventDefault(); this.toggleNeuralMonitor(); }
         });
         
-        console.log(`[Enterprise Shell ${this.version}] Active: ${activeId}`);
+        console.log(`[Enterprise Shell ${this.version}] Initiated.`);
     },
 
     injectSystemBanner() {
         if (document.getElementById('enterprise-banner')) return;
         const banner = document.createElement('div');
         banner.id = 'enterprise-banner';
-        banner.className = "fixed top-0 right-0 left-24 lg:left-80 h-1.5 bg-slate-100 z-[2000] flex overflow-hidden";
-        banner.innerHTML = `
-            <div class="h-full bg-indigo-600 animate-pulse" style="width: 30%"></div>
-            <div class="h-full bg-emerald-500" style="width: 70%"></div>
-        `;
+        banner.className = "fixed top-0 right-0 left-24 lg:left-80 h-1 bg-slate-100 z-[2000] flex overflow-hidden";
+        banner.innerHTML = `<div class="h-full bg-indigo-600 animate-pulse" style="width: 100%"></div>`;
         document.body.appendChild(banner);
         
         const info = document.createElement('div');
-        info.className = "fixed top-4 right-10 z-[2000] flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] pointer-events-none opacity-50";
+        info.className = "fixed top-4 right-10 z-[2000] flex items-center gap-4 text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pointer-events-none select-none";
         info.innerHTML = `
-            <span>Node: CP-GLOBAL-01</span>
-            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-            <span>Uptime: 99.9%</span>
-            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-            <span>Security: High</span>
+            <span>CP-QUANTUM-NODE-01</span>
+            <span class="w-1 h-1 rounded-full bg-slate-200"></span>
+            <span id="shell-clock">00:00:00</span>
         `;
         document.body.appendChild(info);
+        setInterval(() => {
+            document.getElementById('shell-clock').innerText = new Date().toLocaleTimeString('es-ES', {hour12: false});
+        }, 1000);
+    },
+
+    injectNeuralMonitor() {
+        if (document.getElementById('neural-monitor')) return;
+        const monitor = document.createElement('div');
+        monitor.id = 'neural-monitor';
+        monitor.className = "fixed top-0 right-0 w-[400px] h-screen bg-slate-900 text-slate-400 font-mono text-[10px] p-8 z-[2500] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/10 overflow-hidden hidden lg:block";
+        monitor.innerHTML = `
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-white font-black uppercase tracking-widest">Neural Stream</span>
+                <button onclick="EnterpriseShell.toggleNeuralMonitor()" class="text-slate-600 hover:text-white">✕</button>
+            </div>
+            <div id="neural-logs" class="space-y-2 overflow-y-auto h-[80vh] custom-scrollbar">
+                <div class="text-indigo-400">[INIT] Attaching to local quantum node...</div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-[8px] uppercase font-black mb-1">CPU Load</p>
+                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div id="neural-cpu" class="h-full bg-indigo-500" style="width: 24%"></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[8px] uppercase font-black mb-1">Neural Flux</p>
+                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div id="neural-flux" class="h-full bg-emerald-500" style="width: 68%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(monitor);
+    },
+
+    toggleNeuralMonitor() {
+        const mon = document.getElementById('neural-monitor');
+        if (mon.classList.contains('translate-x-full')) {
+            mon.classList.remove('translate-x-full');
+        } else {
+            mon.classList.add('translate-x-full');
+        }
     },
 
     startTelemetry() {
-        setInterval(() => {
-            const latency = Math.floor(Math.random() * 25) + 5;
-            const el = document.getElementById('shell-latency');
-            if (el) el.innerText = latency + 'ms';
-        }, 3000);
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const latencyEl = document.getElementById('shell-latency');
+                if (latencyEl) latencyEl.innerText = `${data.telemetry.db_latency.toFixed(2)}ms`;
+                
+                const cpuEl = document.getElementById('neural-cpu');
+                if (cpuEl) cpuEl.style.width = `${data.telemetry.cpu_usage}%`;
+                
+                const log = document.createElement('div');
+                log.className = "opacity-60";
+                log.innerHTML = `<span class="text-slate-600">${new Date().toLocaleTimeString()}</span> <span class="text-indigo-400">[SYS]</span> DB_SYNC: OK | HEAL: ACTIVE`;
+                const logsCont = document.getElementById('neural-logs');
+                if (logsCont) {
+                    logsCont.appendChild(log);
+                    logsCont.scrollTop = logsCont.scrollHeight;
+                    if (logsCont.children.length > 30) logsCont.removeChild(logsCont.firstChild);
+                }
+            } catch(e) {}
+        }, 5000);
     },
 
-    processedNotifications: new Set(),
     startNotificationPoller() {
         const poll = async () => {
             try {
                 const res = await fetch('/api/notifications/');
-                if (!res.ok) return;
-                const notifs = await res.json();
-                notifs.forEach(n => {
-                    if (!this.processedNotifications.has(n.id)) {
-                        this.processedNotifications.add(n.id);
-                        if (typeof EnterpriseUI !== 'undefined') {
-                            EnterpriseUI.showToast(`[${n.module}] ${n.title}: ${n.message}`, n.type);
-                        }
-                    }
-                });
-            } catch (e) { console.warn('Notification poll failed', e); }
+                if (res.ok) {
+                    const notifs = await res.json();
+                    notifs.forEach(n => {
+                        if (typeof EnterpriseUI !== 'undefined') EnterpriseUI.showToast(n.message, n.type);
+                    });
+                }
+            } catch (e) {}
         };
-        setInterval(poll, 10000);
-        poll();
+        setInterval(poll, 15000);
     },
 
     toggleCategory(catName) {
@@ -145,12 +192,10 @@ const EnterpriseShell = {
         sidebar.className = "fixed left-0 top-0 h-full bg-white border-r border-slate-100 flex flex-col z-[1000] transition-all duration-300 w-24 lg:w-80 shadow-2xl shadow-slate-200/40";
         
         const categories = [...new Set(this.modules.map(m => m.category))];
-        
         let navHtml = '';
         categories.forEach(cat => {
             const modulesInCat = this.modules.filter(m => m.category === cat);
             const hasActive = modulesInCat.some(m => m.id === activeId);
-            
             navHtml += `
                 <div class="mb-2">
                     <button onclick="EnterpriseShell.toggleCategory('${cat}')" class="w-full flex items-center justify-between px-8 py-4 group">
@@ -159,7 +204,6 @@ const EnterpriseShell = {
                     </button>
                     <div id="cat-content-${cat}" class="${hasActive ? '' : 'hidden'} space-y-1">
             `;
-            
             modulesInCat.forEach(m => {
                 const isActive = m.id === activeId;
                 navHtml += `
@@ -172,7 +216,6 @@ const EnterpriseShell = {
                     </a>
                 `;
             });
-            
             navHtml += `</div></div>`;
         });
 
@@ -196,21 +239,14 @@ const EnterpriseShell = {
                     <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center font-black text-xs text-white border-2 border-white shadow-xl">AD</div>
                     <div class="hidden lg:block">
                         <p class="text-[10px] font-black text-slate-900 uppercase">Master Admin</p>
-                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Active & Secure</p>
+                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Quantum Secured</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-widest">
                     <span class="text-slate-300">Sync: <span id="shell-latency" class="text-slate-600">--ms</span></span>
                     <div class="flex items-center gap-2">
-                        <span class="text-[7px] text-emerald-500 animate-pulse">Self-Healing Active</span>
-                        <div class="flex gap-1">
-                            <div class="w-1 h-1 rounded-full bg-emerald-500"></div>
-                            <div class="w-1 h-1 rounded-full bg-emerald-300"></div>
-                        </div>
+                        <span class="text-[7px] text-emerald-500 animate-pulse">Singularity Active</span>
                     </div>
-                </div>
-                <div class="pt-2 flex items-center justify-center gap-1 opacity-40">
-                    <span class="text-[6px] font-bold text-slate-400">AI ENGINE V9.1 OPERATIONAL</span>
                 </div>
             </div>
         `;
@@ -222,21 +258,21 @@ const EnterpriseShell = {
         palette.id = 'command-palette';
         palette.className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[3000] hidden flex items-start justify-center pt-32 p-4";
         palette.innerHTML = `
-            <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in">
-                <div class="p-6 border-b border-slate-100 flex items-center gap-4">
-                    <i class="fas fa-search text-slate-400"></i>
-                    <input type="text" id="palette-search" placeholder="Buscar módulo, orden o cliente..." class="flex-1 border-none focus:ring-0 text-sm font-bold text-slate-900 bg-transparent">
-                    <span class="text-[10px] font-black text-slate-300 uppercase">ESC para cerrar</span>
+            <div class="w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in">
+                <div class="p-8 border-b border-slate-100 flex items-center gap-6">
+                    <i class="fas fa-search text-slate-400 text-xl"></i>
+                    <input type="text" id="palette-search" placeholder="Search anything in the ecosystem..." class="flex-1 border-none focus:ring-0 text-lg font-black text-slate-900 bg-transparent placeholder:text-slate-200">
+                    <span class="text-[8px] font-black text-slate-300 uppercase">ESC</span>
                 </div>
-                <div id="palette-results" class="max-h-[400px] overflow-y-auto p-4 space-y-1 custom-scrollbar">
+                <div id="palette-results" class="max-h-[400px] overflow-y-auto p-6 space-y-2 custom-scrollbar">
                     ${this.modules.map(m => `
-                        <a href="${m.path}" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group">
-                            <span class="text-2xl">${m.icon}</span>
+                        <a href="${m.path}" class="flex items-center gap-6 p-5 rounded-3xl hover:bg-slate-50 transition-all group">
+                            <span class="text-3xl">${m.icon}</span>
                             <div>
-                                <p class="text-[11px] font-black uppercase text-slate-900">${m.id}</p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${m.category}</p>
+                                <p class="text-[12px] font-black uppercase text-slate-900">${m.id}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
                             </div>
-                            <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-200 group-hover:text-indigo-600 transition-all"></i>
+                            <i class="fas fa-arrow-right ml-auto text-slate-200 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all"></i>
                         </a>
                     `).join('')}
                 </div>
@@ -245,42 +281,31 @@ const EnterpriseShell = {
         palette.onclick = (e) => { if (e.target === palette) this.toggleCommandPalette(); };
         document.body.appendChild(palette);
         
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') palette.classList.add('hidden');
-        });
-
         document.getElementById('palette-search')?.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const results = document.getElementById('palette-results');
-            if (!results) return;
-            
             const filtered = this.modules.filter(m => m.id.toLowerCase().includes(query) || m.category.toLowerCase().includes(query));
             results.innerHTML = filtered.map(m => `
-                <a href="${m.path}" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group">
-                    <span class="text-2xl">${m.icon}</span>
+                <a href="${m.path}" class="flex items-center gap-6 p-5 rounded-3xl hover:bg-slate-50 transition-all group">
+                    <span class="text-3xl">${m.icon}</span>
                     <div>
-                        <p class="text-[11px] font-black uppercase text-slate-900">${m.id}</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${m.category}</p>
+                        <p class="text-[12px] font-black uppercase text-slate-900">${m.id}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
                     </div>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-200 group-hover:text-indigo-600 transition-all"></i>
+                    <i class="fas fa-arrow-right ml-auto text-slate-200 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all"></i>
                 </a>
-            `).join('') || '<p class="p-8 text-center text-[10px] font-black text-slate-400 uppercase">No se encontraron resultados</p>';
+            `).join('') || '<div class="p-12 text-center opacity-30 font-black uppercase tracking-widest text-xs">Zero results found in matrix</div>';
         });
     },
 
     toggleCommandPalette() {
-        const palette = document.getElementById('command-palette');
-        if (palette.classList.contains('hidden')) {
-            palette.classList.remove('hidden');
-            document.getElementById('palette-search')?.focus();
-        } else {
-            palette.classList.add('hidden');
-        }
+        const p = document.getElementById('command-palette');
+        p.classList.toggle('hidden');
+        if (!p.classList.contains('hidden')) document.getElementById('palette-search').focus();
     },
 
     injectCarbonitoUI() {
         if (document.getElementById('carbonito-launcher')) return;
-        
         const launcher = document.createElement('button');
         launcher.id = 'carbonito-launcher';
         launcher.className = "fixed bottom-10 right-10 w-16 h-16 rounded-[2rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center text-3xl hover:scale-110 hover:rotate-6 transition-all active:scale-95 z-[2000] border-4 border-white";
@@ -289,147 +314,105 @@ const EnterpriseShell = {
         
         const chat = document.createElement('div');
         chat.id = 'carbonito-chat';
-        chat.className = "fixed bottom-32 right-10 w-[400px] h-[600px] bg-white rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
+        chat.className = "fixed bottom-32 right-10 w-[400px] h-[600px] bg-white rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
         chat.innerHTML = `
-            <div class="p-8 bg-indigo-600 text-white">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🤖</div>
+            <div class="p-10 bg-indigo-600 text-white relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🤖</div>
                         <div>
-                            <h3 class="text-sm font-black uppercase tracking-widest">Carbonito AI</h3>
-                            <p class="text-[9px] text-indigo-200 uppercase font-bold tracking-widest">Advanced Business Analyst</p>
+                            <h3 class="text-sm font-black uppercase tracking-[0.2em]">Carbonito <span class="text-indigo-200">AI</span></h3>
+                            <p class="text-[8px] text-indigo-200 uppercase font-bold tracking-[0.3em]">Quantum Intelligence Layer</p>
                         </div>
                     </div>
-                    <button onclick="EnterpriseShell.toggleCarbonito()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">✕</button>
+                    <button onclick="EnterpriseShell.toggleCarbonito()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-xs">✕</button>
                 </div>
             </div>
-            <div id="carbonito-messages" class="flex-1 p-8 overflow-y-auto space-y-6 text-xs font-medium text-slate-600 custom-scrollbar bg-slate-50/50">
-                <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed animate-in">
-                    ¡Saludos! Soy **Carbonito v4.0**. Mi red neuronal está sincronizada con el módulo de **${document.body.getAttribute('data-active-module') || 'Gestión Global'}**.
-                    <br><br>
-                    He detectado que el rendimiento del sistema es óptimo. ¿Deseas un reporte estratégico detallado?
+            <div id="carbonito-messages" class="flex-1 p-10 overflow-y-auto space-y-6 text-[11px] font-bold text-slate-600 custom-scrollbar bg-slate-50/50">
+                <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed">
+                    Protocolo **Singularity v5.0** iniciado. Estoy conectado al nodo central. ¿Qué optimización deseas ejecutar hoy?
                 </div>
             </div>
-            <div class="p-6 bg-white border-t border-slate-100">
+            <div class="p-8 bg-white border-t border-slate-50">
                 <div class="relative">
-                    <input type="text" id="carbonito-input" placeholder="Preguntar a Carbonito AI..." class="w-full bg-slate-50 border-none rounded-2xl py-5 px-8 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-inner">
-                    <button onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95">➔</button>
+                    <input type="text" id="carbonito-input" placeholder="Consult quantum node..." class="w-full bg-slate-100 border-none rounded-3xl py-6 px-10 text-[11px] font-black focus:ring-2 focus:ring-indigo-600 shadow-inner">
+                    <button onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">➔</button>
                 </div>
             </div>
         `;
-
         document.body.appendChild(launcher);
         document.body.appendChild(chat);
-        
-        document.getElementById('carbonito-input')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendCarbonitoMessage();
-        });
+        document.getElementById('carbonito-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.sendCarbonitoMessage(); });
     },
 
     toggleCarbonito() {
-        const chat = document.getElementById('carbonito-chat');
-        if (chat.classList.contains('hidden')) {
-            chat.classList.remove('hidden');
-            setTimeout(() => chat.classList.remove('translate-y-10', 'opacity-0'), 10);
+        const c = document.getElementById('carbonito-chat');
+        if (c.classList.contains('hidden')) {
+            c.classList.remove('hidden');
+            setTimeout(() => c.classList.remove('translate-y-10', 'opacity-0'), 10);
         } else {
-            chat.classList.add('translate-y-10', 'opacity-0');
-            setTimeout(() => chat.classList.add('hidden'), 500);
+            c.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => c.classList.add('hidden'), 500);
         }
     },
 
     async sendCarbonitoMessage() {
         const input = document.getElementById('carbonito-input');
-        const container = document.getElementById('carbonito-messages');
-        if (!input || !input.value.trim()) return;
-
+        const cont = document.getElementById('carbonito-messages');
+        if (!input.value.trim()) return;
         const msg = input.value;
         input.value = '';
+        
+        const uDiv = document.createElement('div');
+        uDiv.className = "bg-indigo-600 text-white p-6 rounded-3xl rounded-tr-none ml-12 text-right shadow-xl shadow-indigo-100 animate-in";
+        uDiv.innerText = msg;
+        cont.appendChild(uDiv);
+        cont.scrollTop = cont.scrollHeight;
 
-        const userDiv = document.createElement('div');
-        userDiv.className = "bg-indigo-600 text-white p-6 rounded-3xl rounded-tr-none ml-12 text-right shadow-xl shadow-indigo-100 animate-in";
-        userDiv.innerText = msg;
-        container.appendChild(userDiv);
-        container.scrollTop = container.scrollHeight;
-
-        const botDiv = document.createElement('div');
-        botDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
-        botDiv.innerText = "Consultando Matrix de Inteligencia...";
-        container.appendChild(botDiv);
+        const bDiv = document.createElement('div');
+        bDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
+        bDiv.innerText = "Querying Matrix Data...";
+        cont.appendChild(bDiv);
 
         try {
             const res = await fetch('/api/enterprise/global-status');
             const data = await res.json();
-            
             setTimeout(() => {
-                botDiv.classList.remove('animate-pulse');
-                let aiResponse = "";
-                
-                if (msg.toLowerCase().includes('status') || msg.toLowerCase().includes('hola')) {
-                    aiResponse = `Análisis de Singularity v9.0:<br><br>
-                        - **Market Multiplier**: ${data.market.multiplier.toFixed(3)}x<br>
-                        - **Logistics Efficiency**: ${data.performance.delivery_efficiency}<br>
-                        - **IoT Health**: Optimal (${data.nodes.iot_devices} active nodes)<br>
-                        - **Predictive Sentiment**: ${data.market.sentiment}<br><br>
-                        Recomiendo mantener el protocolo actual de **${data.market.sentiment === 'BULLISH' ? 'Escalado Agresivo' : 'Optimización de Costes'}**.`;
-                } else if (msg.toLowerCase().includes('ventas') || msg.toLowerCase().includes('dinero')) {
-                    aiResponse = `Reporte Financiero Proyectado:<br><br>
-                        La tendencia actual indica un volumen operativo de **${data.nodes.total_orders_today} pedidos**. 
-                        Con el multiplicador de Yield de **${data.market.multiplier}x**, el margen proyectado se mantiene en el **18.4%**.`;
-                } else {
-                    aiResponse = `He analizado tu consulta en el contexto de **${document.body.getAttribute('data-active-module') || 'Global Enterprise'}**.<br><br>
-                        Los sistemas de autocuración están activos y la red de nodos reporta una latencia de ${Math.floor(Math.random()*10)+2}ms. Todo está bajo control operativo.`;
-                }
-                
-                botDiv.innerHTML = aiResponse + `<br><br><span class="text-indigo-600 font-black uppercase text-[10px]">Quantum Protocol: Verified</span>`;
-                container.scrollTop = container.scrollHeight;
+                bDiv.classList.remove('animate-pulse');
+                bDiv.innerHTML = `Análisis completado. Multiplicador de mercado actual: **${data.market.multiplier.toFixed(2)}x**. 
+                El sistema de autocuración ha detectado ${data.nodes.iot_devices} dispositivos activos. 
+                Recomiendo priorizar **${data.market.sentiment === 'BULLISH' ? 'Escalado' : 'Consolidación'}**.`;
+                cont.scrollTop = cont.scrollHeight;
             }, 1000);
-        } catch (e) {
-            botDiv.innerText = "Error de enlace con la Red Quantum.";
-        }
+        } catch(e) { bDiv.innerText = "Quantum sync error."; }
     },
 
     injectGlobalStyles() {
         if (document.getElementById('shell-global-styles')) return;
-        const style = document.createElement('style');
-        style.id = 'shell-global-styles';
-        style.textContent = `
+        const s = document.createElement('style');
+        s.id = 'shell-global-styles';
+        s.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
-            @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-            
-            body { 
-                padding-left: 6rem; 
-                background: #f8fafc; 
-                font-family: 'Outfit', sans-serif;
-                margin: 0;
-                transition: padding-left 0.3s ease;
-            }
+            body { padding-left: 6rem; background: #fbfcfe; font-family: 'Outfit', sans-serif; transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
             @media (min-width: 1024px) { body { padding-left: 20rem; } }
-            
             .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-            
-            @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-            .animate-in { animation: slideIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-            
+            @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+            .animate-in { animation: slideIn 0.4s ease-out forwards; }
             .collapsed body { padding-left: 6rem !important; }
             #enterprise-sidebar.collapsed { width: 6rem !important; }
             #enterprise-sidebar.collapsed .lg\:block { display: none !important; }
-            #enterprise-sidebar.collapsed .lg\:px-10 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+            #enterprise-sidebar.collapsed .lg\:px-10 { padding-left: 1.5rem !important; }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(s);
     },
-    
+
     handleResponsive() {
-        const check = () => {
-            if (window.innerWidth < 1024) {
-                document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
-            }
-        };
-        window.addEventListener('resize', check);
-        check();
+        const h = () => { if (window.innerWidth < 1024) document.getElementById('enterprise-sidebar')?.classList.add('collapsed'); };
+        window.addEventListener('resize', h); h();
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => { EnterpriseShell.init(); });
+document.addEventListener('DOMContentLoaded', () => EnterpriseShell.init());
 window.EnterpriseShell = EnterpriseShell;
