@@ -103,6 +103,7 @@ def listar_pedidos_hoy(db: Session = Depends(get_db)):
     return db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
 
 @router.get("/activas", response_model=List[PedidoOut])
+@router.get("/active", response_model=List[PedidoOut])
 def listar_pedidos_activos(db: Session = Depends(get_db)):
     """
     Retorna los pedidos que aún no están completados (para logística).

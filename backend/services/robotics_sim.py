@@ -17,12 +17,11 @@ async def run_robotics_simulation():
             for i in range(1, 4):
                 robot_id = f"KITCHEN-BOT-0{i}"
                 telemetry = RoboticsTelemetry(
-                    robot_id=robot_id,
-                    status="ACTIVE" if random.random() > 0.1 else "MAINTENANCE",
-                    battery_level=random.randint(60, 100),
-                    current_task=random.choice(["ASANDO_POLLO", "FRIENDO_PATATAS", "LIMPIEZA", "IDLE"]),
-                    last_position="STATION-01",
-                    error_logs=None if random.random() > 0.05 else "SENSOR_CALIBRATION_REQUIRED"
+                    device_id=robot_id,
+                    sensor_type=random.choice(["TEMP_FRYER", "OIL_QUALITY", "DISPENSE_COUNT"]),
+                    value=random.uniform(150.0, 190.0) if "TEMP" in robot_id else random.random(),
+                    unit="°C" if "TEMP" in robot_id else "%",
+                    status="OK" if random.random() > 0.1 else "WARNING"
                 )
                 db.add(telemetry)
             

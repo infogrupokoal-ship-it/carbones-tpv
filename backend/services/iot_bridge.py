@@ -25,10 +25,9 @@ class IoTBridge:
                     
                     # Generar log operativo
                     db.add(LogOperativo(
+                        nivel="WARNING",
                         modulo="HARDWARE",
-                        accion="OVERHEAT_ALERT",
-                        descripcion=f"Freidora CR-1 alcanzó {temp}C. Sistema de enfriamiento activado.",
-                        usuario="SYSTEM-IoT"
+                        mensaje=f"¡ALERTA! Freidora CR-1 sobrecalentada: {temp}C. Sistema de enfriamiento activado."
                     ))
                 
                 # Registrar telemetría

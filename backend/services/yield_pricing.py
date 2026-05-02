@@ -22,15 +22,15 @@ class YieldPricingService:
                     multiplier = 1.0 + (active_rule.ajuste_precio_pct / 100)
                     logger.info(f"[YIELD] Aplicando multiplicador x{multiplier} ({active_rule.nombre})")
                     
-                    # 2. Actualizar productos (demo: solo productos con precio > 10)
-                    db.query(Producto).filter(Producto.precio > 10).update({
+                    # 2. Actualizar productos (solo si tienen precio_base definido)
+                    db.query(Producto).filter(Producto.precio_base != None).update({
                         "precio": Producto.precio_base * multiplier
                     }, synchronize_session=False)
                     
                     db.commit()
                 else:
-                    # Resetear a precio base si no hay regla
-                    db.query(Producto).update({
+                    # Resetear a precio base
+                    db.query(Producto).filter(Producto.precio_base != None).update({
                         "precio": Producto.precio_base
                     }, synchronize_session=False)
                     db.commit()

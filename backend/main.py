@@ -1,8 +1,5 @@
 import asyncio
 import threading
-from .services.autonomous_dispatch import dispatcher
-from .services.robotics_sim import run_robotics_simulation
-from .services.yield_pricing import yield_engine
 import os
 import sys
 import time
@@ -25,8 +22,18 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from backend.routers import orders, inventory, customers, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty, franchise, esg, pricing, iot, erp, crisis, menu_engineering, procurement, admin, hardware, telemetry, webhooks, admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics
+from backend.routers import (
+    orders, inventory, customers, stats, auth, ai_assistant, rrhh, marketing, 
+    reservas, delivery_aggregators, mantenimiento, payments, feedback, 
+    escandallos, fleet, loyalty, franchise, esg, pricing, iot, erp, crisis, 
+    menu_engineering, procurement, admin, hardware, telemetry, webhooks, 
+    admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics
+)
 from backend.services import sync_daemon, ai_bi_agent, self_healing
+from backend.services.autonomous_dispatch import dispatcher
+from backend.services.yield_pricing import yield_engine
+from backend.services.robotics_sim import run_robotics_simulation
+from backend.services.iot_bridge import IoTBridge
 
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -41,8 +48,6 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="### Sistema TPV de Alto Rendimiento\nEcosistema profesional para la gestión operativa, financiera e inteligente de Carbones y Pollos.",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
 )
 
 app.state.limiter = limiter
@@ -81,7 +86,7 @@ if os.path.exists("static"):
 async def startup_event():
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
-    # Forzar UTF-8 en consola para evitar errores de charmap en Windows
+    
     if sys.platform == "win32":
         try:
             import io
@@ -90,7 +95,7 @@ async def startup_event():
         except Exception:
             pass
 
-    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
+    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v6.0]...")
     
     # 1. Base de Datos y Estructura
     migrate_schema()
@@ -98,52 +103,38 @@ async def startup_event():
     from .seeding import run_auto_seeding
     run_auto_seeding()
     
-    # 2. Scripts de Actualización y Mantenimiento
+    # 2. Scripts de Datos
     try:
         from scripts.seed_night_menu_image import seed_night_menu_image
         seed_night_menu_image()
         from scripts.seed_pizzas import seed_pizzas
         seed_pizzas()
-        
         from scripts.fix_broken_images import fix_broken_images
         fix_broken_images()
-        
-        # Enforce Admin Password
-        from backend.database import SessionLocal
-        from backend.models import Usuario
-        from backend.utils.auth import get_password_hash
-        db = SessionLocal()
-        admin_user = db.query(Usuario).filter_by(username="admin").first()
-        if admin_user:
-            admin_user.pin_hash = get_password_hash("1234")
-            db.commit()
-        db.close()
-
-        # 4. Iniciar Motores Industriales en Background
-        threading.Thread(target=lambda: asyncio.run(dispatcher.optimize_routes()), daemon=True).start()
-        threading.Thread(target=lambda: asyncio.run(run_robotics_simulation()), daemon=True).start()
-        
-        logger.info("SINGULARITY V9.0: TODOS LOS SISTEMAS OPERATIVOS.")
     except Exception as e:
-        logger.error(f"Error running auto-update script: {e}")
+        logger.error(f"Error running seed scripts: {e}")
+
+    # 3. Iniciar Servicios Autónomos (Singularity V9.3 / Quantum V6.0)
+    services_to_start = [
+        (NotificationService.worker_loop(), "Notification Worker"),
+        (scheduler_loop(), "Scheduler Loop"),
+        (WorkerManager.run_maintenance_cycle(), "Worker Maintenance"),
+        (sync_daemon.run(), "Sync Daemon"),
+        (self_healing.SelfHealingService().monitor(), "Self-Healing Engine"),
+        (dispatcher.run_cycle(), "Autonomous Dispatch"),
+        (yield_engine.process_prices(), "Yield Pricing Engine"),
+        (run_robotics_simulation(), "Robotics Simulation"),
+        (IoTBridge.monitor_hardware(), "IoT Hardware Bridge")
+    ]
     
-    # 3. Iniciar Tareas en Segundo Plano y Motores Autónomos V9.3
-    asyncio.create_task(NotificationService.worker_loop())
-    asyncio.create_task(scheduler_loop())
-    asyncio.create_task(WorkerManager.run_maintenance_cycle())
-    asyncio.create_task(sync_daemon.run())
-    asyncio.create_task(self_healing.SelfHealingService().monitor())
+    for coro, name in services_to_start:
+        try:
+            asyncio.create_task(coro)
+            logger.info(f"✅ Service started: {name}")
+        except Exception as e:
+            logger.error(f"❌ Failed to start service {name}: {e}")
     
-    # Nuevos Servicios Enterprise Singularity V9.3
-    from backend.services.autonomous_dispatch import AutonomousDispatch
-    from backend.services.iot_bridge import IoTBridge
-    from backend.services.yield_pricing import YieldPricingService
-    
-    asyncio.create_task(AutonomousDispatch.run_cycle())
-    asyncio.create_task(IoTBridge.monitor_hardware())
-    asyncio.create_task(YieldPricingService.process_prices())
-    
-    logger.info("Enterprise Singularity [V9.3] - ALL AUTONOMOUS ENGINES ACTIVE. ")
+    logger.info("Enterprise Singularity [V9.3] - ALL SYSTEMS GO.")
 
 
 @app.get("/health", tags=["Infraestructura"])

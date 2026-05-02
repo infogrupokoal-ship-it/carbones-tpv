@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, Date
 from backend.database import get_db
 from backend.models import Pedido, Presupuesto, Referido
 from datetime import datetime, timedelta
@@ -70,8 +70,8 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
     try:
         # 1. KPIs
         today = datetime.now().date()
-        ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.cast(Pedido.fecha, func.Date) == today).scalar() or 0
-        pedidos_hoy = db.query(Pedido).filter(func.cast(Pedido.fecha, func.Date) == today).count()
+        ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.cast(Pedido.fecha, Date) == today).scalar() or 0
+        pedidos_hoy = db.query(Pedido).filter(func.cast(Pedido.fecha, Date) == today).count()
         
         # 2. Gráfica de Ventas por Horas (Dialect Aware)
         if db.bind.dialect.name == 'sqlite':
@@ -83,7 +83,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         ventas_horas = db.query(
             hour_func.label('hora'),
             func.sum(Pedido.total).label('total')
-        ).filter(func.cast(Pedido.fecha, func.Date) == today).group_by('hora').order_by('hora').all()
+        ).filter(func.cast(Pedido.fecha, Date) == today).group_by('hora').order_by('hora').all()
         
         horas_labels = [h.hora for h in ventas_horas] if ventas_horas else ["09:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"]
         horas_data = [float(h.total) for h in ventas_horas] if ventas_horas else [50, 120, 450, 320, 80, 210, 540]
@@ -253,3 +253,20 @@ def cashflow_forecast(db: Session = Depends(get_db)):
         "riesgo_liquidez": "BAJO"
     }
 
+
+def get_sales_metrics(db: Session):
+    """Retorna un diccionario simplificado de métricas de ventas para la IA."""
+    today = datetime.now().date()
+    ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.cast(Pedido.fecha, Date) == today).scalar() or 0
+    pedidos_hoy = db.query(Pedido).filter(func.cast(Pedido.fecha, Date) == today).count()
+    return {
+        "ventas_hoy": float(ventas_hoy),
+        "pedidos_hoy": pedidos_hoy,
+        "ticket_promedio": (float(ventas_hoy) / pedidos_hoy) if pedidos_hoy > 0 else 0
+    }
+
+def get_inventory_status(db: Session):
+    """Retorna alertas de inventario para la IA."""
+    from backend.models import Ingrediente
+    stock_alerts = db.query(Ingrediente).filter(Ingrediente.stock_actual <= Ingrediente.stock_minimo).all()
+    return [{"item": i.nombre, "stock": i.stock_actual} for i in stock_alerts]
