@@ -35,5 +35,11 @@ async def run_robotics_simulation():
         
         await asyncio.sleep(60) # Log every minute
 
+def start_robotics_sim():
+    """Wrapper to run the async simulation in a thread."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_robotics_simulation())
+
 if __name__ == "__main__":
     asyncio.run(run_robotics_simulation())

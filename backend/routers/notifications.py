@@ -6,7 +6,7 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 
-router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
+router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 class Notification(BaseModel):
     id: str
