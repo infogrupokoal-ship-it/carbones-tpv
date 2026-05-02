@@ -86,40 +86,46 @@ async def startup_event():
             pass
 
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando...")
+    
+    # 1. Base de Datos y Estructura
     migrate_schema()
     
     from .seeding import run_auto_seeding
     run_auto_seeding()
     
-    # --- AUTO-UPDATE RENDER SCRIPT ---
+    # 2. Scripts de Actualización y Mantenimiento
     try:
         from scripts.seed_night_menu_image import seed_night_menu_image
         seed_night_menu_image()
         from scripts.seed_pizzas import seed_pizzas
         seed_pizzas()
         
-        # Iniciar Worker de Notificaciones
-        asyncio.create_task(NotificationService.worker_loop())
-        
         from scripts.fix_broken_images import fix_broken_images
         fix_broken_images()
         
+        # Enforce Admin Password
         from backend.database import SessionLocal
         from backend.models import Usuario
         from backend.utils.auth import get_password_hash
         db = SessionLocal()
-        admin = db.query(Usuario).filter_by(username="admin").first()
-        if admin:
-            admin.pin_hash = get_password_hash("1234")
+        admin_user = db.query(Usuario).filter_by(username="admin").first()
+        if admin_user:
+            admin_user.pin_hash = get_password_hash("1234")
             db.commit()
             logger.info("Admin password enforced to 1234")
         db.close()
     except Exception as e:
         logger.error(f"Error running auto-update script: {e}")
-    # ---------------------------------
     
+    # 3. Iniciar Tareas en Segundo Plano y Motores Autónomos V6.0
+    asyncio.create_task(NotificationService.worker_loop())
     asyncio.create_task(scheduler_loop())
     asyncio.create_task(WorkerManager.run_maintenance_cycle())
+    asyncio.create_task(sync_daemon.run())
+    asyncio.create_task(self_healing.SelfHealingService().monitor())
+    
+    logger.info("Enterprise Singularity [V8.0] fully activated and operational.")
+
 
 @app.get("/health", tags=["Infraestructura"])
 @app.get("/healthz", tags=["Infraestructura"], include_in_schema=False)
@@ -181,13 +187,6 @@ async def health_check() -> Dict[str, Any]:
         },
         "ai_engine": __import__('backend.utils.ai_model_manager', fromlist=['ai_manager']).ai_manager.get_status()
     }
-
-@app.on_event("startup")
-async def startup_event():
-    # Inicializar motores autónomos V6.0
-    asyncio.create_task(sync_daemon.run())
-    asyncio.create_task(self_healing.SelfHealingService().monitor())
-    logger.info("Enterprise Singularity [V6.0] fully activated.")
 
 # --- Registro de Routers Modulares ---
 app.include_router(auth.router, prefix="/api", tags=["Seguridad"])

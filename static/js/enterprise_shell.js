@@ -47,6 +47,13 @@ const EnterpriseShell = {
         this.injectGlobalStyles();
         this.injectCarbonitoUI();
         this.startTelemetry();
+        this.handleResponsive();
+        
+        if (activeId === 'KDS') {
+            document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
+            document.body.style.paddingLeft = '6rem';
+        }
+        
         console.log(`[Enterprise Shell ${this.version}] Active: ${activeId}`);
     },
 

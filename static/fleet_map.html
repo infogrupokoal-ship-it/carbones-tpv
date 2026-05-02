@@ -69,8 +69,10 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
     </style>
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
 </head>
-<body>
+<body data-active-module="Fleet">
+    <div id="enterprise-sidebar"></div>
     <div id="map"></div>
 
     <div class="overlay top-6 left-6 flex flex-col gap-4 w-80">
@@ -168,5 +170,6 @@
 
         renderRiders();
     </script>
+    <script src="/static/js/enterprise_shell.js"></script>
 </body>
 </html>

@@ -65,8 +65,10 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
     </style>
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
 </head>
-<body class="flex flex-col h-screen">
+<body data-active-module="KDS" class="flex flex-col h-screen">
+    <div id="enterprise-sidebar"></div>
     <div class="bg-grid"></div>
 
     <!-- Header -->
@@ -264,5 +266,6 @@
         setInterval(fetchOrders, 5000);
         fetchOrders();
     </script>
+    <script src="/static/js/enterprise_shell.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿# TASKS.md
+# TASKS.md
 
 ## 1. Crítico
 
@@ -38,3 +38,11 @@
 - [x] Desarrollar backend y frontend de Panel de Sostenibilidad (ESG).
 - [x] Conectar módulos al Enterprise Shell.
 * [x] Implementación completa V6.0 Enterprise (IoT, Crisis, ERP, Procurement, Menu Engineering).
+
+## Fase VII: Industrialización Singularity (V7.0)
+- [x] **Enterprise Shell v3.1**: Navegación por categorías colapsables (Accordion) y telemetría de latencia.
+- [x] **Mass Injection Pipeline**: Automatización de la inyección del shell en 27 módulos industriales.
+- [x] **Carbonito AI Business Analyst**: Integración en todos los módulos administrativos con contexto dinámico.
+- [x] **KDS & Fleet Optimization**: Adaptación de layouts para visualización industrial en pantallas grandes.
+- [x] **Render Production Sync**: Sincronización total de archivos estáticos y backend con la rama main.
+- [x] **UI Audit & Fix**: Eliminación de duplicados visuales y restauración de lógica única por módulo.
