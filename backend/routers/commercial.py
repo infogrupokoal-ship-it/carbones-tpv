@@ -141,6 +141,24 @@ def actualizar_estado_presupuesto(id: str, estado: str, db: Session = Depends(ge
     db.commit()
     return {"status": "ok", "nuevo_estado": estado}
 
+@router.get("/products")
+def listar_productos(db: Session = Depends(get_db)):
+    """Retorna el catálogo completo de productos para el Kiosko B2C."""
+    try:
+        from ..models import Producto
+        prods = db.query(Producto).all()
+        return [{
+            "id": p.id,
+            "nombre": p.nombre,
+            "precio": p.precio,
+            "categoria": p.categoria,
+            "imagen": p.imagen_url if hasattr(p, 'imagen_url') else "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600",
+            "descripcion": p.descripcion if hasattr(p, 'descripcion') else "Receta artesanal al carbón"
+        } for p in prods]
+    except Exception as e:
+        logger.error(f"Error listando productos Kiosko: {e}")
+        return []
+
 # --- Rutas WhatsApp Templates ---
 
 class WAPlateOut(BaseModel):

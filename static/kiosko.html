@@ -108,51 +108,25 @@
         </div>
     </header>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-900 z-[3000] flex flex-col items-center justify-center transition-all duration-1000">
+        <div class="w-24 h-24 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-8"></div>
+        <p class="text-xs font-black uppercase tracking-[0.5em] text-white animate-pulse">Cargando experiencia gourmet...</p>
+    </div>
+
     <!-- Main Content -->
     <main class="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
         <!-- Categories -->
         <aside class="lg:col-span-3 space-y-4">
             <h2 class="text-xs font-black uppercase tracking-[0.4em] text-slate-400 mb-8">Categorías</h2>
             <div id="categories-container" class="space-y-4">
-                <div class="category-pill active p-6 rounded-3xl cursor-pointer flex items-center justify-between group">
-                    <span class="text-xs font-black uppercase tracking-tight">Pollos Asados</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🍗</span>
-                </div>
-                <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group">
-                    <span class="text-xs font-black uppercase tracking-tight">Carne al Carbón</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🥩</span>
-                </div>
-                <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group">
-                    <span class="text-xs font-black uppercase tracking-tight">Raciones</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🍟</span>
-                </div>
-                <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group">
-                    <span class="text-xs font-black uppercase tracking-tight">Bebidas</span>
-                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🥤</span>
-                </div>
+                <!-- Categories will be injected here -->
             </div>
         </aside>
 
         <!-- Products Grid -->
-        <section class="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            ${Array.from({length: 6}).map((_, i) => `
-                <div class="product-card glass-card rounded-[3rem] p-8 flex flex-col group cursor-pointer overflow-hidden relative">
-                    <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-all"></div>
-                    <div class="w-full aspect-square bg-slate-100 rounded-[2.5rem] mb-8 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" alt="Product">
-                    </div>
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-sm font-black uppercase tracking-tight text-slate-900">Pollo Asado Clásico</h3>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Receta Original</p>
-                        </div>
-                        <span class="text-lg font-black text-indigo-600">12,50€</span>
-                    </div>
-                    <button class="mt-auto w-full py-5 bg-white border border-slate-100 rounded-3xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm">
-                        Añadir al Pedido
-                    </button>
-                </div>
-            `).join('')}
+        <section id="products-grid" class="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <!-- Products will be injected here -->
         </section>
     </main>
 

@@ -13,6 +13,7 @@ from .admin_audit import log_audit_action
 router = APIRouter(prefix="/inventory", tags=["Logística"])
 router_legacy = APIRouter(prefix="/inventario", tags=["Legacy Inventario"])
 router_productos = APIRouter(prefix="/productos", tags=["Catálogo"])
+router_root = APIRouter(tags=["Industrial Root"])
 
 # --- Esquemas Pydantic ---
 
@@ -175,6 +176,7 @@ def actualizar_producto(producto_id: str, req: UpdateProductoRequest, db: Sessio
         raise HTTPException(status_code=500, detail="Error al actualizar el producto")
 
 @router.get("/categorias", response_model=List[CategoriaOut])
+@router_root.get("/categorias", response_model=List[CategoriaOut])
 def listar_categorias(db: Session = Depends(get_db)):
     """
     Obtiene las categorías activas disponibles para el filtrado en el Kiosko.

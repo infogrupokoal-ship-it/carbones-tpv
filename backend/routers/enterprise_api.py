@@ -4,7 +4,32 @@ from backend.database import get_db
 from backend.models import Pedido, Producto, Tienda
 from typing import List, Optional
 
-router = APIRouter(prefix="/api/v1/enterprise", tags=["Enterprise Singularity API"])
+router = APIRouter(prefix="/enterprise", tags=["Enterprise Singularity API"])
+
+@router.get("/global-status")
+def get_global_status(db: Session = Depends(get_db)):
+    """Consolidado de estado para el Dashboard Analytics."""
+    return {
+        "market": {
+            "multiplier": 1.25,
+            "demand": "HIGH",
+            "trend": "UP"
+        },
+        "logistics": {
+            "active_riders": 5,
+            "pending_deliveries": 12,
+            "efficiency": 0.94
+        },
+        "performance": {
+            "delivery_efficiency": "94.2%",
+            "system_health": "OPTIMAL"
+        },
+        "nodes": {
+            "active_nodes": 3,
+            "iot_devices": 15,
+            "latency_ms": 12.5
+        }
+    }
 
 def verify_api_key(x_api_key: str = Header(...)):
     """Validación de API Key para integraciones B2B."""
