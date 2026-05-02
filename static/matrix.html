@@ -3,136 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Matrix | Singularity Node</title>
+    <title>ENTERPRISE SINGULARITY | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f8fafc; overflow: hidden; }
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: white; overflow: hidden; }
         .matrix-bg {
-            position: fixed; inset: 0; z-index: -1;
-            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
+            z-index: -1;
         }
-        .node {
-            position: absolute;
-            width: 120px; height: 120px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-            z-index: 10;
-        }
-        .node:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: #6366f1;
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-        }
-        .node i { font-size: 2rem; margin-bottom: 0.5rem; color: #6366f1; }
-        .node span { font-[10px] font-black uppercase tracking-widest text-slate-400; }
-        
-        canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-        
-        .status-overlay {
-            position: fixed; bottom: 40px; left: 40px; right: 40px;
-            padding: 2rem; border-radius: 2rem;
-            background: rgba(255, 255, 255, 0.02);
+        .glow { text-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+        .portal-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 20;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .portal-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(30, 41, 59, 0.8);
+        }
+        .scanline {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.05), transparent);
+            position: absolute;
+            top: -100px;
+            animation: scan 8s linear infinite;
+        }
+        @keyframes scan {
+            from { top: -100px; }
+            to { top: 100%; }
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-6">
     <div class="matrix-bg"></div>
-    <canvas id="connections"></canvas>
+    <div class="scanline"></div>
 
-    <div class="fixed top-20 left-20">
-        <h1 class="text-6xl font-black text-white tracking-tighter uppercase leading-none">Enterprise <span class="text-indigo-500">Matrix</span></h1>
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-[0.5em] mt-4">Singularity Control Node V5.0</p>
-    </div>
-
-    <div id="nodes-container"></div>
-
-    <div class="status-overlay backdrop-blur-md">
-        <div class="flex items-center gap-6">
-            <div class="flex flex-col">
-                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Status</span>
-                <span class="text-xl font-black text-emerald-500 uppercase">Synced & Secure</span>
+    <div class="max-w-6xl w-full text-center">
+        <header class="mb-20 animate-pulse">
+            <p class="text-indigo-400 font-bold uppercase tracking-[0.5em] text-xs mb-4">Enterprise Orchestration Protocol v9.3</p>
+            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter glow mb-4">SINGULARITY</h1>
+            <div class="flex items-center justify-center gap-4 text-slate-500 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 35 MODULES OPERATIONAL
+                <span class="w-2 h-2 rounded-full bg-emerald-500 ml-4"></span> AI CORE V9.3 ACTIVE
             </div>
-            <div class="h-10 w-px bg-slate-800"></div>
-            <div class="flex flex-col">
-                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Active Threads</span>
-                <span class="text-xl font-black text-white uppercase">128 Operations</span>
-            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <a href="/static/portal.html" class="portal-card p-12 rounded-[3rem] group">
+                <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-indigo-500 group-hover:scale-110 transition-all duration-500">
+                    <svg class="w-8 h-8 text-indigo-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black uppercase tracking-tight mb-2">OPERATIONS</h3>
+                <p class="text-slate-500 text-sm font-medium">Caja, Cocina, Stock y Gestión Diaria.</p>
+            </a>
+
+            <a href="/static/predictive_analytics.html" class="portal-card p-12 rounded-[3rem] group">
+                <div class="w-16 h-16 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-fuchsia-500 group-hover:scale-110 transition-all duration-500">
+                    <svg class="w-8 h-8 text-fuchsia-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black uppercase tracking-tight mb-2">INTELLIGENCE</h3>
+                <p class="text-slate-500 text-sm font-medium">Predicciones AOI, Yield y Analytics.</p>
+            </a>
+
+            <a href="/static/auditoria.html" class="portal-card p-12 rounded-[3rem] group">
+                <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-emerald-500 group-hover:scale-110 transition-all duration-500">
+                    <svg class="w-8 h-8 text-emerald-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black uppercase tracking-tight mb-2">SECURITY</h3>
+                <p class="text-slate-500 text-sm font-medium">Audit Trail, IoT y Auto-Sanación.</p>
+            </a>
         </div>
-        <button onclick="window.location.href='/static/portal.html'" class="px-10 py-4 rounded-2xl bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
-            Volver al Hub
-        </button>
+
+        <footer class="flex flex-col items-center gap-6">
+            <div class="flex gap-10">
+                <div class="text-left">
+                    <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">System Health</p>
+                    <p class="text-xl font-black tracking-tighter" id="cpu-load">00%</p>
+                </div>
+                <div class="text-left">
+                    <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Network Latency</p>
+                    <p class="text-xl font-black tracking-tighter text-emerald-500" id="net-latency">-- ms</p>
+                </div>
+            </div>
+            <p class="text-slate-600 font-bold uppercase text-[8px] tracking-[0.5em] mt-10">© 2026 CARBONES Y POLLOS LA GRANJA S.L. - INDUSTRIAL CORE</p>
+        </footer>
     </div>
 
     <script>
-        const modules = [
-            { id: 'Caja', icon: 'fa-cash-register', x: 200, y: 400 },
-            { id: 'KDS', icon: 'fa-fire-burner', x: 400, y: 300 },
-            { id: 'Stock', icon: 'fa-box-open', x: 600, y: 400 },
-            { id: 'Fleet', icon: 'fa-truck-fast', x: 800, y: 300 },
-            { id: 'Analytics', icon: 'fa-brain', x: 1000, y: 500 },
-            { id: 'ERP', icon: 'fa-file-invoice-dollar', x: 400, y: 600 },
-            { id: 'RRHH', icon: 'fa-users-gear', x: 700, y: 600 },
-            { id: 'Marketing', icon: 'fa-bullhorn', x: 900, y: 700 },
-            { id: 'IoT', icon: 'fa-microchip', x: 200, y: 700 }
-        ];
-
-        function initMatrix() {
-            const container = document.getElementById('nodes-container');
-            const canvas = document.getElementById('connections');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            modules.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'node';
-                div.style.left = `${m.x}px`;
-                div.style.top = `${m.y}px`;
-                div.innerHTML = `<i class="fas ${m.icon}"></i><span>${m.id}</span>`;
-                div.onclick = () => window.location.href = `/static/${m.id.toLowerCase()}.html`;
-                container.appendChild(div);
-            });
-
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = 'rgba(99, 102, 241, 0.15)';
-                ctx.lineWidth = 1;
-
-                modules.forEach((m1, i) => {
-                    modules.forEach((m2, j) => {
-                        if (i < j) {
-                            ctx.beginPath();
-                            ctx.moveTo(m1.x + 60, m1.y + 60);
-                            ctx.lineTo(m2.x + 60, m2.y + 60);
-                            ctx.stroke();
-                        }
-                    });
-                });
-
-                requestAnimationFrame(draw);
-            }
-            draw();
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                document.getElementById('cpu-load').innerText = `${data.telemetry.cpu_usage}%`;
+                document.getElementById('net-latency').innerText = `${data.telemetry.db_latency_ms.toFixed(0)} ms`;
+            } catch(e) {}
         }
-
-        window.onload = initMatrix;
-        window.onresize = () => {
-            const canvas = document.getElementById('connections');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
+        setInterval(updateStats, 5000);
+        updateStats();
     </script>
 </body>
 </html>

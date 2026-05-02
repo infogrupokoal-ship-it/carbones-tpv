@@ -1,48 +1,44 @@
-import random
 import asyncio
-from datetime import datetime
-from typing import List, Dict
+import random
+from sqlalchemy.orm import Session
+from backend.database import SessionLocal
+from backend.models import Pedido, Usuario
+from backend.utils.logger import logger
 
-class AutonomousDispatcher:
+class AutonomousDispatch:
     """
-    Quantum-level Logistics Dispatcher.
-    Simulates AI-driven route optimization and driver assignment.
+    Servicio Autónomo de Despacho V9.3.
+    Asigna pedidos de forma inteligente a repartidores disponibles.
     """
     
-    def __init__(self):
-        self.active_drivers = ["DRV-Alpha", "DRV-Beta", "DRV-Gamma", "DRV-Delta"]
-        self.pending_deliveries = []
-        self.optimization_score = 94.5
-
-    async def optimize_routes(self):
-        """Simulates heavy computational route optimization."""
+    @staticmethod
+    async def run_cycle():
+        """Bucle infinito de despacho autónomo."""
         while True:
-            if random.random() < 0.3:
-                # Simulate new delivery
-                delivery_id = f"DEL-{random.randint(1000, 9999)}"
-                self.pending_deliveries.append({
-                    "id": delivery_id,
-                    "location": (random.uniform(40.4, 40.5), random.uniform(-3.7, -3.6)),
-                    "priority": random.choice(["HIGH", "NORMAL", "EXPRESS"]),
-                    "status": "QUEUED"
-                })
-            
-            if self.pending_deliveries:
-                # Assign to driver with lowest distance (simulated)
-                delivery = self.pending_deliveries.pop(0)
-                driver = random.choice(self.active_drivers)
-                # print(f"[Dispatcher] Optimizing {delivery['id']} -> Assigned to {driver}")
+            db = SessionLocal()
+            try:
+                # 1. Buscar pedidos pendientes de reparto
+                pending_orders = db.query(Pedido).filter(
+                    Pedido.metodo_envio == "DOMICILIO",
+                    Pedido.estado == "PREPARADO"
+                ).all()
                 
-            self.optimization_score = round(94.5 + random.uniform(-2, 2), 2)
-            await asyncio.sleep(45)
-
-    def get_logistics_telemetry(self) -> Dict:
-        return {
-            "score": self.optimization_score,
-            "drivers_active": len(self.active_drivers),
-            "pending_count": len(self.pending_deliveries),
-            "average_eta": "12.4 min"
-        }
-
-# Global Instance
-dispatcher = AutonomousDispatcher()
+                if pending_orders:
+                    # 2. Buscar repartidores disponibles (con rol REPARTIDOR)
+                    drivers = db.query(Usuario).filter(Usuario.role == "REPARTIDOR").all()
+                    
+                    if drivers:
+                        for order in pending_orders:
+                            driver = random.choice(drivers) # Algoritmo de asignación estocástica (mejorable a distancia)
+                            order.estado = "EN_REPARTO"
+                            order.repartidor_id = driver.id
+                            logger.info(f"[DISPATCH] Pedido {order.numero_ticket} asignado a {driver.username}")
+                        
+                        db.commit()
+                
+            except Exception as e:
+                logger.error(f"[DISPATCH] Error en ciclo: {e}")
+            finally:
+                db.close()
+                
+            await asyncio.sleep(30) # Ciclo de 30 segundos

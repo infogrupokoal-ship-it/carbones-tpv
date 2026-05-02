@@ -69,6 +69,7 @@ class Producto(Base):
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     is_active = Column(Boolean, default=True)
     turno_disponible = Column(String(20), default="ALL") # ALL, MORNING, NIGHT
+    precio_base = Column(Float, default=0.0) # Precio original sin ajustes dinámicos
     
     categoria = relationship("Categoria", back_populates="productos")
     tienda = relationship("Tienda", back_populates="productos")
@@ -149,6 +150,7 @@ class Pedido(Base):
     
     cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    repartidor_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
     
     # Integración Stripe & Pagos Online
     stripe_session_id = Column(String(255), nullable=True)

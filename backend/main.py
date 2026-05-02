@@ -1,4 +1,8 @@
 import asyncio
+import threading
+from .services.autonomous_dispatch import dispatcher
+from .services.robotics_sim import run_robotics_simulation
+from .services.yield_pricing import yield_engine
 import os
 import sys
 import time
@@ -112,19 +116,33 @@ async def startup_event():
         if admin_user:
             admin_user.pin_hash = get_password_hash("1234")
             db.commit()
-            logger.info("Admin password enforced to 1234")
         db.close()
+
+        # 4. Iniciar Motores Industriales en Background
+        threading.Thread(target=lambda: asyncio.run(dispatcher.optimize_routes()), daemon=True).start()
+        threading.Thread(target=lambda: asyncio.run(run_robotics_simulation()), daemon=True).start()
+        
+        logger.info("SINGULARITY V9.0: TODOS LOS SISTEMAS OPERATIVOS.")
     except Exception as e:
         logger.error(f"Error running auto-update script: {e}")
     
-    # 3. Iniciar Tareas en Segundo Plano y Motores Autónomos V6.0
+    # 3. Iniciar Tareas en Segundo Plano y Motores Autónomos V9.3
     asyncio.create_task(NotificationService.worker_loop())
     asyncio.create_task(scheduler_loop())
     asyncio.create_task(WorkerManager.run_maintenance_cycle())
     asyncio.create_task(sync_daemon.run())
     asyncio.create_task(self_healing.SelfHealingService().monitor())
     
-    logger.info("Enterprise Singularity [V8.0] fully activated and operational. ")
+    # Nuevos Servicios Enterprise Singularity V9.3
+    from backend.services.autonomous_dispatch import AutonomousDispatch
+    from backend.services.iot_bridge import IoTBridge
+    from backend.services.yield_pricing import YieldPricingService
+    
+    asyncio.create_task(AutonomousDispatch.run_cycle())
+    asyncio.create_task(IoTBridge.monitor_hardware())
+    asyncio.create_task(YieldPricingService.process_prices())
+    
+    logger.info("Enterprise Singularity [V9.3] - ALL AUTONOMOUS ENGINES ACTIVE. ")
 
 
 @app.get("/health", tags=["Infraestructura"])
@@ -221,11 +239,12 @@ app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
 app.include_router(ws.router, tags=["Real-time"])
 app.include_router(aoi.router, prefix="/api", tags=["Inteligencia Autónoma"])
 app.include_router(enterprise_api.router, prefix="/api", tags=["Enterprise Singularity"])
+app.include_router(ai_assistant.router, prefix="/api", tags=["Asistente AI"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
-    """Sirve la interfaz B2C Ultra-Premium como entrada principal del ecosistema."""
-    path = "static/kiosko.html"
+    """Sirve el Portal Quantum como entrada principal del ecosistema Enterprise."""
+    path = "static/portal.html"
     if os.path.exists(path):
         return FileResponse(path)
     return HTMLResponse("<h1>TPV Enterprise</h1><p>Sistema en mantenimiento industrial. Contacte con soporte.</p>", status_code=503)

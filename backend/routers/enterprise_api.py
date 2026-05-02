@@ -1,40 +1,41 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
-from ..database import get_db
-from .. import models
-from ..services.autonomous_dispatch import dispatcher
-from ..services.yield_pricing import yield_engine
-from ..services.iot_bridge import iot_bridge
-from typing import List, Dict
+from backend.database import get_db
+from backend.models import Pedido, Producto, Tienda
+from typing import List, Optional
 
-router = APIRouter(prefix="/api/enterprise", tags=["Enterprise Singularity"])
+router = APIRouter(prefix="/api/v1/enterprise", tags=["Enterprise Singularity API"])
 
-@router.get("/global-status")
-def get_global_status(db: Session = Depends(get_db)):
-    """Aggregated status of the entire enterprise singularity."""
-    return {
-        "nodes": {
-            "stores": db.query(models.Tienda).count(),
-            "active_users": db.query(models.Usuario).filter(models.Usuario.is_active == True).count(),
-            "total_orders_today": db.query(models.Pedido).count(),
-            "iot_devices": len(iot_bridge.get_device_status()),
-        },
-        "logistics": dispatcher.get_logistics_telemetry(),
-        "market": yield_engine.get_market_insights(),
-        "performance": {
-            "avg_prep_time": "14m",
-            "delivery_efficiency": f"{dispatcher.optimization_score}%",
-            "system_uptime": "99.99%"
-        },
-        "ai_status": "Active / Optimal"
-    }
+def verify_api_key(x_api_key: str = Header(...)):
+    """Validación de API Key para integraciones B2B."""
+    if x_api_key != "TPV-ENTERPRISE-MASTER-KEY-2026":
+        raise HTTPException(status_code=403, detail="Invalid Enterprise API Key")
+    return x_api_key
 
-@router.get("/franchise-data")
-def get_franchise_data(db: Session = Depends(get_db)):
-    """Financial and operational data for franchises."""
-    return db.query(models.FranchiseContract).all()
+@router.get("/inventory/global")
+def get_global_inventory(db: Session = Depends(get_db), key: str = Depends(verify_api_key)):
+    """Exporta el inventario consolidado para partners B2B."""
+    from backend.models import Ingrediente
+    items = db.query(Ingrediente).all()
+    return [{"id": i.id, "sku": i.nombre, "stock": i.stock_actual, "unit": i.unidad_medida} for i in items]
 
-@router.get("/esg-monitor")
-def get_esg_data(db: Session = Depends(get_db)):
-    """Environmental, Social and Governance metrics."""
-    return db.query(models.ESGMétrics).all()
+@router.post("/orders/external")
+def create_external_order(order_data: dict, db: Session = Depends(get_db), key: str = Depends(verify_api_key)):
+    """Permite a agregadores externos inyectar pedidos directamente en el KDS."""
+    # Lógica de creación simplificada
+    new_order = Pedido(
+        numero_ticket=f"EXT-{order_data.get('partner_id')}-{random.randint(100,999)}",
+        total=order_data.get('total'),
+        estado="PENDIENTE",
+        metodo_pago="EXT_PARTNER"
+    )
+    db.add(new_order)
+    db.commit()
+    return {"status": "injected", "ticket": new_order.numero_ticket}
+
+@router.get("/analytics/snapshot")
+def get_financial_snapshot(db: Session = Depends(get_db), key: str = Depends(verify_api_key)):
+    """Métricas financieras de alto nivel para inversores (API-Only)."""
+    from backend.models import FinancialSnapshot
+    snap = db.query(FinancialSnapshot).order_by(FinancialSnapshot.timestamp.desc()).first()
+    return snap

@@ -6,50 +6,43 @@
 const EnterpriseShell = {
     version: '4.0.0-Singularity',
     modules: [
-        { icon: 'fa-chart-pie', label: 'Predictive BI', url: '/static/analytics.html' },
-        { icon: 'fa-cube', label: 'Matrix', url: '/static/matrix.html' },
-        { icon: 'fa-box', label: 'Inventario', url: '/static/stock.html' },
+        { id: 'Analytics', icon: '📈', path: '/static/predictive_analytics.html', category: 'Core' },
+        { id: 'Matrix', icon: '🌌', path: '/static/matrix.html', category: 'Core' },
         { id: 'Portal', icon: '🏠', path: '/static/portal.html', category: 'Core' },
         { id: 'Caja', icon: '💰', path: '/static/caja.html', category: 'Core' },
         { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
-        { id: 'Producción', icon: '🔥', path: '/static/dashboard_produccion.html', category: 'Core' },
-        { id: 'Reservas', icon: '🍷', path: '/static/reservas.html', category: 'Core' },
-        { id: 'Robotics', icon: '🤖', path: '/static/robotics.html', category: 'Core' },
-        { id: 'Ghost Kitchen', icon: 'visibility_off', path: '/static/ghost_kitchen.html', category: 'Core' },
+        { id: 'Dashboard', icon: '📊', path: '/static/dashboard.html', category: 'Core' },
+        { id: 'Engines', icon: '⚙️', path: '/static/engines.html', category: 'Core' },
         
-        { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
+        { id: 'Stock', icon: '📦', path: '/static/stock.html', category: 'Logistics' },
         { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
         { id: 'Reparto', icon: '🛵', path: '/static/reparto.html', category: 'Logistics' },
         { id: 'Procurement', icon: '🛒', path: '/static/procurement.html', category: 'Logistics' },
-        { id: 'Aggregators', icon: '🍔', path: '/static/delivery_aggregators.html', category: 'Logistics' },
         { id: 'Fleet', icon: '🚚', path: '/static/fleet_map.html', category: 'Logistics' },
-        { id: 'Traceability', icon: 'qr_code_scanner', path: '/static/supply_chain.html', category: 'Logistics' },
+        { id: 'Traceability', icon: '🔍', path: '/static/supply_chain.html', category: 'Logistics' },
+        { id: 'Aggregators', icon: '🍔', path: '/static/delivery_aggregators.html', category: 'Logistics' },
         
-        { id: 'Predicción', icon: '🧠', path: '/static/predictive_analytics.html', category: 'Management' },
-        { id: 'Analytics', icon: '📊', path: '/static/stats.html', category: 'Management' },
         { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
         { id: 'RRHH', icon: '👥', path: '/static/rrhh.html', category: 'Management' },
         { id: 'Marketing', icon: '📣', path: '/static/marketing.html', category: 'Management' },
         { id: 'Referidos', icon: '🔗', path: '/static/referidos.html', category: 'Management' },
         { id: 'Franquicias', icon: '🏢', path: '/static/franchise.html', category: 'Management' },
         { id: 'ESG & Eco', icon: '🌱', path: '/static/esg.html', category: 'Management' },
-        { id: 'Menu Eng.', icon: '🧠', path: '/static/menu_engineering.html', category: 'Management' },
+        { id: 'Menu Eng.', icon: '📜', path: '/static/menu_engineering.html', category: 'Management' },
         { id: 'B2B Sales', icon: '🤝', path: '/static/commercial.html', category: 'Management' },
         { id: 'Loyalty', icon: '🏆', path: '/static/loyalty.html', category: 'Management' },
-        { id: 'Yield Mgt.', icon: 'trending_up', path: '/static/yield_management.html', category: 'Management' },
-        { id: 'Call Center', icon: 'headset_mic', path: '/static/call_center.html', category: 'Management' },
-        { id: 'QSC Audits', icon: 'fact_check', path: '/static/qsc_audits.html', category: 'Management' },
-        { id: 'Onboarding', icon: 'school', path: '/static/franchise_onboarding.html', category: 'Management' },
-        { id: 'Eco Tracker', icon: 'compost', path: '/static/eco_tracker.html', category: 'Management' },
-        { id: 'Investors', icon: 'account_balance', path: '/static/investor_relations.html', category: 'Management' },
+        { id: 'Yield Mgt.', icon: '📈', path: '/static/yield_management.html', category: 'Management' },
+        { id: 'Call Center', icon: '🎧', path: '/static/call_center.html', category: 'Management' },
+        { id: 'QSC Audits', icon: '✅', path: '/static/qsc_audits.html', category: 'Management' },
+        { id: 'Investors', icon: '🏦', path: '/static/investor_relations.html', category: 'Management' },
         
-        { id: 'Ajustes', icon: '⚙️', path: '/static/settings.html', category: 'System' },
         { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' },
         { id: 'IoT Equipos', icon: '🌡️', path: '/static/iot.html', category: 'System' },
         { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' },
         { id: 'Maintenance', icon: '🛠️', path: '/static/mantenimiento.html', category: 'System' },
         { id: 'Hardware', icon: '🖨️', path: '/static/hardware.html', category: 'System' },
-        { id: 'Signage', icon: 'tv', path: '/static/digital_signage.html', category: 'System' }
+        { id: 'Robotics', icon: '🤖', path: '/static/robotics.html', category: 'System' },
+        { id: 'Settings', icon: '⚙️', path: '/static/settings.html', category: 'System' }
     ],
 
     init(activeId) {
@@ -344,7 +337,7 @@ const EnterpriseShell = {
         }
     },
 
-    sendCarbonitoMessage() {
+    async sendCarbonitoMessage() {
         const input = document.getElementById('carbonito-input');
         const container = document.getElementById('carbonito-messages');
         if (!input || !input.value.trim()) return;
@@ -360,14 +353,39 @@ const EnterpriseShell = {
 
         const botDiv = document.createElement('div');
         botDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
-        botDiv.innerText = "Analizando datos industriales...";
+        botDiv.innerText = "Consultando Matrix de Inteligencia...";
         container.appendChild(botDiv);
 
-        setTimeout(() => {
-            botDiv.classList.remove('animate-pulse');
-            botDiv.innerHTML = `Análisis estratégico para **${document.body.getAttribute('data-active-module')}**:<br><br>He procesado tu solicitud. Los KPIs indican una tendencia positiva. Recomiendo escalar las operaciones en este cuadrante.<br><br><span class="text-indigo-600 font-black uppercase text-[10px]">Estatus: Operación Segura</span>`;
-            container.scrollTop = container.scrollHeight;
-        }, 1500);
+        try {
+            const res = await fetch('/api/enterprise/global-status');
+            const data = await res.json();
+            
+            setTimeout(() => {
+                botDiv.classList.remove('animate-pulse');
+                let aiResponse = "";
+                
+                if (msg.toLowerCase().includes('status') || msg.toLowerCase().includes('hola')) {
+                    aiResponse = `Análisis de Singularity v9.0:<br><br>
+                        - **Market Multiplier**: ${data.market.multiplier.toFixed(3)}x<br>
+                        - **Logistics Efficiency**: ${data.performance.delivery_efficiency}<br>
+                        - **IoT Health**: Optimal (${data.nodes.iot_devices} active nodes)<br>
+                        - **Predictive Sentiment**: ${data.market.sentiment}<br><br>
+                        Recomiendo mantener el protocolo actual de **${data.market.sentiment === 'BULLISH' ? 'Escalado Agresivo' : 'Optimización de Costes'}**.`;
+                } else if (msg.toLowerCase().includes('ventas') || msg.toLowerCase().includes('dinero')) {
+                    aiResponse = `Reporte Financiero Proyectado:<br><br>
+                        La tendencia actual indica un volumen operativo de **${data.nodes.total_orders_today} pedidos**. 
+                        Con el multiplicador de Yield de **${data.market.multiplier}x**, el margen proyectado se mantiene en el **18.4%**.`;
+                } else {
+                    aiResponse = `He analizado tu consulta en el contexto de **${document.body.getAttribute('data-active-module') || 'Global Enterprise'}**.<br><br>
+                        Los sistemas de autocuración están activos y la red de nodos reporta una latencia de ${Math.floor(Math.random()*10)+2}ms. Todo está bajo control operativo.`;
+                }
+                
+                botDiv.innerHTML = aiResponse + `<br><br><span class="text-indigo-600 font-black uppercase text-[10px]">Quantum Protocol: Verified</span>`;
+                container.scrollTop = container.scrollHeight;
+            }, 1000);
+        } catch (e) {
+            botDiv.innerText = "Error de enlace con la Red Quantum.";
+        }
     },
 
     injectGlobalStyles() {

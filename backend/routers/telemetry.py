@@ -1,50 +1,48 @@
-from fastapi import APIRouter, Depends, HTTPException
-import psutil
-import os
-import platform
-import time
+from fastapi import APIRouter
+import random
 from datetime import datetime
-from .auth import get_current_user
 
-router = APIRouter(prefix="/api/telemetry", tags=["telemetry"])
+router = APIRouter(prefix="/telemetry", tags=["Hardware Telemetry & Digital Twin"])
 
-# Iniciar contador de tiempo
-START_TIME = time.time()
-
-@router.get("/status")
-async def get_system_status(current_user: dict = Depends(get_current_user)):
+@router.get("/global-nodes")
+def get_global_nodes_status():
     """
-    Retorna telemetría avanzada del servidor para el dashboard administrativo.
-    Requiere permisos de administrador.
+    Simula el estado de todos los nodos de hardware en el ecosistema Singularity.
+    Esto alimenta la visualizacion del Digital Twin.
     """
-    if current_user.get("rol") != "ADMIN":
-        raise HTTPException(status_code=403, detail="Acceso denegado")
-
-    str(datetime.fromtimestamp(START_TIME))
-    process = psutil.Process(os.getpid())
+    nodes = [
+        {"id": "KIOSKO-01", "type": "TABLET", "status": "ONLINE", "load": 45, "temp": 38.5},
+        {"id": "KIOSKO-02", "type": "TABLET", "status": "ONLINE", "load": 12, "temp": 36.2},
+        {"id": "PRINTER-CASHIER", "type": "PRINTER", "status": "ONLINE", "paper": 85, "temp": 28.1},
+        {"id": "PRINTER-KITCHEN", "type": "PRINTER", "status": "ONLINE", "paper": 40, "temp": 32.5},
+        {"id": "OVEN-MASTER", "type": "IOT_OVEN", "status": "ACTIVE", "load": 92, "temp": 210.0},
+        {"id": "FRYER-01", "type": "IOT_FRYER", "status": "ACTIVE", "load": 65, "temp": 185.5},
+        {"id": "REPARTIDOR-01", "type": "MOBILE_NODE", "status": "IN_TRANSIT", "battery": 78, "gps": {"lat": 37.38, "lon": -5.98}},
+        {"id": "REPARTIDOR-02", "type": "MOBILE_NODE", "status": "IDLE", "battery": 92, "gps": {"lat": 37.39, "lon": -5.99}}
+    ]
     
+    # Añadir ruido aleatorio para realismo
+    for node in nodes:
+        if "load" in node: node["load"] += random.randint(-5, 5)
+        if "temp" in node: node["temp"] += random.uniform(-0.5, 0.5)
+        
     return {
-        "os": platform.system(),
-        "node": platform.node(),
-        "release": platform.release(),
-        "cpu_percent": psutil.cpu_percent(interval=1),
-        "memory": {
-            "total": psutil.virtual_memory().total,
-            "available": psutil.virtual_memory().available,
-            "percent": psutil.virtual_memory().percent,
-            "used": psutil.virtual_memory().used
-        },
-        "disk": psutil.disk_usage('/')._asdict(),
-        "process": {
-            "memory_info": process.memory_info()._asdict(),
-            "cpu_percent": process.cpu_percent(),
-            "threads": process.num_threads(),
-            "uptime_seconds": int(time.time() - START_TIME)
-        },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "total_nodes": len(nodes),
+        "active_nodes": len([n for n in nodes if n["status"] != "OFFLINE"]),
+        "nodes": nodes
     }
 
-@router.get("/health")
-async def health_check():
-    """Endpoint público para monitorización (Render/UptimeRobot)"""
-    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+@router.get("/system-load")
+def get_system_load():
+    """Métricas de carga del servidor para el Dashboard Enterprise."""
+    import psutil
+    import os
+    
+    return {
+        "cpu_usage_pct": psutil.cpu_percent(),
+        "memory_usage_pct": psutil.virtual_memory().percent,
+        "disk_usage_pct": psutil.disk_usage('/').percent,
+        "active_threads": psutil.Process(os.getpid()).num_threads(),
+        "uptime_sec": int(datetime.utcnow().timestamp() - psutil.boot_time()) if hasattr(psutil, "boot_time") else 0
+    }

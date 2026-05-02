@@ -2,315 +2,97 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDS (Kitchen Display System) - Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>KDS Singularity | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-base: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            overflow: hidden;
-            color: #f8fafc;
-        }
-        
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-
-        .ticket-item {
-            animation: slideIn 0.3s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Status Colors */
-        .status-pendiente { border-top: 4px solid #ef4444; } /* Red */
-        .status-preparando { border-top: 4px solid #f59e0b; } /* Yellow */
-        .status-listo { border-top: 4px solid #10b981; } /* Green */
-        
-        .pulse-red { animation: pulseRed 2s infinite; }
-        @keyframes pulseRed {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-    </style>
-    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
-    <meta name="google" content="notranslate">
-</head>
-<body data-active-module="KDS" class="flex flex-col h-screen">
-    <div id="enterprise-sidebar"></div>
-    <div class="bg-grid"></div>
-
-    <!-- Header -->
-    <header class="glass-panel py-4 px-6 flex justify-between items-center z-10 shrink-0">
-        <div class="flex items-center gap-4">
-            <h1 class="text-3xl font-black tracking-tighter text-white uppercase flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
-                KDS <span class="text-red-500 font-light">Terminal</span>
-            </h1>
-            <div class="h-6 w-px bg-slate-700"></div>
-            <p class="text-slate-400 text-sm font-bold tracking-widest uppercase" id="current-time">00:00:00</p>
-        </div>
-        <div class="flex gap-4">
-            <button onclick="fetchOrders()" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                Sync
-            </button>
-        </div>
-    </header>
-
-        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
-
-    <!-- Main Kanban Board -->
-    <main class="flex-1 flex gap-6 p-6 overflow-hidden z-10">
-        
-        <!-- Column 1: Entrantes (Pending) -->
-        <div class="flex-1 flex flex-col glass-panel rounded-2xl overflow-hidden border border-red-500/30">
-            <div class="bg-red-500/10 py-3 px-5 border-b border-red-500/20 flex justify-between items-center shrink-0">
-                <h2 class="text-sm font-black text-red-400 uppercase tracking-widest">Nuevos Pedidos</h2>
-                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full" id="count-pending">0</span>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="col-pending">
-                <!-- Tickets will be injected here -->
-            </div>
-        </div>
-
-        <!-- Column 2: Preparando (Cooking) -->
-        <div class="flex-1 flex flex-col glass-panel rounded-2xl overflow-hidden border border-amber-500/30">
-            <div class="bg-amber-500/10 py-3 px-5 border-b border-amber-500/20 flex justify-between items-center shrink-0">
-                <h2 class="text-sm font-black text-amber-400 uppercase tracking-widest">En Cocina</h2>
-                <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full" id="count-cooking">0</span>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="col-cooking">
-                <!-- Tickets will be injected here -->
-            </div>
-        </div>
-
-        <!-- Column 3: Listos (Ready/Done) -->
-        <div class="flex-1 flex flex-col glass-panel rounded-2xl overflow-hidden border border-emerald-500/30">
-            <div class="bg-emerald-500/10 py-3 px-5 border-b border-emerald-500/20 flex justify-between items-center shrink-0">
-                <h2 class="text-sm font-black text-emerald-400 uppercase tracking-widest">Para Entregar</h2>
-                <span class="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full" id="count-ready">0</span>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="col-ready">
-                <!-- Tickets will be injected here -->
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Notification Sound (Optional) -->
-    <audio id="bell" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3"></audio>
-
-    <script>
-        // Clock
-        setInterval(() => {
-            document.getElementById('current-time').innerText = new Date().toLocaleTimeString('es-ES', {hour12: false});
-        }, 1000);
-
-        let previousPendingCount = 0;
-
-        async function fetchOrders() {
-            try {
-                // To fetch all active we can use pending or standard order API
-                const res = await fetch('/api/orders/pending'); 
-                if (!res.ok) return;
-                let pendingData = await res.json();
-                
-                // For demo/industrialization, let's say we fetch ALL today's orders and filter them in frontend
-                const resAll = await fetch('/api/orders/recent?limit=50'); // Mock endpoint or fallback to what exists
-                let allData = [];
-                if (resAll.ok) {
-                    allData = await resAll.json();
-                } else {
-                    allData = pendingData; 
-                }
-
-                renderKanban(allData);
-            } catch(e) {
-                console.error("KDS Sync error:", e);
-            }
-        }
-
-        function renderKanban(orders) {
-            const colPending = document.getElementById('col-pending');
-            const colCooking = document.getElementById('col-cooking');
-            const colReady = document.getElementById('col-ready');
-
-            colPending.innerHTML = '';
-            colCooking.innerHTML = '';
-            colReady.innerHTML = '';
-
-            let cP = 0, cC = 0, cR = 0;
-
-            orders.forEach(order => {
-                const status = (order.estado || 'PENDIENTE').toUpperCase();
-                
-                // Parse items if it's a string
-                let items = [];
-                if (typeof order.items === 'string') {
-                    try { items = JSON.parse(order.items); } catch(e){}
-                } else {
-                    items = order.items || [];
-                }
-
-                // Calculate time elapsed
-                const orderTime = new Date(order.fecha + "Z");
-                const diffMins = Math.floor((new Date() - orderTime) / 60000);
-                let timeClass = "text-slate-400";
-                if (diffMins > 15) timeClass = "text-red-400 font-bold pulse-red p-1 rounded";
-                else if (diffMins > 10) timeClass = "text-amber-400 font-bold";
-
-                let html = `
-                    <div class="bg-slate-800 rounded-xl p-4 ticket-item shadow-lg relative overflow-hidden group cursor-pointer transition-transform hover:scale-[1.02]" onclick="cycleStatus(${order.id}, '${status}')">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-black text-xl text-white">#${order.id}</h3>
-                            <span class="text-xs ${timeClass}">${diffMins} min</span>
-                        </div>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            ${order.cliente_nombre || 'Cliente B2C'}
-                        </p>
-                        <ul class="space-y-2 mb-4">
-                `;
-
-                items.forEach(it => {
-                    html += `
-                        <li class="flex justify-between items-center text-sm border-b border-slate-700/50 pb-2">
-                            <span class="text-slate-200"><span class="font-black text-white mr-2">${it.cantidad}x</span> ${it.producto || it.nombre}</span>
-                        </li>
-                    `;
-                });
-
-                html += `
-                        </ul>
-                        <div class="text-[9px] text-center text-slate-500 uppercase font-black tracking-widest mt-2 group-hover:text-white transition-colors">
-                            Click para avanzar ->
-                        </div>
-                    </div>
-                `;
-
-                if (status === 'PENDIENTE') {
-                    colPending.innerHTML += html;
-                    cP++;
-                } else if (status === 'PREPARANDO' || status === 'EN_COCINA') {
-                    colCooking.innerHTML += html;
-                    cC++;
-                } else if (status === 'LISTO' || status === 'EN_CAMINO' || status === 'ENTREGADO') {
-                    // Solo mostramos los 'listos' recientes
-                    if (diffMins < 60 && status === 'LISTO') {
-                        colReady.innerHTML += html;
-                        cR++;
-                    }
-                }
-            });
-
-            document.getElementById('count-pending').innerText = cP;
-            document.getElementById('count-cooking').innerText = cC;
-            document.getElementById('count-ready').innerText = cR;
-
-            if (cP > previousPendingCount) {
-                document.getElementById('bell').play().catch(e=>{});
-            }
-            previousPendingCount = cP;
-        }
-
-        async function cycleStatus(id, currentStatus) {
-            let nextStatus = 'PREPARANDO';
-            if (currentStatus === 'PENDIENTE') nextStatus = 'PREPARANDO';
-            else if (currentStatus === 'PREPARANDO' || currentStatus === 'EN_COCINA') nextStatus = 'LISTO';
-            else if (currentStatus === 'LISTO') nextStatus = 'EN_CAMINO'; // Para forzar limpieza
-
-            try {
-                // Use the standard backend endpoint to update order status
-                await fetch(`/api/orders/${id}/status`, {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({estado: nextStatus})
-                });
-                fetchOrders();
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        // Auto-refresh every 5 seconds
-        setInterval(fetchOrders, 5000);
-        fetchOrders();
-    </script>
     <script src="/static/js/enterprise_shell.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/static/js/enterprise_ui.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #020617; color: white; }
+        .order-card {
+            background: #1e293b;
+            border-bottom: 8px solid #334155;
+            transition: all 0.3s ease;
+        }
+        .order-card.priority-high { border-bottom-color: #ef4444; }
+        .order-card.priority-medium { border-bottom-color: #f59e0b; }
+        .item-row { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .timer { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="p-6 pt-24" data-active-module="KDS">
+    <div class="max-w-[100vw] mx-auto">
+        <header class="flex justify-between items-center mb-8 bg-slate-900/50 p-6 rounded-3xl backdrop-blur-xl border border-white/5">
+            <div>
+                <h1 class="text-4xl font-black tracking-tighter">KITCHEN DISPLAY SYSTEM</h1>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Active Orders: <span id="active-count">0</span></p>
+            </div>
+            <div class="flex gap-4">
+                <div class="px-6 py-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                    <p class="text-[8px] font-black text-emerald-500 uppercase mb-1">Avg. Prep Time</p>
+                    <p class="text-xl font-black">12:45 <span class="text-xs">min</span></p>
+                </div>
+            </div>
+        </header>
+
+        <div id="kds-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <!-- Order cards will be injected here -->
+        </div>
+    </div>
 
     <script>
-        window.addEventListener('load', () => {
-            if (typeof EnterpriseUI !== 'undefined') {
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Estado del Nodo',
-                    value: 'ACTIVO',
-                    unit: 'SECURE',
-                    trend: 'up',
-                    trendValue: '100%',
-                    icon: 'fa-server'
+        EnterpriseShell.init('KDS');
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/pedidos');
+                const orders = await res.json();
+                const grid = document.getElementById('kds-grid');
+                grid.innerHTML = '';
+                
+                const activeOrders = orders.filter(o => o.estado === 'PENDIENTE' || o.estado === 'EN_PREPARACION');
+                document.getElementById('active-count').innerText = activeOrders.length;
+
+                activeOrders.forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = `order-card p-6 rounded-3xl flex flex-col h-full ${order.id % 3 === 0 ? 'priority-high' : ''}`;
+                    
+                    const timeDiff = Math.floor((new Date() - new Date(order.fecha)) / 1000);
+                    const minutes = Math.floor(timeDiff / 60);
+                    const seconds = timeDiff % 60;
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">#${order.numero_ticket}</p>
+                                <h3 class="text-2xl font-black">${order.cliente?.nombre || 'Anónimo'}</h3>
+                            </div>
+                            <div class="timer text-xl font-bold ${minutes > 15 ? 'text-red-500' : 'text-emerald-400'}">
+                                ${minutes}:${seconds.toString().padStart(2, '0')}
+                            </div>
+                        </div>
+                        <div class="flex-grow space-y-3 mb-6">
+                            ${order.items.map(item => `
+                                <div class="item-row pb-2 flex justify-between">
+                                    <span class="font-bold"><span class="text-indigo-400">x${item.cantidad}</span> ${item.nombre}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="updateOrder(${order.id}, 'PREPARADO')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black uppercase tracking-widest text-xs transition-all">
+                            MARCAR LISTO
+                        </button>
+                    `;
+                    grid.appendChild(card);
                 });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Carga de Trabajo',
-                    value: Math.floor(Math.random() * 40 + 20),
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'LOW',
-                    icon: 'fa-microchip'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Latencia Sync',
-                    value: Math.floor(Math.random() * 50 + 10),
-                    unit: 'ms',
-                    trend: 'down',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-bolt'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Seguridad',
-                    value: 'V4.0',
-                    unit: 'SSL',
-                    trend: 'up',
-                    trendValue: 'MAX',
-                    icon: 'fa-shield-halved'
-                });
-            }
-        });
+            } catch(e) { console.error(e); }
+        }
+
+        async function updateOrder(id, status) {
+            await fetch(`/api/pedidos/${id}/estado?nuevo_estado=${status}`, { method: 'PUT' });
+            loadOrders();
+        }
+
+        setInterval(loadOrders, 5000);
+        loadOrders();
     </script>
-            
 </body>
 </html>

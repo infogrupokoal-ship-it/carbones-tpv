@@ -1,38 +1,44 @@
-import random
-from typing import Dict
+import asyncio
+from sqlalchemy.orm import Session
+from backend.database import SessionLocal
+from backend.models import Producto, YieldRule
+from backend.utils.logger import logger
 
-class YieldPricingEngine:
+class YieldPricingService:
     """
-    Dynamic Yield Pricing Engine.
-    Adjusts product prices based on demand, stock levels, and environmental factors.
+    Yield Pricing Service V9.3.
+    Ajusta precios de productos dinámicamente según reglas activas.
     """
     
-    def __init__(self):
-        self.factors = {
-            "demand": 1.0,
-            "stock_scarcity": 1.0,
-            "weather_impact": 1.0,
-            "time_bonus": 1.0
-        }
-
-    def calculate_surge_multiplier(self) -> float:
-        # Simulate real-time calculation
-        self.factors["demand"] = 1.0 + (random.random() * 0.2)
-        self.factors["stock_scarcity"] = 1.0 + (random.random() * 0.1)
-        self.factors["weather_impact"] = 0.95 if random.random() < 0.2 else 1.0 # Rain discount?
-        
-        multiplier = 1.0
-        for f in self.factors.values():
-            multiplier *= f
-        return round(multiplier, 3)
-
-    def get_market_insights(self) -> Dict:
-        return {
-            "multiplier": self.calculate_surge_multiplier(),
-            "active_factors": self.factors,
-            "sentiment": "BULLISH" if self.factors["demand"] > 1.1 else "STABLE",
-            "next_adjustment": "15m"
-        }
-
-# Global Instance
-yield_engine = YieldPricingEngine()
+    @staticmethod
+    async def process_prices():
+        while True:
+            db = SessionLocal()
+            try:
+                # 1. Buscar regla de Yield activa (prioridad alta)
+                active_rule = db.query(YieldRule).filter(YieldRule.is_active == True).first()
+                
+                if active_rule:
+                    multiplier = 1.0 + (active_rule.ajuste_precio_pct / 100)
+                    logger.info(f"[YIELD] Aplicando multiplicador x{multiplier} ({active_rule.nombre})")
+                    
+                    # 2. Actualizar productos (demo: solo productos con precio > 10)
+                    # En producción esto sería más específico
+                    db.query(Producto).filter(Producto.precio > 10).update({
+                        "precio": Producto.precio_base * multiplier
+                    }, synchronize_session=False)
+                    
+                    db.commit()
+                else:
+                    # Resetear a precio base si no hay regla
+                    db.query(Producto).update({
+                        "precio": Producto.precio_base
+                    }, synchronize_session=False)
+                    db.commit()
+                    
+            except Exception as e:
+                logger.error(f"[YIELD] Error en ajuste: {e}")
+            finally:
+                db.close()
+                
+            await asyncio.sleep(300) # Ajuste cada 5 minutos
