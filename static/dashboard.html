@@ -4,135 +4,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise BI - Carbones y Pollos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #020617; }
-        .chart-container { height: 280px; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        :root {
+            --primary: #3b82f6; /* blue-500 */
+            --bg-base: #020617; /* slate-950 */
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-base); 
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Premium Background Grid */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .ambient-glow {
+            position: fixed;
+            top: -20%;
+            right: -10%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+            filter: blur(80px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* KPI Cards */
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--card-color, #3b82f6);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .chart-container { height: 320px; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
-<body class="min-h-screen text-slate-300 overflow-x-hidden">
+<body class="min-h-screen text-slate-300">
+    
+    <div class="bg-grid"></div>
+    <div class="ambient-glow"></div>
+
     <!-- Enterprise Sidebar will be injected here -->
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative z-10">
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 xl:p-12 custom-scrollbar">
             
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
-                    <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Operational <span class="text-blue-500">Dashboard</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Carbones y Pollos • Control Center v3.0</p>
+                    <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase">Operational <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Dashboard</span></h1>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Carbones y Pollos • Control Center v3.0
+                    </p>
                 </div>
-                <div class="flex gap-4">
-                    <button onclick="exportFiscalCSV()" class="bg-slate-700 hover:bg-slate-600 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Exportar Fiscal (CSV)</button>
-                    <a href="/static/repartidores.html" target="_blank" class="bg-amber-600 hover:bg-amber-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Reparto 🛵</a>
-                    <button onclick="triggerCierreZ()" class="bg-orange-600 hover:bg-orange-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Cierre Z</button>
-                    <button onclick="updateDashboard()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl shadow-lg transition-all">Sync</button>
-                    <button onclick="triggerFichaje()" class="bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border border-white/10 transition-all">Fichar</button>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="exportFiscalCSV()" class="bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md border border-slate-600/50 text-white font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar CSV
+                    </button>
+                    <a href="/static/repartidores.html" target="_blank" class="bg-amber-600/90 hover:bg-amber-500 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(217,119,6,0.5)] transition-all active:scale-95 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Reparto
+                    </a>
+                    <button onclick="triggerCierreZ()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_20px_-5px_rgba(234,88,12,0.6)] transition-all active:scale-95 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Cierre Z
+                    </button>
+                    <button onclick="updateDashboard()" class="bg-blue-600/90 hover:bg-blue-500 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] transition-all active:scale-95">
+                        <svg class="w-4 h-4 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Sync
+                    </button>
                 </div>
             </header>
 
             <!-- KPIs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Ventas Hoy</p>
-                    <h3 id="kpi-ventas" class="text-2xl font-black text-white tracking-tighter">0.00€</h3>
-                    <p id="kpi-trend-ventas" class="text-[10px] text-emerald-500 font-bold mt-2">↑ 0% vs ayer</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6 mb-10">
+                <div class="glass-panel kpi-card p-6 rounded-2xl" style="--card-color: #3b82f6;">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Ventas Hoy</p>
+                    <h3 id="kpi-ventas" class="text-3xl font-black text-white tracking-tighter">0.00€</h3>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-bold" id="kpi-trend-ventas">↑ 0% vs ayer</div>
+                    </div>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-emerald-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Tickets</p>
-                    <h3 id="kpi-pedidos" class="text-2xl font-black text-white tracking-tighter">0</h3>
-                    <p class="text-[10px] text-slate-500 font-bold mt-2"><span id="kpi-avg-ticket">0€</span> avg</p>
+                
+                <div class="glass-panel kpi-card p-6 rounded-2xl" style="--card-color: #10b981;">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tickets (Transacciones)</p>
+                    <h3 id="kpi-pedidos" class="text-3xl font-black text-white tracking-tighter">0</h3>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="px-2 py-1 bg-slate-800 text-slate-300 rounded-lg text-[10px] font-bold tracking-wide">Ticket Promedio: <span id="kpi-avg-ticket" class="text-white">0€</span></div>
+                    </div>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-orange-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Margen Est.</p>
-                    <h3 id="kpi-margen" class="text-2xl font-black text-white tracking-tighter">--%</h3>
-                    <p class="text-[10px] text-orange-500 font-bold mt-2">Target: 70%</p>
+                
+                <div class="glass-panel kpi-card p-6 rounded-2xl" style="--card-color: #f59e0b;">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Margen Estimado</p>
+                    <h3 id="kpi-margen" class="text-3xl font-black text-white tracking-tighter">--%</h3>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="px-2 py-1 bg-orange-500/10 text-orange-400 rounded-lg text-[10px] font-bold">Target Operativo: 70%</div>
+                    </div>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-purple-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Servicio</p>
-                    <h3 id="kpi-cocina" class="text-2xl font-black text-white tracking-tighter">OK</h3>
-                    <p class="text-[10px] text-purple-400 font-bold mt-2">14m entrega avg</p>
+                
+                <div class="glass-panel kpi-card p-6 rounded-2xl" style="--card-color: #8b5cf6;">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Nivel de Servicio</p>
+                    <h3 id="kpi-cocina" class="text-3xl font-black text-white tracking-tighter">OK</h3>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="px-2 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-[10px] font-bold">Tiempo avg: 14m</div>
+                    </div>
                 </div>
-                <div class="glass-panel p-6 rounded-3xl border-l-4 border-slate-700 bg-slate-900/40">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Telemetría Core</p>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">CPU</span> <span id="tele-cpu">--%</span></div>
-                        <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">RAM</span> <span id="tele-ram">--%</span></div>
-                        <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">DB</span> <span id="tele-db">--ms</span></div>
+                
+                <div class="glass-panel p-6 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/50 border border-slate-700/50 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Telemetría Core</p>
+                    <div class="space-y-3 relative z-10">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg> CPU</span> 
+                            <span id="tele-cpu" class="text-white">--%</span>
+                        </div>
+                        <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-2"><div class="h-full bg-indigo-500 w-[45%]"></div></div>
+                        
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> RAM</span> 
+                            <span id="tele-ram" class="text-white">--%</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center text-xs font-bold pt-1">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg> Latencia DB</span> 
+                            <span id="tele-db" class="text-emerald-400">--ms</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
                 <!-- Main Chart -->
-                <div class="lg:col-span-2 glass-panel p-8 rounded-3xl">
-                    <div class="flex items-center justify-between mb-8">
-                        <h4 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Ventas Intradía</h4>
-                        <div class="flex gap-2">
-                            <span class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full font-bold">LIVE</span>
-                        </div>
+                <div class="lg:col-span-2 glass-panel p-6 lg:p-8 rounded-3xl">
+                    <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+                        <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                            Tendencia de Ventas Intradía
+                        </h4>
+                        <span class="text-[10px] bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg font-black tracking-widest shadow-[0_0_10px_rgba(59,130,246,0.2)] flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                            LIVE
+                        </span>
                     </div>
-                    <div class="chart-container">
+                    <div class="chart-container relative">
                         <canvas id="salesChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Products Ranking -->
-                <div class="glass-panel p-8 rounded-3xl">
-                    <h4 class="text-sm font-black text-white uppercase tracking-widest mb-8">Top Productos (Hoy)</h4>
+                <div class="glass-panel p-6 lg:p-8 rounded-3xl">
+                    <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        Top Productos (Hoy)
+                    </h4>
                     <div class="space-y-6" id="top-products-list">
                         <!-- Injected by JS -->
+                        <div class="animate-pulse space-y-4">
+                            <div class="h-4 bg-white/5 rounded w-full"></div>
+                            <div class="h-4 bg-white/5 rounded w-5/6"></div>
+                            <div class="h-4 bg-white/5 rounded w-4/6"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Live Feed & Stock -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
                 <!-- Live Order Feed -->
-                <div class="lg:col-span-3 glass-panel p-8 rounded-3xl border-t-2 border-blue-500/30">
-                    <div class="flex items-center justify-between mb-6">
-                        <h4 class="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                            <span class="relative flex h-2 w-2">
+                <div class="lg:col-span-3 glass-panel p-6 lg:p-8 rounded-3xl border-t-[3px] border-t-blue-500">
+                    <div class="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
+                        <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
+                            <span class="relative flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
                             </span>
                             Live Order Feed
                         </h4>
-                        <span class="text-[9px] font-black text-slate-500 uppercase">Tiempo Real (Polling 30s)</span>
+                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">Polling 30s</span>
                     </div>
                     <div id="live-order-feed" class="space-y-3 h-[400px] overflow-y-auto custom-scrollbar pr-4">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase text-center py-20 italic">Sincronizando flujo de pedidos...</p>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center py-20 animate-pulse">Sincronizando flujo de pedidos...</p>
                     </div>
                 </div>
 
                 <!-- Stock Alerts -->
-                <div class="glass-panel p-8 rounded-3xl border-t-2 border-orange-500/30">
-                    <h4 class="text-sm font-black text-white uppercase tracking-widest mb-6">Stock Alerts</h4>
+                <div class="glass-panel p-6 lg:p-8 rounded-3xl border-t-[3px] border-t-orange-500">
+                    <div class="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
+                        <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Stock Alerts
+                        </h4>
+                    </div>
                     <div id="stock-alerts-list" class="space-y-4 h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase text-center py-10 italic">Escaneando niveles...</p>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center py-10 animate-pulse">Escaneando niveles...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Audit & Security Logs -->
-            <div class="glass-panel p-8 rounded-3xl">
-                <div class="flex items-center justify-between mb-8">
-                    <h4 class="text-sm font-black text-white uppercase tracking-widest">Security & Audit Logs</h4>
-                    <span class="text-[10px] text-slate-500 font-bold uppercase">Últimos 10 eventos</span>
+            <div class="glass-panel p-6 lg:p-8 rounded-3xl">
+                <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+                    <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        Security & Audit Logs
+                    </h4>
+                    <span class="text-[9px] bg-slate-800 text-slate-400 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-700">Últimos 10 eventos</span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto custom-scrollbar pb-4">
+                    <table class="w-full text-left border-collapse min-w-[800px]">
                         <thead>
-                            <tr class="text-[10px] text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                <th class="pb-3">Timestamp</th>
-                                <th class="pb-3">Usuario</th>
-                                <th class="pb-3">Acción</th>
-                                <th class="pb-3">Entidad</th>
-                                <th class="pb-3 text-right">IP Origen</th>
+                            <tr class="text-[10px] text-slate-400 uppercase tracking-[0.2em] border-b border-white/10">
+                                <th class="pb-4 px-4 font-black">Timestamp</th>
+                                <th class="pb-4 px-4 font-black">Usuario</th>
+                                <th class="pb-4 px-4 font-black">Acción</th>
+                                <th class="pb-4 px-4 font-black">Entidad</th>
+                                <th class="pb-4 px-4 text-right font-black">IP Origen</th>
                             </tr>
                         </thead>
                         <tbody id="audit-logs-list" class="text-sm text-slate-300">
@@ -143,11 +274,11 @@
             </div>
 
             <!-- Footer Meta -->
-            <footer class="mt-12 flex justify-between items-center text-[10px] text-slate-600 font-black uppercase tracking-[0.2em]">
+            <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
                 <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4">
-                    <span>Node: Frankfurt-Industrial</span>
-                    <span class="text-blue-500">Build: v3.0-PRO</span>
+                <div class="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-white/5">
+                    <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
+                    <span class="text-blue-500 border-l border-white/10 pl-4">Build: v3.0-PRO</span>
                 </div>
             </footer>
         </main>

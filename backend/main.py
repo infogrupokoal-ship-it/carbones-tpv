@@ -140,9 +140,18 @@ async def health_check() -> Dict[str, Any]:
         db_status = "disconnected"
         db_latency_ms = -1
 
-    mem = psutil.virtual_memory()
-    net = psutil.net_io_counters()
-    
+    try:
+        mem_percent = psutil.virtual_memory().percent
+        cpu_percent = psutil.cpu_percent()
+        disk_free = psutil.disk_usage('/').percent
+        net = psutil.net_io_counters()
+        bytes_sent = net.bytes_sent
+        bytes_recv = net.bytes_recv
+        uptime = int(time.time() - psutil.boot_time())
+    except Exception as e:
+        logger.warning(f"Health check psutil warning: {e}")
+        mem_percent = cpu_percent = disk_free = uptime = bytes_sent = bytes_recv = 0
+
     return {
         "status": "operational" if db_status == "connected" else "degraded",
         "timestamp": datetime.now().isoformat(),
@@ -150,7 +159,7 @@ async def health_check() -> Dict[str, Any]:
         "environment": os.environ.get("ENVIRONMENT", "production"),
         "deployment": {
             "node": os.uname().nodename if hasattr(os, "uname") else "windows-dev",
-            "uptime_sec": int(time.time() - psutil.boot_time()),
+            "uptime_sec": uptime,
             "build_marker": "INDUSTRIAL-ULTRA-v3.1-SOFT-DELETES"
         },
         "telemetry": {
@@ -158,13 +167,13 @@ async def health_check() -> Dict[str, Any]:
                 "status": db_status,
                 "latency_ms": db_latency_ms
             },
-            "cpu_usage": psutil.cpu_percent(),
-            "memory_usage": mem.percent,
+            "cpu_usage": cpu_percent,
+            "memory_usage": mem_percent,
             "db_latency_ms": db_latency_ms,
-            "disk_free": psutil.disk_usage('/').percent,
+            "disk_free": disk_free,
             "network": {
-                "bytes_sent": net.bytes_sent,
-                "bytes_recv": net.bytes_recv
+                "bytes_sent": bytes_sent,
+                "bytes_recv": bytes_recv
             }
         },
         "integrity": {

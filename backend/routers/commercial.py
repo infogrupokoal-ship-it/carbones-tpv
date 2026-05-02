@@ -131,6 +131,12 @@ def actualizar_estado_presupuesto(id: str, estado: str, db: Session = Depends(ge
     p = db.query(Presupuesto).filter(Presupuesto.id == id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
+    
+    if estado == "ACEPTADO" and p.estado != "ACEPTADO":
+        for item in p.items:
+            if item.producto and hasattr(item.producto, 'stock') and item.producto.stock is not None:
+                item.producto.stock -= item.cantidad
+                
     p.estado = estado
     db.commit()
     return {"status": "ok", "nuevo_estado": estado}

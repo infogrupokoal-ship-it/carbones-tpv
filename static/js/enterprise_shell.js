@@ -29,6 +29,9 @@ function initShell() {
 
     // 5. Setup Mobile Toggle
     setupMobileToggle();
+
+    // 6. Inject Carbonito AI
+    injectCarbonitoAI();
 }
 
 function injectSidebar(role, user) {
@@ -126,6 +129,133 @@ function logoutShell() {
     localStorage.removeItem('auth_role');
     window.location.href = '/static/login.html';
 }
+
+function injectCarbonitoAI() {
+    const aiHTML = `
+    <!-- Carbonito AI Floating Button -->
+    <button id="carbonito-fab" onclick="toggleCarbonito()" class="fixed bottom-6 left-6 z-[90] w-14 h-14 bg-gradient-to-tr from-emerald-600 to-emerald-400 rounded-full shadow-2xl shadow-emerald-900/50 flex items-center justify-center text-2xl hover:scale-110 transition-transform cursor-pointer border border-white/20">
+        🔥
+        <span class="absolute -top-1 -right-1 flex h-4 w-4">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border border-slate-900"></span>
+        </span>
+    </button>
+
+    <!-- Carbonito AI Panel -->
+    <div id="carbonito-panel" class="fixed bottom-24 left-6 z-[90] w-80 md:w-96 h-[500px] max-h-[70vh] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-95 opacity-0 pointer-events-none origin-bottom-left">
+        <!-- Header -->
+        <div class="p-4 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-emerald-900/30 to-transparent">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-xl">🔥</div>
+                <div>
+                    <h3 class="text-white font-black uppercase tracking-tighter text-sm">Carbonito AI</h3>
+                    <p class="text-[9px] text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> Online</p>
+                </div>
+            </div>
+            <button onclick="toggleCarbonito()" class="text-slate-400 hover:text-white p-2 text-xl">&times;</button>
+        </div>
+
+        <!-- Chat History -->
+        <div id="carbonito-history" class="flex-1 p-4 overflow-y-auto flex flex-col gap-4 custom-scrollbar">
+            <div class="flex gap-3 max-w-[85%]">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5">
+                    <p class="text-sm text-slate-300">¡Hola! Soy Carbonito, tu asistente inteligente. ¿En qué te puedo ayudar hoy con el sistema?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-white/5 bg-slate-800/30">
+            <form id="carbonito-form" onsubmit="sendCarbonitoMessage(event)" class="relative">
+                <input type="text" id="carbonito-input" placeholder="Pregunta algo..." class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 transition-colors">
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors">
+                    <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', aiHTML);
+}
+
+window.toggleCarbonito = function() {
+    const panel = document.getElementById('carbonito-panel');
+    if (panel.classList.contains('opacity-0')) {
+        panel.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        panel.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+        document.getElementById('carbonito-input').focus();
+    } else {
+        panel.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        panel.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+    }
+};
+
+window.sendCarbonitoMessage = async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('carbonito-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = '';
+    const history = document.getElementById('carbonito-history');
+
+    // Add user message
+    history.insertAdjacentHTML('beforeend', \`
+        <div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
+            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex-shrink-0 flex items-center justify-center text-sm">👤</div>
+            <div class="bg-blue-600 p-3 rounded-2xl rounded-tr-none shadow-lg">
+                <p class="text-sm text-white">\${msg}</p>
+            </div>
+        </div>
+    \`);
+    history.scrollTop = history.scrollHeight;
+
+    // Loading state
+    const loadingId = 'loading-' + Date.now();
+    history.insertAdjacentHTML('beforeend', \`
+        <div id="\${loadingId}" class="flex gap-3 max-w-[85%]">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm animate-pulse">🔥</div>
+            <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5 flex items-center gap-1">
+                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></span>
+                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                <span class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            </div>
+        </div>
+    \`);
+    history.scrollTop = history.scrollHeight;
+
+    try {
+        const response = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message: msg, context: 'El usuario está en el portal Enterprise Staff.' })
+        });
+        const data = await response.json();
+
+        document.getElementById(loadingId).remove();
+
+        history.insertAdjacentHTML('beforeend', \`
+            <div class="flex gap-3 max-w-[85%]">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center text-sm">🔥</div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl rounded-tl-none border border-white/5">
+                    <p class="text-sm text-slate-300">\${data.reply || 'Ha ocurrido un error.'}</p>
+                </div>
+            </div>
+        \`);
+    } catch (err) {
+        document.getElementById(loadingId).remove();
+        history.insertAdjacentHTML('beforeend', \`
+            <div class="flex gap-3 max-w-[85%]">
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex-shrink-0 flex items-center justify-center text-sm">⚠️</div>
+                <div class="bg-red-500/10 p-3 rounded-2xl rounded-tl-none border border-red-500/20">
+                    <p class="text-sm text-red-400">Error de conexión con Carbonito.</p>
+                </div>
+            </div>
+        \`);
+    }
+    history.scrollTop = history.scrollHeight;
+};
 
 window.EnterpriseShell = {
     init: (pageName) => {
