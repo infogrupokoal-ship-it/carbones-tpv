@@ -5,10 +5,59 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Presupuesto, ItemPresupuesto, Producto, Referido, WhatsAppTemplate
+from ..models import Presupuesto, ItemPresupuesto, Producto, Referido, WhatsAppTemplate, Pedido, ItemPedido
 from ..utils.logger import logger
 
 router = APIRouter(prefix="/commercial", tags=["Gestión Comercial"])
+
+@router.post("/quotes/{id}/convert")
+def convertir_a_pedido(id: str, db: Session = Depends(get_db)):
+    """Convierte un presupuesto aceptado en un pedido real del TPV."""
+    try:
+        p = db.query(Presupuesto).filter(Presupuesto.id == id).first()
+        if not p:
+            raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
+        
+        if p.estado != "ACEPTADO":
+            # Si no está aceptado, lo aceptamos primero
+            p.estado = "ACEPTADO"
+            
+        # Crear Pedido
+        count = db.query(Pedido).count() + 1
+        num_ticket = f"TKT-CONV-{datetime.datetime.now().year}-{count:04d}"
+        
+        nuevo_pedido = Pedido(
+            id=str(uuid.uuid4()),
+            numero_ticket=num_ticket,
+            fecha=datetime.datetime.utcnow(),
+            total=p.total,
+            estado="PENDIENTE",
+            origen="COMERCIAL",
+            cliente_id=p.cliente_id,
+            tienda_id=None # Se debería asignar una por defecto o la del usuario actual
+        )
+        
+        db.add(nuevo_pedido)
+        
+        # Copiar Items
+        for item in p.items:
+            it = ItemPedido(
+                id=str(uuid.uuid4()),
+                pedido_id=nuevo_pedido.id,
+                producto_id=item.producto_id,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario
+            )
+            db.add(it)
+            
+        p.estado = "CONVERTIDO"
+        db.commit()
+        
+        return {"status": "ok", "pedido_id": nuevo_pedido.id, "numero_ticket": num_ticket}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error convirtiendo presupuesto: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- Esquemas ---
 

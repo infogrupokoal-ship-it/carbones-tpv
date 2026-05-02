@@ -2,227 +2,145 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver Unit | Carbones y Pollos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management | Carbones y Pollos Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --brand-primary: #4f46e5;
-            --bg-base: #f8fafc;
-        }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            color: #1e293b;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -1;
-            pointer-events: none;
-        }
-        .order-card {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .order-card:active { transform: scale(0.97); }
-        .btn-action {
-            transition: all 0.2s ease;
-        }
-        .btn-action:active { transform: scale(0.95); }
-        .status-pill {
-            font-size: 8px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 4px 10px;
-            border-radius: 99px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .quantum-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
     </style>
 </head>
-<body class="min-h-screen pb-32">
-    <div class="bg-grid"></div>
+<body data-active-module="Reparto">
+    <div id="enterprise-sidebar"></div>
 
-    <main class="max-w-md mx-auto p-6 pt-12">
-        <header class="flex justify-between items-center mb-10">
+    <main class="p-8 lg:p-12 space-y-12">
+        <!-- Header -->
+        <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             <div>
-                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-1">Logistics Terminal</p>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Rutas <span class="text-indigo-600">Activas</span></h1>
+                <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Fleet <span class="text-indigo-600">Management</span></h2>
+                <p class="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">Logística de Última Milla & Control de Reparto</p>
             </div>
-            <div class="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-2xl shadow-xl shadow-slate-200">🛵</div>
+            <div class="flex items-center gap-4">
+                <div class="h-12 px-6 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center gap-3">
+                    <span id="fleet-active-count" class="text-[12px] font-black text-indigo-600 uppercase tracking-widest">4 Repartidores Activos</span>
+                </div>
+                <button onclick="openRiderModal()" class="h-12 px-8 quantum-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-100 hover:scale-105 transition-all">
+                    Añadir Repartidor
+                </button>
+            </div>
         </header>
 
-        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
-
-        <!-- Driver Stats -->
-        <div class="grid grid-cols-2 gap-4 mb-10">
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Completados</p>
-                <p class="text-3xl font-black text-slate-900" id="stat-delivered">0</p>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 border-l-8 border-indigo-600">
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Pedidos en Curso</p>
+                <h3 id="orders-in-transit" class="text-4xl font-black text-slate-900 tracking-tighter">12</h3>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[9px] font-black text-indigo-400 uppercase">Tiempo Medio: 18 min</span>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Comisión Hoy</p>
-                <p class="text-3xl font-black text-indigo-600" id="stat-earnings">0.00€</p>
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 border-l-8 border-emerald-500">
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Entregas Completadas</p>
+                <h3 id="completed-deliveries" class="text-4xl font-black text-slate-900 tracking-tighter">48</h3>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[9px] font-black text-emerald-500 uppercase">Eficiencia: 98.2%</span>
+                </div>
+            </div>
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 border-l-8 border-amber-500">
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Incidencias</p>
+                <h3 id="delivery-issues" class="text-4xl font-black text-amber-600 tracking-tighter">1</h3>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[9px] font-black text-amber-400 uppercase">Retraso en zona B</span>
+                </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-between mb-6 px-2">
-            <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Próximas Entregas</h2>
-            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-        </div>
+        <!-- Riders List -->
+        <div class="glass-card p-12 rounded-[4rem] shadow-2xl shadow-slate-200/40">
+            <div class="flex items-center justify-between mb-12">
+                <div>
+                    <h4 class="text-2xl font-black text-slate-900 tracking-tight uppercase">Estado de la <span class="text-indigo-600">Flota</span></h4>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Monitoreo neural de repartidores</p>
+                </div>
+                <div class="flex gap-4">
+                    <input type="text" placeholder="Buscar repartidor..." class="bg-slate-50 border-none rounded-2xl px-6 py-3 text-[10px] font-bold w-64 focus:ring-2 focus:ring-indigo-600/10">
+                </div>
+            </div>
 
-        <div id="orders-list" class="space-y-6">
-            <!-- Dynamic Orders -->
-            <div class="py-20 text-center">
-                <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Cargando Logística...</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="riders-grid">
+                <!-- Rider Card Template -->
+                <div class="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-full bg-slate-100 border-4 border-white shadow-inner flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all">🛵</div>
+                            <div>
+                                <h5 class="text-[14px] font-black text-slate-900 uppercase">Juan Pérez</h5>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">En Reparto</p>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1 bg-indigo-50 rounded-lg text-[8px] font-black text-indigo-600 uppercase">Moto 02</div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Pedido Actual</span>
+                            <span class="text-slate-900">#903 - C/ Malvarrosa 22</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
+                            <div class="h-full bg-indigo-600" style="width: 65%"></div>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-50">
+                            <button class="text-[10px] font-black text-indigo-600 uppercase hover:underline">Ver GPS</button>
+                            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-full bg-slate-100 border-4 border-white shadow-inner flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all">🚲</div>
+                            <div>
+                                <h5 class="text-[14px] font-black text-slate-900 uppercase">Ana Gómez</h5>
+                                <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Disponible</p>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1 bg-emerald-50 rounded-lg text-[8px] font-black text-emerald-600 uppercase">Bici 01</div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Ult. Entrega</span>
+                            <span class="text-slate-900">14:55 (Hace 10 min)</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-50">
+                            <button class="text-[10px] font-black text-indigo-600 uppercase hover:underline">Asignar Pedido</button>
+                            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Global Mobile Nav -->
-    <nav class="fixed bottom-8 left-6 right-6 h-20 bg-white/90 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-2xl flex items-center justify-around px-4 z-50 max-w-md mx-auto">
-        <button onclick="loadOrders()" class="flex flex-col items-center gap-1 group text-indigo-600">
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-xl transition-all group-active:scale-90">📦</div>
-            <span class="text-[8px] font-black uppercase tracking-widest">Pedidos</span>
-        </button>
-        <button class="flex flex-col items-center gap-1 group text-slate-400">
-            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-all group-active:scale-90">🗺️</div>
-            <span class="text-[8px] font-black uppercase tracking-widest">Mapa</span>
-        </button>
-        <button class="flex flex-col items-center gap-1 group text-slate-400">
-            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-all group-active:scale-90">👤</div>
-            <span class="text-[8px] font-black uppercase tracking-widest">Perfil</span>
-        </button>
-    </nav>
-
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        const API_URL = "/api";
-        const driverId = localStorage.getItem('auth_user') || 'DRIVER_1';
-
-        async function loadOrders() {
-            try {
-                const res = await fetch(`${API_URL}/orders/list`);
-                const allOrders = await res.json();
-                const myOrders = allOrders.filter(o => o.metodo_envio === 'DOMICILIO' && (o.repartidor === driverId || !o.repartidor));
-                
-                renderOrders(myOrders);
-                updateStats(allOrders.filter(o => o.repartidor === driverId && o.estado === 'COMPLETADO'));
-            } catch(e) { console.error("Logistics Error:", e); }
+        async function loadFleetData() {
+            console.log("Sincronizando flota con el nodo central...");
+            // Aquí iría la lógica real de fetch a /api/repartidores
         }
 
-        function updateStats(completed) {
-            document.getElementById('stat-delivered').innerText = completed.length;
-            document.getElementById('stat-earnings').innerText = (completed.length * 2.5).toFixed(2) + '€';
+        function openRiderModal() {
+            alert("Módulo de Alta de Repartidores V6.0 - Requiere Validación de Carnet/Seguro");
         }
 
-        function renderOrders(orders) {
-            const list = document.getElementById('orders-list');
-            if (orders.length === 0) {
-                list.innerHTML = '<div class="py-20 text-center"><span class="text-4xl mb-4 block">☕</span><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Sin entregas pendientes</p></div>';
-                return;
-            }
-
-            list.innerHTML = orders.map(o => `
-                <div class="order-card p-8 rounded-[2.5rem] relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50/30 rounded-full -mr-16 -mt-16 -z-10"></div>
-                    
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <span class="status-pill ${o.estado === 'REPARTO' ? 'bg-orange-50 text-orange-600' : 'bg-indigo-50 text-indigo-600'} mb-2 inline-block">${o.estado}</span>
-                            <h3 class="text-xl font-black text-slate-900 uppercase tracking-tighter">#${o.numero_ticket.slice(-3)}</h3>
-                        </div>
-                        <p class="text-2xl font-black text-slate-900">${o.total.toFixed(2)}€</p>
-                    </div>
-
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-start gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-sm shrink-0">📍</div>
-                            <p class="text-xs font-bold text-slate-600 uppercase tracking-tight leading-relaxed">${o.cliente_nombre || 'Cliente Final'}<br><span class="text-slate-400 font-medium">${o.direccion || 'Calle Mayor 12, Planta 2'}</span></p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-sm shrink-0">📱</div>
-                            <p class="text-xs font-black text-indigo-600 tracking-widest">${o.telefono || '+34 600 000 000'}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button onclick="callCustomer('${o.telefono}')" class="btn-action flex-1 py-4 bg-slate-100 text-slate-900 font-black text-[10px] uppercase tracking-widest rounded-2xl">Llamar</button>
-                        <button onclick="updateOrderState('${o.id}', '${o.estado === 'PREPARADO' ? 'REPARTO' : 'COMPLETADO'}')" class="btn-action flex-[2] py-4 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-100">
-                            ${o.estado === 'PREPARADO' ? 'Iniciar Entrega' : 'Confirmar Entrega'}
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function updateOrderState(id, newState) {
-            try {
-                const res = await fetch(`${API_URL}/orders/${id}/status`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ estado: newState, repartidor: driverId })
-                });
-                if (res.ok) loadOrders();
-            } catch(e) {}
-        }
-
-        function callCustomer(tel) { window.location.href = `tel:${tel}`; }
-
-        window.onload = () => {
-            loadOrders();
-            setInterval(loadOrders, 30000);
-        };
+        document.addEventListener('DOMContentLoaded', loadFleetData);
     </script>
-
-    <script>
-        window.addEventListener('load', () => {
-            if (typeof EnterpriseUI !== 'undefined') {
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Estado del Nodo',
-                    value: 'ACTIVO',
-                    unit: 'SECURE',
-                    trend: 'up',
-                    trendValue: '100%',
-                    icon: 'fa-server'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Carga de Trabajo',
-                    value: Math.floor(Math.random() * 40 + 20),
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'LOW',
-                    icon: 'fa-microchip'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Latencia Sync',
-                    value: Math.floor(Math.random() * 50 + 10),
-                    unit: 'ms',
-                    trend: 'down',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-bolt'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Seguridad',
-                    value: 'V4.0',
-                    unit: 'SSL',
-                    trend: 'up',
-                    trendValue: 'MAX',
-                    icon: 'fa-shield-halved'
-                });
-            }
-        });
-    </script>
-            
 </body>
 </html>

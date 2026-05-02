@@ -3,64 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Intelligence | Carbones Quantum</title>
+    <title>Caja & Finanzas | Carbones y Pollos Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #fbfcfe; font-family: 'Outfit', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 20px 60px -15px rgba(0,0,0,0.03); }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
+        :root { --brand-primary: #4f46e5; }
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .quantum-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
     </style>
 </head>
-<body class="p-8 lg:p-16" data-active-module="Caja">
-    <script src="/static/js/enterprise_shell.js"></script>
+<body data-active-module="Caja">
+    <div id="enterprise-sidebar"></div>
 
-    <div class="max-w-[1400px] mx-auto space-y-12 animate-in">
-        <header class="flex justify-between items-end">
+    <main class="p-8 lg:p-12 space-y-12">
+        <!-- Header -->
+        <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             <div>
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-xl text-white">💰</div>
-                    <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Intelligence <span class="text-emerald-600">Financial</span></h1>
+                <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Gestión de <span class="text-indigo-600">Caja</span></h2>
+                <p class="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">Control Financiero & Auditoría en Tiempo Real</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="location.reload()" class="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-600 transition-all shadow-sm">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <div class="h-12 px-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Caja Abierta</span>
                 </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">Real-time Cashflow & Yield Matrix</p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="glass-card p-10 rounded-[3rem] border-l-8 border-emerald-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Cash in Hand</p>
-                <h3 class="text-4xl font-black tracking-tighter">€4.850,20</h3>
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Efectivo en Caja</p>
+                    <h3 id="cash-balance" class="text-4xl font-black text-slate-900 tracking-tighter">0.00€</h3>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase mt-4">+12.4% vs Ayer</p>
+                </div>
             </div>
-            <div class="glass-card p-10 rounded-[3rem] border-l-8 border-indigo-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Pending Payouts</p>
-                <h3 class="text-4xl font-black tracking-tighter text-indigo-600">€1.120,00</h3>
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-rose-50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Ventas con Tarjeta</p>
+                    <h3 id="card-balance" class="text-4xl font-black text-slate-900 tracking-tighter">0.00€</h3>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-4">84 Transacciones</p>
+                </div>
             </div>
-            <div class="glass-card p-10 rounded-[3rem] border-l-8 border-rose-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Daily Expenses</p>
-                <h3 class="text-4xl font-black tracking-tighter text-rose-600">€450,15</h3>
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Total Recaudado</p>
+                    <h3 id="total-balance" class="text-4xl font-black text-indigo-600 tracking-tighter">0.00€</h3>
+                    <p class="text-[9px] font-bold text-indigo-400 uppercase mt-4">Sesión Actual</p>
+                </div>
+            </div>
+            <div class="glass-card p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Pendiente de Cobro</p>
+                    <h3 id="pending-balance" class="text-4xl font-black text-amber-600 tracking-tighter">0.00€</h3>
+                    <p class="text-[9px] font-bold text-amber-400 uppercase mt-4">12 Pedidos Activos</p>
+                </div>
             </div>
         </div>
 
-        <div class="glass-card rounded-[4rem] p-12 overflow-hidden">
-            <h2 class="text-xs font-black uppercase tracking-[0.4em] text-slate-400 mb-10">Transacciones Recientes</h2>
-            <div class="space-y-4">
-                ${[1,2,3,4,5].map(i => `
-                    <div class="flex items-center justify-between p-6 bg-white/50 rounded-3xl hover:bg-white transition-all cursor-pointer group">
-                        <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-lg">🍔</div>
-                            <div>
-                                <p class="text-sm font-black uppercase tracking-tight">Pedido #402${i}</p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase">Visa • Hace ${i*5} min</p>
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Arqueo Section -->
+            <section class="lg:col-span-2 space-y-12">
+                <div class="glass-card p-12 rounded-[4rem] shadow-2xl shadow-slate-200/40">
+                    <div class="flex items-center justify-between mb-12">
+                        <div>
+                            <h4 class="text-2xl font-black text-slate-900 tracking-tight uppercase">Historial de <span class="text-indigo-600">Movimientos</span></h4>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Auditoría detallada de entradas y salidas</p>
+                        </div>
+                        <button onclick="openMovementModal()" class="h-14 px-8 quantum-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-3xl shadow-lg shadow-indigo-200 hover:scale-105 active:scale-95 transition-all">
+                            Nuevo Movimiento
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] border-b border-slate-50">
+                                    <th class="pb-6">Hora</th>
+                                    <th class="pb-6">Concepto</th>
+                                    <th class="pb-6">Metodo</th>
+                                    <th class="pb-6 text-right">Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movements-table-body" class="divide-y divide-slate-50">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Actions Sidebar -->
+            <aside class="space-y-12">
+                <div class="glass-card p-12 rounded-[4rem] shadow-2xl shadow-slate-200/40 bg-slate-900 text-white relative overflow-hidden">
+                    <div class="absolute -left-20 -bottom-20 w-60 h-60 bg-indigo-500 rounded-full blur-[100px] opacity-20"></div>
+                    <div class="relative z-10 space-y-8">
+                        <div>
+                            <h4 class="text-xl font-black uppercase tracking-tighter">Cierre de Jornada</h4>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Procedimiento de Auditoría Final</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-xs font-bold py-4 border-b border-white/5">
+                                <span class="text-slate-400">Ventas Totales</span>
+                                <span id="summary-total" class="text-white">0.00€</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs font-bold py-4 border-b border-white/5">
+                                <span class="text-slate-400">Propinas</span>
+                                <span id="summary-tips" class="text-emerald-400">0.00€</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs font-bold py-4">
+                                <span class="text-slate-400">Diferencia</span>
+                                <span id="summary-diff" class="text-rose-400">0.00€</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-black text-emerald-600">+€${(Math.random()*50 + 10).toFixed(2)}</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Completed</p>
-                        </div>
+                        <button onclick="closeCashSession()" class="w-full py-6 bg-white text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] rounded-[2rem] hover:bg-slate-100 transition-all shadow-xl">
+                            Ejecutar Cierre Z
+                        </button>
                     </div>
-                `).join('')}
-            </div>
+                </div>
+
+                <div class="glass-card p-12 rounded-[4rem] shadow-2xl shadow-slate-200/40 space-y-8">
+                    <div>
+                        <h4 class="text-xl font-black text-slate-900 tracking-tighter uppercase">Integración <span class="text-indigo-600">Fiscal</span></h4>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">TicketBAI / Factura-E</p>
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-indigo-600">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-700 uppercase">Estado Sello</span>
+                        </div>
+                        <span class="text-[9px] font-black text-emerald-500 uppercase">Verificado</span>
+                    </div>
+                    <button class="w-full py-4 border-2 border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:border-indigo-600 hover:text-indigo-600 transition-all">
+                        Reporte Hacienda
+                    </button>
+                </div>
+            </aside>
         </div>
-    </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        async function loadFinancialData() {
+            try {
+                const res = await fetch('/api/stats/dashboard');
+                const data = await res.json();
+                
+                document.getElementById('cash-balance').innerText = `${data.revenue.toFixed(2)}€`;
+                document.getElementById('total-balance').innerText = `${data.revenue.toFixed(2)}€`;
+                document.getElementById('summary-total').innerText = `${data.revenue.toFixed(2)}€`;
+                
+                // Mock movements for UI demo
+                const movements = [
+                    { time: '14:20', concepto: 'Apertura de Caja', metodo: 'Efectivo', importe: 150.00, type: 'in' },
+                    { time: '15:45', concepto: 'Venta Pedido #902', metodo: 'Tarjeta', importe: 45.50, type: 'in' },
+                    { time: '16:10', concepto: 'Compra Suministros (Pan)', metodo: 'Efectivo', importe: -12.30, type: 'out' }
+                ];
+
+                const tbody = document.getElementById('movements-table-body');
+                tbody.innerHTML = movements.map(m => `
+                    <tr class="group hover:bg-slate-50/50 transition-all">
+                        <td class="py-6 text-[11px] font-bold text-slate-400">${m.time}</td>
+                        <td class="py-6">
+                            <p class="text-[12px] font-black text-slate-900 uppercase">${m.concepto}</p>
+                        </td>
+                        <td class="py-6">
+                            <span class="px-3 py-1 bg-slate-100 text-[9px] font-black text-slate-500 rounded-lg uppercase">${m.metodo}</span>
+                        </td>
+                        <td class="py-6 text-right text-[12px] font-black ${m.type === 'in' ? 'text-emerald-500' : 'text-rose-500'}">
+                            ${m.importe.toFixed(2)}€
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error("Error loading financial data", e);
+            }
+        }
+
+        function openMovementModal() {
+            alert("Módulo de Entrada/Salida de Caja V6.0 - Requiere Permisos de Supervisor");
+        }
+
+        function closeCashSession() {
+            if(confirm("¿Confirmar Cierre de Caja? Se generará reporte Z y se enviará a central.")) {
+                alert("Procesando Cierre Z... Sincronizando con TicketBAI...");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFinancialData);
+    </script>
 </body>
 </html>

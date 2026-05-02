@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 import psutil
+import random
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -230,7 +231,7 @@ app.include_router(payments.router, prefix="/api", tags=["Pagos"])
 app.include_router(feedback.router, prefix="/api", tags=["Feedback & NPS"])
 app.include_router(escandallos.router, prefix="/api", tags=["Escandallos"])
 app.include_router(fleet.router, prefix="/api", tags=["Fleet"])
-app.include_router(notifications.router)
+app.include_router(notifications.router, prefix="/api", tags=["Notificaciones"])
 app.include_router(loyalty.router, prefix="/api", tags=["Loyalty"])
 app.include_router(franchise.router, prefix="/api", tags=["Franchise"])
 app.include_router(esg.router, prefix="/api", tags=["ESG"])

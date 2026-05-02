@@ -208,6 +208,21 @@ def seed_ultra_industrial():
                 db.add(p)
         
         db.commit()
+        # 5. Plantillas de WhatsApp
+        from backend.models import WhatsAppTemplate
+        templates_data = [
+            ("BIENVENIDA_LOYALTY", "bienvenida-loyalty", "¡Hola {{nombre}}! Bienvenido al club de fidelidad de Carbones y Pollos. Tienes {{puntos}} puntos listos para canjear.", "nombre, puntos"),
+            ("PRESUPUESTO_LISTO", "presupuesto-listo", "Hola {{nombre}}, tu presupuesto {{numero}} ya está disponible. Puedes aceptarlo aquí: {{enlace}}", "nombre, numero, enlace"),
+            ("PEDIDO_EN_CAMINO", "pedido-en-camino", "¡Tu pedido está en camino! El repartidor {{repartidor}} llegará en unos {{minutos}} minutos.", "repartidor, minutos")
+        ]
+        
+        for nombre, slug, cont, vars in templates_data:
+            if not db.query(WhatsAppTemplate).filter_by(slug=slug).first():
+                db.add(WhatsAppTemplate(id=str(uuid.uuid4()), nombre=nombre, slug=slug, contenido=cont, variables=vars))
+        
+        db.commit()
+        logger.info("Plantillas de WhatsApp sembradas.")
+
         logger.info(f"Catálogo de {len(productos_data)} productos sembrado.")
         logger.info("[SUCCESS] Mega Seeder Industrial Completado.")
 

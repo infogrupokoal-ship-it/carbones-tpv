@@ -1,10 +1,10 @@
 /**
- * Carbones y Pollos - Enterprise Shell v5.1
+ * Carbones y Pollos - Enterprise Shell v6.0
  * Quantum Singularity Orchestrator - Industrial Grade
  */
 
 const EnterpriseShell = {
-    version: '5.1.0-Quantum',
+    version: '6.0.0-Singularity',
     modules: [
         { id: 'Analytics', icon: '📈', path: '/static/predictive_analytics.html', category: 'Core' },
         { id: 'Matrix', icon: '🌌', path: '/static/matrix.html', category: 'Core' },
@@ -14,9 +14,9 @@ const EnterpriseShell = {
         { id: 'Dashboard', icon: '📊', path: '/static/dashboard.html', category: 'Core' },
         { id: 'Engines', icon: '⚙️', path: '/static/engines.html', category: 'Core' },
         
-        { id: 'Stock', icon: '📦', path: '/static/stock.html', category: 'Logistics' },
+        { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
         { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
-        { id: 'Reparto', icon: '🛵', path: '/static/reparto.html', category: 'Logistics' },
+        { id: 'Reparto', icon: '🛵', path: '/static/repartidores.html', category: 'Logistics' },
         { id: 'Procurement', icon: '🛒', path: '/static/procurement.html', category: 'Logistics' },
         { id: 'Fleet', icon: '🚚', path: '/static/fleet_map.html', category: 'Logistics' },
         { id: 'Traceability', icon: '🔍', path: '/static/supply_chain.html', category: 'Logistics' },
@@ -59,15 +59,14 @@ const EnterpriseShell = {
         this.startNotificationPoller();
         this.handleResponsive();
         
-        if (activeId === 'KDS' || activeId === 'Matrix') {
-            document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
-            document.body.style.paddingLeft = '6rem';
-        }
-        
         // Shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleCommandPalette(); }
             if (e.ctrlKey && e.key === 'j') { e.preventDefault(); this.toggleNeuralMonitor(); }
+            if (e.key === 'Escape') { 
+                document.getElementById('command-palette')?.classList.add('hidden');
+                document.getElementById('neural-monitor')?.classList.add('translate-x-full');
+            }
         });
         
         console.log(`[Enterprise Shell ${this.version}] Initiated.`);
@@ -90,7 +89,8 @@ const EnterpriseShell = {
         `;
         document.body.appendChild(info);
         setInterval(() => {
-            document.getElementById('shell-clock').innerText = new Date().toLocaleTimeString('es-ES', {hour12: false});
+            const clockEl = document.getElementById('shell-clock');
+            if (clockEl) clockEl.innerText = new Date().toLocaleTimeString('es-ES', {hour12: false});
         }, 1000);
     },
 
@@ -98,27 +98,45 @@ const EnterpriseShell = {
         if (document.getElementById('neural-monitor')) return;
         const monitor = document.createElement('div');
         monitor.id = 'neural-monitor';
-        monitor.className = "fixed top-0 right-0 w-[400px] h-screen bg-slate-900 text-slate-400 font-mono text-[10px] p-8 z-[2500] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/10 overflow-hidden hidden lg:block";
+        monitor.className = "fixed top-0 right-0 w-full lg:w-[450px] h-screen bg-slate-900 text-slate-400 font-mono text-[10px] p-8 z-[2500] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/10 overflow-hidden";
         monitor.innerHTML = `
             <div class="flex justify-between items-center mb-8">
-                <span class="text-white font-black uppercase tracking-widest">Neural Stream</span>
-                <button onclick="EnterpriseShell.toggleNeuralMonitor()" class="text-slate-600 hover:text-white">✕</button>
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                    <span class="text-white font-black uppercase tracking-widest">Neural Stream Matrix</span>
+                </div>
+                <button onclick="EnterpriseShell.toggleNeuralMonitor()" class="text-slate-600 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <div id="neural-logs" class="space-y-2 overflow-y-auto h-[80vh] custom-scrollbar">
-                <div class="text-indigo-400">[INIT] Attaching to local quantum node...</div>
+            <div id="neural-logs" class="space-y-2 overflow-y-auto h-[70vh] custom-scrollbar pr-4">
+                <div class="text-indigo-400 opacity-50">[INIT] Attaching to local quantum node...</div>
+                <div class="text-emerald-400 opacity-50">[OK] Handshake successful. Data stream active.</div>
             </div>
-            <div class="mt-8 pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-[8px] uppercase font-black mb-1">CPU Load</p>
-                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div id="neural-cpu" class="h-full bg-indigo-500" style="width: 24%"></div>
+            <div class="mt-8 pt-8 border-t border-white/5 space-y-6">
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-[8px] uppercase font-black mb-2 text-slate-500">Neural Load</p>
+                        <div class="flex items-end gap-3">
+                            <span id="neural-cpu-val" class="text-xl font-bold text-white tracking-tighter">0%</span>
+                            <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden mb-1.5">
+                                <div id="neural-cpu" class="h-full bg-indigo-500 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[8px] uppercase font-black mb-2 text-slate-500">Synapse Flux</p>
+                        <div class="flex items-end gap-3">
+                            <span id="neural-flux-val" class="text-xl font-bold text-white tracking-tighter">0%</span>
+                            <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden mb-1.5">
+                                <div id="neural-flux" class="h-full bg-emerald-500 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <p class="text-[8px] uppercase font-black mb-1">Neural Flux</p>
-                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div id="neural-flux" class="h-full bg-emerald-500" style="width: 68%"></div>
-                    </div>
+                <div class="bg-indigo-500/10 p-4 rounded-2xl border border-indigo-500/20">
+                    <p class="text-[8px] font-black uppercase text-indigo-400 mb-1">Autonomous Intelligence</p>
+                    <p class="text-[10px] text-white font-bold leading-relaxed">System is operating in <span class="text-emerald-400 italic">Self-Healing</span> mode. No critical anomalies detected in the last 1024 cycles.</p>
                 </div>
             </div>
         `;
@@ -127,7 +145,7 @@ const EnterpriseShell = {
 
     toggleNeuralMonitor() {
         const mon = document.getElementById('neural-monitor');
-        mon.classList.toggle('translate-x-full');
+        if (mon) mon.classList.toggle('translate-x-full');
     },
 
     startTelemetry() {
@@ -140,27 +158,42 @@ const EnterpriseShell = {
                 if (latencyEl) latencyEl.innerText = `${data.telemetry.database.latency_ms.toFixed(2)}ms`;
                 
                 const cpuEl = document.getElementById('neural-cpu');
-                if (cpuEl) cpuEl.style.width = `${data.telemetry.cpu_usage}%`;
+                const cpuValEl = document.getElementById('neural-cpu-val');
+                if (cpuEl) {
+                    cpuEl.style.width = `${data.telemetry.cpu_usage}%`;
+                    if (cpuValEl) cpuValEl.innerText = `${Math.round(data.telemetry.cpu_usage)}%`;
+                }
                 
                 const fluxEl = document.getElementById('neural-flux');
-                if (fluxEl) fluxEl.style.width = `${data.telemetry.memory_usage}%`;
+                const fluxValEl = document.getElementById('neural-flux-val');
+                if (fluxEl) {
+                    fluxEl.style.width = `${data.telemetry.memory_usage}%`;
+                    if (fluxValEl) fluxValEl.innerText = `${Math.round(data.telemetry.memory_usage)}%`;
+                }
 
                 const nodeEl = document.getElementById('shell-node-id');
                 if (nodeEl) nodeEl.innerText = data.deployment.node.toUpperCase();
 
-                const log = document.createElement('div');
-                log.className = "opacity-60";
-                log.innerHTML = `<span class="text-slate-600">${new Date().toLocaleTimeString()}</span> <span class="text-indigo-400">[SYS]</span> DB_SYNC: OK | HEAL: ${data.integrity.self_healing}`;
                 const logsCont = document.getElementById('neural-logs');
                 if (logsCont) {
+                    const log = document.createElement('div');
+                    log.className = "flex gap-4 animate-in";
+                    log.innerHTML = `
+                        <span class="text-slate-700 shrink-0">${new Date().toLocaleTimeString()}</span>
+                        <div class="flex-1">
+                            <span class="text-indigo-400">[SYS]</span> 
+                            <span class="text-slate-300">NODE_SYNC:</span> <span class="text-emerald-500">OK</span> | 
+                            <span class="text-slate-300">HEAL:</span> <span class="${data.integrity.self_healing === 'ACTIVE' ? 'text-emerald-500' : 'text-rose-500'}">${data.integrity.self_healing}</span>
+                        </div>
+                    `;
                     logsCont.appendChild(log);
                     logsCont.scrollTop = logsCont.scrollHeight;
-                    if (logsCont.children.length > 50) logsCont.removeChild(logsCont.firstChild);
+                    if (logsCont.children.length > 30) logsCont.removeChild(logsCont.firstChild);
                 }
             } catch(e) {
-                console.warn("[Shell] Telemetry Sync Fail", e);
+                console.warn("[Shell] Telemetry Sync Fail");
             }
-        }, 3000);
+        }, 5000);
     },
 
     startNotificationPoller() {
@@ -170,23 +203,24 @@ const EnterpriseShell = {
                 if (res.ok) {
                     const notifs = await res.json();
                     notifs.forEach(n => {
-                        if (typeof EnterpriseUI !== 'undefined') EnterpriseUI.showToast(n.message, n.type);
+                        if (typeof EnterpriseUI !== 'undefined') {
+                            EnterpriseUI.showToast(n.message, n.type);
+                        } else {
+                            alert(`[NOTIF] ${n.message}`);
+                        }
                     });
                 }
             } catch (e) {}
         };
-        setInterval(poll, 10000);
+        setInterval(poll, 15000);
     },
 
     toggleCategory(catName) {
         const content = document.getElementById(`cat-content-${catName}`);
         const icon = document.getElementById(`cat-icon-${catName}`);
-        if (content.classList.contains('hidden')) {
-            content.classList.remove('hidden');
-            icon.style.transform = 'rotate(90deg)';
-        } else {
-            content.classList.add('hidden');
-            icon.style.transform = 'rotate(0deg)';
+        if (content && icon) {
+            const isHidden = content.classList.toggle('hidden');
+            icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(90deg)';
         }
     },
 
@@ -226,7 +260,7 @@ const EnterpriseShell = {
 
         sidebar.innerHTML = `
             <div class="p-8 flex items-center gap-4 mb-8">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-indigo-200 animate-pulse">⚡</div>
+                <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-indigo-200 animate-pulse text-white">⚡</div>
                 <div class="hidden lg:block">
                     <h1 class="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">Carbones <span class="text-indigo-600">Quantum</span></h1>
                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Industrial Control Node</p>
@@ -236,21 +270,21 @@ const EnterpriseShell = {
                 ${navHtml}
             </div>
             <div class="p-8 border-t border-slate-50 space-y-4 bg-slate-50/30">
-                <button onclick="EnterpriseShell.toggleCommandPalette()" class="w-full flex items-center justify-between px-4 py-2 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-400 hover:border-indigo-600 transition-all">
+                <button onclick="EnterpriseShell.toggleCommandPalette()" class="w-full flex items-center justify-between px-4 py-2 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-400 hover:border-indigo-600 transition-all shadow-sm">
                     <span>Ctrl + K</span>
                     <i class="fas fa-search"></i>
                 </button>
-                <div class="flex items-center gap-4">
+                <div onclick="EnterpriseShell.toggleNeuralMonitor()" class="flex items-center gap-4 cursor-pointer hover:bg-white p-2 rounded-2xl transition-all">
                     <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center font-black text-xs text-white border-2 border-white shadow-xl">AD</div>
                     <div class="hidden lg:block">
                         <p class="text-[10px] font-black text-slate-900 uppercase">Master Admin</p>
-                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Quantum Secured</p>
+                        <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Neural Secured</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-widest">
                     <span class="text-slate-300">Sync: <span id="shell-latency" class="text-slate-600">--ms</span></span>
                     <div class="flex items-center gap-2">
-                        <span class="text-[7px] text-emerald-500 animate-pulse">Singularity Active</span>
+                        <span class="text-[7px] text-emerald-500 animate-pulse">Singularity V6.0</span>
                     </div>
                 </div>
             </div>
@@ -261,25 +295,37 @@ const EnterpriseShell = {
         if (document.getElementById('command-palette')) return;
         const palette = document.createElement('div');
         palette.id = 'command-palette';
-        palette.className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[3000] hidden flex items-start justify-center pt-32 p-4";
+        palette.className = "fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[3000] hidden flex items-start justify-center pt-32 p-4";
         palette.innerHTML = `
-            <div class="w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in">
-                <div class="p-8 border-b border-slate-100 flex items-center gap-6">
-                    <i class="fas fa-search text-slate-400 text-xl"></i>
-                    <input type="text" id="palette-search" placeholder="Search anything in the ecosystem..." class="flex-1 border-none focus:ring-0 text-lg font-black text-slate-900 bg-transparent placeholder:text-slate-200">
-                    <span class="text-[8px] font-black text-slate-300 uppercase">ESC</span>
+            <div class="w-full max-w-2xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden animate-in">
+                <div class="p-10 border-b border-slate-100 flex items-center gap-8">
+                    <i class="fas fa-search text-slate-400 text-2xl"></i>
+                    <input type="text" id="palette-search" placeholder="Search modules, products or orders..." class="flex-1 border-none focus:ring-0 text-xl font-black text-slate-900 bg-transparent placeholder:text-slate-200">
+                    <div class="flex gap-2">
+                        <span class="px-2 py-1 bg-slate-100 rounded text-[8px] font-black text-slate-400">ESC</span>
+                    </div>
                 </div>
-                <div id="palette-results" class="max-h-[400px] overflow-y-auto p-6 space-y-2 custom-scrollbar">
+                <div id="palette-results" class="max-h-[500px] overflow-y-auto p-8 space-y-3 custom-scrollbar">
                     ${this.modules.map(m => `
-                        <a href="${m.path}" class="flex items-center gap-6 p-5 rounded-3xl hover:bg-slate-50 transition-all group">
-                            <span class="text-3xl">${m.icon}</span>
-                            <div>
-                                <p class="text-[12px] font-black uppercase text-slate-900">${m.id}</p>
+                        <a href="${m.path}" class="flex items-center gap-6 p-6 rounded-[2rem] hover:bg-indigo-50 transition-all group border border-transparent hover:border-indigo-100">
+                            <span class="text-3xl grayscale group-hover:grayscale-0 transition-all">${m.icon}</span>
+                            <div class="flex-1">
+                                <p class="text-[14px] font-black uppercase text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">${m.id}</p>
                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
                             </div>
-                            <i class="fas fa-arrow-right ml-auto text-slate-200 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all"></i>
+                            <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Jump to module</span>
+                                <i class="fas fa-chevron-right text-indigo-300"></i>
+                            </div>
                         </a>
                     `).join('')}
+                </div>
+                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center px-10">
+                    <div class="flex gap-6">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 flex items-center justify-center bg-white border border-slate-200 rounded text-[7px] font-black">↑↓</span> <span class="text-[8px] font-black uppercase text-slate-400">Navigate</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 flex items-center justify-center bg-white border border-slate-200 rounded text-[7px] font-black">↵</span> <span class="text-[8px] font-black uppercase text-slate-400">Open</span></div>
+                    </div>
+                    <p class="text-[8px] font-black text-slate-300 uppercase tracking-widest">Quantum Engine V6.0</p>
                 </div>
             </div>
         `;
@@ -291,58 +337,69 @@ const EnterpriseShell = {
             const results = document.getElementById('palette-results');
             const filtered = this.modules.filter(m => m.id.toLowerCase().includes(query) || m.category.toLowerCase().includes(query));
             results.innerHTML = filtered.map(m => `
-                <a href="${m.path}" class="flex items-center gap-6 p-5 rounded-3xl hover:bg-slate-50 transition-all group">
-                    <span class="text-3xl">${m.icon}</span>
-                    <div>
-                        <p class="text-[12px] font-black uppercase text-slate-900">${m.id}</p>
+                <a href="${m.path}" class="flex items-center gap-6 p-6 rounded-[2rem] hover:bg-indigo-50 transition-all group border border-transparent hover:border-indigo-100">
+                    <span class="text-3xl grayscale group-hover:grayscale-0 transition-all">${m.icon}</span>
+                    <div class="flex-1">
+                        <p class="text-[14px] font-black uppercase text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">${m.id}</p>
                         <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">${m.category}</p>
                     </div>
-                    <i class="fas fa-arrow-right ml-auto text-slate-200 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all"></i>
+                    <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                        <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Jump to module</span>
+                        <i class="fas fa-chevron-right text-indigo-300"></i>
+                    </div>
                 </a>
-            `).join('') || '<div class="p-12 text-center opacity-30 font-black uppercase tracking-widest text-xs">Zero results found in matrix</div>';
+            `).join('') || '<div class="p-20 text-center opacity-30 font-black uppercase tracking-[0.4em] text-xs">No active nodes found in Matrix</div>';
         });
     },
 
     toggleCommandPalette() {
         const p = document.getElementById('command-palette');
-        p.classList.toggle('hidden');
-        if (!p.classList.contains('hidden')) document.getElementById('palette-search').focus();
+        if (p) {
+            const isHidden = p.classList.toggle('hidden');
+            if (!isHidden) document.getElementById('palette-search')?.focus();
+        }
     },
 
     injectCarbonitoUI() {
         if (document.getElementById('carbonito-launcher')) return;
         const launcher = document.createElement('button');
         launcher.id = 'carbonito-launcher';
-        launcher.className = "fixed bottom-10 right-10 w-16 h-16 rounded-[2rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center text-3xl hover:scale-110 hover:rotate-6 transition-all active:scale-95 z-[2000] border-4 border-white";
-        launcher.innerHTML = "🧠";
+        launcher.className = "fixed bottom-10 right-10 w-20 h-20 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center text-3xl hover:scale-110 hover:rotate-6 transition-all active:scale-95 z-[2000] border-4 border-white group";
+        launcher.innerHTML = `
+            <span class="relative">
+                🧠
+                <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-4 border-indigo-600 rounded-full animate-ping"></span>
+            </span>
+        `;
         launcher.onclick = () => this.toggleCarbonito();
         
         const chat = document.createElement('div');
         chat.id = 'carbonito-chat';
-        chat.className = "fixed bottom-32 right-10 w-[400px] h-[600px] bg-white rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
+        chat.className = "fixed bottom-36 right-10 w-full lg:w-[450px] h-[650px] bg-white rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
         chat.innerHTML = `
-            <div class="p-10 bg-indigo-600 text-white relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="p-12 bg-indigo-600 text-white relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
                 <div class="flex items-center justify-between relative z-10">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🤖</div>
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-3xl bg-white/20 flex items-center justify-center text-3xl">🤖</div>
                         <div>
-                            <h3 class="text-sm font-black uppercase tracking-[0.2em]">Carbonito <span class="text-indigo-200">AI</span></h3>
-                            <p class="text-[8px] text-indigo-200 uppercase font-bold tracking-[0.3em]">Quantum Intelligence Layer</p>
+                            <h3 class="text-lg font-black uppercase tracking-tight">Carbonito <span class="text-indigo-200">AI</span></h3>
+                            <p class="text-[9px] text-indigo-200 uppercase font-black tracking-[0.4em] opacity-80">Quantum Intelligence Layer</p>
                         </div>
                     </div>
-                    <button onclick="EnterpriseShell.toggleCarbonito()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-xs">✕</button>
+                    <button onclick="EnterpriseShell.toggleCarbonito()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-xs">✕</button>
                 </div>
             </div>
             <div id="carbonito-messages" class="flex-1 p-10 overflow-y-auto space-y-6 text-[11px] font-bold text-slate-600 custom-scrollbar bg-slate-50/50">
-                <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed">
-                    Protocolo **Singularity v5.1** iniciado. Estoy conectado al nodo central. ¿Qué optimización deseas ejecutar hoy?
+                <div class="bg-white p-8 rounded-[2rem] rounded-tl-none shadow-sm border border-slate-100 leading-relaxed animate-in">
+                    <p class="mb-4">Protocolo **Quantum Singularity v6.0** iniciado con éxito. Estoy conectado al nodo central y analizando telemetría en tiempo real.</p>
+                    <p>¿Qué optimización deseas ejecutar en el ecosistema hoy?</p>
                 </div>
             </div>
-            <div class="p-8 bg-white border-t border-slate-50">
+            <div class="p-10 bg-white border-t border-slate-50">
                 <div class="relative">
-                    <input type="text" id="carbonito-input" placeholder="Consult quantum node..." class="w-full bg-slate-100 border-none rounded-3xl py-6 px-10 text-[11px] font-black focus:ring-2 focus:ring-indigo-600 shadow-inner">
-                    <button id="carbonito-send-btn" onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">➔</button>
+                    <input type="text" id="carbonito-input" placeholder="Consult quantum node..." class="w-full bg-slate-100 border-none rounded-[2rem] py-7 px-10 text-[12px] font-black focus:ring-4 focus:ring-indigo-600/10 shadow-inner placeholder:text-slate-300">
+                    <button id="carbonito-send-btn" onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-indigo-600 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all text-lg">➔</button>
                 </div>
             </div>
         `;
@@ -353,6 +410,7 @@ const EnterpriseShell = {
 
     toggleCarbonito() {
         const c = document.getElementById('carbonito-chat');
+        if (!c) return;
         if (c.classList.contains('hidden')) {
             c.classList.remove('hidden');
             setTimeout(() => c.classList.remove('translate-y-10', 'opacity-0'), 10);
@@ -366,19 +424,19 @@ const EnterpriseShell = {
         const input = document.getElementById('carbonito-input');
         const cont = document.getElementById('carbonito-messages');
         const btn = document.getElementById('carbonito-send-btn');
-        if (!input.value.trim()) return;
+        if (!input || !input.value.trim()) return;
         const msg = input.value;
         input.value = '';
         
         const uDiv = document.createElement('div');
-        uDiv.className = "bg-indigo-600 text-white p-6 rounded-3xl rounded-tr-none ml-12 text-right shadow-xl shadow-indigo-100 animate-in";
+        uDiv.className = "bg-indigo-600 text-white p-6 rounded-[2rem] rounded-tr-none ml-12 text-right shadow-xl shadow-indigo-100 animate-in text-[12px] font-black";
         uDiv.innerText = msg;
         cont.appendChild(uDiv);
         cont.scrollTop = cont.scrollHeight;
 
         const bDiv = document.createElement('div');
-        bDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
-        bDiv.innerText = "Querying Matrix Data...";
+        bDiv.className = "bg-white p-8 rounded-[2rem] rounded-tl-none border border-slate-100 shadow-sm animate-pulse leading-relaxed";
+        bDiv.innerHTML = `<div class="flex gap-2"><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span><span class="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></span></div>`;
         cont.appendChild(bDiv);
         cont.scrollTop = cont.scrollHeight;
 
@@ -393,16 +451,20 @@ const EnterpriseShell = {
             const data = await res.json();
             
             bDiv.classList.remove('animate-pulse');
-            bDiv.innerHTML = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            
-            const metaDiv = document.createElement('p');
-            metaDiv.className = "text-[7px] text-slate-300 mt-2 uppercase tracking-widest";
-            metaDiv.innerText = `Model: ${data.model_used} | Tier: ${data.model_tier}`;
-            bDiv.appendChild(metaDiv);
+            bDiv.innerHTML = `
+                <div>${data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>
+                <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                    <span class="text-[7px] text-slate-300 uppercase tracking-widest font-black">Node: ${data.model_used} | Tier: ${data.model_tier}</span>
+                    <div class="flex gap-2">
+                        <button class="text-[8px] font-black text-indigo-400 hover:text-indigo-600">👍</button>
+                        <button class="text-[8px] font-black text-slate-300 hover:text-slate-600">👎</button>
+                    </div>
+                </div>
+            `;
             
             cont.scrollTop = cont.scrollHeight;
         } catch(e) { 
-            bDiv.innerText = "Quantum sync error. Matrix disconnected."; 
+            bDiv.innerText = "Quantum sync error. Matrix disconnected. Please retry query."; 
             bDiv.classList.remove('animate-pulse');
         } finally {
             btn.disabled = false;
@@ -425,6 +487,7 @@ const EnterpriseShell = {
             #enterprise-sidebar.collapsed { width: 6rem !important; }
             #enterprise-sidebar.collapsed .lg\:block { display: none !important; }
             #enterprise-sidebar.collapsed .lg\:px-10 { padding-left: 1.5rem !important; }
+            #neural-monitor.hidden { display: none; }
         `;
         document.head.appendChild(s);
     },

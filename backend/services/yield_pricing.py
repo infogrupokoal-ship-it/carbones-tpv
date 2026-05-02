@@ -23,7 +23,6 @@ class YieldPricingService:
                     logger.info(f"[YIELD] Aplicando multiplicador x{multiplier} ({active_rule.nombre})")
                     
                     # 2. Actualizar productos (demo: solo productos con precio > 10)
-                    # En producción esto sería más específico
                     db.query(Producto).filter(Producto.precio > 10).update({
                         "precio": Producto.precio_base * multiplier
                     }, synchronize_session=False)
@@ -42,3 +41,5 @@ class YieldPricingService:
                 db.close()
                 
             await asyncio.sleep(300) # Ajuste cada 5 minutos
+
+yield_engine = YieldPricingService()

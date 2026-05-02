@@ -42,3 +42,5 @@ class AutonomousDispatch:
                 db.close()
                 
             await asyncio.sleep(30) # Ciclo de 30 segundos
+
+dispatcher = AutonomousDispatch()
