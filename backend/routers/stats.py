@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+﻿from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from backend.database import get_db
 from backend.models import Pedido, Presupuesto, Referido
-from datetime import datetime
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/stats", tags=["Business Intelligence"])
@@ -24,11 +24,11 @@ def get_funnel(db: Session = Depends(get_db)):
 
 @router.get("/growth-metrics")
 def get_growth(db: Session = Depends(get_db)):
-    """Métricas de crecimiento viral (referidos)"""
+    """MÃ©tricas de crecimiento viral (referidos)"""
     total_referrals = db.query(Referido).count()
     completed_referrals = db.query(Referido).filter(Referido.estado == "COMPLETADO").count()
     
-    # ROI estimado (asumiendo ticket promedio de 30€ y bono de 5€)
+    # ROI estimado (asumiendo ticket promedio de 30â‚¬ y bono de 5â‚¬)
     total_bonos = db.query(func.sum(Referido.bono_aplicado)).scalar() or 0
     estimated_revenue = completed_referrals * 30
     roi = (estimated_revenue / total_bonos) if total_bonos > 0 else 0
@@ -37,23 +37,33 @@ def get_growth(db: Session = Depends(get_db)):
         "referidos_totales": total_referrals,
         "referidos_exitosos": completed_referrals,
         "roi_marketing": round(roi, 2),
-        "ahorro_adquisicion": completed_referrals * 10 # 10€ ahorro vs Ads
+        "ahorro_adquisicion": completed_referrals * 10 # 10â‚¬ ahorro vs Ads
     }
 
 @router.get("/daily-sales")
 def get_daily_sales(db: Session = Depends(get_db)):
-    """Ventas de los últimos 7 días"""
-    # Simulado por ahora ya que el modelo Pedido necesita fecha
-    # En un entorno real se agruparía por func.date(Pedido.creado_en)
-    return [
-        {"dia": "Lun", "ventas": 450},
-        {"dia": "Mar", "ventas": 520},
-        {"dia": "Mie", "ventas": 380},
-        {"dia": "Jue", "ventas": 610},
-        {"dia": "Vie", "ventas": 890},
-        {"dia": "Sab", "ventas": 1200},
-        {"dia": "Dom", "ventas": 950}
-    ]
+    """Ventas de los Ãºltimos 7 dÃ­as"""
+    fecha_inicio = datetime.now().date() - timedelta(days=6)
+    ventas_diarias = db.query(
+        func.date(Pedido.fecha).label('dia'),
+        func.sum(Pedido.total).label('total')
+    ).filter(func.date(Pedido.fecha) >= fecha_inicio).group_by('dia').order_by('dia').all()
+    
+    ventas_dict = {str(v.dia): float(v.total) for v in ventas_diarias}
+    resultados = []
+    
+    for i in range(7):
+        dia_actual = fecha_inicio + timedelta(days=i)
+        str_dia = str(dia_actual)
+        ventas_dia = ventas_dict.get(str_dia, 0.0)
+        
+        # Mapeo a nombre del dÃ­a
+        dias_es = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+        nombre_dia = dias_es[dia_actual.weekday()]
+        
+        resultados.append({"dia": nombre_dia, "ventas": ventas_dia})
+        
+    return resultados
 @router.get("/dashboard")
 def get_dashboard_summary(db: Session = Depends(get_db)):
     """Resumen unificado para el Dashboard BI v5.0"""
@@ -62,7 +72,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.date(Pedido.fecha) == datetime.now().date()).scalar() or 0
         pedidos_hoy = db.query(Pedido).filter(func.date(Pedido.fecha) == datetime.now().date()).count()
         
-        # 2. Gráfica de Ventas por Horas (Real Data)
+        # 2. GrÃ¡fica de Ventas por Horas (Real Data)
         ventas_horas = db.query(
             func.strftime('%H:00', Pedido.fecha).label('hora'),
             func.sum(Pedido.total).label('total')
@@ -77,7 +87,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         top_labels = [p["nombre"] for p in top_productos]
         top_data = [p["ventas"] for p in top_productos]
 
-        # 4. Alertas de Stock (Críticas)
+        # 4. Alertas de Stock (CrÃ­ticas)
         # Simulado por ahora
         alerts = [
             {"item": "Pollo Fresco", "stock": 5, "min": 20},
@@ -90,7 +100,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         for r in recent:
             recent_mapped.append({
                 "id": r.id,
-                "cliente": r.cliente.nombre if r.cliente else "Anónimo",
+                "cliente": r.cliente.nombre if r.cliente else "AnÃ³nimo",
                 "total": r.total,
                 "estado": r.estado,
                 "fecha": r.fecha.strftime("%H:%M")
@@ -143,14 +153,14 @@ def realizar_cierre_z(req: CierreZRequest, db: Session = Depends(get_db)):
 @router.get("/financial-report")
 def exportar_finops(db: Session = Depends(get_db)):
     """
-    Fase 10: FinOps - Generación automatizada de reportes contables (CSV).
+    Fase 10: FinOps - GeneraciÃ³n automatizada de reportes contables (CSV).
     Exporta datos estructurados para ERP/Contabilidad.
     """
     from fastapi.responses import StreamingResponse
     import io
     import csv
 
-    # Simulación de extracción contable (en un entorno real buscaría ventas consolidadas por periodo)
+    # SimulaciÃ³n de extracciÃ³n contable (en un entorno real buscarÃ­a ventas consolidadas por periodo)
     pedidos = db.query(Pedido).filter(Pedido.estado == "COMPLETADO").order_by(Pedido.fecha.desc()).limit(100).all()
     
     output = io.StringIO()
@@ -181,9 +191,9 @@ class ArqueoCiegoRequest(BaseModel):
 @router.post("/arqueo-ciego")
 def arqueo_ciego(req: ArqueoCiegoRequest, db: Session = Depends(get_db)):
     """
-    Fase 17: Arqueo Ciego. El empleado declara cuánto hay sin conocer el teórico del TPV.
+    Fase 17: Arqueo Ciego. El empleado declara cuÃ¡nto hay sin conocer el teÃ³rico del TPV.
     """
-    # En un entorno real se calcula el teórico desde Pedidos
+    # En un entorno real se calcula el teÃ³rico desde Pedidos
     teorico_efectivo = 500.0  # Simulado
     teorico_tarjeta = 1200.0 # Simulado
     
@@ -196,7 +206,7 @@ def arqueo_ciego(req: ArqueoCiegoRequest, db: Session = Depends(get_db)):
         "detalles_privados": {
             "descuadre_efectivo": descuadre_efectivo,
             "descuadre_tarjeta": descuadre_tarjeta,
-            "alerta": "CRÍTICA" if abs(descuadre_efectivo) > 10 else "NORMAL"
+            "alerta": "CRÃTICA" if abs(descuadre_efectivo) > 10 else "NORMAL"
         }
     }
 
@@ -204,18 +214,19 @@ def arqueo_ciego(req: ArqueoCiegoRequest, db: Session = Depends(get_db)):
 def cashflow_forecast(db: Session = Depends(get_db)):
     """
     Fase 15: Proyecciones Financieras (Forecasting).
-    Predice el flujo de caja de los próximos 7 días basado en histórico.
+    Predice el flujo de caja de los prÃ³ximos 7 dÃ­as basado en histÃ³rico.
     """
     return {
         "predicciones": [
             {"dia": "Lunes (+1)", "ingreso_estimado": 460},
             {"dia": "Martes (+2)", "ingreso_estimado": 530},
-            {"dia": "Miércoles (+3)", "ingreso_estimado": 395},
+            {"dia": "MiÃ©rcoles (+3)", "ingreso_estimado": 395},
             {"dia": "Jueves (+4)", "ingreso_estimado": 625},
             {"dia": "Viernes (+5)", "ingreso_estimado": 910},
-            {"dia": "Sábado (+6)", "ingreso_estimado": 1250},
+            {"dia": "SÃ¡bado (+6)", "ingreso_estimado": 1250},
             {"dia": "Domingo (+7)", "ingreso_estimado": 980}
         ],
         "crecimiento_proyectado_semanal": "+3.4%",
         "riesgo_liquidez": "BAJO"
     }
+
