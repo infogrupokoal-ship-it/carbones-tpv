@@ -22,7 +22,7 @@ from .database import engine
 from .auto_migrate import migrate_schema
 from .routers import (
     admin, auth, hardware, inventory, 
-    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial, marketing
+    orders, telemetry, rrhh, webhooks, stats, admin_audit, customers, feedback, payments, ai_assistant, commercial, marketing, ws
 )
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
@@ -200,6 +200,7 @@ app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artif
 app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
 app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
 app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
+app.include_router(ws.router, tags=["Real-time"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():

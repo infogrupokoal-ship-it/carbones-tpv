@@ -133,5 +133,39 @@ def calcular_liquidaciones(fecha_inicio: str, fecha_fin: str, db: Session = Depe
             "total_pagar": nueva_liq.total_pagar
         })
         
+        
     db.commit()
     return {"status": "success", "generadas": len(resultados), "detalles": resultados}
+
+@router.get("/exportar-nominas")
+def exportar_prenominas(db: Session = Depends(get_db)):
+    """
+    Fase 11: Exportación de pre-nóminas (CSV).
+    Exporta el listado de liquidaciones pendientes para su importación en software contable.
+    """
+    from fastapi.responses import StreamingResponse
+    import io
+    import csv
+
+    liquidaciones = db.query(Liquidacion).filter(Liquidacion.estado == "PENDIENTE").all()
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID_Liquidacion", "Usuario_ID", "Fecha_Inicio", "Fecha_Fin", "Total_Pedidos", "Monto_Fijo", "Comisiones", "Total_A_Pagar", "Estado"])
+    
+    for liq in liquidaciones:
+        writer.writerow([
+            liq.id, liq.usuario_id, liq.fecha_inicio.strftime("%Y-%m-%d"), 
+            liq.fecha_fin.strftime("%Y-%m-%d"), liq.total_pedidos, 
+            liq.monto_fijo, liq.comisiones, liq.total_pagar, liq.estado
+        ])
+    
+    output.seek(0)
+    
+    # Enviar respuesta como archivo CSV
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=prenominas.csv"}
+    )
+

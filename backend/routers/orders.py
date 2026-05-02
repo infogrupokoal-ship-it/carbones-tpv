@@ -13,6 +13,7 @@ from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 from .admin_audit import log_audit_action
+from .ws import notify_new_order
 
 router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
@@ -322,6 +323,16 @@ def crear_pedido(
 
         logger.info(f"Pedido Creado: {nuevo_pedido.numero_ticket} | Total: {nuevo_pedido.total}€")
         
+        # Notificar al KDS en tiempo real
+        ws_payload = {
+            "id": nuevo_pedido.id,
+            "ticket": nuevo_pedido.numero_ticket,
+            "estado": nuevo_pedido.estado,
+            "total": nuevo_pedido.total,
+            "origen": nuevo_pedido.origen
+        }
+        background_tasks.add_task(notify_new_order, ws_payload)
+        
         return {
             "status": "success",
             "pedido_id": nuevo_pedido.id,
@@ -336,7 +347,7 @@ def crear_pedido(
 
 @router.put("/{pedido_id}/estado")
 @router_legacy.post("/{pedido_id}/estado")
-def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)):
+def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Cambia el flujo operativo de un pedido y dispara comandos de hardware (impresión) según el cambio.
     """
@@ -383,6 +394,15 @@ def actualizar_estado(pedido_id: str, estado: str, db: Session = Depends(get_db)
         payload_previo=estado_anterior,
         payload_nuevo=estado
     )
+    
+    # Notificar al KDS en tiempo real
+    ws_payload = {
+        "id": pedido.id,
+        "ticket": pedido.numero_ticket,
+        "estado": pedido.estado
+    }
+    background_tasks.add_task(notify_new_order, ws_payload)
+    
     return {"status": "success", "nuevo_estado": estado}
 
 class UbicacionPayload(BaseModel):
