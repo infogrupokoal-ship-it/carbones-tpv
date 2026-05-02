@@ -152,10 +152,14 @@
         </div>
     </div>
 
-    <!-- Clock -->
+    <!-- Clock and Shift -->
     <div class="fixed top-12 right-12 text-right z-20">
         <p id="clock" class="text-2xl font-black tracking-tighter mb-1">00:00:00</p>
-        <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Quantum Sync Active</p>
+        <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Quantum Sync Active</p>
+        <div id="shift-badge" class="hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 backdrop-blur-md">
+            <span class="status-dot bg-amber-500"></span>
+            <span id="shift-text" class="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em]">TURNO</span>
+        </div>
     </div>
 
     <div class="portal-container z-10 w-full max-w-7xl px-12">
@@ -334,8 +338,29 @@
         setInterval(fetchTelemetry, 3000);
         fetchTelemetry();
 
+        function checkActiveShift() {
+            const shift = localStorage.getItem('active_shift');
+            if (shift && (shift === 'MAÑANAS' || shift === 'TARDES')) {
+                const badge = document.getElementById('shift-badge');
+                const text = document.getElementById('shift-text');
+                const dot = badge.querySelector('.status-dot');
+                
+                badge.classList.remove('hidden');
+                text.innerText = `RESPONSABLE ${shift}`;
+                
+                if (shift === 'MAÑANAS') {
+                    text.classList.replace('text-indigo-500', 'text-amber-500');
+                    dot.classList.replace('bg-indigo-500', 'bg-amber-500');
+                } else {
+                    text.classList.replace('text-amber-500', 'text-indigo-500');
+                    dot.classList.replace('bg-amber-500', 'bg-indigo-500');
+                }
+            }
+        }
+
         window.onload = () => {
             EnterpriseShell.init('Portal');
+            checkActiveShift();
         };
     </script>
 </body>

@@ -87,30 +87,72 @@
 
         <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
 
-        <form id="login-form" class="space-y-8">
-            <div class="space-y-2">
-                <label for="user" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Terminal ID</label>
-                <div class="relative">
-                    <input id="user" type="text" class="input-premium w-full py-5 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300" required autocomplete="username" placeholder="OPERADOR">
+        <div id="login-container">
+            <form id="login-form" class="space-y-8">
+                <div class="space-y-2">
+                    <label for="user" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Terminal ID</label>
+                    <div class="relative">
+                        <input id="user" type="text" class="input-premium w-full py-5 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300" required autocomplete="username" placeholder="OPERADOR">
+                    </div>
                 </div>
-            </div>
 
-            <div class="space-y-2">
-                <label for="pass" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Key</label>
-                <div class="relative">
-                    <input id="pass" type="password" class="input-premium w-full py-5 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300 tracking-widest" required autocomplete="current-password" placeholder="••••••••">
+                <div class="space-y-2">
+                    <label for="pass" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Key</label>
+                    <div class="relative">
+                        <input id="pass" type="password" class="input-premium w-full py-5 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300 tracking-widest" required autocomplete="current-password" placeholder="••••••••">
+                    </div>
                 </div>
-            </div>
 
-            <div id="error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-shake">
-                Credenciales No Válidas
-            </div>
+                <div id="error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                    Credenciales No Válidas
+                </div>
 
-            <button type="submit" id="btn-submit" class="btn-premium w-full text-white font-black text-[11px] uppercase tracking-[0.3em] py-6 rounded-2xl flex justify-center items-center gap-3">
-                <span>Ingresar al Sistema</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </button>
-        </form>
+                <button type="submit" id="btn-submit" class="btn-premium w-full text-white font-black text-[11px] uppercase tracking-[0.3em] py-6 rounded-2xl flex justify-center items-center gap-3">
+                    <span>Ingresar al Sistema</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </form>
+        </div>
+
+        <div id="role-selector" class="hidden opacity-0 transition-opacity duration-500">
+            <h2 class="text-center text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em] mb-6">Seleccione Modalidad Operativa</h2>
+            <div class="grid grid-cols-1 gap-4">
+                
+                <!-- TPV Mode -->
+                <button onclick="selectMode('tpv')" class="w-full text-left bg-white border border-slate-200 hover:border-emerald-500 p-6 rounded-2xl transition-all group hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl group-hover:bg-emerald-500 group-hover:text-white transition-colors">💰</div>
+                        <div>
+                            <h3 class="font-black text-slate-900 uppercase tracking-tight">Terminal TPV</h3>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Venta rápida e interfaz de caja</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Turno Mañanas -->
+                <button onclick="selectMode('morning')" class="w-full text-left bg-white border border-slate-200 hover:border-amber-500 p-6 rounded-2xl transition-all group hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl group-hover:bg-amber-500 group-hover:text-white transition-colors">🌅</div>
+                        <div>
+                            <h3 class="font-black text-slate-900 uppercase tracking-tight">Responsable Mañanas</h3>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Supervisión y control AM</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Turno Tardes -->
+                <button onclick="selectMode('afternoon')" class="w-full text-left bg-white border border-slate-200 hover:border-indigo-500 p-6 rounded-2xl transition-all group hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl group-hover:bg-indigo-500 group-hover:text-white transition-colors">🌃</div>
+                        <div>
+                            <h3 class="font-black text-slate-900 uppercase tracking-tight">Responsable Tardes</h3>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Supervisión y control PM</p>
+                        </div>
+                    </div>
+                </button>
+
+            </div>
+        </div>
 
         <footer class="mt-16 pt-8 border-t border-slate-50 text-center">
             <p class="text-slate-300 text-[8px] font-black uppercase tracking-[0.4em]">Propiedad de Carbones y Pollos La Granja S.L.</p>
@@ -143,6 +185,8 @@
         }
 
         const form = document.getElementById('login-form');
+        const loginContainer = document.getElementById('login-container');
+        const roleSelector = document.getElementById('role-selector');
         const btn = document.getElementById('btn-submit');
         const btnText = btn.querySelector('span');
         const error = document.getElementById('error-msg');
@@ -166,9 +210,12 @@
                     const data = await r.json();
                     localStorage.setItem('auth_user', data.username);
                     localStorage.setItem('auth_role', data.role);
-                    document.body.style.opacity = '0';
-                    document.body.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                    setTimeout(() => window.location.href = 'portal.html', 800);
+                    
+                    // Show role selector instead of redirecting
+                    loginContainer.style.display = 'none';
+                    roleSelector.classList.remove('hidden');
+                    setTimeout(() => roleSelector.classList.remove('opacity-0'), 50);
+
                 } else {
                     error.classList.remove('hidden');
                     btnText.innerText = originalText;
@@ -181,6 +228,24 @@
                 btn.classList.remove('opacity-50', 'pointer-events-none');
             }
         });
+
+        function selectMode(mode) {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            setTimeout(() => {
+                if (mode === 'tpv') {
+                    localStorage.setItem('active_shift', 'tpv');
+                    window.location.href = 'caja.html';
+                } else if (mode === 'morning') {
+                    localStorage.setItem('active_shift', 'MAÑANAS');
+                    window.location.href = 'portal.html';
+                } else if (mode === 'afternoon') {
+                    localStorage.setItem('active_shift', 'TARDES');
+                    window.location.href = 'portal.html';
+                }
+            }, 600);
+        }
     </script>
 
     <script>
