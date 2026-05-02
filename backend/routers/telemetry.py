@@ -1,6 +1,10 @@
 from fastapi import APIRouter
 import random
 from datetime import datetime
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from backend.database import get_db
+from backend.services.ai_bi_engine import AIBIEngine
 
 router = APIRouter(prefix="/telemetry", tags=["Hardware Telemetry & Digital Twin"])
 
@@ -118,4 +122,16 @@ def get_advanced_telemetry():
             "create_time": proc.create_time(),
             "status": proc.status()
         }
+    }
+
+@router.get("/insights")
+def get_proactive_insights(db: Session = Depends(get_db)):
+    """
+    Recupera 'Neural Insights' generados por la IA proactiva.
+    Alimenta las notificaciones inteligentes del Dashboard.
+    """
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "insights": AIBIEngine.get_proactive_insights(db),
+        "system_health": AIBIEngine.generate_system_health()
     }

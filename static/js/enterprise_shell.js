@@ -15,6 +15,7 @@ const EnterpriseShell = {
         { id: 'clientes', label: 'Fidelización', icon: '👥', path: '/static/loyalty.html', roles: ['ADMIN', 'MANAGER'] },
         { id: 'telemetria', label: 'Quantum Metrics', icon: '⚡', path: '/static/telemetria.html', roles: ['ADMIN'] },
         { id: 'config', label: 'Sistema', icon: '⚙️', path: '/static/settings.html', roles: ['ADMIN'] },
+        { id: 'matrix', label: 'Digital Twin', icon: '🌐', path: '/static/matrix_twin.html', roles: ['ADMIN'] },
         { id: 'marketing', label: 'Marketing', icon: '🚀', path: '/static/marketing.html', roles: ['ADMIN', 'MANAGER'] }
     ],
 
@@ -59,6 +60,7 @@ const EnterpriseShell = {
             this.injectCommandPalette();
             this.startTelemetry();
             this.pollNotifications();
+            this.pollInsights();
         }
 
         // Handle browser navigation
@@ -132,6 +134,18 @@ const EnterpriseShell = {
             }
             window.location.href = module.path;
         }
+        this.playSound('navigate');
+    },
+
+    playSound(type) {
+        const sounds = {
+            navigate: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+            notif: 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+            alert: 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'
+        };
+        const audio = new Audio(sounds[type]);
+        audio.volume = 0.2;
+        audio.play().catch(() => {}); // Autoplay policy bypass
     },
 
     gatekeep() {
@@ -345,6 +359,43 @@ const EnterpriseShell = {
                 </div>
             </div>
         `).join('');
+    },
+
+    async pollInsights() {
+        if (this.user?.rol !== 'ADMIN') return;
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch('/api/telemetry/insights', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.handleInsights(data);
+            }
+        } catch (e) {}
+        setTimeout(() => this.pollInsights(), 30000); // Check every 30s
+    },
+
+    handleInsights(data) {
+        if (!data.insights || data.insights.length === 0) return;
+        
+        // Inyectar el insight más crítico en el banner superior si es nuevo
+        const topInsight = data.insights[0];
+        const banner = document.getElementById('neural-load');
+        if (banner) {
+            const insightTag = document.createElement('div');
+            insightTag.className = `insight-pill ${topInsight.level.toLowerCase()}`;
+            insightTag.innerHTML = `<span>🧠</span> ${topInsight.message}`;
+            
+            // Reemplazar si existe
+            const existing = banner.querySelector('.insight-pill');
+            if (existing) existing.remove();
+            banner.appendChild(insightTag);
+        }
+
+        // Actualizar el estado del sistema en la Matrix
+        const health = data.system_health;
+        console.log(`[Neural] Health: ${health.neural_load}% Load | ${health.database_latency} DB`);
     },
 
     startTelemetry() {
@@ -598,6 +649,18 @@ const EnterpriseShell = {
             .translate-x-full { transform: translateX(100%); }
             .custom-scrollbar::-webkit-scrollbar { width: 4px; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+            .insight-pill { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 9px; font-weight: 900; animation: slideInRight 0.5s ease; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .insight-pill.critical { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; }
+            .insight-pill.info { background: #e0f2fe; color: #0ea5e9; border: 1px solid #7dd3fc; }
+            .insight-pill.success { background: #dcfce7; color: #22c55e; border: 1px solid #86efac; }
+            
+            @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+            #module-container { transition: all 0.3s ease; min-height: calc(100vh - 80px); }
+            
+            /* Glassmorphism Industrial */
+            .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 2rem; }
         `;
         document.head.appendChild(s);
     }

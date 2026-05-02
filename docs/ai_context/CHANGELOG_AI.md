@@ -7,6 +7,11 @@
 - **Backend Fixes**: Resueltos bloqueos de importación circular entre `auth` y `admin_audit`.
 - **Stability**: Implementadas rutas absolutas para activos estáticos, eliminando errores de localización de archivos.
 - **UI/UX**: Verificación de integridad 100% operativa en el catálogo digital y el dashboard administrativo.
+### [V11.5] - 2026-05-02
+- **Seguridad**: Hardening de RBAC en Enterprise Shell con pantalla de acceso denegado y escudos de rol en el DOM.
+- **Inteligencia**: Carbonito AI ahora es consciente del contexto (ruta/módulo) y tiene una interfaz de chat profesional.
+- **Telemetría**: Implementación del Neural Monitor con logs del sistema en tiempo real para administradores (Ctrl+J).
+- **UX/UI**: Pulido visual del Kiosko B2C con imágenes de respaldo y corrección de 404s.
 
 ## [10.0.0-QUANTUM] - 2026-05-02
 ### Industrialización Total y Singularidad Operativa
