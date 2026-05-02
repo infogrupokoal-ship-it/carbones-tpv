@@ -204,10 +204,16 @@ const EnterpriseShell = {
                 </div>
                 <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-widest">
                     <span class="text-slate-300">Sync: <span id="shell-latency" class="text-slate-600">--ms</span></span>
-                    <div class="flex gap-1">
-                        <div class="w-1 h-1 rounded-full bg-emerald-500"></div>
-                        <div class="w-1 h-1 rounded-full bg-emerald-300"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[7px] text-emerald-500 animate-pulse">Self-Healing Active</span>
+                        <div class="flex gap-1">
+                            <div class="w-1 h-1 rounded-full bg-emerald-500"></div>
+                            <div class="w-1 h-1 rounded-full bg-emerald-300"></div>
+                        </div>
                     </div>
+                </div>
+                <div class="pt-2 flex items-center justify-center gap-1 opacity-40">
+                    <span class="text-[6px] font-bold text-slate-400">AI ENGINE V9.1 OPERATIONAL</span>
                 </div>
             </div>
         `;

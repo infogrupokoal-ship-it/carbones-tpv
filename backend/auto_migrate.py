@@ -7,7 +7,10 @@ from backend.models import ( # noqa: F401
     RecetaItem, Cliente, VerificacionOTP, Pedido, ItemPedido, 
     HardwareCommand, LogOperativo, AuditLog, ReporteZ, MovimientoStock, 
     Review, Fichaje, Merma, Horario, Notificacion, Traduccion,
-    Presupuesto, ItemPresupuesto, Referido, WhatsAppTemplate
+    Presupuesto, ItemPresupuesto, Referido, WhatsAppTemplate,
+    GhostBrand, RoboticsTelemetry, ESGMétrics, YieldRule, QSCAudit,
+    FinancialSnapshot, FranchiseContract, CallInteraction, MenuPerformance,
+    BatchTraceability
 )
 
 logger = logging.getLogger("TPV_ENTERPRISE")

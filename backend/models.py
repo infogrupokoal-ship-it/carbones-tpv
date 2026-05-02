@@ -374,3 +374,108 @@ class Liquidacion(Base):
     estado = Column(String(20), default="PENDIENTE") # PENDIENTE, PAGADA
     
     usuario = relationship("Usuario")
+
+# --- ENTERPRISE SINGULARITY V9.0 (ULTRA-INDUSTRIAL) ---
+
+class GhostBrand(Base):
+    __tablename__ = "ghost_brands"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    nombre = Column(String(100), nullable=False)
+    slug = Column(String(50), unique=True)
+    is_active = Column(Boolean, default=True)
+    config_json = Column(Text) # Estética, menús específicos, integraciones
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    tienda = relationship("Tienda")
+
+class RoboticsTelemetry(Base):
+    __tablename__ = "robotics_telemetry"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    device_id = Column(String(50), index=True)
+    sensor_type = Column(String(50)) # TEMP_FRAYER, OIL_QUALITY, DISPENSE_COUNT
+    value = Column(Float)
+    unit = Column(String(20))
+    status = Column(String(20)) # OK, WARNING, ERROR
+
+class ESGMétrics(Base):
+    __tablename__ = "esg_metrics"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    co2_saved_kg = Column(Float, default=0.0)
+    food_waste_kg = Column(Float, default=0.0)
+    plastic_reduced_kg = Column(Float, default=0.0)
+    energy_kwh = Column(Float, default=0.0)
+    water_liters = Column(Float, default=0.0)
+
+class YieldRule(Base):
+    __tablename__ = "yield_rules"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    nombre = Column(String(100))
+    condicion_clima = Column(String(50)) # RAIN, SUN, HEAT
+    condicion_demanda = Column(String(20)) # HIGH, LOW, NORMAL
+    ajuste_precio_pct = Column(Float, default=0.0)
+    is_active = Column(Boolean, default=True)
+
+class QSCAudit(Base):
+    __tablename__ = "qsc_audits"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    auditor_id = Column(String(36), ForeignKey("usuarios.id"))
+    score_calidad = Column(Float) # 0-100
+    score_servicio = Column(Float)
+    score_limpieza = Column(Float)
+    observaciones = Column(Text)
+    fotos_url = Column(Text) # CSV of URLs
+
+class FinancialSnapshot(Base):
+    __tablename__ = "financial_snapshots"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    revenue = Column(Float)
+    ebitda = Column(Float)
+    burn_rate = Column(Float)
+    cac = Column(Float) # Coste Adquisición Cliente
+    ltv = Column(Float) # Life Time Value
+    runway_months = Column(Integer)
+
+class FranchiseContract(Base):
+    __tablename__ = "franchise_contracts"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    franquiciado_nombre = Column(String(100))
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+    fecha_inicio = Column(DateTime)
+    fecha_fin = Column(DateTime)
+    canon_mensual = Column(Float)
+    royalties_pct = Column(Float)
+    estado = Column(String(20)) # VIGENTE, SUSPENDIDO, FINALIZADO
+
+class CallInteraction(Base):
+    __tablename__ = "call_interactions"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    telefono_cliente = Column(String(20))
+    duracion_seg = Column(Integer)
+    sentimiento = Column(String(20)) # POSITIVE, NEUTRAL, NEGATIVE
+    resumen_ia = Column(Text)
+    pedido_generado_id = Column(String(36), ForeignKey("pedidos.id"), nullable=True)
+
+class MenuPerformance(Base):
+    __tablename__ = "menu_performance"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    producto_id = Column(String(36), ForeignKey("productos.id"))
+    popularity_index = Column(Float) # 0-1
+    margin_contribution = Column(Float)
+    classification = Column(String(20)) # STAR, PLOWHORSE, PUZZLE, DOG (Matrix BC)
+
+class BatchTraceability(Base):
+    __tablename__ = "batch_traceability"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    lote_id = Column(String(50), unique=True)
+    ingrediente_id = Column(String(36), ForeignKey("ingredientes.id"))
+    fecha_recepcion = Column(DateTime)
+    fecha_caducidad = Column(DateTime)
+    temperatura_recepcion = Column(Float)
+    blockchain_hash = Column(String(128))
+    status = Column(String(20)) # OK, QUARANTINE, REJECTED

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Predictive Analytics | Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #1e293b; }
+        .bg-grid-industrial {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            background-image: radial-gradient(#6366f1 0.5px, transparent 0.5px);
+            background-size: 30px 30px; opacity: 0.05;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8 lg:p-20">
+    <div class="bg-grid-industrial"></div>
+    
+    <header class="mb-20 flex justify-between items-end">
+        <div>
+            <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Autonomous Operational Intelligence</p>
+            <h1 class="text-7xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
+                Predicción <span class="text-indigo-600">Cuántica</span>
+            </h1>
+        </div>
+        <div class="text-right">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Engine Status</p>
+            <div class="flex items-center gap-2 text-emerald-500 font-black text-sm uppercase tracking-tighter mt-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Operational V5.0
+            </div>
+        </div>
+    </header>
+
+    <!-- Telemetry Stats -->
+    <div id="telemetry-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"></div>
+
+    <!-- Main Forecast Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        <div class="lg:col-span-2 quantum-glass p-12 rounded-[4rem]">
+            <h3 class="text-lg font-black text-slate-900 tracking-tight uppercase mb-8">Proyección de Demanda (Próximos 7 Días)</h3>
+            <canvas id="forecast-chart" class="w-full"></canvas>
+        </div>
+        <div id="strategic-actions" class="flex flex-col gap-6">
+            <!-- Strategic actions injected here -->
+        </div>
+    </div>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script src="/static/js/enterprise_ui.js"></script>
+    <script>
+        async function loadPredictiveData() {
+            try {
+                // Load Insights
+                const insightRes = await fetch('/api/aoi/insights');
+                const insightData = await insightRes.json();
+                
+                EnterpriseUI.renderKPICard('telemetry-grid', {
+                    title: 'Puntuación de Salud',
+                    value: insightData.health_score,
+                    unit: 'pts',
+                    trend: 'up',
+                    trendValue: '+2.4%',
+                    icon: 'fa-heart-pulse'
+                });
+                
+                EnterpriseUI.renderKPICard('telemetry-grid', {
+                    title: 'Eficiencia Operativa',
+                    value: insightData.efficiency,
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-gears'
+                });
+
+                // Load Forecast
+                const forecastRes = await fetch('/api/aoi/forecast');
+                const forecastData = await forecastRes.json();
+                renderForecastChart(forecastData);
+
+                // Load Actions
+                const actionsRes = await fetch('/api/aoi/actions');
+                const actionsData = await actionsRes.json();
+                renderActions(actionsData);
+
+            } catch (e) {
+                console.error("AOI Loading Error:", e);
+                EnterpriseUI.showToast("Error conectando con el motor AOI", "error");
+            }
+        }
+
+        function renderForecastChart(data) {
+            const ctx = document.getElementById('forecast-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [{
+                        label: 'Ventas Proyectadas',
+                        data: data.map(d => d.expected_sales),
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#6366f1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { display: false }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderActions(actions) {
+            const container = document.getElementById('strategic-actions');
+            container.innerHTML = `
+                <div class="quantum-glass p-10 rounded-[3rem] bg-indigo-600 text-white shadow-indigo-200">
+                    <p class="text-[9px] font-black uppercase tracking-[0.3em] mb-4 opacity-70 text-indigo-100">AI Recommendation</p>
+                    <h4 class="text-xl font-black tracking-tight leading-tight">Optimización Automática Detectada</h4>
+                    <p class="text-xs font-bold text-indigo-100 mt-4 leading-relaxed">El motor AOI sugiere re-balancear el personal del KDS ante el pico de demanda del Sábado.</p>
+                </div>
+            ` + actions.map(a => `
+                <div class="quantum-glass p-10 rounded-[3rem] group hover:bg-white transition-all cursor-pointer">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">${a.module}</p>
+                    <h4 class="text-sm font-black text-slate-900 uppercase tracking-tight mb-4">${a.action}</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 rounded-full bg-slate-50 text-slate-400 text-[8px] font-black uppercase tracking-widest">${a.impact} IMPACT</span>
+                        <span class="text-indigo-600 text-[10px] font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform">Ejecutar <i class="fas fa-arrow-right ml-1"></i></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = () => {
+            EnterpriseShell.init('Analytics');
+            loadPredictiveData();
+        };
+    </script>
+</body>
+</html>
