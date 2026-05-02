@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoría de Sistemas | Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
+</head>
+<body class="min-h-screen">
+    <div class="bg-grid-industrial"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
+
+        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+                <div>
+                    <p class="text-[10px] font-black text-rose-600 uppercase tracking-[0.5em] mb-4">Security & Compliance Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Auditoría <span class="text-rose-600">Sistemas</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <button class="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">
+                        Exportar Logs (JSON)
+                    </button>
+                </div>
+            </header>
+
+            <!-- Alert Feed -->
+            <div class="grid grid-cols-1 gap-8 mb-16">
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-rose-500 bg-rose-50/10">
+                    <div class="flex items-center gap-6 mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-xl">⚠️</div>
+                        <div>
+                            <h4 class="text-xl font-black text-slate-900 uppercase tracking-tighter">Acceso de Seguridad Detectado</h4>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">3 Intentos fallidos desde IP: 192.168.1.45 (Caja 01)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-10 px-2">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em]">Registro de Actividad Reciente</h4>
+                <div class="h-px flex-1 bg-slate-50 mx-10"></div>
+            </div>
+
+            <!-- Logs Table -->
+            <div class="glass-panel rounded-[3rem] overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                            <th class="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Usuario</th>
+                            <th class="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Módulo</th>
+                            <th class="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                            <th class="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr>
+                            <td class="px-10 py-8 text-sm font-bold text-slate-400">Hoy 14:22:10</td>
+                            <td class="px-10 py-8">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-black">AM</div>
+                                    <span class="text-sm font-black text-slate-900 uppercase">Admin Master</span>
+                                </div>
+                            </td>
+                            <td class="px-10 py-8 text-xs font-black text-slate-900 uppercase tracking-tighter">Inventario</td>
+                            <td class="px-10 py-8 text-xs font-bold text-slate-500 uppercase">Modificación de stock: Carbón (50kg -> 150kg)</td>
+                            <td class="px-10 py-8 text-right"><span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase rounded-full">Validado</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-10 py-8 text-sm font-bold text-slate-400">Hoy 13:45:00</td>
+                            <td class="px-10 py-8">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[10px] font-black">C1</div>
+                                    <span class="text-sm font-black text-slate-900 uppercase">Cajero 01</span>
+                                </div>
+                            </td>
+                            <td class="px-10 py-8 text-xs font-black text-slate-900 uppercase tracking-tighter">Caja</td>
+                            <td class="px-10 py-8 text-xs font-bold text-slate-500 uppercase">Apertura de cajón sin ticket</td>
+                            <td class="px-10 py-8 text-right"><span class="px-3 py-1 bg-amber-50 text-amber-600 text-[9px] font-black uppercase rounded-full">Revisión</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        window.onload = () => {
+            EnterpriseShell.init('Auditoría');
+        };
+    </script>
+</body>
+</html>

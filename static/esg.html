@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG & Sustainability | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+        .metric-card { position: relative; overflow: hidden; }
+        .metric-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #10b981, #3b82f6); opacity: 0.8; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <!-- Enterprise Sidebar Injector -->
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <!-- Header -->
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Métricas ESG</h1>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Sostenibilidad y Gobernanza Corporativa</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="loadESGDashboard()" class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Refrescar Datos
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            
+            <!-- Global Status Overview -->
+            <div class="glass-panel p-8 bg-gradient-to-br from-emerald-900 to-indigo-900 text-white relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="text-sm font-black uppercase tracking-widest text-emerald-300 mb-2">Certificación de Sostenibilidad</h2>
+                    <div class="flex items-end gap-6">
+                        <p class="text-5xl font-black tracking-tighter" id="cert-status">CARGANDO...</p>
+                        <p class="text-sm font-medium text-emerald-100 mb-1">Impacto Global de la Red</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Environment -->
+                <div class="glass-panel p-6 metric-card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined">eco</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Medio Ambiente (E)</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="e-status">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">CO2 Ahorrado (Optimización Logística)</p>
+                            <p class="text-2xl font-black text-slate-800" id="metric-co2">--</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Envases Ecológicos Utilizados</p>
+                            <p class="text-lg font-bold text-slate-600" id="metric-eco-pkg">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social -->
+                <div class="glass-panel p-6 metric-card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined">volunteer_activism</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Social (S)</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="s-status">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Comida Donada (Cero Desperdicio)</p>
+                            <p class="text-2xl font-black text-slate-800" id="metric-food">--</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Horas de Formación (Staff)</p>
+                            <p class="text-lg font-bold text-slate-600" id="metric-training">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Governance -->
+                <div class="glass-panel p-6 metric-card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined">gavel</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Gobernanza (G)</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="g-status">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Incidentes Laborales</p>
+                            <p class="text-2xl font-black text-emerald-600" id="metric-incidents">--</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Crecimiento Interanual Sostenible</p>
+                            <p class="text-lg font-bold text-slate-600">Alineado a Agenda 2030</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-panel p-6">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Registro Operativo de Impacto</h3>
+                <div class="flex gap-4">
+                    <button onclick="logDonation()" class="px-6 py-3 bg-indigo-50 text-indigo-700 font-bold text-xs rounded-xl hover:bg-indigo-100 transition-colors flex items-center gap-2 border border-indigo-100">
+                        <span class="material-symbols-outlined text-[16px]">add</span> Registrar Donación
+                    </button>
+                    <button onclick="logPackaging()" class="px-6 py-3 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors flex items-center gap-2 border border-emerald-100">
+                        <span class="material-symbols-outlined text-[16px]">add</span> Añadir Envases Eco
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Métricas ESG');
+            loadESGDashboard();
+        });
+
+        async function loadESGDashboard() {
+            try {
+                // Dashboard general
+                const resDash = await fetch('/api/esg/dashboard');
+                const dataDash = await resDash.json();
+
+                document.getElementById('cert-status').innerText = dataDash.certificacion_sostenibilidad;
+                
+                document.getElementById('e-status').innerText = `Estado: ${dataDash.impacto_ambiental.estado}`;
+                document.getElementById('metric-co2').innerText = dataDash.impacto_ambiental.co2_ahorrado;
+                
+                document.getElementById('s-status').innerText = `Estado: ${dataDash.impacto_social.estado}`;
+                document.getElementById('metric-food').innerText = dataDash.impacto_social.comida_donada;
+                document.getElementById('metric-training').innerText = `${dataDash.impacto_social.horas_formacion}h`;
+
+                document.getElementById('g-status').innerText = `Estado: ${dataDash.gobernanza.estado}`;
+                document.getElementById('metric-incidents').innerText = dataDash.gobernanza.incidentes;
+
+                // Para actualizar métricas vivas
+                const resLive = await fetch('/api/esg/current');
+                const dataLive = await resLive.json();
+                document.getElementById('metric-eco-pkg').innerText = `${dataLive.envases_eco_usados} uds`;
+
+            } catch(e) {
+                console.error("Error loading ESG data:", e);
+            }
+        }
+
+        async function logDonation() {
+            const kilos = prompt("¿Cuántos KG de comida se han donado?");
+            const org = prompt("Nombre de la Organización beneficiaria:");
+            
+            if(kilos && org) {
+                try {
+                    const res = await fetch(`/api/esg/log-donation?kilos=${kilos}&organizacion=${encodeURIComponent(org)}`, { method: 'POST' });
+                    if(res.ok) {
+                        window.showToast("Impacto Social", `Se han registrado ${kilos}kg para ${org}`, "emerald");
+                        loadESGDashboard();
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        async function logPackaging() {
+            const qty = prompt("Número de envases ecológicos utilizados en el turno:");
+            if(qty) {
+                try {
+                    const res = await fetch(`/api/esg/log-eco-packaging?cantidad=${qty}`, { method: 'POST' });
+                    if(res.ok) {
+                        window.showToast("Impacto Ambiental", `Añadidos ${qty} envases ECO`, "emerald");
+                        loadESGDashboard();
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+    </script>
+</body>
+</html>

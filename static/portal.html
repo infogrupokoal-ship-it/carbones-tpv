@@ -12,23 +12,7 @@
             --brand-primary: #4f46e5;
             --bg-base: #f8fafc;
         }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            color: #1e293b;
-            overflow-x: hidden;
-        }
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -1;
-            pointer-events: none;
-        }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-base); margin: 0; color: #1e293b; overflow-x: hidden; }
         .portal-card {
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -38,32 +22,17 @@
             text-decoration: none;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
-        .portal-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--brand-primary);
-            box-shadow: 0 30px 60px -20px rgba(79, 70, 229, 0.15);
-        }
-        .portal-card i {
-            transition: all 0.5s ease;
-        }
-        .portal-card:hover i {
-            transform: scale(1.2) rotate(-5deg);
-        }
-        .stat-badge {
-            background: rgba(79, 70, 229, 0.05);
-            color: var(--brand-primary);
-            font-weight: 900;
-            font-size: 10px;
-            padding: 4px 12px;
-            border-radius: 99px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
+        .portal-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--brand-primary); box-shadow: 0 30px 60px -20px rgba(79, 70, 229, 0.15); }
+        .portal-card i { transition: all 0.5s ease; }
+        .portal-card:hover i { transform: scale(1.2) rotate(-5deg); }
+        .stat-badge { background: rgba(79, 70, 229, 0.05); color: var(--brand-primary); font-weight: 900; font-size: 10px; padding: 4px 12px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="bg-grid"></div>
+    <div class="bg-grid-industrial"></div>
 
     <main class="max-w-[1600px] mx-auto p-8 lg:p-20">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20">
@@ -74,22 +43,22 @@
                 </h1>
                 <div class="mt-8 flex items-center gap-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-black" id="user-avatar">??</div>
+                        <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-black">OP</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operador Activo</p>
-                            <p class="text-sm font-black text-slate-900 uppercase tracking-tighter" id="user-name">Cargando...</p>
+                            <p class="text-sm font-black text-slate-900 uppercase tracking-tighter">Gerencia Master</p>
                         </div>
                     </div>
                     <div class="h-8 w-px bg-slate-200"></div>
                     <div class="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Nodo Industrial Activo
                     </div>
                 </div>
             </div>
-            <button onclick="logout()" class="bg-white border border-slate-100 hover:border-red-100 hover:text-red-600 text-slate-400 font-black text-[10px] uppercase tracking-widest px-8 py-5 rounded-2xl shadow-sm transition-all flex items-center gap-3">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Finalizar Sesión
-            </button>
+            <div class="flex gap-4">
+                <a href="/static/auditoria.html" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-rose-600 transition-all" title="Auditoría de Seguridad">🛡️</a>
+                <button onclick="logout()" class="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest px-8 py-5 rounded-2xl shadow-xl hover:scale-105 transition-all">Finalizar Sesión</button>
+            </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -98,104 +67,80 @@
             <a href="/static/caja.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
                     <div class="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-3xl">💰</div>
-                    <span class="stat-badge">Ventas</span>
+                    <span class="stat-badge">Live</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Caja Maestra</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Gestión de cobros, tickets y flujo de efectivo intradía.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-indigo-600 uppercase tracking-widest">
-                    Abrir Terminal <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Terminal de Caja</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Gestión de cobros, arqueos ciegos y control de efectivo local.</p>
             </a>
 
-            <!-- KDS COCINA -->
-            <a href="/static/cocina.html" class="portal-card p-10 rounded-[3rem]">
+            <!-- COCINA KDS -->
+            <a href="/static/kds.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
                     <div class="w-16 h-16 rounded-[1.5rem] bg-orange-50 flex items-center justify-center text-3xl">🔥</div>
-                    <span class="stat-badge" style="background: rgba(249, 115, 22, 0.05); color: #f97316;">KDS</span>
+                    <span class="stat-badge">2 Activos</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Monitor Cocina</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Control de tiempos, Kanban de pedidos y alertas KDS.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-orange-600 uppercase tracking-widest">
-                    Visualizar Board <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Monitor Cocina</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Sistema KDS para control de tiempos de asado y expedición.</p>
             </a>
 
-            <!-- BI ANALYTICS -->
-            <a href="/static/dashboard.html" class="portal-card p-10 rounded-[3rem]">
+            <!-- DASHBOARD BI -->
+            <a href="/static/analytics.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
                     <div class="w-16 h-16 rounded-[1.5rem] bg-blue-50 flex items-center justify-center text-3xl">📊</div>
-                    <span class="stat-badge" style="background: rgba(59, 130, 246, 0.05); color: #3b82f6;">Admin</span>
+                    <span class="stat-badge">Alpha BI</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">BI Analytics</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Métricas en tiempo real, histórico de ventas y Big Data.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-blue-600 uppercase tracking-widest">
-                    Explorar Datos <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
-            </a>
-
-            <!-- REPARTOS -->
-            <a href="/static/reparto.html" class="portal-card p-10 rounded-[3rem]">
-                <div class="mb-12 flex justify-between items-start">
-                    <div class="w-16 h-16 rounded-[1.5rem] bg-emerald-50 flex items-center justify-center text-3xl">🛵</div>
-                    <span class="stat-badge" style="background: rgba(16, 185, 129, 0.05); color: #10b981;">Logística</span>
-                </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Central Reparto</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Gestión de rutas, asignación de drivers y tracking GPS.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-emerald-600 uppercase tracking-widest">
-                    Control de Flota <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
-            </a>
-
-            <!-- KIOSKO B2C -->
-            <a href="/static/kiosko.html" class="portal-card p-10 rounded-[3rem]">
-                <div class="mb-12 flex justify-between items-start">
-                    <div class="w-16 h-16 rounded-[1.5rem] bg-purple-50 flex items-center justify-center text-3xl">📱</div>
-                    <span class="stat-badge" style="background: rgba(168, 85, 247, 0.05); color: #a855f7;">Customer</span>
-                </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Self-Service</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Interfaz de cliente final para pedidos autónomos.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-purple-600 uppercase tracking-widest">
-                    Modo Kiosko <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Master Analytics</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Inteligencia de negocio, KPIs de venta y análisis de márgenes.</p>
             </a>
 
             <!-- INVENTARIO -->
             <a href="/static/inventario.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
-                    <div class="w-16 h-16 rounded-[1.5rem] bg-slate-50 flex items-center justify-center text-3xl">📦</div>
-                    <span class="stat-badge" style="background: rgba(71, 85, 105, 0.05); color: #475569;">Stock</span>
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-emerald-50 flex items-center justify-center text-3xl">📦</div>
+                    <span class="stat-badge">8 Alertas</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Inventario Pro</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Control de existencias, mermas y pedidos a proveedores.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-slate-600 uppercase tracking-widest">
-                    Ver Almacén <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Logística & Stock</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Control de suministros, mermas y pedidos a proveedores.</p>
             </a>
 
-            <!-- MARKETING HUB -->
+            <!-- RRHH -->
+            <a href="/static/rrhh.html" class="portal-card p-10 rounded-[3rem]">
+                <div class="mb-12 flex justify-between items-start">
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-rose-50 flex items-center justify-center text-3xl">👥</div>
+                    <span class="stat-badge">6 en Turno</span>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Gestión de Equipo</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Control de presencia, nóminas y asignación de tareas.</p>
+            </a>
+
+            <!-- ESCANDALLOS -->
+            <a href="/static/escandallos.html" class="portal-card p-10 rounded-[3rem]">
+                <div class="mb-12 flex justify-between items-start">
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-cyan-50 flex items-center justify-center text-3xl">⚖️</div>
+                    <span class="stat-badge">Ingeniería</span>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Costes & Recetas</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Escandallos técnicos, margen de contribución y alérgenos.</p>
+            </a>
+
+            <!-- MARKETING -->
             <a href="/static/marketing.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
-                    <div class="w-16 h-16 rounded-[1.5rem] bg-pink-50 flex items-center justify-center text-3xl">📢</div>
-                    <span class="stat-badge" style="background: rgba(236, 72, 153, 0.05); color: #ec4899;">Growth</span>
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-pink-50 flex items-center justify-center text-3xl">📣</div>
+                    <span class="stat-badge">Automation</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Marketing Hub</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Promociones AI, fidelización y campañas WhatsApp.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-pink-600 uppercase tracking-widest">
-                    Gestionar Campaña <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Growth Center</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Campañas de fidelización, cupones y programa viral de referidos.</p>
             </a>
 
-            <!-- SETTINGS -->
-            <a href="/static/settings.html" class="portal-card p-10 rounded-[3rem]">
+            <!-- REPARTO -->
+            <a href="/static/reparto.html" class="portal-card p-10 rounded-[3rem]">
                 <div class="mb-12 flex justify-between items-start">
-                    <div class="w-16 h-16 rounded-[1.5rem] bg-slate-100 flex items-center justify-center text-3xl">⚙️</div>
-                    <span class="stat-badge" style="background: rgba(0,0,0,0.03); color: #000;">Config</span>
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-amber-50 flex items-center justify-center text-3xl">🛵</div>
+                    <span class="stat-badge">Live Map</span>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">Ajustes Nucleo</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase leading-relaxed tracking-widest">Configuración de hardware, fiscalidad y seguridad.</p>
-                <div class="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-slate-900 uppercase tracking-widest">
-                    Ajustes Avanzados <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Fleet Logistics</h3>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Monitorización de flota, tiempos de entrega y liquidación de riders.</p>
             </a>
 
         </div>
@@ -203,32 +148,10 @@
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
+        function logout() { localStorage.clear(); location.href = '/static/login.html'; }
         window.onload = () => {
-            const user = localStorage.getItem('auth_user') || 'GUEST';
-            const role = localStorage.getItem('auth_role') || 'NONE';
-            
-            document.getElementById('user-name').innerText = user;
-            document.getElementById('user-avatar').innerText = user.substring(0,2).toUpperCase();
-            
-            // Industrial Portal Animation
-            const cards = document.querySelectorAll('.portal-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 100 * index);
-            });
+            if(!localStorage.getItem('token')) location.href = '/static/login.html';
         };
-
-        function logout() {
-            localStorage.clear();
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => window.location.href = 'login.html', 500);
-        }
     </script>
 </body>
 </html>

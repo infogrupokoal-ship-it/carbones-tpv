@@ -3,381 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Producción - Carbones y Pollos</title>
-    <!-- Tailwind CSS -->
+    <title>Dashboard Producción | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Design System -->
-    <link rel="stylesheet" href="/static/css/design_system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
-        .toast {
-            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards, slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards 3s;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            pointer-events: auto;
-            color: white;
-            z-index: 9999;
+        :root {
+            --brand-primary: #ef4444; /* Red for Production/Heat */
+            --bg-base: #f8fafc;
         }
-        @keyframes slideIn { from { transform: translateX(100%) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
-        @keyframes slideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(100%) scale(0.95); opacity: 0; } }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-base); color: #1e293b; }
+        .production-card { transition: all 0.3s ease; border-top: 6px solid transparent; }
+        .production-card:hover { transform: translateY(-5px); border-top-color: var(--brand-primary); }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100 font-sans flex overflow-hidden">
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+<body class="min-h-screen">
+    <div class="bg-grid-industrial"></div>
 
-    <!-- Sidebar -->
-    <aside class="w-72 glass-panel border-r border-white/5 flex flex-col p-6 hidden lg:flex">
-        <div class="flex items-center gap-3 mb-12">
-            <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg">⚡</div>
-            <h2 class="text-xl font-black text-white tracking-tighter uppercase">TPV <span class="text-blue-500">Ultra</span></h2>
-        </div>
-        <nav class="space-y-1 flex-1 overflow-y-auto custom-scrollbar pr-2">
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-4">Core Operativo</p>
-            <a href="/static/portal.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🏠 Portal de Inicio</a>
-            <a href="/static/dashboard.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📊 Business Intelligence</a>
-            <a href="/static/caja.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">💰 Control de Caja</a>
-            <a href="/static/kds.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🍳 Cocina KDS</a>
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
 
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Logística y Stock</p>
-            <a href="/static/inventario.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📦 Inventario Central</a>
-            
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Ventas y Marketing</p>
-            <a href="/static/presupuestos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📄 Presupuestos</a>
-            <a href="/static/referidos.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🔗 Programa de Referidos</a>
-            <a href="/static/marketing.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📣 Marketing Hub</a>
-
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6">Administración</p>
-            <a href="/static/rrhh.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">👥 RRHH y Personal</a>
-            <a href="/static/repartidores.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">🛵 Repartidores</a>
-            <a href="/static/dashboard_produccion.html" class="flex items-center gap-3 p-3 rounded-xl nav-active text-xs font-bold uppercase tracking-tight">📊 Producción Live</a>
-            <a href="/static/stats.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-tight">📈 BI Analytics</a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 lg:p-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-            <div class="flex items-center gap-4">
-                <span class="text-3xl">📊</span>
+        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
                 <div>
-                    <h1 class="text-4xl font-black text-white tracking-tighter uppercase">CONTROL <span class="text-blue-500">OPERATIVO</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Inteligencia de Negocio v4.1 • Live</p>
+                    <p class="text-[10px] font-black text-red-600 uppercase tracking-[0.5em] mb-4">Operations & Production Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Control <span class="text-red-600">Producción</span>
+                    </h1>
                 </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="document.getElementById('modalArqueo').classList.remove('hidden')" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-2 rounded-full font-bold text-sm border border-white/10 transition-all active:scale-95">CIERRE Z</button>
-            </div>
-        </header>
-        
-        <!-- KPI Row -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-            <div class="glass-panel !p-6 flex flex-col justify-between">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Ventas Brutas</p>
-                <p class="text-3xl font-black text-emerald-400" id="kpi-ventas">0.00€</p>
-            </div>
-            <div class="glass-panel !p-6 flex flex-col justify-between">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Mermas / Pérdida</p>
-                <p class="text-3xl font-black text-red-400" id="kpi-mermas">0.00€</p>
-            </div>
-            <div class="glass-panel !p-6 flex flex-col justify-between">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Tickets Emitidos</p>
-                <p class="text-3xl font-black text-indigo-400" id="kpi-pedidos">0</p>
-            </div>
-            <div class="glass-panel !p-6 flex flex-col justify-between border-blue-500/30">
-                <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">Envíos (Hoy)</p>
-                <p class="text-3xl font-black text-blue-400" id="kpi-envios">0</p>
-            </div>
-        </div>
-
-        <!-- Main Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            <div class="lg:col-span-2 glass-panel">
-                <h3 class="text-lg font-black text-white mb-6 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    CURVA DE VENTAS (HOY)
-                </h3>
-                <canvas id="chart-ventas-hora" height="150"></canvas>
-            </div>
-            <div class="glass-panel bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/30">
-                <div class="flex justify-between items-start mb-6">
-                    <h3 class="text-lg font-black text-white flex items-center gap-2">
-                        <span>🧠</span> AI INSIGHTS
-                    </h3>
-                    <button onclick="generarInsightsIA()" id="btn-ia" class="text-[10px] font-black px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/10 transition-all uppercase">Actualizar</button>
-                </div>
-                <div id="ia-content" class="text-sm leading-relaxed text-slate-300 space-y-4">
-                    <p class="italic text-slate-500">Haz clic en actualizar para que la IA analice las métricas del día...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Grid: Inventory & Feedback -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass-panel">
-                <h3 class="text-lg font-black text-white mb-6">RE rendimiento de Productos</h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Top Pollos</p>
-                        <canvas id="chart-top-pollos" height="200"></canvas>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Top Pizzas</p>
-                        <canvas id="chart-top-pizzas" height="200"></canvas>
+                <div class="flex gap-4">
+                    <div class="glass-panel px-8 py-5 rounded-2xl flex items-center gap-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Hornos al 85%</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="glass-panel">
-                <h3 class="text-lg font-black text-white mb-6">FEEDBACK RECIENTE</h3>
-                <div id="reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    <p class="text-slate-500 italic">Cargando valoraciones...</p>
+            </header>
+
+            <!-- Real-time Production Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <!-- Horno 01 -->
+                <div class="glass-panel production-card p-10 rounded-[3rem]">
+                    <div class="flex justify-between items-start mb-8">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Hornos A01</h3>
+                        <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Activo</span>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-slate-400">Capacidad</span>
+                            <span class="text-slate-900">12 / 15 Pollos</span>
+                        </div>
+                        <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-red-500" style="width: 80%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-slate-400">Tiempo Restante</span>
+                            <span class="text-red-600 font-black">22 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carbon Stock -->
+                <div class="glass-panel production-card p-10 rounded-[3rem]">
+                    <div class="flex justify-between items-start mb-8">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Combustible</h3>
+                        <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">Reorden</span>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-slate-400">Carbón Encina</span>
+                            <span class="text-slate-900">45 kg / 200kg</span>
+                        </div>
+                        <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-500" style="width: 22%"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 leading-relaxed italic uppercase mt-4">La IA recomienda solicitar 5 sacos adicionales para cubrir el turno de noche.</p>
+                    </div>
+                </div>
+
+                <!-- Efficiency -->
+                <div class="glass-panel production-card p-10 rounded-[3rem]">
+                    <div class="flex justify-between items-start mb-8">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Eficiencia</h3>
+                        <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Optimizada</span>
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-5xl font-black text-slate-900 tracking-tighter">94%</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio de merma: 1.2% (Muy Bajo)</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Staff Status -->
-        <div class="mt-10 glass-panel">
-            <h3 class="text-lg font-black text-white mb-6">EQUIPO EN TURNO</h3>
-            <div id="rrhh-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <p class="text-slate-500 italic col-span-full">Sincronizando portal RRHH...</p>
+            <!-- Queue monitor -->
+            <div class="flex items-center justify-between mb-10 px-2">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em]">Cola de Expedición Directa</h4>
+                <div class="h-px flex-1 bg-slate-50 mx-10"></div>
             </div>
-        </div>
 
-    </main>
-
-    <!-- Modal Arqueo -->
-    <div id="modalArqueo" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center z-[100] p-4">
-        <div class="glass-panel max-w-md w-full !p-8 animate-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-black text-white">ARQUEO CIEGO</h3>
-                <button onclick="document.getElementById('modalArqueo').classList.add('hidden')" class="text-slate-400 hover:text-white text-3xl">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Orders -->
+                <div class="glass-panel p-6 rounded-3xl border-l-4 border-l-red-500">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido #402</p>
+                    <p class="text-sm font-black text-slate-900 uppercase">2x Pollo XL + Bravas</p>
+                    <p class="text-[9px] font-bold text-red-600 uppercase mt-4">Prioridad Alta • 12min</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido #403</p>
+                    <p class="text-sm font-black text-slate-900 uppercase">1x Combo Familiar</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-4">Pendiente • 18min</p>
+                </div>
             </div>
-            <p class="text-slate-400 text-sm mb-8 leading-relaxed">Declara el efectivo contado en el cajón físico. La IA detectará descuadres y notificará a gerencia automáticamente.</p>
-            
-            <div class="mb-8">
-                <label class="block text-slate-500 text-[10px] font-black uppercase tracking-widest mb-3">Efectivo Contado (€)</label>
-                <input type="number" id="efectivo_declarado" step="0.01" class="w-full bg-black/40 border-2 border-white/10 rounded-2xl p-4 text-3xl font-black text-white focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="0.00">
-            </div>
-            
-            <button onclick="ejecutarCierreZ()" id="btn-cierre" class="btn-primary w-full !text-lg !py-4">REALIZAR CIERRE Z</button>
-        </div>
+        </main>
     </div>
 
+    <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        function showToast(title, message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            
-            let iconHtml;
-            if (type === 'error') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>`;
-            } else if (type === 'success') {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>`;
-            } else {
-                iconHtml = `
-                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>`;
-            }
-
-            toast.innerHTML = `
-                ${iconHtml}
-                <div>
-                    <p class="text-white font-black text-xs">${title}</p>
-                    <p class="text-slate-400 text-[10px] font-medium">${message}</p>
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
-        }
-
-        const API_URL = "/api";
-        let chartVentas, chartPollos, chartPizzas;
-
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-
-        async function initDashboard() {
-            try {
-                // 1. Motor Unificado v5.0
-                const res = await fetch(`${API_URL}/stats/dashboard`);
-                if(res.ok) {
-                    const data = await res.json();
-                    document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-                    document.getElementById('kpi-mermas').innerText = data.kpis.coste_mermas.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-                    document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_count;
-                    document.getElementById('kpi-envios').innerText = data.kpis.envios_hoy;
-                    
-                    renderCharts(data.charts);
-                    renderReviews(data.reviews);
-                }
-                
-                // 2. Estado RRHH
-                const resRRHH = await fetch(`${API_URL}/rrhh/estado-plantilla`);
-                if(resRRHH.ok) {
-                    const dataRRHH = await resRRHH.json();
-                    renderRRHH(dataRRHH);
-                }
-            } catch(e) { console.error("Load Error:", e); }
-        }
-
-        function renderCharts(chartsData) {
-            const ctx1 = document.getElementById('chart-ventas-hora').getContext('2d');
-            if(chartVentas) chartVentas.destroy();
-            chartVentas = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: chartsData.horas.labels,
-                    datasets: [{
-                        label: 'Euros (€)',
-                        data: chartsData.horas.data,
-                        borderColor: '#10b981',
-                        backgroundColor: (ctx) => {
-                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
-                            gradient.addColorStop(0, '#10b98144');
-                            gradient.addColorStop(1, '#10b98100');
-                            return gradient;
-                        },
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#fff'
-                    }]
-                },
-                options: { 
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
-                }
-            });
-
-            const barOptions = {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
-            };
-
-            const ctx2 = document.getElementById('chart-top-pollos').getContext('2d');
-            if(chartPollos) chartPollos.destroy();
-            chartPollos = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: chartsData.top_pollos.labels,
-                    datasets: [{ data: chartsData.top_pollos.data, backgroundColor: '#f59e0b', borderRadius: 8 }]
-                },
-                options: barOptions
-            });
-
-            const ctx3 = document.getElementById('chart-top-pizzas').getContext('2d');
-            if(chartPizzas) chartPizzas.destroy();
-            chartPizzas = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: chartsData.top_pizzas.labels,
-                    datasets: [{ data: chartsData.top_pizzas.data, backgroundColor: '#ef4444', borderRadius: 8 }]
-                },
-                options: barOptions
-            });
-        }
-
-        function renderReviews(reviews) {
-            const cont = document.getElementById('reviews-container');
-            cont.innerHTML = reviews && reviews.length > 0 ? reviews.map(r => `
-                <div class="bg-white/5 border border-white/5 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-white text-xs">${r.cliente_nombre || 'Anónimo'}</span>
-                        <span class="text-yellow-400 text-xs">${'★'.repeat(r.rating)}</span>
-                    </div>
-                    <p class="text-slate-400 text-xs leading-relaxed italic">"${r.comentario || 'Sin comentario'}"</p>
-                </div>
-            `).join('') : '<p class="text-slate-600 italic">No hay feedback hoy.</p>';
-        }
-
-        function renderRRHH(fichajes) {
-            const cont = document.getElementById('rrhh-container');
-            const empleados = {};
-            fichajes.forEach(f => { if(!empleados[f.username]) empleados[f.username] = f; });
-            
-            cont.innerHTML = Object.values(empleados).map(f => {
-                let color = "text-slate-500";
-                if(f.tipo === "ENTRADA" || f.tipo === "FIN_PAUSA") color = "text-emerald-400";
-                if(f.tipo === "SALIDA") color = "text-red-400";
-                if(f.tipo === "INICIO_PAUSA") color = "text-yellow-400";
-                
-                return `
-                    <div class="bg-white/5 border border-white/5 p-4 rounded-2xl text-center">
-                        <p class="font-black text-white text-xs truncate mb-1">${f.username}</p>
-                        <p class="${color} text-[10px] font-black uppercase tracking-widest">${f.tipo}</p>
-                    </div>
-                `;
-            }).join('') || '<p class="text-slate-600 col-span-full italic">Sin actividad de equipo.</p>';
-        }
-
-        async function generarInsightsIA() {
-            const btn = document.getElementById('btn-ia');
-            const content = document.getElementById('ia-content');
-            btn.innerText = "...";
-            content.innerHTML = '<p class="text-indigo-300 animate-pulse text-xs">Gemini 1.5 Flash está analizando tus métricas operativas...</p>';
-            try {
-                const res = await fetch(`${API_URL}/admin/ai_insights`);
-                const data = await res.json();
-                content.innerHTML = `
-                    <div class="space-y-4 animate-in">
-                        <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
-                            <p class="text-indigo-300 font-bold text-[10px] uppercase mb-1">Análisis de Feedback</p>
-                            <p class="text-slate-300 text-xs">${data.resumen_reviews}</p>
-                        </div>
-                        <div class="bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
-                            <p class="text-purple-300 font-bold text-[10px] uppercase mb-1">Estrategia sugerida</p>
-                            <p class="text-slate-300 text-xs font-bold italic">"${data.sugerencia_produccion}"</p>
-                        </div>
-                    </div>
-                `;
-            } catch(e) { content.innerHTML = '<p class="text-red-400">Error en IA.</p>'; }
-            btn.innerText = "ACTUALIZAR";
-        }
-
-        async function ejecutarCierreZ() {
-            const efDecl = parseFloat(document.getElementById('efectivo_declarado').value);
-            if(isNaN(efDecl)) return;
-            try {
-                const res = await fetch(`${API_URL}/stats/cierre-z`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({efectivo_declarado: efDecl})
-                });
-                const data = await res.json();
-                if(res.ok && data.status === 'success') {
-                    showToast('Cierre Z', data.msj || 'Arqueo registrado correctamente', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('Cierre Z Fallido', data.detail || 'Fallo de validación', 'error');
-                }
-            } catch(e) { 
-                showToast('Fallo de Red', 'Fallo al cerrar o reportar. Reintente.', 'error');
-                console.error("Fallo al cerrar"); 
-            }
-        }
-
-        initDashboard();
-        setInterval(initDashboard, 30000);
+        window.onload = () => {
+            EnterpriseShell.init('Producción');
+        };
     </script>
 </body>
 </html>

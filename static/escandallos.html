@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escandallos & Costes | Carbones y Pollos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/enterprise_shell.css">
+    <style>
+        :root {
+            --brand-primary: #0891b2; /* Cyan for Finance/Costing */
+            --bg-base: #f8fafc;
+        }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-base); color: #1e293b; }
+        .cost-card { transition: all 0.3s ease; }
+        .cost-card:hover { transform: scale(1.01); border-color: var(--brand-primary); }
+        .margin-indicator { height: 6px; border-radius: 99px; overflow: hidden; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="bg-grid-industrial"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
+
+        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+                <div>
+                    <p class="text-[10px] font-black text-cyan-600 uppercase tracking-[0.5em] mb-4">Financial Engineering Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Escandallos <span class="text-cyan-600">& Costes</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <button class="bg-cyan-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-cyan-100 hover:scale-105 active:scale-95 transition-all">
+                        Nuevo Escandallo
+                    </button>
+                </div>
+            </header>
+
+            <!-- Overview Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-cyan-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Margen Bruto Medio</p>
+                    <div class="flex items-end gap-4">
+                        <h3 class="text-6xl font-black text-slate-900 tracking-tighter">72.4%</h3>
+                        <span class="text-xs font-black text-emerald-500 mb-2">↑ 2.1%</span>
+                    </div>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-amber-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Coste Materia Prima</p>
+                    <div class="flex items-end gap-4">
+                        <h3 class="text-6xl font-black text-slate-900 tracking-tighter">28.6%</h3>
+                        <span class="text-xs font-black text-amber-500 mb-2">TARGET: 25%</span>
+                    </div>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-indigo-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Plato más Rentable</p>
+                    <div class="flex flex-col">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Pollo XL + Pack</h3>
+                        <p class="text-[10px] font-bold text-indigo-600 uppercase mt-1">Margen: 84%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-10 px-2">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em]">Catálogo de Recetas & Escandallos</h4>
+                <div class="h-px flex-1 bg-slate-50 mx-10"></div>
+            </div>
+
+            <!-- Recipes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="escandallos-list">
+                <!-- Pollo Asado -->
+                <div class="glass-panel cost-card p-10 rounded-[3rem] flex flex-col md:flex-row gap-10">
+                    <div class="w-full md:w-48 h-48 rounded-[2rem] bg-slate-50 flex items-center justify-center text-5xl">🍗</div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h5 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">Pollo Asado Tradicional</h5>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Plato Principal / Caliente</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-slate-400 uppercase">PVP</p>
+                                <p class="text-2xl font-black text-slate-900">14.50€</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6 mb-8">
+                            <div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                    <span class="text-slate-400">Coste Ingredientes</span>
+                                    <span class="text-slate-900">3.85€</span>
+                                </div>
+                                <div class="margin-indicator bg-slate-100">
+                                    <div class="h-full bg-emerald-500" style="width: 26%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                    <span class="text-slate-400">Margen de Contribución</span>
+                                    <span class="text-indigo-600">10.65€ (73.4%)</span>
+                                </div>
+                                <div class="margin-indicator bg-slate-100">
+                                    <div class="h-full bg-indigo-500" style="width: 73%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button class="flex-1 bg-slate-900 text-white font-black text-[9px] uppercase tracking-widest py-4 rounded-xl hover:bg-indigo-600 transition-colors">Editar Receta</button>
+                            <button class="px-6 bg-slate-50 border border-slate-100 rounded-xl hover:bg-white transition-all">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Costillas -->
+                <div class="glass-panel cost-card p-10 rounded-[3rem] flex flex-col md:flex-row gap-10">
+                    <div class="w-full md:w-48 h-48 rounded-[2rem] bg-slate-50 flex items-center justify-center text-5xl">🥩</div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h5 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">Costillas BBQ XL</h5>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Plato Especial / Brasa</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-slate-400 uppercase">PVP</p>
+                                <p class="text-2xl font-black text-slate-900">18.90€</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6 mb-8">
+                            <div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                    <span class="text-slate-400">Coste Ingredientes</span>
+                                    <span class="text-slate-900">7.20€</span>
+                                </div>
+                                <div class="margin-indicator bg-slate-100">
+                                    <div class="h-full bg-orange-500" style="width: 38%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                    <span class="text-slate-400">Margen de Contribución</span>
+                                    <span class="text-indigo-600">11.70€ (61.9%)</span>
+                                </div>
+                                <div class="margin-indicator bg-slate-100">
+                                    <div class="h-full bg-indigo-500" style="width: 62%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button class="flex-1 bg-slate-900 text-white font-black text-[9px] uppercase tracking-widest py-4 rounded-xl hover:bg-indigo-600 transition-colors">Editar Receta</button>
+                            <button class="px-6 bg-slate-50 border border-slate-100 rounded-xl hover:bg-white transition-all">📋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        window.onload = () => {
+            EnterpriseShell.init('Escandallos & Costes');
+        };
+    </script>
+</body>
+</html>

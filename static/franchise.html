@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Franchise Management | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <!-- Enterprise Sidebar Injector -->
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <!-- Header -->
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Red de Franquicias</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión Centralizada y Royalties</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="loadFranchises()" class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Actualizar
+                </button>
+                <button onclick="openNewFranchiseModal()" class="h-10 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <span class="material-symbols-outlined text-[18px]">add_business</span>
+                    Nuevo Prospecto
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            
+            <!-- Global Overview KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="overview-kpis">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Franchises Table -->
+            <div class="glass-panel p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Nodos de Franquicia</h2>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Buscar franquicia..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100">
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre y Ubicación</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Royalties Ptes.</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Score QSC</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="franchise-list" class="text-sm">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Nuevo Prospecto -->
+    <div id="modal-prospecto" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-black text-slate-800">Alta de Prospecto / Franquicia</h3>
+                <button onclick="closeNewFranchiseModal()" class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="form-prospecto" onsubmit="event.preventDefault(); submitProspect();" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Nombre Comercial</label>
+                    <input type="text" id="p-nombre" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Ubicación / Ciudad</label>
+                    <input type="text" id="p-ubicacion" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Email / Contacto</label>
+                    <input type="email" id="p-contacto" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors mt-4 shadow-lg shadow-indigo-200">Registrar Prospecto</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Red de Franquicias');
+            loadOverview();
+            loadFranchises();
+        });
+
+        async function loadOverview() {
+            try {
+                const res = await fetch('/api/franchises/overview');
+                const data = await res.json();
+                
+                document.getElementById('overview-kpis').innerHTML = `
+                    <div class="glass-panel p-5">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Locales Activos</p>
+                        <p class="text-3xl font-black text-slate-900">${data.franquicias_activas}</p>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Prospectos en Cola</p>
+                        <p class="text-3xl font-black text-indigo-600">${data.prospectos_en_cola}</p>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Royalties Ptes.</p>
+                        <p class="text-3xl font-black text-amber-500">€${data.royalties_totales_pendientes.toFixed(2)}</p>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Score Medio QSC</p>
+                        <p class="text-3xl font-black text-emerald-600">${data.score_promedio_red.toFixed(1)} <span class="text-sm font-bold text-slate-400">/ 100</span></p>
+                    </div>
+                `;
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function loadFranchises() {
+            try {
+                const res = await fetch('/api/franchises');
+                const data = await res.json();
+                
+                const tbody = document.getElementById('franchise-list');
+                tbody.innerHTML = '';
+                
+                data.forEach(f => {
+                    let statusBadge = '';
+                    if(f.estado === 'ACTIVA') statusBadge = '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded-md">ACTIVA</span>';
+                    else if(f.estado === 'PROSPECTO') statusBadge = '<span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-[9px] font-black rounded-md">PROSPECTO</span>';
+                    else statusBadge = '<span class="px-2 py-1 bg-red-100 text-red-700 text-[9px] font-black rounded-md">SUSPENDIDA</span>';
+
+                    let scoreColor = f.score_auditoria >= 90 ? 'text-emerald-600' : (f.score_auditoria >= 70 ? 'text-amber-500' : 'text-red-500');
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                            <td class="py-4 px-4 text-xs font-black text-slate-400">#${f.id.toString().padStart(3, '0')}</td>
+                            <td class="py-4 px-4">
+                                <p class="text-sm font-bold text-slate-800">${f.nombre}</p>
+                                <p class="text-[10px] font-medium text-slate-500">${f.ubicacion}</p>
+                            </td>
+                            <td class="py-4 px-4">${statusBadge}</td>
+                            <td class="py-4 px-4 text-right font-bold ${f.royalties_pendientes > 0 ? 'text-amber-600' : 'text-slate-600'}">€${f.royalties_pendientes.toFixed(2)}</td>
+                            <td class="py-4 px-4 text-center font-black ${scoreColor}">${f.estado === 'ACTIVA' ? f.score_auditoria : '--'}</td>
+                            <td class="py-4 px-4 text-right">
+                                <button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-indigo-100 hover:text-indigo-600 flex items-center justify-center transition-colors ml-auto">
+                                    <span class="material-symbols-outlined text-[16px]">monitoring</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function openNewFranchiseModal() {
+            document.getElementById('modal-prospecto').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-content').classList.remove('scale-95');
+        }
+
+        function closeNewFranchiseModal() {
+            document.getElementById('modal-prospecto').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-content').classList.add('scale-95');
+        }
+
+        async function submitProspect() {
+            const nombre = document.getElementById('p-nombre').value;
+            const ubicacion = document.getElementById('p-ubicacion').value;
+            const contacto = document.getElementById('p-contacto').value;
+
+            try {
+                const res = await fetch('/api/franchises', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ nombre, ubicacion, contacto })
+                });
+
+                if(res.ok) {
+                    window.showToast("Prospecto Añadido", "El candidato ha sido registrado correctamente.", "emerald");
+                    closeNewFranchiseModal();
+                    document.getElementById('form-prospecto').reset();
+                    loadOverview();
+                    loadFranchises();
+                } else {
+                    window.showToast("Error", "No se pudo registrar el prospecto.", "red");
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,183 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistics Hub | Carbones y Pollos</title>
+    <title>Fleet Logistics | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         :root {
-            --brand-primary: #10b981; /* Emerald for Logistics */
+            --brand-primary: #f59e0b; /* Amber for Logistics */
             --bg-base: #f8fafc;
         }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            color: #1e293b;
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-base); color: #1e293b; }
+        .map-container {
+            height: 600px;
+            background: #e2e8f0;
+            border-radius: 3rem;
+            position: relative;
+            overflow: hidden;
+            background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');
         }
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -1;
-            pointer-events: none;
+        .rider-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #f59e0b;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+            animation: pulse-rider 2s infinite;
         }
-        .glass-panel {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-        }
-        .driver-card {
-            transition: all 0.3s ease;
-        }
-        .driver-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--brand-primary);
+        @keyframes pulse-rider {
+            0% { box-shadow: 0 0 0 0px rgba(245, 158, 11, 0.4); }
+            100% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
         }
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="bg-grid"></div>
+    <div class="bg-grid-industrial"></div>
 
-    <main class="max-w-[1600px] mx-auto p-8 lg:p-20">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
-            <div>
-                <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.5em] mb-4">Enterprise Logistics Unit</p>
-                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
-                    Central <span class="text-emerald-600">Reparto</span>
-                </h1>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="window.location.reload()" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-emerald-600 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
-                <button class="bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-emerald-100 hover:scale-105 active:scale-95 transition-all">
-                    Asignación Inteligente
-                </button>
-            </div>
-        </header>
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
 
-        <!-- Metrics Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-emerald-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Drivers Activos</p>
-                <h3 id="stat-drivers" class="text-5xl font-black text-slate-900 tracking-tighter">04</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-blue-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Pendientes Envío</p>
-                <h3 id="stat-pending" class="text-5xl font-black text-slate-900 tracking-tighter">00</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-orange-500">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">En Camino</p>
-                <h3 id="stat-transit" class="text-5xl font-black text-slate-900 tracking-tighter">00</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-l-slate-900">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Tiempo Medio</p>
-                <h3 id="stat-time" class="text-5xl font-black text-slate-900 tracking-tighter">22<span class="text-xl text-slate-400 font-bold ml-1">m</span></h3>
-            </div>
-        </div>
+        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+                <div>
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-[0.5em] mb-4">Last-Mile Logistics Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Fleet <span class="text-amber-600">Monitor</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <div class="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">4 Riders Online</p>
+                    </div>
+                </div>
+            </header>
 
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-12">
-            
-            <!-- Active Deliveries -->
-            <div class="xl:col-span-2 glass-panel p-10 rounded-[3rem]">
-                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Monitor de Entregas
-                </h4>
-                <div id="deliveries-monitor" class="space-y-4">
-                    <!-- Dynamic Orders -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-10">
+                <!-- Map View -->
+                <div class="xl:col-span-2 glass-panel p-4 rounded-[3.5rem] relative">
+                    <div class="map-container flex items-center justify-center text-slate-400 font-black text-xs uppercase tracking-widest">
+                        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
+                        <div class="rider-dot" style="top: 30%; left: 40%;"></div>
+                        <div class="rider-dot" style="top: 50%; left: 70%;"></div>
+                        <div class="rider-dot" style="top: 80%; left: 20%;"></div>
+                        
+                        <div class="z-10 bg-white/80 backdrop-blur-md px-10 py-6 rounded-3xl border border-slate-100 shadow-2xl">
+                            <p class="text-slate-900 mb-2">Google Maps Industrial API</p>
+                            <p class="text-[9px] text-slate-400">Tracking GPS en tiempo real activado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats & Drivers -->
+                <div class="space-y-8">
+                    <div class="glass-panel p-10 rounded-[3rem]">
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-8">Estado de Flota</h4>
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entregas Hoy</p>
+                                <p class="text-2xl font-black text-slate-900">42</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiempo Medio</p>
+                                <p class="text-2xl font-black text-emerald-600">24 min</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-10 rounded-[3rem]">
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-8">Riders Activos</h4>
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-black">JM</div>
+                                    <div>
+                                        <p class="text-xs font-black text-slate-900 uppercase">Juan Motos</p>
+                                        <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">En Entrega #402</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black">RL</div>
+                                    <div>
+                                        <p class="text-xs font-black text-slate-900 uppercase">Roberto Logistics</p>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">En Base (Libre)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Driver Unit Monitor -->
-            <div class="glass-panel p-10 rounded-[3rem]">
-                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                    🛵 Estado de la Flota
-                </h4>
-                <div id="fleet-monitor" class="space-y-6">
-                    <!-- Drivers -->
-                </div>
-            </div>
-
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        const API_URL = "/api";
-
-        async function syncLogistics() {
-            try {
-                const res = await fetch(`${API_URL}/orders/list`);
-                const orders = await res.json();
-                
-                const logisticsOrders = orders.filter(o => o.metodo_envio === 'DOMICILIO');
-                renderMonitor(logisticsOrders);
-                updateStats(logisticsOrders);
-            } catch(e) { console.error("Sync Failure:", e); }
-        }
-
-        function updateStats(orders) {
-            document.getElementById('stat-pending').innerText = orders.filter(o => o.estado === 'PREPARADO').length.toString().padStart(2, '0');
-            document.getElementById('stat-transit').innerText = orders.filter(o => o.estado === 'REPARTO').length.toString().padStart(2, '0');
-        }
-
-        function renderMonitor(orders) {
-            const monitor = document.getElementById('deliveries-monitor');
-            if (orders.length === 0) {
-                monitor.innerHTML = '<div class="py-40 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Sin actividad logística</p></div>';
-                return;
-            }
-
-            monitor.innerHTML = orders.map(o => `
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-white hover:border-emerald-100 transition-all group">
-                    <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-black text-slate-900 shadow-sm">#${o.numero_ticket.slice(-3)}</div>
-                        <div>
-                            <p class="text-xs font-black text-slate-900 uppercase tracking-tight">${o.cliente_nombre || 'Cliente Final'}</p>
-                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">${o.direccion || 'Calle Mayor 12'} • <span class="text-emerald-600">${o.repartidor || 'Sin Asignar'}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-10">
-                        <div class="text-right hidden md:block">
-                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</p>
-                            <span class="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${o.estado === 'REPARTO' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}">${o.estado}</span>
-                        </div>
-                        <p class="text-lg font-black text-slate-900 w-24 text-right">${o.total.toFixed(2)}€</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderFleet() {
-            const fleet = document.getElementById('fleet-monitor');
-            const drivers = ['DRIVER_A', 'DRIVER_B', 'DRIVER_C', 'DRIVER_D'];
-            fleet.innerHTML = drivers.map(d => `
-                <div class="driver-card p-6 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-black">${d.slice(-1)}</div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">${d}</p>
-                            <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Disponible</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-black text-slate-900">0.0km</p>
-                        <p class="text-[8px] font-bold text-slate-400 uppercase">En Base</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         window.onload = () => {
-            EnterpriseShell.init('Central Reparto');
-            syncLogistics();
-            renderFleet();
-            setInterval(syncLogistics, 10000);
+            EnterpriseShell.init('Reparto');
         };
     </script>
 </body>
