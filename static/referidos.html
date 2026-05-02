@@ -3,161 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Center | TPV Enterprise</title>
+    <title>Enterprise Growth | Carbones y Pollos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --bg-base: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.05);
-        }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base); 
-            margin: 0;
-            color: #1e293b;
-        }
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-size: 50px 50px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-            z-index: -2;
-            pointer-events: none;
-        }
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
-            filter: blur(80px);
-            z-index: -1;
-            pointer-events: none;
-        }
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
-        }
-    </style>
 </head>
-<body class="flex min-h-screen">
-    <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
+<body class="min-h-screen">
+    <div class="bg-grid-industrial"></div>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 p-8 lg:p-12 overflow-y-auto">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-slate-100 pb-8">
-            <div>
-                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Growth <span class="text-indigo-600">Center</span></h1>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    Viral Marketing Hub • Enterprise v3.0
-                </p>
-            </div>
-        </header>
+    <div class="flex h-screen overflow-hidden">
+        <div id="enterprise-sidebar"></div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Total Referidos</p>
-                <h3 id="stat-total" class="text-4xl font-black text-slate-900">0</h3>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-emerald-500">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Bonos Pagados</p>
-                <h3 id="stat-bonos" class="text-4xl font-black text-emerald-600">0.00€</h3>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-amber-500">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Conversión</p>
-                <h3 id="stat-conv" class="text-4xl font-black text-slate-900">--%</h3>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-purple-500">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-2">ROI Est.</p>
-                <h3 id="stat-roi" class="text-4xl font-black text-purple-600">3.5x</h3>
-            </div>
-        </div>
+        <main class="flex-1 p-8 lg:p-20 overflow-y-auto">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+                <div>
+                    <p class="text-[10px] font-black text-rose-600 uppercase tracking-[0.5em] mb-4">Viral Growth Engine</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Master <span class="text-rose-600">Referidos</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <div class="glass-panel px-8 py-5 rounded-3xl flex items-center gap-6">
+                        <div class="text-right">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Presupuesto Referidos</p>
+                            <p class="text-2xl font-black text-slate-900 uppercase tracking-tighter">5.000,00€</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-        <!-- Tabla -->
-        <div class="glass-panel rounded-[2rem] overflow-hidden">
-            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-white/50">
-                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Historial de Activaciones</h3>
+            <!-- Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-rose-500">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Referidos Totales</p>
+                    <h3 class="text-5xl font-black text-slate-900 tracking-tighter">142</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-emerald-500">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Comisiones Pagadas</p>
+                    <h3 class="text-5xl font-black text-emerald-600 tracking-tighter">450€</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-indigo-500">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">CAC Referidos</p>
+                    <h3 class="text-5xl font-black text-indigo-600 tracking-tighter">3.16€</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem] border-l-8 border-amber-500">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Ratio Conversión</p>
+                    <h3 class="text-5xl font-black text-amber-600 tracking-tighter">24%</h3>
+                </div>
             </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-50">
-                            <th class="px-8 py-5 font-black">Fecha</th>
-                            <th class="px-8 py-5 font-black">Referidor</th>
-                            <th class="px-8 py-5 font-black">Nuevo Cliente</th>
-                            <th class="px-8 py-5 font-black">Estado</th>
-                            <th class="px-8 py-5 font-black text-right">Bono</th>
-                        </tr>
-                    </thead>
-                    <tbody id="referrals-body" class="text-sm divide-y divide-slate-50">
-                        <!-- Content -->
-                    </tbody>
-                </table>
+
+            <!-- Referrals Table -->
+            <div class="glass-panel rounded-[3rem] overflow-hidden">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] p-10 border-b border-slate-50">Auditoría de Conversiones</h4>
+                <div class="overflow-x-auto">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Referidor (Origen)</th>
+                                <th>Nuevo Cliente (Destino)</th>
+                                <th>Estado Bono</th>
+                                <th class="text-right">Impacto</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <tr>
+                                <td class="px-10 py-8 text-[10px] text-slate-400 uppercase">24 Mayo, 2024</td>
+                                <td class="px-10 py-8">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-[10px]">JD</div>
+                                        <p class="font-black uppercase">Juan Delgado</p>
+                                    </div>
+                                </td>
+                                <td class="px-10 py-8 font-black uppercase">Marta Sánchez</td>
+                                <td class="px-10 py-8">
+                                    <span class="badge badge-success">Pagado</span>
+                                </td>
+                                <td class="px-10 py-8 text-right font-black text-emerald-600">+45.00€</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div id="empty-table" class="py-20 text-center hidden">
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest">No hay registros aún</p>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
-        EnterpriseShell.init('Crecimiento y Referidos');
-
-        async function fetchReferrals() {
-            try {
-                const res = await fetch('/api/commercial/referrals');
-                const data = await res.json();
-                renderReferrals(data);
-                updateStats(data);
-            } catch (e) { console.error(e); }
-        }
-
-        function renderReferrals(data) {
-            const body = document.getElementById('referrals-body');
-            const empty = document.getElementById('empty-table');
-            if (data.length === 0) {
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-            body.innerHTML = data.map(r => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-8 py-5 text-slate-500 font-medium">${new Date(r.fecha).toLocaleDateString()}</td>
-                    <td class="px-8 py-5 font-bold text-slate-900">${r.cliente_referidor_id.substring(0,8)}...</td>
-                    <td class="px-8 py-5 text-slate-600">${r.cliente_referido_id.substring(0,8)}...</td>
-                    <td class="px-8 py-5">
-                        <span class="px-3 py-1 rounded-full text-[9px] font-black tracking-widest ${r.estado === 'COMPLETADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
-                            ${r.estado}
-                        </span>
-                    </td>
-                    <td class="px-8 py-5 text-right font-black text-slate-900">${r.bono_aplicado.toFixed(2)}€</td>
-                </tr>
-            `).join('');
-        }
-
-        function updateStats(data) {
-            document.getElementById('stat-total').innerText = data.length;
-            const total = data.reduce((acc, r) => acc + r.bono_aplicado, 0);
-            document.getElementById('stat-bonos').innerText = total.toFixed(2) + '€';
-            document.getElementById('stat-conv').innerText = data.length > 0 ? '12.4%' : '0%';
-        }
-
-        fetchReferrals();
+        window.onload = () => {
+            EnterpriseShell.init('Referidos');
+        };
     </script>
 </body>
 </html>
-
