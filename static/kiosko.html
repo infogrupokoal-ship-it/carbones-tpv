@@ -1043,6 +1043,8 @@
             };
 
             try {
+                if (!navigator.onLine) throw new Error("OFFLINE");
+
                 const res = await fetch('/api/orders/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1052,7 +1054,6 @@
                 if(res.ok) {
                     const data = await res.json();
                     
-                    // Si el cliente está logueado y es domicilio, ofrecemos enviar link por WhatsApp
                     if (sessionClient && metodoEnvio === 'DOMICILIO') {
                         const waRes = await fetch(`/api/payments/whatsapp-link/${data.pedido_id}?telefono=${sessionClient.telefono}`, { method: 'POST' });
                         if(waRes.ok) {
@@ -1060,7 +1061,6 @@
                         }
                     }
 
-                    // Iniciar sesión de Stripe para pago inmediato
                     const stripeRes = await fetch(`/api/payments/stripe/create-session/${data.pedido_id}`, { method: 'POST' });
                     if(stripeRes.ok) {
                         const stripeData = await stripeRes.json();
@@ -1068,7 +1068,6 @@
                         return;
                     }
 
-                    // Pantalla de éxito fallback Premium
                     document.getElementById('success-order-id').innerText = `#${data.pedido_id || '---'}`;
                     document.getElementById('success-overlay').classList.remove('opacity-0', 'pointer-events-none');
                     closePaymentModal();
@@ -1080,8 +1079,24 @@
                     showToast("Error", error.detail || "Error en el servidor", "error");
                 }
             } catch (e) {
-                console.error(e);
-                showToast("Error", "Fallo de conexión con el servidor", "error");
+                console.warn("Conexión fallida, guardando en Offline Mode:", e);
+                const offlineOrders = JSON.parse(localStorage.getItem('tpv_offline_orders') || '[]');
+                payload.offline_id = Date.now().toString();
+                offlineOrders.push(payload);
+                localStorage.setItem('tpv_offline_orders', JSON.stringify(offlineOrders));
+                
+                showToast("Modo Offline", "Pedido guardado localmente. Se enviará al reconectar.", "warning");
+                
+                document.getElementById('success-order-id').innerText = `#OFF-${payload.offline_id}`;
+                document.getElementById('success-overlay').classList.remove('opacity-0', 'pointer-events-none');
+                closePaymentModal();
+                cart = [];
+                localStorage.removeItem('tpv_b2c_cart');
+                updateCartUI();
+                
+                if('serviceWorker' in navigator && 'SyncManager' in window) {
+                    navigator.serviceWorker.ready.then(reg => reg.sync.register('sync-orders').catch(err => console.log('Sync registration failed:', err)));
+                }
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
@@ -1203,6 +1218,36 @@
                 }).catch(err => console.log('SW Fail:', err));
             });
         }
+
+        async function syncOfflineOrders() {
+            const offlineOrders = JSON.parse(localStorage.getItem('tpv_offline_orders') || '[]');
+            if(offlineOrders.length === 0) return;
+            
+            let pending = [];
+            for(let payload of offlineOrders) {
+                try {
+                    // Quitamos el offline_id antes de enviarlo
+                    const dataToSend = { ...payload };
+                    delete dataToSend.offline_id;
+
+                    const res = await fetch('/api/orders/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dataToSend)
+                    });
+                    if(!res.ok) throw new Error("Sync failed");
+                } catch(e) {
+                    pending.push(payload);
+                }
+            }
+            localStorage.setItem('tpv_offline_orders', JSON.stringify(pending));
+            if(pending.length < offlineOrders.length) {
+                showToast("Sincronización", "Pedidos offline sincronizados", "success");
+            }
+        }
+
+        window.addEventListener('online', syncOfflineOrders);
+        setInterval(syncOfflineOrders, 60000); // Intentar sincronizar cada 1 min
 
         init();
     </script>

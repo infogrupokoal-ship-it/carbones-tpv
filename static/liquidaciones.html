@@ -12,9 +12,9 @@
     <style>
         :root {
             --primary: #8b5cf6; /* violet-500 */
-            --bg-base: #020617; /* slate-950 */
-            --glass-bg: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #f8fafc; /* slate-950 */
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.05);
         }
         body { 
             font-family: 'Outfit', sans-serif; 
@@ -84,7 +84,7 @@
         }
     </style>
 </head>
-<body class="text-slate-300">
+<body class="text-slate-600">
     <div class="bg-grid"></div>
     <div class="ambient-glow"></div>
 
@@ -97,16 +97,16 @@
         <main class="flex-1 flex flex-col p-8 lg:p-10 overflow-y-auto relative z-10 custom-scrollbar">
             
             <!-- Header Section -->
-            <header class="flex justify-between items-end mb-10 border-b border-white/10 pb-6">
+            <header class="flex justify-between items-end mb-10 border-b border-slate-200 pb-6">
                 <div>
                     <div class="flex items-center gap-3 mb-2">
                         <span class="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(139,92,246,0.3)]">💰</span>
-                        <h1 class="text-4xl font-black text-white tracking-tight uppercase">Liquidaciones <span class="text-violet-500">Operativas</span></h1>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight uppercase">Liquidaciones <span class="text-violet-500">Operativas</span></h1>
                     </div>
-                    <p class="text-xs text-slate-400 font-bold tracking-[0.2em] uppercase">Módulo de Nóminas y Cierre Financiero</p>
+                    <p class="text-xs text-slate-500 font-bold tracking-[0.2em] uppercase">Módulo de Nóminas y Cierre Financiero</p>
                 </div>
                 <div class="flex gap-4">
-                    <button class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-colors border border-white/5 flex items-center gap-2" onclick="window.print()">
+                    <button class="bg-white hover:bg-slate-700 text-slate-900 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-colors border border-slate-100 flex items-center gap-2" onclick="window.print()">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         Exportar PDF
                     </button>
@@ -119,21 +119,21 @@
                     <div class="glass-panel rounded-3xl p-8 mb-8 relative overflow-hidden group">
                         <div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
-                        <h3 class="text-sm font-black text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-violet-500"></span> Periodo de Liquidación
                         </h3>
                         
                         <div class="space-y-6">
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Fecha Inicio</label>
-                                <input type="date" id="fecha-inicio" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha Inicio</label>
+                                <input type="date" id="fecha-inicio" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Fecha Fin</label>
-                                <input type="date" id="fecha-fin" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha Fin</label>
+                                <input type="date" id="fecha-fin" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-mono">
                             </div>
                             
-                            <button onclick="calcularLiquidaciones()" class="w-full bg-violet-600 hover:bg-violet-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(139,92,246,0.5)] border border-violet-500 flex justify-center items-center gap-2">
+                            <button onclick="calcularLiquidaciones()" class="w-full bg-violet-600 hover:bg-violet-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(139,92,246,0.5)] border border-violet-500 flex justify-center items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 Calcular Nóminas
                             </button>
@@ -141,7 +141,7 @@
                     </div>
 
                     <div class="glass-panel rounded-3xl p-8 flex flex-col gap-2">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Resumen Global</p>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Resumen Global</p>
                         <h4 class="text-4xl font-black text-emerald-400 mt-2" id="total-global">0.00€</h4>
                         <p class="text-xs text-slate-500 mt-1">Total a liquidar en el periodo</p>
                     </div>
@@ -151,11 +151,11 @@
                 <div class="w-full xl:w-2/3 flex flex-col">
                     <div class="glass-panel rounded-3xl p-8 flex-1 flex flex-col">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                 Desglose por Repartidor
                             </h3>
-                            <span id="badge-estado" class="text-[9px] bg-slate-800 text-slate-400 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-700 hidden">
+                            <span id="badge-estado" class="text-[9px] bg-white text-slate-500 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200 hidden">
                                 CALCULADO
                             </span>
                         </div>
@@ -163,7 +163,7 @@
                         <div class="overflow-x-auto flex-1 custom-scrollbar">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="text-[10px] text-slate-400 uppercase tracking-[0.2em] border-b border-white/10">
+                                    <tr class="text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-slate-200">
                                         <th class="pb-4 px-4 font-black">Repartidor</th>
                                         <th class="pb-4 px-4 text-center font-black">Entregas</th>
                                         <th class="pb-4 px-4 text-right font-black">Tarifa/Envío</th>
@@ -187,9 +187,9 @@
             <!-- Footer Meta -->
             <footer class="mt-auto pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em]">
                 <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-white/5">
-                    <span class="text-violet-500 border-white/10 pr-4">Módulo Finanzas</span>
-                    <span class="flex items-center gap-2 border-l border-white/10 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
+                <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
+                    <span class="text-violet-500 border-slate-200 pr-4">Módulo Finanzas</span>
+                    <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
                 </div>
             </footer>
         </main>
@@ -199,8 +199,8 @@
     <div id="toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 transition-all duration-300 z-50 glass-panel rounded-2xl p-4 flex items-center gap-3">
         <span id="toast-icon" class="text-xl">✅</span>
         <div>
-            <h5 id="toast-title" class="text-xs font-black text-white uppercase tracking-wider">Éxito</h5>
-            <p id="toast-message" class="text-[10px] font-bold text-slate-400 mt-0.5">Operación completada.</p>
+            <h5 id="toast-title" class="text-xs font-black text-slate-900 uppercase tracking-wider">Éxito</h5>
+            <p id="toast-message" class="text-[10px] font-bold text-slate-500 mt-0.5">Operación completada.</p>
         </div>
     </div>
 
@@ -240,13 +240,13 @@
             }
 
             tbody.innerHTML = `
-                <tr class="border-b border-white/5">
+                <tr class="border-b border-slate-100">
                     <td class="py-5 px-4"><div class="skeleton-loader w-32"></div></td>
                     <td class="py-5 px-4"><div class="skeleton-loader w-12 mx-auto"></div></td>
                     <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-16"></div></td>
                     <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-20"></div></td>
                 </tr>
-                <tr class="border-b border-white/5">
+                <tr class="border-b border-slate-100">
                     <td class="py-5 px-4"><div class="skeleton-loader w-40"></div></td>
                     <td class="py-5 px-4"><div class="skeleton-loader w-12 mx-auto"></div></td>
                     <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-16"></div></td>
@@ -282,17 +282,17 @@
                 data.forEach(item => {
                     totalGlobal += item.total_a_pagar;
                     html += `
-                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                            <td class="py-4 px-4 font-bold text-white flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-black text-violet-400">
+                        <tr class="border-b border-slate-100 hover:bg-white/5 transition-colors group">
+                            <td class="py-4 px-4 font-bold text-slate-900 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[10px] font-black text-violet-400">
                                     ${item.repartidor.substring(0, 2).toUpperCase()}
                                 </div>
                                 ${item.repartidor}
                             </td>
-                            <td class="py-4 px-4 text-center font-mono text-slate-400 group-hover:text-white transition-colors">
-                                <span class="bg-slate-900 px-2 py-1 rounded-md border border-white/10">${item.entregas_completadas}</span>
+                            <td class="py-4 px-4 text-center font-mono text-slate-500 group-hover:text-slate-900 transition-colors">
+                                <span class="bg-white px-2 py-1 rounded-md border border-slate-200">${item.entregas_completadas}</span>
                             </td>
-                            <td class="py-4 px-4 text-right font-mono text-slate-400">1.50€</td>
+                            <td class="py-4 px-4 text-right font-mono text-slate-500">1.50€</td>
                             <td class="py-4 px-4 text-right font-black text-emerald-400 text-lg">${item.total_a_pagar.toFixed(2)}€</td>
                         </tr>
                     `;

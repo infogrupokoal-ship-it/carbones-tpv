@@ -13,7 +13,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen text-slate-300 overflow-x-hidden">
+<body class="min-h-screen text-slate-600 overflow-x-hidden">
     <!-- Enterprise Sidebar will be injected here -->
 
     <div class="flex h-screen overflow-hidden">
@@ -25,11 +25,11 @@
         
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
-                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">BI <span class="text-blue-500">Analytics</span></h1>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">BI <span class="text-blue-500">Analytics</span></h1>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Data-Driven Decision Making • Real Time</p>
             </div>
             <div class="flex gap-4">
-                <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/40 transition-all active:scale-95">Exportar Reporte PDF</button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/40 transition-all active:scale-95">Exportar Reporte PDF</button>
             </div>
         </header>
 
@@ -37,22 +37,22 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             <div class="glass-panel p-6 rounded-3xl">
                 <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Ticket Promedio</p>
-                <h3 class="text-3xl font-black text-white">32.40€</h3>
+                <h3 class="text-3xl font-black text-slate-900">32.40€</h3>
                 <p class="text-[10px] text-emerald-500 font-bold mt-2">↑ 4.2% vs mes anterior</p>
             </div>
             <div class="glass-panel p-6 rounded-3xl">
                 <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Tasa Conversión</p>
-                <h3 id="conv-rate" class="text-3xl font-black text-white">--%</h3>
+                <h3 id="conv-rate" class="text-3xl font-black text-slate-900">--%</h3>
                 <p class="text-[10px] text-emerald-500 font-bold mt-2">Óptimo (>15%)</p>
             </div>
             <div class="glass-panel p-6 rounded-3xl">
                 <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Churn Rate</p>
-                <h3 class="text-3xl font-black text-white">2.1%</h3>
+                <h3 class="text-3xl font-black text-slate-900">2.1%</h3>
                 <p class="text-[10px] text-emerald-500 font-bold mt-2">↓ 0.5% Muy bajo</p>
             </div>
             <div class="glass-panel p-6 rounded-3xl">
                 <p class="text-[10px] font-black text-slate-500 uppercase mb-2">ROI Marketing</p>
-                <h3 id="roi-val" class="text-3xl font-black text-white">--x</h3>
+                <h3 id="roi-val" class="text-3xl font-black text-slate-900">--x</h3>
                 <p class="text-[10px] text-blue-500 font-bold mt-2">Viral Growth</p>
             </div>
         </div>
@@ -60,41 +60,41 @@
         <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             <div class="glass-panel p-8 rounded-[2.5rem]">
-                <h3 class="text-xl font-black text-white uppercase mb-8">Ventas Semanales</h3>
+                <h3 class="text-xl font-black text-slate-900 uppercase mb-8">Ventas Semanales</h3>
                 <canvas id="salesChart" height="250"></canvas>
             </div>
             <div class="glass-panel p-8 rounded-[2.5rem]">
-                <h3 class="text-xl font-black text-white uppercase mb-8">Embudo de Conversión</h3>
+                <h3 class="text-xl font-black text-slate-900 uppercase mb-8">Embudo de Conversión</h3>
                 <canvas id="funnelChart" height="250"></canvas>
             </div>
         </div>
 
         <!-- Heatmap / Table Area -->
         <div class="glass-panel rounded-[2.5rem] p-8">
-            <h3 class="text-xl font-black text-white uppercase mb-8">Rendimiento por Categoría</h3>
+            <h3 class="text-xl font-black text-slate-900 uppercase mb-8">Rendimiento por Categoría</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="p-4 bg-white/2 rounded-2xl border border-white/5">
+                <div class="p-4 bg-white/2 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold text-slate-400">🔥 Brasas & Carbón</span>
-                        <span class="text-xs font-black text-white">65%</span>
+                        <span class="text-xs font-bold text-slate-500">🔥 Brasas & Carbón</span>
+                        <span class="text-xs font-black text-slate-900">65%</span>
                     </div>
                     <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
                         <div class="bg-orange-500 h-full w-[65%]"></div>
                     </div>
                 </div>
-                <div class="p-4 bg-white/2 rounded-2xl border border-white/5">
+                <div class="p-4 bg-white/2 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold text-slate-400">🍗 Pollería Premium</span>
-                        <span class="text-xs font-black text-white">28%</span>
+                        <span class="text-xs font-bold text-slate-500">🍗 Pollería Premium</span>
+                        <span class="text-xs font-black text-slate-900">28%</span>
                     </div>
                     <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
                         <div class="bg-blue-500 h-full w-[28%]"></div>
                     </div>
                 </div>
-                <div class="p-4 bg-white/2 rounded-2xl border border-white/5">
+                <div class="p-4 bg-white/2 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold text-slate-400">🥤 Complementos</span>
-                        <span class="text-xs font-black text-white">7%</span>
+                        <span class="text-xs font-bold text-slate-500">🥤 Complementos</span>
+                        <span class="text-xs font-black text-slate-900">7%</span>
                     </div>
                     <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
                         <div class="bg-emerald-500 h-full w-[7%]"></div>

@@ -36,7 +36,7 @@ function initShell() {
 
 function injectSidebar(role, user) {
     const sidebarHTML = `
-    <aside id="enterprise-sidebar" class="w-72 glass-panel border-r border-slate-200 flex flex-col p-6 h-screen sticky top-0 hidden lg:flex">
+    <aside id="enterprise-sidebar" class="w-64 glass-panel border-r border-slate-200 flex flex-col p-6 h-screen sticky top-0 hidden md:flex">
         <div class="flex items-center gap-3 mb-10">
             <div class="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-900/40 text-white">⚡</div>
             <div class="flex flex-col">
@@ -112,7 +112,7 @@ function injectSidebar(role, user) {
     </aside>
 
     <!-- Mobile Header -->
-    <header class="lg:hidden fixed top-0 w-full glass-panel z-50 p-4 flex justify-between items-center border-b border-slate-200">
+    <header class="md:hidden fixed top-0 w-full glass-panel z-50 p-4 flex justify-between items-center border-b border-slate-200">
         <h2 class="text-lg font-black text-slate-900 tracking-tighter uppercase">TPV <span class="text-blue-600">Ultra</span></h2>
         <button id="mobile-toggle" class="p-2 bg-slate-100 rounded-lg text-slate-900">☰</button>
     </header>

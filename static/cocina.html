@@ -235,9 +235,66 @@
             }
         }
 
-        // Init polling
+        // Auto-refresh fallback
         fetchOrdersDetailed();
-        setInterval(fetchOrdersDetailed, 5000);
+        setInterval(fetchOrdersDetailed, 30000); // Polling relajado a 30s
+
+        // WebSocket en Tiempo Real
+        let ws;
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/orders`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log("WebSocket connected");
+                document.getElementById('status-indicator').classList.remove('hidden');
+                document.getElementById('status-offline').classList.add('hidden');
+            };
+
+            ws.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
+                if(payload.type === "NEW_ORDER") {
+                    showToast("¡NUEVO PEDIDO!", `Ticket #${payload.data.ticket} recibido`, 'warning');
+                    playAlertSound();
+                    fetchOrdersDetailed();
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected. Reconnecting in 3s...");
+                document.getElementById('status-indicator').classList.add('hidden');
+                document.getElementById('status-offline').classList.remove('hidden');
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = (e) => {
+                console.error("WebSocket Error:", e);
+                ws.close();
+            };
+        }
+
+        function playAlertSound() {
+            // Sintetizador básico de sonido (no requiere MP3)
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        connectWebSocket();
     </script>
 </body>
 </html>

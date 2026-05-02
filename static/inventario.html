@@ -12,9 +12,9 @@
     <style>
         :root {
             --primary: #3b82f6; /* blue-500 */
-            --bg-base: #020617; /* slate-950 */
-            --glass-bg: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #f8fafc; /* slate-950 */
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.05);
         }
         body { 
             font-family: 'Outfit', sans-serif; 
@@ -68,7 +68,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen flex text-slate-300">
+<body class="min-h-screen flex text-slate-600">
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
@@ -82,14 +82,14 @@
         
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
-                <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase">Gestión de <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Inventario</span></h1>
+                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Gestión de <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Inventario</span></h1>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     Real-Time Logistics • Control Center v3.0
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <button onclick="loadInventario()" class="bg-blue-600/90 hover:bg-blue-500 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] transition-all active:scale-95 flex items-center gap-2">
+                <button onclick="loadInventario()" class="bg-blue-600/90 hover:bg-blue-500 backdrop-blur-md text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] px-5 py-3.5 rounded-xl shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] transition-all active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Sincronizar Stock
                 </button>
@@ -99,17 +99,17 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div class="glass-panel p-6 border-l-4 border-l-emerald-500 rounded-3xl relative overflow-hidden">
                 <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Referencias</p>
-                <h3 class="text-4xl font-black text-white" id="stat-total">0</h3>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Referencias</p>
+                <h3 class="text-4xl font-black text-slate-900" id="stat-total">0</h3>
             </div>
             <div class="glass-panel p-6 border-l-4 border-l-orange-500 rounded-3xl relative overflow-hidden">
                 <div class="absolute -right-10 -top-10 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Alertas de Reposición</p>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Alertas de Reposición</p>
                 <h3 class="text-4xl font-black text-orange-400" id="stat-low">0</h3>
             </div>
             <div class="glass-panel p-6 border-l-4 border-l-blue-500 rounded-3xl relative overflow-hidden">
                 <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Valor Estimado Stock</p>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Valor Estimado Stock</p>
                 <h3 class="text-4xl font-black text-blue-400">---</h3>
             </div>
         </div>
@@ -117,8 +117,8 @@
         <!-- Filters -->
         <div class="flex gap-4 mb-8 overflow-x-auto no-scrollbar pb-2">
             <button onclick="filterStock('all')" id="btn-filter-all" class="filter-tab bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_5px_15px_-5px_rgba(255,255,255,0.2)]">TODOS</button>
-            <button onclick="filterStock('low')" id="btn-filter-low" class="filter-tab glass-panel text-slate-400 hover:text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">CRÍTICOS</button>
-            <button onclick="filterStock('ok')" id="btn-filter-ok" class="filter-tab glass-panel text-slate-400 hover:text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">ÓPTIMOS</button>
+            <button onclick="filterStock('low')" id="btn-filter-low" class="filter-tab glass-panel text-slate-500 hover:text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">CRÍTICOS</button>
+            <button onclick="filterStock('ok')" id="btn-filter-ok" class="filter-tab glass-panel text-slate-500 hover:text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">ÓPTIMOS</button>
             <div class="flex-1"></div>
             <button onclick="loadCatalogo()" id="btn-filter-cat" class="filter-tab bg-blue-600/20 text-blue-400 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border border-blue-500/30 shadow-[0_5px_15px_-5px_rgba(59,130,246,0.3)] hover:bg-blue-600/30 hover:text-blue-300">VER CATÁLOGO</button>
         </div>
@@ -135,9 +135,9 @@
         <!-- Footer Meta -->
         <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
             <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-            <div class="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-white/5">
-                <span class="text-emerald-500 border-white/10 pr-4">Módulo Logística</span>
-                <span class="flex items-center gap-2 border-l border-white/10 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
+            <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
+                <span class="text-emerald-500 border-slate-200 pr-4">Módulo Logística</span>
+                <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
             </div>
         </footer>
     </main>
@@ -147,13 +147,13 @@
         <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden rounded-[3rem]" id="modal-content">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
             
-            <h3 class="text-3xl font-black text-white mb-2 tracking-tighter uppercase">Solicitar Reposición</h3>
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-8" id="modal-subtitle">Conexión directa con central de proveedores.</p>
+            <h3 class="text-3xl font-black text-slate-900 mb-2 tracking-tighter uppercase">Solicitar Reposición</h3>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-8" id="modal-subtitle">Conexión directa con central de proveedores.</p>
             
             <div class="space-y-6">
-                <div class="bg-white/5 p-6 rounded-3xl border border-white/10">
+                <div class="bg-white/5 p-6 rounded-3xl border border-slate-200">
                     <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Material Seleccionado</p>
-                    <h4 id="ingrediente-name" class="text-xl font-bold text-white uppercase tracking-tight">---</h4>
+                    <h4 id="ingrediente-name" class="text-xl font-bold text-slate-900 uppercase tracking-tight">---</h4>
                     <p id="proveedor-name" class="text-emerald-400 font-bold mt-2 flex items-center gap-2 text-[10px] uppercase">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         PROVEEDOR VINCULADO
@@ -163,14 +163,14 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Cantidad Industrial</label>
                     <div class="flex items-center gap-4">
-                        <button onclick="adjCant(-10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 text-white text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
-                        <input type="number" id="pedido-cantidad" class="flex-1 bg-white/5 border-2 border-white/10 rounded-2xl h-16 text-center text-3xl font-black text-white focus:border-emerald-500 outline-none transition-all" value="50">
-                        <button onclick="adjCant(10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 text-white text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
+                        <button onclick="adjCant(-10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
+                        <input type="number" id="pedido-cantidad" class="flex-1 bg-white/5 border-2 border-slate-200 rounded-2xl h-16 text-center text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all" value="50">
+                        <button onclick="adjCant(10, 'pedido-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
                     </div>
                 </div>
 
                 <div class="flex gap-4 pt-4">
-                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-400 hover:text-white transition-colors">CANCELAR</button>
+                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
                     <button onclick="enviarPedido()" class="btn-primary flex-[2] !py-5 shadow-emerald-500/20">CONFIRMAR ORDEN</button>
                 </div>
             </div>
@@ -182,7 +182,7 @@
         function showToast(title, message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast bg-slate-900 border border-slate-700';
+            toast.className = 'toast bg-white border border-slate-200';
             
             let iconHtml;
             if (type === 'error') {
@@ -205,8 +205,8 @@
             toast.innerHTML = `
                 ${iconHtml}
                 <div>
-                    <p class="text-white font-black text-xs">${title}</p>
-                    <p class="text-slate-400 text-[10px] font-medium">${message}</p>
+                    <p class="text-slate-900 font-black text-xs">${title}</p>
+                    <p class="text-slate-500 text-[10px] font-medium">${message}</p>
                 </div>
             `;
             container.appendChild(toast);
@@ -257,7 +257,7 @@
                 return `
                     <div class="glass-panel p-8 group hover:-translate-y-2 transition-all duration-300 ${isLow ? 'border-orange-500/30 shadow-orange-500/5' : ''}">
                         <div class="flex justify-between items-start mb-6">
-                            <h3 class="text-xl font-black text-white leading-tight uppercase tracking-tighter">${ing.nombre}</h3>
+                            <h3 class="text-xl font-black text-slate-900 leading-tight uppercase tracking-tighter">${ing.nombre}</h3>
                             ${isLow ? '<span class="px-3 py-1 bg-orange-500/20 text-orange-400 text-[8px] font-black tracking-[0.2em] rounded-lg">REPOSICIÓN</span>' : ''}
                         </div>
 
@@ -273,13 +273,13 @@
                         <div class="space-y-2">
                             <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
                                 <span>Proveedor</span>
-                                <span class="text-slate-300">${ing.proveedor_nombre}</span>
+                                <span class="text-slate-600">${ing.proveedor_nombre}</span>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/30 transition-all active:scale-95">
+                                <button onclick="abrirPedido('${ing.id}', '${ing.proveedor_nombre}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/30 transition-all active:scale-95">
                                     PEDIDO
                                 </button>
-                                <button onclick="abrirMerma('${ing.id}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all active:scale-95">
+                                <button onclick="abrirMerma('${ing.id}', '${ing.nombre}')" class="flex-1 py-3 rounded-xl bg-white/5 border border-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all active:scale-95">
                                     MERMA
                                 </button>
                             </div>
@@ -331,14 +331,14 @@
                     <div class="glass-panel p-8 group hover:-translate-y-2 transition-all duration-300 ${isOculto ? 'opacity-50 grayscale' : ''}">
                         <div class="relative h-32 rounded-xl overflow-hidden mb-6">
                             <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=800'}" class="w-full h-full object-cover">
-                            ${isOculto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-500 text-white text-[10px] px-3 py-1 font-black rounded-full uppercase">Oculto</span></div>' : ''}
+                            ${isOculto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-500 text-slate-900 text-[10px] px-3 py-1 font-black rounded-full uppercase">Oculto</span></div>' : ''}
                         </div>
-                        <h3 class="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2">${p.nombre}</h3>
+                        <h3 class="text-xl font-black text-slate-900 leading-tight uppercase tracking-tighter mb-2">${p.nombre}</h3>
                         <div class="flex justify-between items-baseline mb-6">
                             <span class="text-2xl font-black text-blue-400">${p.precio.toFixed(2)}€</span>
                             <span class="text-slate-500 font-bold text-[10px] uppercase">${p.categoria_nombre}</span>
                         </div>
-                        <button onclick="abrirEditarProducto('${p.id}', \`${p.nombre}\`, ${p.precio}, '${p.imagen_url || ''}', ${p.is_active})" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all active:scale-95">
+                        <button onclick="abrirEditarProducto('${p.id}', \`${p.nombre}\`, ${p.precio}, '${p.imagen_url || ''}', ${p.is_active})" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-slate-900 transition-all active:scale-95">
                             EDITAR PRODUCTO
                         </button>
                     </div>
@@ -451,27 +451,27 @@
         <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden" id="modal-content-merma">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
             
-            <h3 class="text-3xl font-black text-white mb-2">Registrar Merma</h3>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Declara pérdida o deterioro de inventario. Esto afectará a la contabilidad y márgenes de beneficio del sistema.</p>
+            <h3 class="text-3xl font-black text-slate-900 mb-2">Registrar Merma</h3>
+            <p class="text-slate-500 text-sm mb-8 font-medium">Declara pérdida o deterioro de inventario. Esto afectará a la contabilidad y márgenes de beneficio del sistema.</p>
             
             <div class="space-y-6">
-                <div class="bg-white/5 p-6 rounded-3xl border border-white/10">
+                <div class="bg-white/5 p-6 rounded-3xl border border-slate-200">
                     <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Producto a deducir</p>
-                    <h4 id="merma-ingrediente-name" class="text-xl font-bold text-white">---</h4>
+                    <h4 id="merma-ingrediente-name" class="text-xl font-bold text-slate-900">---</h4>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Cantidad Mermada</label>
                     <div class="flex items-center gap-4">
-                        <button onclick="adjCant(-1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 text-white text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
-                        <input type="number" id="merma-cantidad" class="flex-1 bg-white/5 border-2 border-white/10 rounded-2xl h-16 text-center text-3xl font-black text-white focus:border-red-500 outline-none transition-all" value="1">
-                        <button onclick="adjCant(1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 text-white text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
+                        <button onclick="adjCant(-1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">-</button>
+                        <input type="number" id="merma-cantidad" class="flex-1 bg-white/5 border-2 border-slate-200 rounded-2xl h-16 text-center text-3xl font-black text-slate-900 focus:border-red-500 outline-none transition-all" value="1">
+                        <button onclick="adjCant(1, 'merma-cantidad')" class="w-16 h-16 rounded-2xl bg-white/5 border border-slate-200 text-slate-900 text-3xl font-black hover:bg-white/10 active:scale-90 transition">+</button>
                     </div>
                 </div>
                 
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Motivo</label>
-                    <select id="merma-motivo" class="w-full bg-white/5 border-2 border-white/10 rounded-2xl h-14 px-4 text-sm font-bold text-white focus:border-red-500 outline-none transition-all">
+                    <select id="merma-motivo" class="w-full bg-white/5 border-2 border-slate-200 rounded-2xl h-14 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none transition-all">
                         <option value="Caducidad">Caducidad</option>
                         <option value="Rotura/Accidente">Rotura / Accidente</option>
                         <option value="Error Preparacion">Error de Preparación</option>
@@ -480,7 +480,7 @@
                 </div>
 
                 <div class="flex gap-4 pt-4">
-                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-400 hover:text-white transition-colors">CANCELAR</button>
+                    <button onclick="closeModal()" class="flex-1 p-5 rounded-2xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
                     <button onclick="registrarMerma()" class="btn-primary !bg-red-600 hover:!bg-red-500 flex-[2] !py-5 shadow-red-500/20">EJECUTAR MERMA</button>
                 </div>
             </div>
@@ -491,23 +491,23 @@
         <div class="glass-panel max-w-lg w-full p-10 relative overflow-hidden" id="modal-content-producto">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
             
-            <h3 class="text-3xl font-black text-white mb-2">Editar Producto</h3>
-            <p class="text-slate-400 text-sm mb-6 font-medium">Actualiza precios, visibilidad e imágenes del catálogo en tiempo real.</p>
+            <h3 class="text-3xl font-black text-slate-900 mb-2">Editar Producto</h3>
+            <p class="text-slate-500 text-sm mb-6 font-medium">Actualiza precios, visibilidad e imágenes del catálogo en tiempo real.</p>
             
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Nombre</label>
-                    <input type="text" id="edit-prod-nombre" class="w-full bg-white/5 border-2 border-white/10 rounded-xl h-12 px-4 text-sm font-bold text-white focus:border-blue-500 outline-none transition-all">
+                    <input type="text" id="edit-prod-nombre" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
                 </div>
                 
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Precio (€)</label>
-                        <input type="number" step="0.01" id="edit-prod-precio" class="w-full bg-white/5 border-2 border-white/10 rounded-xl h-12 px-4 text-sm font-bold text-white focus:border-blue-500 outline-none transition-all">
+                        <input type="number" step="0.01" id="edit-prod-precio" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
                     </div>
                     <div class="flex-1">
                         <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Estado</label>
-                        <select id="edit-prod-activo" class="w-full bg-white/5 border-2 border-white/10 rounded-xl h-12 px-4 text-sm font-bold text-white focus:border-blue-500 outline-none transition-all">
+                        <select id="edit-prod-activo" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all">
                             <option value="true">Activo / Visible</option>
                             <option value="false">Oculto / Descatalogado</option>
                         </select>
@@ -516,11 +516,11 @@
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">URL de Imagen</label>
-                    <input type="text" id="edit-prod-img" class="w-full bg-white/5 border-2 border-white/10 rounded-xl h-12 px-4 text-sm font-bold text-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
+                    <input type="text" id="edit-prod-img" class="w-full bg-white/5 border-2 border-slate-200 rounded-xl h-12 px-4 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
                 </div>
 
                 <div class="flex gap-4 pt-6">
-                    <button onclick="closeModal()" class="flex-1 p-4 rounded-xl font-black text-slate-400 hover:text-white transition-colors">CANCELAR</button>
+                    <button onclick="closeModal()" class="flex-1 p-4 rounded-xl font-black text-slate-500 hover:text-slate-900 transition-colors">CANCELAR</button>
                     <button onclick="guardarProducto()" class="btn-primary !bg-blue-600 hover:!bg-blue-500 flex-[2] !py-4 shadow-blue-500/20">GUARDAR CAMBIOS</button>
                 </div>
             </div>

@@ -12,9 +12,9 @@
     <style>
         :root {
             --primary: #3b82f6; /* blue-500 */
-            --bg-base: #020617; /* slate-950 */
-            --glass-bg: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #f8fafc; /* slate-950 */
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.05);
         }
         body { 
             user-select: none; 
@@ -115,7 +115,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
-<body class="min-h-screen text-slate-300">
+<body class="min-h-screen text-slate-600">
     
     <div class="bg-grid"></div>
     <div class="ambient-glow"></div>
@@ -128,7 +128,7 @@
             
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
-                    <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase">Recursos <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Humanos</span></h1>
+                    <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Recursos <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Humanos</span></h1>
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         Staff Portal • Control Center v3.0
@@ -143,12 +143,12 @@
                     <div class="glass-panel rounded-3xl p-8 text-center relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
                         
-                        <h2 class="text-lg font-black mb-8 tracking-widest text-white uppercase flex items-center justify-center gap-2">
+                        <h2 class="text-lg font-black mb-8 tracking-widest text-slate-900 uppercase flex items-center justify-center gap-2">
                             <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
                             Terminal de Fichaje
                         </h2>
                         
-                        <div id="pin-display" class="text-5xl tracking-[0.4em] text-center bg-slate-900/80 text-white p-6 rounded-2xl min-h-[96px] mb-8 font-mono border border-white/5 shadow-inner flex items-center justify-center"></div>
+                        <div id="pin-display" class="text-5xl tracking-[0.4em] text-center bg-white/80 text-slate-900 p-6 rounded-2xl min-h-[96px] mb-8 font-mono border border-slate-100 shadow-inner flex items-center justify-center"></div>
                         
                         <div class="grid grid-cols-3 gap-4 mb-10 place-items-center max-w-[260px] mx-auto">
                             <button class="keypad-btn" onclick="addPin('1')">1</button>
@@ -166,10 +166,10 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
-                            <button class="action-btn bg-emerald-600 hover:bg-emerald-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(16,185,129,0.5)] border border-emerald-500" onclick="fichar('ENTRADA')">Entrada</button>
-                            <button class="action-btn bg-red-600 hover:bg-red-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(239,68,68,0.5)] border border-red-500" onclick="fichar('SALIDA')">Salida</button>
+                            <button class="action-btn bg-emerald-600 hover:bg-emerald-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(16,185,129,0.5)] border border-emerald-500" onclick="fichar('ENTRADA')">Entrada</button>
+                            <button class="action-btn bg-red-600 hover:bg-red-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(239,68,68,0.5)] border border-red-500" onclick="fichar('SALIDA')">Salida</button>
                             <button class="action-btn bg-amber-500 hover:bg-amber-400 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(245,158,11,0.5)] border border-amber-400" onclick="fichar('INICIO_PAUSA')">Pausa</button>
-                            <button class="action-btn bg-blue-600 hover:bg-blue-500 text-white p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] border border-blue-500" onclick="fichar('FIN_PAUSA')">Fin Pausa</button>
+                            <button class="action-btn bg-blue-600 hover:bg-blue-500 text-slate-900 p-4 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_-5px_rgba(37,99,235,0.5)] border border-blue-500" onclick="fichar('FIN_PAUSA')">Fin Pausa</button>
                         </div>
                     </div>
                 </div>
@@ -177,12 +177,12 @@
                 <!-- Panel Derecho: Historial -->
                 <div class="w-full lg:w-7/12 xl:w-8/12 flex-1">
                     <div class="glass-panel rounded-3xl p-8 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
-                            <h4 class="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+                            <h4 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 Registro Biométrico Reciente
                             </h4>
-                            <span class="text-[9px] bg-slate-800 text-slate-400 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                            <span class="text-[9px] bg-white text-slate-500 font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
                             </span>
                         </div>
@@ -190,20 +190,20 @@
                         <div class="overflow-x-auto flex-1 custom-scrollbar pb-4">
                             <table class="w-full text-left border-collapse min-w-[500px]">
                                 <thead>
-                                    <tr class="text-[10px] text-slate-400 uppercase tracking-[0.2em] border-b border-white/10">
+                                    <tr class="text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-slate-200">
                                         <th class="pb-4 px-4 font-black">Identidad</th>
                                         <th class="pb-4 px-4 font-black">Evento</th>
                                         <th class="pb-4 px-4 text-right font-black">Timestamp</th>
                                     </tr>
                                 </thead>
-                                <tbody id="fichajes-list" class="text-sm text-slate-300">
+                                <tbody id="fichajes-list" class="text-sm text-slate-600">
                                     <!-- Skeleton Loaders -->
-                                    <tr class="border-b border-white/5">
+                                    <tr class="border-b border-slate-100">
                                         <td class="py-5 px-4"><div class="skeleton-loader w-32"></div></td>
                                         <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
                                         <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-40"></div></td>
                                     </tr>
-                                    <tr class="border-b border-white/5">
+                                    <tr class="border-b border-slate-100">
                                         <td class="py-5 px-4"><div class="skeleton-loader w-24"></div></td>
                                         <td class="py-5 px-4"><div class="skeleton-loader w-20"></div></td>
                                         <td class="py-5 px-4 flex justify-end"><div class="skeleton-loader w-36"></div></td>
@@ -218,9 +218,9 @@
             <!-- Footer Meta -->
             <footer class="mt-16 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] pb-8">
                 <div>© 2026 Carbones y Pollos Enterprise Suite</div>
-                <div class="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-white/5">
-                    <span class="text-purple-500 border-white/10 pr-4">Módulo RRHH</span>
-                    <span class="flex items-center gap-2 border-l border-white/10 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
+                <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full border border-slate-100">
+                    <span class="text-purple-500 border-slate-200 pr-4">Módulo RRHH</span>
+                    <span class="flex items-center gap-2 border-l border-slate-200 pl-4"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Node: Frankfurt-Industrial</span>
                 </div>
             </footer>
         </main>
@@ -286,23 +286,23 @@
                 if (!data || data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-500">
                         <div class="text-5xl mb-4 opacity-50">📇</div>
-                        <h4 class="text-xl font-bold mb-1 text-slate-400">Sin Registros</h4>
+                        <h4 class="text-xl font-bold mb-1 text-slate-500">Sin Registros</h4>
                         <p>No hay fichajes recientes.</p>
                     </td></tr>`;
                     return;
                 }
                 
                 data.forEach(f => {
-                    let badgeClass = "bg-slate-600 text-white";
+                    let badgeClass = "bg-slate-600 text-slate-900";
                     if(f.tipo === "ENTRADA") badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                     if(f.tipo === "SALIDA") badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
                     if(f.tipo === "INICIO_PAUSA") badgeClass = "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30";
                     if(f.tipo === "FIN_PAUSA") badgeClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
                     
                     tbody.innerHTML += `<tr class="hover:bg-white/5 transition-colors">
-                        <td class="py-4 px-2 font-medium text-white">${f.username}</td>
+                        <td class="py-4 px-2 font-medium text-slate-900">${f.username}</td>
                         <td class="py-4 px-2"><span class="px-3 py-1 rounded-full text-xs font-bold ${badgeClass}">${f.tipo}</span></td>
-                        <td class="py-4 px-2 text-slate-400">${f.fecha}</td>
+                        <td class="py-4 px-2 text-slate-500">${f.fecha}</td>
                     </tr>`;
                 });
             } catch (e) {
