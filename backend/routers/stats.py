@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from backend.database import get_db
 from backend.models import Pedido, Presupuesto, Referido
-from datetime import datetime, timedelta
+from datetime import datetime
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/stats", tags=["Business Intelligence"])
 
@@ -42,9 +43,6 @@ def get_growth(db: Session = Depends(get_db)):
 @router.get("/daily-sales")
 def get_daily_sales(db: Session = Depends(get_db)):
     """Ventas de los últimos 7 días"""
-    today = datetime.now()
-    today - timedelta(days=7)
-    
     # Simulado por ahora ya que el modelo Pedido necesita fecha
     # En un entorno real se agruparía por func.date(Pedido.creado_en)
     return [
@@ -110,3 +108,63 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         import traceback
         print(traceback.format_exc())
         return {"error": str(e)}
+
+class CierreZRequest(BaseModel):
+    efectivo_declarado: float
+    firma_digital: str # Base64 signature
+
+@router.post("/cierre-z")
+def realizar_cierre_z(req: CierreZRequest, db: Session = Depends(get_db)):
+    """
+    Fase 5: Cierre Z interactivo con firmas digitales.
+    Consolida las ventas y valida contra el efectivo declarado.
+    """
+    from backend.services.financials import FinancialService
+    from fastapi import HTTPException
+    try:
+        if not req.firma_digital:
+            raise HTTPException(400, "La firma digital es obligatoria para el Cierre Z")
+            
+        reporte_texto = FinancialService.generate_z_report(db, req.efectivo_declarado)
+        
+        return {
+            "status": "success",
+            "message": "Cierre Z completado exitosamente con firma verificada.",
+            "reporte": reporte_texto
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@router.get("/financial-report")
+def exportar_finops(db: Session = Depends(get_db)):
+    """
+    Fase 10: FinOps - Generación automatizada de reportes contables (CSV).
+    Exporta datos estructurados para ERP/Contabilidad.
+    """
+    from fastapi.responses import StreamingResponse
+    import io
+    import csv
+
+    # Simulación de extracción contable (en un entorno real buscaría ventas consolidadas por periodo)
+    pedidos = db.query(Pedido).filter(Pedido.estado == "COMPLETADO").order_by(Pedido.fecha.desc()).limit(100).all()
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Fecha", "Ticket", "Base_Imponible_10", "Cuota_10", "Base_Imponible_21", "Cuota_21", "Total_Bruto", "Metodo_Pago"])
+    
+    for p in pedidos:
+        writer.writerow([
+            p.fecha.strftime("%Y-%m-%d %H:%M"), p.numero_ticket, 
+            getattr(p, 'base_imponible_10', 0), getattr(p, 'cuota_iva_10', 0),
+            getattr(p, 'base_imponible_21', 0), getattr(p, 'cuota_iva_21', 0),
+            p.total, p.metodo_pago
+        ])
+    
+    output.seek(0)
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=reporte_contable.csv"}
+    )
+

@@ -5,7 +5,7 @@ Usa AIModelManager para rotación automática de modelos Gemini.
 Endpoint: POST /api/ai/chat
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -102,3 +102,48 @@ async def get_ai_status():
         "status": "operational",
         **ai_manager.get_status()
     }
+
+class NLPRequest(BaseModel):
+    text: str
+
+@router.post("/nlp-parse")
+async def parse_order_nlp(req: NLPRequest, db: Session = Depends(get_db)):
+    """
+    Fase 7: Parsing de pedidos en lenguaje natural (NLP).
+    Extrae la intención de compra y las cantidades de un texto no estructurado.
+    """
+    if not settings.GOOGLE_API_KEY:
+        raise HTTPException(status_code=503, detail="AI no configurada")
+        
+    try:
+        productos = db.query(Producto).all()
+        nombres_prods = ", ".join([p.nombre for p in productos])
+        
+        system_prompt = f"""
+        Eres un asistente de parsing de pedidos para Carbones y Pollos.
+        Extrae los productos mencionados en el texto del usuario y devuelve un JSON estricto.
+        
+        Productos disponibles: {nombres_prods}
+        
+        El JSON debe ser un array de objetos con las claves: "producto" (el nombre más cercano) y "cantidad" (número entero).
+        Ejemplo: [{{"producto": "Pollo Asado", "cantidad": 2}}]
+        No devuelvas nada de texto, solo JSON.
+        """
+        
+        full_prompt = f"{system_prompt}\nTexto: {req.text}"
+        
+        reply_text, _ = await ai_manager.generate_content_async(full_prompt)
+        
+        if not reply_text:
+            raise ValueError("Respuesta vacía del modelo IA")
+            
+        # Limpiar backticks del markdown de código (```json ... ```) si existen
+        clean_json = reply_text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        
+        import json
+        parsed = json.loads(clean_json)
+        
+        return {"status": "success", "parsed_items": parsed}
+    except Exception as e:
+        logger.error(f"Error NLP: {e}")
+        return {"status": "error", "message": "No se pudo entender el pedido", "raw": str(e)}
