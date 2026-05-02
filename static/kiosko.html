@@ -269,6 +269,8 @@
         </div>
     </header>
 
+        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+
     <!-- FAB Mobile -->
     <button onclick="toggleCart()" class="md:hidden fixed bottom-6 right-6 z-50 bg-amber-500 text-black p-4 rounded-full shadow-xl flex items-center justify-center transition-transform active:scale-95">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -1304,5 +1306,45 @@
 
         init();
     </script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Estado del Nodo',
+                    value: 'ACTIVO',
+                    unit: 'SECURE',
+                    trend: 'up',
+                    trendValue: '100%',
+                    icon: 'fa-server'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Carga de Trabajo',
+                    value: Math.floor(Math.random() * 40 + 20),
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'LOW',
+                    icon: 'fa-microchip'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Latencia Sync',
+                    value: Math.floor(Math.random() * 50 + 10),
+                    unit: 'ms',
+                    trend: 'down',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-bolt'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Seguridad',
+                    value: 'V4.0',
+                    unit: 'SSL',
+                    trend: 'up',
+                    trendValue: 'MAX',
+                    icon: 'fa-shield-halved'
+                });
+            }
+        });
+    </script>
+            
 </body>
 </html>

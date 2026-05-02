@@ -47,7 +47,8 @@
     </section>
 
     <!-- Content Sections -->
-    <main class="max-w-7xl mx-auto px-6 py-24 space-y-32">
+    <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+<main class="max-w-7xl mx-auto px-6 py-24 space-y-32">
         
         <!-- Misión -->
         <div class="grid md:grid-cols-2 gap-16 items-center">
@@ -170,5 +171,45 @@
             }
         });
     </script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Estado del Nodo',
+                    value: 'ACTIVO',
+                    unit: 'SECURE',
+                    trend: 'up',
+                    trendValue: '100%',
+                    icon: 'fa-server'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Carga de Trabajo',
+                    value: Math.floor(Math.random() * 40 + 20),
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'LOW',
+                    icon: 'fa-microchip'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Latencia Sync',
+                    value: Math.floor(Math.random() * 50 + 10),
+                    unit: 'ms',
+                    trend: 'down',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-bolt'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Seguridad',
+                    value: 'V4.0',
+                    unit: 'SSL',
+                    trend: 'up',
+                    trendValue: 'MAX',
+                    icon: 'fa-shield-halved'
+                });
+            }
+        });
+    </script>
+            
 </body>
 </html>

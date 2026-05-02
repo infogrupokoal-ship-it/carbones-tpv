@@ -90,6 +90,8 @@
         </div>
     </header>
 
+        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+
     <!-- Main Kanban Board -->
     <main class="flex-1 flex gap-6 p-6 overflow-hidden z-10">
         
@@ -270,5 +272,45 @@
     <script src="/static/js/enterprise_shell.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/js/enterprise_ui.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Estado del Nodo',
+                    value: 'ACTIVO',
+                    unit: 'SECURE',
+                    trend: 'up',
+                    trendValue: '100%',
+                    icon: 'fa-server'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Carga de Trabajo',
+                    value: Math.floor(Math.random() * 40 + 20),
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'LOW',
+                    icon: 'fa-microchip'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Latencia Sync',
+                    value: Math.floor(Math.random() * 50 + 10),
+                    unit: 'ms',
+                    trend: 'down',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-bolt'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Seguridad',
+                    value: 'V4.0',
+                    unit: 'SSL',
+                    trend: 'up',
+                    trendValue: 'MAX',
+                    icon: 'fa-shield-halved'
+                });
+            }
+        });
+    </script>
+            
 </body>
 </html>

@@ -85,6 +85,8 @@
             <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-3">Carbones y Pollos • Industrial v3.0</p>
         </header>
 
+        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+
         <form id="login-form" class="space-y-8">
             <div class="space-y-2">
                 <label for="user" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Terminal ID</label>
@@ -180,5 +182,45 @@
             }
         });
     </script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Estado del Nodo',
+                    value: 'ACTIVO',
+                    unit: 'SECURE',
+                    trend: 'up',
+                    trendValue: '100%',
+                    icon: 'fa-server'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Carga de Trabajo',
+                    value: Math.floor(Math.random() * 40 + 20),
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'LOW',
+                    icon: 'fa-microchip'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Latencia Sync',
+                    value: Math.floor(Math.random() * 50 + 10),
+                    unit: 'ms',
+                    trend: 'down',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-bolt'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Seguridad',
+                    value: 'V4.0',
+                    unit: 'SSL',
+                    trend: 'up',
+                    trendValue: 'MAX',
+                    icon: 'fa-shield-halved'
+                });
+            }
+        });
+    </script>
+            
 </body>
 </html>

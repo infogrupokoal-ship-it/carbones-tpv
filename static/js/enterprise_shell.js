@@ -77,6 +77,29 @@ const EnterpriseShell = {
         console.log(`[Enterprise Shell ${this.version}] Active: ${activeId}`);
     },
 
+    injectSystemBanner() {
+        if (document.getElementById('enterprise-banner')) return;
+        const banner = document.createElement('div');
+        banner.id = 'enterprise-banner';
+        banner.className = "fixed top-0 right-0 left-24 lg:left-80 h-1.5 bg-slate-100 z-[2000] flex overflow-hidden";
+        banner.innerHTML = `
+            <div class="h-full bg-indigo-600 animate-pulse" style="width: 30%"></div>
+            <div class="h-full bg-emerald-500" style="width: 70%"></div>
+        `;
+        document.body.appendChild(banner);
+        
+        const info = document.createElement('div');
+        info.className = "fixed top-4 right-10 z-[2000] flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] pointer-events-none opacity-50";
+        info.innerHTML = `
+            <span>Node: CP-GLOBAL-01</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span>Uptime: 99.9%</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span>Security: High</span>
+        `;
+        document.body.appendChild(info);
+    },
+
     startTelemetry() {
         setInterval(() => {
             const latency = Math.floor(Math.random() * 25) + 5;

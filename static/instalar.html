@@ -49,5 +49,45 @@
             });
         }
     </script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Estado del Nodo',
+                    value: 'ACTIVO',
+                    unit: 'SECURE',
+                    trend: 'up',
+                    trendValue: '100%',
+                    icon: 'fa-server'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Carga de Trabajo',
+                    value: Math.floor(Math.random() * 40 + 20),
+                    unit: '%',
+                    trend: 'up',
+                    trendValue: 'LOW',
+                    icon: 'fa-microchip'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Latencia Sync',
+                    value: Math.floor(Math.random() * 50 + 10),
+                    unit: 'ms',
+                    trend: 'down',
+                    trendValue: 'OPTIMAL',
+                    icon: 'fa-bolt'
+                });
+                EnterpriseUI.renderKPICard('module-telemetry', {
+                    title: 'Seguridad',
+                    value: 'V4.0',
+                    unit: 'SSL',
+                    trend: 'up',
+                    trendValue: 'MAX',
+                    icon: 'fa-shield-halved'
+                });
+            }
+        });
+    </script>
+            
 </body>
 </html>
