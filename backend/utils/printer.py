@@ -1,4 +1,6 @@
 from datetime import datetime
+import socket
+import logging
 
 
 class TicketFormatter:
@@ -84,3 +86,57 @@ class TicketFormatter:
 
         ticket.append(cls.DOUBLE_DIVIDER + "\n\n\n")
         return "\n".join(ticket)
+
+logger = logging.getLogger(__name__)
+
+class EscPosPrinter:
+    """
+    Capa de abstracción de hardware para impresoras térmicas ESC/POS.
+    Permite enviar tickets de comanda y facturas simplificadas a través de red (TCP/IP).
+    """
+    
+    # Comandos ESC/POS Básicos
+    ESC = b'\x1b'
+    GS = b'\x1d'
+    INITIALIZE = ESC + b'@'
+    CUT_PAPER = GS + b'V\x00'
+    LF = b'\n'
+
+    def __init__(self, host: str, port: int = 9100, timeout: int = 5):
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+
+    def send_raw(self, data: bytes) -> bool:
+        """
+        Envía bytes crudos a la impresora por socket.
+        """
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(self.timeout)
+                s.connect((self.host, self.port))
+                s.sendall(data)
+            return True
+        except Exception as e:
+            logger.error(f"Error imprimiendo en {self.host}:{self.port} - {e}")
+            return False
+
+    def print_ticket(self, formatted_text: str) -> bool:
+        """
+        Toma texto formateado y lo envía a la impresora con comandos básicos.
+        """
+        payload = self.INITIALIZE
+        # cp850 commonly used for European POS
+        payload += formatted_text.encode('cp850', errors='replace') 
+        payload += self.LF * 4
+        payload += self.CUT_PAPER
+        return self.send_raw(payload)
+
+# Singleton helper
+_default_printer = None
+
+def get_printer(host="192.168.1.200") -> EscPosPrinter:
+    global _default_printer
+    if not _default_printer:
+        _default_printer = EscPosPrinter(host=host)
+    return _default_printer
