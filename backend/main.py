@@ -145,11 +145,18 @@ async def startup_event():
     # 1. Base de Datos y Estructura
     try:
         migrate_schema()
-        # Seeding temporalmente deshabilitado para evitar bloqueos en el arranque
-        # from .seeding import run_auto_seeding
-        # run_auto_seeding()
+        # Seeding Industrial V11.0: Asegura que el catálogo exista si la DB está vacía
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            # Si no hay tiendas, ejecutamos el seed ultra industrial
+            result = conn.execute(text("SELECT count(*) FROM tiendas")).fetchone()
+            if result and result[0] == 0:
+                logger.info("🧫 Base de Datos vacía detectada. Iniciando Seeding Industrial...")
+                from scripts.seed_ultra import seed_ultra_industrial
+                seed_ultra_industrial()
+                logger.info("✅ Seeding Industrial completado con éxito.")
     except Exception as e:
-        logger.error(f"Error en migración: {e}")
+        logger.error(f"Error en migración/seeding: {e}")
 
     services_to_start = []
     
@@ -244,7 +251,7 @@ api_router.include_router(inventory.router_root, tags=["Industrial Core API"])
 api_router.include_router(admin.router, tags=["Gestión"])
 api_router.include_router(rrhh.router, tags=["Personal"])
 api_router.include_router(hardware.router, tags=["Hardware"])
-api_router.include_router(telemetry.router, prefix="/system", tags=["Mantenimiento"])
+api_router.include_router(telemetry.router, tags=["Mantenimiento"])
 api_router.include_router(webhooks.router, tags=["Webhooks"])
 api_router.include_router(admin_audit.router, tags=["Auditoría y Seguridad"])
 api_router.include_router(customers.router, tags=["Clientes y B2C"])

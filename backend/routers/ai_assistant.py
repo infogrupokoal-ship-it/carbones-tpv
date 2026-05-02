@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Producto
+from ..models import Producto, LogOperativo
 from ..config import settings
 from ..utils.logger import logger
 from ..utils.ai_model_manager import ai_manager
@@ -49,14 +49,18 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         productos = db.query(Producto).all()
         menu_text = "\n".join([f"- {p.nombre}: {p.precio}€" for p in productos])
 
-        # Telemetría en tiempo real para el contexto de la IA
+        # Telemetría en tiempo real y logs operativos para la IA
         process = psutil.Process(os.getpid())
+        recent_logs = db.query(LogOperativo).order_by(LogOperativo.fecha.desc()).limit(10).all()
+        logs_text = "\n".join([f"[{l.fecha.strftime('%H:%M')}] {l.modulo}: {l.mensaje}" for l in recent_logs])
+
         system_context = {
             "version": settings.APP_VERSION,
             "cpu_usage": f"{psutil.cpu_percent()}%",
             "memory_usage": f"{psutil.virtual_memory().percent}%",
             "process_rss": f"{process.memory_info().rss / 1024 / 1024:.2f} MB",
-            "db_status": "ONLINE"
+            "db_status": "ONLINE",
+            "logs": logs_text
         }
 
         system_prompt = f"""
@@ -68,6 +72,9 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         - Carga CPU: {system_context['cpu_usage']}
         - RAM: {system_context['memory_usage']}
         - Versión: {system_context['version']}
+
+        LOGS RECIENTES:
+        {system_context['logs'] if system_context['logs'] else "No hay alertas recientes."}
 
         MENÚ ACTUAL:
         {menu_text}

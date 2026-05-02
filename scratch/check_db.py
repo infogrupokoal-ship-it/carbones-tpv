@@ -1,17 +1,13 @@
 import sqlite3
 
-def check_schema():
+def check_products():
     conn = sqlite3.connect('tpv_data.sqlite')
     cursor = conn.cursor()
-    
-    for table in ['pedidos', 'productos']:
-        print(f"\n--- Schema for {table} ---")
-        cursor.execute(f"PRAGMA table_info({table})")
-        columns = cursor.fetchall()
-        for col in columns:
-            print(col)
-    
+    cursor.execute("SELECT id, nombre, categoria, imagen_url FROM productos")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
     conn.close()
 
 if __name__ == "__main__":
-    check_schema()
+    check_products()

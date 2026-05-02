@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 import random
-from datetime import datetime
+from datetime import datetime, UTC
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from backend.database import get_db
@@ -31,7 +31,7 @@ def get_global_nodes_status():
         if "temp" in node: node["temp"] += random.uniform(-0.5, 0.5)
         
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "total_nodes": len(nodes),
         "active_nodes": len([n for n in nodes if n["status"] != "OFFLINE"]),
         "nodes": nodes
@@ -57,7 +57,7 @@ def get_system_logs():
             logs_data[path] = [f"Log file {path} not found."]
             
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "logs": logs_data
     }
 
@@ -72,7 +72,7 @@ def get_system_load():
         "memory_usage_pct": psutil.virtual_memory().percent,
         "disk_usage_pct": psutil.disk_usage('/').percent,
         "active_threads": psutil.Process(os.getpid()).num_threads(),
-        "uptime_sec": int(datetime.utcnow().timestamp() - psutil.boot_time()) if hasattr(psutil, "boot_time") else 0
+        "uptime_sec": int(datetime.now(UTC).timestamp() - psutil.boot_time()) if hasattr(psutil, "boot_time") else 0
     }
 
 @router.get("/advanced")
@@ -90,7 +90,7 @@ def get_advanced_telemetry():
     proc = psutil.Process(os.getpid())
     
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "cpu": {
             "overall": psutil.cpu_percent(interval=0.1),
             "per_core": psutil.cpu_percent(percpu=True),
@@ -131,7 +131,7 @@ def get_proactive_insights(db: Session = Depends(get_db)):
     Alimenta las notificaciones inteligentes del Dashboard.
     """
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "insights": AIBIEngine.get_proactive_insights(db),
         "system_health": AIBIEngine.generate_system_health()
     }

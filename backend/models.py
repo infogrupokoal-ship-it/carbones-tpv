@@ -206,19 +206,6 @@ class LogOperativo(Base):
     modulo = Column(String(50))
     mensaje = Column(Text)
 
-class AuditLog(Base):
-    __tablename__ = "audit_logs"
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
-    usuario_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
-    accion = Column(String(100), nullable=False)
-    entidad = Column(String(50))
-    entidad_id = Column(String(36))
-    ip_origen = Column(String(50))
-    payload_previo = Column(Text, nullable=True)
-    payload_nuevo = Column(Text, nullable=True)
-    
-    usuario = relationship("Usuario", backref="auditorias")
 
 class ReporteZ(Base):
     __tablename__ = "reportes_z"
@@ -496,15 +483,17 @@ class GlobalState(Base):
     value = Column(Text)
     last_updated = Column(DateTime, default=datetime.utcnow)
 
+# --- AUDITORÍA & SEGURIDAD INDUSTRIAL ---
 class AuditLog(Base):
     __tablename__ = "audit_logs"
-    __table_args__ = {'extend_existing': True}
-
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     timestamp = Column(DateTime, default=datetime.utcnow)
     user_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
-    action = Column(String(50))  # CREATE, UPDATE, DELETE, LOGIN
-    resource = Column(String(50))  # PRODUCT, USER, ORDER
-    resource_id = Column(String(36), nullable=True)
-    details = Column(Text)  # JSON details
-    ip_address = Column(String(45), nullable=True)
+    action = Column(String(100), nullable=False)
+    resource = Column(String(50))
+    resource_id = Column(String(36))
+    ip_address = Column(String(50))
+    details = Column(Text, nullable=True)
+    
+    usuario = relationship("Usuario", backref="auditorias")
+

@@ -7,6 +7,13 @@
 - **Backend Fixes**: Resueltos bloqueos de importación circular entre `auth` y `admin_audit`.
 - **Stability**: Implementadas rutas absolutas para activos estáticos, eliminando errores de localización de archivos.
 - **UI/UX**: Verificación de integridad 100% operativa en el catálogo digital y el dashboard administrativo.
+### [V12.0] - 2026-05-02
+- **IA Proactiva**: Implementación del `AIBIEngine` para generación de Neural Insights y alertas de negocio inteligentes.
+- **Digital Twin**: Nueva matriz de visualización de hardware IoT (`matrix_twin.html`) integrada en el Shell.
+- **Fidelización**: Lanzamiento del Portal Club Quantum con gamificación y niveles premium para clientes.
+- **Enterprise Shell V12**: Integración de Audio Core (SFX) y fondos dinámicos reactivos.
+- **Industrial Hardening**: 20x professionalization completa de todo el ecosistema.
+
 ### [V11.5] - 2026-05-02
 - **Seguridad**: Hardening de RBAC en Enterprise Shell con pantalla de acceso denegado y escudos de rol en el DOM.
 - **Inteligencia**: Carbonito AI ahora es consciente del contexto (ruta/módulo) y tiene una interfaz de chat profesional.

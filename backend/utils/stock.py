@@ -3,7 +3,7 @@ import requests
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
-from ..models import MovimientoStock, Producto
+from ..models import MovimientoStock, Producto, LogOperativo
 from ..utils.logger import logger
 
 def enviar_alerta_whatsapp(mensaje: str):
@@ -61,6 +61,11 @@ def descontar_stock_pedido(
             if parent.stock_minimo > 0 and parent.stock_actual <= parent.stock_minimo:
                 msg = f"🚨 *STOCK CRÍTICO*: {parent.nombre} en {parent.stock_actual} uds. ¡Reponer producción!"
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
+                db.add(LogOperativo(
+                    nivel="CRITICAL",
+                    modulo="INVENTARIO",
+                    mensaje=f"Alerta de stock crítico: {parent.nombre} ({parent.stock_actual} uds)"
+                ))
     else:
         # Venta Directa
         prod.stock_actual -= cantidad
@@ -74,6 +79,11 @@ def descontar_stock_pedido(
         if prod.stock_minimo > 0 and prod.stock_actual <= prod.stock_minimo:
             msg = f"🚨 *ALERTA STOCK*: {prod.nombre} bajo mínimos ({prod.stock_actual} uds)."
             background_tasks.add_task(enviar_alerta_whatsapp, msg)
+            db.add(LogOperativo(
+                nivel="WARNING",
+                modulo="INVENTARIO",
+                mensaje=f"Aviso de stock bajo: {prod.nombre} ({prod.stock_actual} uds)"
+            ))
 
     # --- 2. Explosión de Receta (Descuento de Materia Prima / Ingredientes) ---
     for item_receta in prod.receta_items:
@@ -94,5 +104,10 @@ def descontar_stock_pedido(
             if ing.stock_minimo > 0 and ing.stock_actual <= ing.stock_minimo:
                 msg = f"🛒 *AVISO PROVEEDOR*: {ing.nombre} en niveles críticos ({ing.stock_actual} {ing.unidad_medida})."
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
+                db.add(LogOperativo(
+                    nivel="WARNING",
+                    modulo="MATERIA_PRIMA",
+                    mensaje=f"Materia prima crítica: {ing.nombre} ({ing.stock_actual} {ing.unidad_medida})"
+                ))
 
     # El commit se gestiona en el router para asegurar atomicidad de la transacción.

@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Pedido, ItemPedido, Producto
@@ -15,14 +15,14 @@ class AIBIEngine:
         insights = []
         
         # Simulación de análisis de demanda
-        hour = datetime.now().hour
+        hour = datetime.now(UTC).hour
         if 13 <= hour <= 15 or 20 <= hour <= 22:
             insights.append({
                 "id": "DEMAND_PEAK",
                 "level": "CRITICAL",
                 "message": "Pico de demanda detectado. Se recomienda activar protocolo de prep extra para Pollos Asados.",
                 "action_cta": "Ver KDS",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             })
         
         # Simulación de análisis de stock/merma
@@ -31,7 +31,7 @@ class AIBIEngine:
             "level": "INFO",
             "message": "Optimización de inventario: Se detecta excedente de Patatas Fritas. Recomendado: Menú Promo 'Combo Crujiente'.",
             "action_cta": "Editar Menú",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
         # Simulación de eficiencia logística
@@ -40,7 +40,7 @@ class AIBIEngine:
             "level": "SUCCESS",
             "message": "Eficiencia de reparto al 98%. 3 repartidores en ruta óptima.",
             "action_cta": "Ver Mapa",
-            "timestamp": (datetime.now() - timedelta(minutes=5)).isoformat()
+            "timestamp": (datetime.now(UTC) - timedelta(minutes=5)).isoformat()
         })
 
         return insights
