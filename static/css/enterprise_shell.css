@@ -1,15 +1,15 @@
 :root {
     --sidebar-width: 280px;
-    --glass-bg: rgba(15, 23, 42, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.05);
-    --accent-blue: #3b82f6;
-    --accent-amber: #f59e0b;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.05);
+    --accent-blue: #2563eb;
+    --accent-amber: #d97706;
 }
 
 /* Base Enterprise Layout */
 body {
-    background: #020617;
-    color: #f1f5f9;
+    background: #f8fafc;
+    color: #0f172a;
     font-family: 'Outfit', 'Inter', sans-serif;
     overflow-x: hidden;
 }
@@ -20,6 +20,7 @@ body {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 /* Sidebar Styling */
@@ -31,7 +32,7 @@ body {
 
 .nav-link {
     display: flex;
-    items-center: center;
+    align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
@@ -39,18 +40,18 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.025em;
-    color: #94a3b8;
+    color: #475569;
     transition: all 0.2s ease;
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.03);
-    color: #fff;
+    background: rgba(0, 0, 0, 0.03);
+    color: #0f172a;
 }
 
 .nav-link.active {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
     color: var(--accent-blue);
 }
 
@@ -84,7 +85,7 @@ body {
     justify-content: center;
     padding: 4rem 2rem;
     text-align: center;
-    border: 2px dashed rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(0, 0, 0, 0.1);
     border-radius: 2rem;
 }
 
