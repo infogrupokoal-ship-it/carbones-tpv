@@ -20,7 +20,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from backend.routers import orders, inventory, clients, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty, franchise, esg
+from backend.routers import orders, inventory, clients, stats, auth, ai_assistant, rrhh, marketing, reservas, delivery_aggregators, mantenimiento, payments, feedback, escandallos, fleet, loyalty, franchise, esg, pricing, iot, erp
 from backend.services import sync_daemon, ai_bi_agent, self_healing
 
 from .utils.logger import logger
@@ -208,6 +208,9 @@ app.include_router(fleet.router, prefix="/api", tags=["Fleet"])
 app.include_router(loyalty.router, prefix="/api", tags=["Loyalty"])
 app.include_router(franchise.router, prefix="/api", tags=["Franchise"])
 app.include_router(esg.router, prefix="/api", tags=["ESG"])
+app.include_router(pricing.router, prefix="/api", tags=["Pricing"])
+app.include_router(iot.router, prefix="/api", tags=["IoT"])
+app.include_router(erp.router, prefix="/api", tags=["ERP"])
 app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
 app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
 app.include_router(delivery_aggregators.router, prefix="/api", tags=["Delivery Aggregators"])
