@@ -194,3 +194,10 @@
 - **Matrix Telemetry Sync**: Fixed routing for `/api/telemetry/advanced`, ensuring the Digital Twin dashboard reflects real-time nodal metrics.
 - **Persistent Inventory Guard**: All stock alerts (low stock, raw material depletion) are now persistently logged for historical AI analysis.
 - **Disaster Recovery**: Created `force_seed.py` for automated full-system restoration in case of database corruption.
+
+## [V14.0-CONVERSION-ENGINE] - 2026-05-02
+### Hyper-Industrialized B2C Sales Storefront
+- **Gamified Logistics**: Integrated a visual, animated progress bar in the shopping cart that dynamically tracks the threshold for unlocking free shipping, increasing average order value (AOV).
+- **Frictionless Upselling**: Deployed an intelligent "Completa tu pedido" banner within the cart checkout flow. It detects missing high-margin pairings (like side dishes) and allows one-click addition directly from the cart.
+- **FOMO Triggers (Fear Of Missing Out)**: Implemented aggressive but professional scarcity badges ("Solo quedan 3", "Ahorra 15%") on high-value Combos with pulse animations to drive immediate conversion.
+- **Micro-Animations Mastery**: Upgraded the UI with premium `animate.css` transitions on cart updates and upselling elements to provide a tactile, responsive "Selling Machine" experience.

@@ -104,3 +104,10 @@
 - [x] **Telemetry Sync**: Resolución de rutas de telemetría para Matrix Dashboard (/api/telemetry/advanced).
 - [x] **Persistent Stock Guard**: Registro automático de alertas críticas de inventario en logs operacionales.
 - [x] **Industrial Recovery Tool**: Creación de script de fuerza bruta para reset y sembrado de base de datos (`force_seed.py`).
+
+## Fase XV: Hyper-Conversion "Selling Machine" Engine [V14.0]
+- [x] **Gamified Logistics**: Barra de progreso interactiva para desbloqueo de envío gratuito.
+- [x] **Frictionless Upselling**: Sugerencias automáticas de productos complementarios (Patatas/Bebidas) en carrito con 1 clic.
+- [x] **FOMO Engineering**: Emblemas dinámicos de escasez y urgencia ("Solo quedan 3") en Combos estrella.
+- [x] **Premium Transitions**: Animaciones fluidas (`animate.css`) para interacciones de carrito y validación visual.
+- [x] **20x Professionalization**: Verificación visual y funcional extrema en toda la experiencia B2C.
