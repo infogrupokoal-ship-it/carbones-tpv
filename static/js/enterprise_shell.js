@@ -1,10 +1,10 @@
 /**
- * Carbones y Pollos - Enterprise Shell v5.0
- * Quantum Singularity Orchestrator
+ * Carbones y Pollos - Enterprise Shell v5.1
+ * Quantum Singularity Orchestrator - Industrial Grade
  */
 
 const EnterpriseShell = {
-    version: '5.0.0-Quantum',
+    version: '5.1.0-Quantum',
     modules: [
         { id: 'Analytics', icon: '📈', path: '/static/predictive_analytics.html', category: 'Core' },
         { id: 'Matrix', icon: '🌌', path: '/static/matrix.html', category: 'Core' },
@@ -78,13 +78,13 @@ const EnterpriseShell = {
         const banner = document.createElement('div');
         banner.id = 'enterprise-banner';
         banner.className = "fixed top-0 right-0 left-24 lg:left-80 h-1 bg-slate-100 z-[2000] flex overflow-hidden";
-        banner.innerHTML = `<div class="h-full bg-indigo-600 animate-pulse" style="width: 100%"></div>`;
+        banner.innerHTML = `<div id="shell-progress-bar" class="h-full bg-indigo-600 transition-all duration-1000" style="width: 100%"></div>`;
         document.body.appendChild(banner);
         
         const info = document.createElement('div');
         info.className = "fixed top-4 right-10 z-[2000] flex items-center gap-4 text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pointer-events-none select-none";
         info.innerHTML = `
-            <span>CP-QUANTUM-NODE-01</span>
+            <span id="shell-node-id">CP-QUANTUM-NODE-01</span>
             <span class="w-1 h-1 rounded-full bg-slate-200"></span>
             <span id="shell-clock">00:00:00</span>
         `;
@@ -127,11 +127,7 @@ const EnterpriseShell = {
 
     toggleNeuralMonitor() {
         const mon = document.getElementById('neural-monitor');
-        if (mon.classList.contains('translate-x-full')) {
-            mon.classList.remove('translate-x-full');
-        } else {
-            mon.classList.add('translate-x-full');
-        }
+        mon.classList.toggle('translate-x-full');
     },
 
     startTelemetry() {
@@ -139,23 +135,32 @@ const EnterpriseShell = {
             try {
                 const res = await fetch('/api/health');
                 const data = await res.json();
+                
                 const latencyEl = document.getElementById('shell-latency');
-                if (latencyEl) latencyEl.innerText = `${data.telemetry.db_latency.toFixed(2)}ms`;
+                if (latencyEl) latencyEl.innerText = `${data.telemetry.database.latency_ms.toFixed(2)}ms`;
                 
                 const cpuEl = document.getElementById('neural-cpu');
                 if (cpuEl) cpuEl.style.width = `${data.telemetry.cpu_usage}%`;
                 
+                const fluxEl = document.getElementById('neural-flux');
+                if (fluxEl) fluxEl.style.width = `${data.telemetry.memory_usage}%`;
+
+                const nodeEl = document.getElementById('shell-node-id');
+                if (nodeEl) nodeEl.innerText = data.deployment.node.toUpperCase();
+
                 const log = document.createElement('div');
                 log.className = "opacity-60";
-                log.innerHTML = `<span class="text-slate-600">${new Date().toLocaleTimeString()}</span> <span class="text-indigo-400">[SYS]</span> DB_SYNC: OK | HEAL: ACTIVE`;
+                log.innerHTML = `<span class="text-slate-600">${new Date().toLocaleTimeString()}</span> <span class="text-indigo-400">[SYS]</span> DB_SYNC: OK | HEAL: ${data.integrity.self_healing}`;
                 const logsCont = document.getElementById('neural-logs');
                 if (logsCont) {
                     logsCont.appendChild(log);
                     logsCont.scrollTop = logsCont.scrollHeight;
-                    if (logsCont.children.length > 30) logsCont.removeChild(logsCont.firstChild);
+                    if (logsCont.children.length > 50) logsCont.removeChild(logsCont.firstChild);
                 }
-            } catch(e) {}
-        }, 5000);
+            } catch(e) {
+                console.warn("[Shell] Telemetry Sync Fail", e);
+            }
+        }, 3000);
     },
 
     startNotificationPoller() {
@@ -170,7 +175,7 @@ const EnterpriseShell = {
                 }
             } catch (e) {}
         };
-        setInterval(poll, 15000);
+        setInterval(poll, 10000);
     },
 
     toggleCategory(catName) {
@@ -331,13 +336,13 @@ const EnterpriseShell = {
             </div>
             <div id="carbonito-messages" class="flex-1 p-10 overflow-y-auto space-y-6 text-[11px] font-bold text-slate-600 custom-scrollbar bg-slate-50/50">
                 <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed">
-                    Protocolo **Singularity v5.0** iniciado. Estoy conectado al nodo central. ¿Qué optimización deseas ejecutar hoy?
+                    Protocolo **Singularity v5.1** iniciado. Estoy conectado al nodo central. ¿Qué optimización deseas ejecutar hoy?
                 </div>
             </div>
             <div class="p-8 bg-white border-t border-slate-50">
                 <div class="relative">
                     <input type="text" id="carbonito-input" placeholder="Consult quantum node..." class="w-full bg-slate-100 border-none rounded-3xl py-6 px-10 text-[11px] font-black focus:ring-2 focus:ring-indigo-600 shadow-inner">
-                    <button onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">➔</button>
+                    <button id="carbonito-send-btn" onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">➔</button>
                 </div>
             </div>
         `;
@@ -360,6 +365,7 @@ const EnterpriseShell = {
     async sendCarbonitoMessage() {
         const input = document.getElementById('carbonito-input');
         const cont = document.getElementById('carbonito-messages');
+        const btn = document.getElementById('carbonito-send-btn');
         if (!input.value.trim()) return;
         const msg = input.value;
         input.value = '';
@@ -374,18 +380,33 @@ const EnterpriseShell = {
         bDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
         bDiv.innerText = "Querying Matrix Data...";
         cont.appendChild(bDiv);
+        cont.scrollTop = cont.scrollHeight;
+
+        btn.disabled = true;
 
         try {
-            const res = await fetch('/api/enterprise/global-status');
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, context: `Página actual: ${window.location.pathname}` })
+            });
             const data = await res.json();
-            setTimeout(() => {
-                bDiv.classList.remove('animate-pulse');
-                bDiv.innerHTML = `Análisis completado. Multiplicador de mercado actual: **${data.market.multiplier.toFixed(2)}x**. 
-                El sistema de autocuración ha detectado ${data.nodes.iot_devices} dispositivos activos. 
-                Recomiendo priorizar **${data.market.sentiment === 'BULLISH' ? 'Escalado' : 'Consolidación'}**.`;
-                cont.scrollTop = cont.scrollHeight;
-            }, 1000);
-        } catch(e) { bDiv.innerText = "Quantum sync error."; }
+            
+            bDiv.classList.remove('animate-pulse');
+            bDiv.innerHTML = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            
+            const metaDiv = document.createElement('p');
+            metaDiv.className = "text-[7px] text-slate-300 mt-2 uppercase tracking-widest";
+            metaDiv.innerText = `Model: ${data.model_used} | Tier: ${data.model_tier}`;
+            bDiv.appendChild(metaDiv);
+            
+            cont.scrollTop = cont.scrollHeight;
+        } catch(e) { 
+            bDiv.innerText = "Quantum sync error. Matrix disconnected."; 
+            bDiv.classList.remove('animate-pulse');
+        } finally {
+            btn.disabled = false;
+        }
     },
 
     injectGlobalStyles() {

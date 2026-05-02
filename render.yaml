@@ -1,9 +1,9 @@
 # Blueprint de Despliegue Profesional - Carbones y Pollos TPV
-# Version: 2.1.0-ULTRA (Full Industrial Sync)
+# Version: 2.2.0-ULTRA (Sync Industrial Pro)
 
 services:
   - type: web
-    name: carbones-tpv-enterprise
+    name: carbones-tpv
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     preDeployCommand: "python scripts/migrate_v5.py && python scripts/seed_ultra.py"
@@ -15,14 +15,12 @@ services:
         value: 3.11.8
       - key: DATABASE_URL
         value: sqlite:////data/tpv_data.sqlite
-      - key: GOOGLE_API_KEY
-        sync: false # Requerido: Configurar en Dashboard de Render
-      - key: SECRET_KEY
-        generateValue: true
       - key: ENVIRONMENT
         value: production
       - key: APP_NAME
         value: "Carbones y Pollos TPV Pro"
+      - key: TZ
+        value: Europe/Madrid
     disk:
       name: tpv-data-storage
       mountPath: /data

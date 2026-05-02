@@ -69,21 +69,33 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
     """Resumen unificado para el Dashboard BI v5.0"""
     try:
         # 1. KPIs
-        ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.date(Pedido.fecha) == datetime.now().date()).scalar() or 0
-        pedidos_hoy = db.query(Pedido).filter(func.date(Pedido.fecha) == datetime.now().date()).count()
+        today = datetime.now().date()
+        ventas_hoy = db.query(func.sum(Pedido.total)).filter(func.cast(Pedido.fecha, func.Date) == today).scalar() or 0
+        pedidos_hoy = db.query(Pedido).filter(func.cast(Pedido.fecha, func.Date) == today).count()
         
-        # 2. GrÃ¡fica de Ventas por Horas (Real Data)
+        # 2. Gráfica de Ventas por Horas (Dialect Aware)
+        if db.bind.dialect.name == 'sqlite':
+            hour_func = func.strftime('%H:00', Pedido.fecha)
+        else:
+            # PostgreSQL
+            hour_func = func.to_char(Pedido.fecha, 'HH24:00')
+
         ventas_horas = db.query(
-            func.strftime('%H:00', Pedido.fecha).label('hora'),
+            hour_func.label('hora'),
             func.sum(Pedido.total).label('total')
-        ).filter(func.date(Pedido.fecha) == datetime.now().date()).group_by('hora').order_by('hora').all()
+        ).filter(func.cast(Pedido.fecha, func.Date) == today).group_by('hora').order_by('hora').all()
         
         horas_labels = [h.hora for h in ventas_horas] if ventas_horas else ["09:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"]
         horas_data = [float(h.total) for h in ventas_horas] if ventas_horas else [50, 120, 450, 320, 80, 210, 540]
         
         # 3. Top Productos (Basado en Pedidos reales)
         from backend.services.analytics import AnalyticsService
-        top_productos = AnalyticsService.get_top_products(db, limit=4)
+        try:
+            top_productos = AnalyticsService.get_top_products(db, limit=4)
+        except Exception as e:
+            logger.warning(f"Error en AnalyticsService: {e}")
+            top_productos = [{"nombre": "Cargando...", "ventas": 0}]
+
         top_labels = [p["nombre"] for p in top_productos]
         top_data = [p["ventas"] for p in top_productos]
 
@@ -101,7 +113,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
                 "cliente": r.cliente.nombre if r.cliente else "Anónimo",
                 "total": r.total,
                 "estado": r.estado,
-                "fecha": r.fecha.strftime("%H:%M"),
+                "fecha": r.fecha.strftime("%H:%M") if r.fecha else "--:--",
                 "numero_ticket": r.numero_ticket or "TKT-000",
                 "metodo_pago": r.metodo_pago or "EFECTIVO",
                 "metodo_envio": r.metodo_envio or "LOCAL",
@@ -114,6 +126,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         robotics = db.query(RoboticsTelemetry).filter(RoboticsTelemetry.status == "CRITICAL").count()
 
         return {
+            "status": "success",
             "kpis": {
                 "ventas_hoy": float(ventas_hoy),
                 "pedidos_count": pedidos_hoy,
@@ -129,9 +142,10 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
             "stock_alerts": alerts
         }
     except Exception as e:
+        logger.error(f"Error Crítico Dashboard: {e}")
         import traceback
-        print(traceback.format_exc())
-        return {"error": str(e)}
+        traceback.print_exc()
+        return {"status": "error", "error": str(e)}
 
 class CierreZRequest(BaseModel):
     efectivo_declarado: float

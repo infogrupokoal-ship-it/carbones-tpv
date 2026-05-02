@@ -142,8 +142,12 @@
     </main>
 
     <script src="/static/js/enterprise_shell.js"></script>
+    <script src="/static/js/enterprise_ui.js"></script>
     <script>
-        EnterpriseShell.init('BI Analytics');
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('BI Analytics');
+            loadData();
+        });
         async function loadData() {
             try {
                 const [funnel, growth, daily] = await Promise.all([
@@ -212,13 +216,6 @@
 
         loadData();
     </script>
-    <script src="/static/js/enterprise_shell.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            EnterpriseShell.init('BI Analytics');
-        });
-    </script>
-    <script src="/static/js/enterprise_ui.js"></script>
 
     <script>
         window.addEventListener('load', () => {
