@@ -124,7 +124,7 @@ async def startup_event():
     asyncio.create_task(sync_daemon.run())
     asyncio.create_task(self_healing.SelfHealingService().monitor())
     
-    logger.info("Enterprise Singularity [V8.0] fully activated and operational.")
+    logger.info("Enterprise Singularity [V8.0] fully activated and operational. ")
 
 
 @app.get("/health", tags=["Infraestructura"])
