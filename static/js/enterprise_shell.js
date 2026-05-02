@@ -1,24 +1,26 @@
 /**
- * Carbones y Pollos - Enterprise Shell v3.1
- * Centralized Industrial Orchestrator & AI Assistant
- * Feature: Collapsible Submenus & High-Performance UI
+ * Carbones y Pollos - Enterprise Shell v4.0
+ * Industrial Singularity Orchestrator
  */
 
 const EnterpriseShell = {
-    version: '3.1.0-Industrial',
+    version: '4.0.0-Singularity',
     modules: [
         { id: 'Portal', icon: '🏠', path: '/static/portal.html', category: 'Core' },
         { id: 'Caja', icon: '💰', path: '/static/caja.html', category: 'Core' },
         { id: 'KDS', icon: '🍳', path: '/static/kds.html', category: 'Core' },
         { id: 'Producción', icon: '🔥', path: '/static/dashboard_produccion.html', category: 'Core' },
         { id: 'Reservas', icon: '🍷', path: '/static/reservas.html', category: 'Core' },
+        { id: 'Robotics', icon: '🤖', path: '/static/robotics.html', category: 'Core' },
+        { id: 'Ghost Kitchen', icon: 'visibility_off', path: '/static/ghost_kitchen.html', category: 'Core' },
         
         { id: 'Stock', icon: '📦', path: '/static/inventario.html', category: 'Logistics' },
         { id: 'Proveedores', icon: '🏭', path: '/static/proveedores.html', category: 'Logistics' },
         { id: 'Reparto', icon: '🛵', path: '/static/reparto.html', category: 'Logistics' },
-        { id: 'Procurement', icon: '📦', path: '/static/procurement.html', category: 'Logistics' },
+        { id: 'Procurement', icon: '🛒', path: '/static/procurement.html', category: 'Logistics' },
         { id: 'Aggregators', icon: '🍔', path: '/static/delivery_aggregators.html', category: 'Logistics' },
         { id: 'Fleet', icon: '🚚', path: '/static/fleet_map.html', category: 'Logistics' },
+        { id: 'Traceability', icon: 'qr_code_scanner', path: '/static/supply_chain.html', category: 'Logistics' },
         
         { id: 'Analytics', icon: '📊', path: '/static/stats.html', category: 'Management' },
         { id: 'ERP', icon: '💼', path: '/static/erp.html', category: 'Management' },
@@ -30,29 +32,47 @@ const EnterpriseShell = {
         { id: 'Menu Eng.', icon: '🧠', path: '/static/menu_engineering.html', category: 'Management' },
         { id: 'B2B Sales', icon: '🤝', path: '/static/commercial.html', category: 'Management' },
         { id: 'Loyalty', icon: '🏆', path: '/static/loyalty.html', category: 'Management' },
+        { id: 'Yield Mgt.', icon: 'trending_up', path: '/static/yield_management.html', category: 'Management' },
+        { id: 'Call Center', icon: 'headset_mic', path: '/static/call_center.html', category: 'Management' },
+        { id: 'QSC Audits', icon: 'fact_check', path: '/static/qsc_audits.html', category: 'Management' },
+        { id: 'Onboarding', icon: 'school', path: '/static/franchise_onboarding.html', category: 'Management' },
+        { id: 'Eco Tracker', icon: 'compost', path: '/static/eco_tracker.html', category: 'Management' },
+        { id: 'Investors', icon: 'account_balance', path: '/static/investor_relations.html', category: 'Management' },
         
         { id: 'Ajustes', icon: '⚙️', path: '/static/settings.html', category: 'System' },
         { id: 'Auditoría', icon: '🛡️', path: '/static/auditoria.html', category: 'System' },
         { id: 'IoT Equipos', icon: '🌡️', path: '/static/iot.html', category: 'System' },
         { id: 'Crisis', icon: '🚨', path: '/static/crisis.html', category: 'System' },
         { id: 'Maintenance', icon: '🛠️', path: '/static/mantenimiento.html', category: 'System' },
-        { id: 'Hardware', icon: '🖨️', path: '/static/hardware.html', category: 'System' }
+        { id: 'Hardware', icon: '🖨️', path: '/static/hardware.html', category: 'System' },
+        { id: 'Signage', icon: 'tv', path: '/static/digital_signage.html', category: 'System' }
     ],
 
     init(activeId) {
         if (!activeId) {
             activeId = document.body.getAttribute('data-active-module') || 'Portal';
         }
-        this.renderSidebar(activeId);
         this.injectGlobalStyles();
+        this.renderSidebar(activeId);
+        this.injectSystemBanner();
         this.injectCarbonitoUI();
+        this.injectCommandPalette();
         this.startTelemetry();
+        this.startNotificationPoller();
         this.handleResponsive();
         
         if (activeId === 'KDS') {
             document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
             document.body.style.paddingLeft = '6rem';
         }
+        
+        // Register Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                this.toggleCommandPalette();
+            }
+        });
         
         console.log(`[Enterprise Shell ${this.version}] Active: ${activeId}`);
     },
@@ -63,6 +83,27 @@ const EnterpriseShell = {
             const el = document.getElementById('shell-latency');
             if (el) el.innerText = latency + 'ms';
         }, 3000);
+    },
+
+    processedNotifications: new Set(),
+    startNotificationPoller() {
+        const poll = async () => {
+            try {
+                const res = await fetch('/api/notifications/');
+                if (!res.ok) return;
+                const notifs = await res.json();
+                notifs.forEach(n => {
+                    if (!this.processedNotifications.has(n.id)) {
+                        this.processedNotifications.add(n.id);
+                        if (typeof EnterpriseUI !== 'undefined') {
+                            EnterpriseUI.showToast(`[${n.module}] ${n.title}: ${n.message}`, n.type);
+                        }
+                    }
+                });
+            } catch (e) { console.warn('Notification poll failed', e); }
+        };
+        setInterval(poll, 10000);
+        poll();
     },
 
     toggleCategory(catName) {
@@ -127,6 +168,10 @@ const EnterpriseShell = {
                 ${navHtml}
             </div>
             <div class="p-8 border-t border-slate-50 space-y-4 bg-slate-50/30">
+                <button onclick="EnterpriseShell.toggleCommandPalette()" class="w-full flex items-center justify-between px-4 py-2 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-400 hover:border-indigo-600 transition-all">
+                    <span>Ctrl + K</span>
+                    <i class="fas fa-search"></i>
+                </button>
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center font-black text-xs text-white border-2 border-white shadow-xl">AD</div>
                     <div class="hidden lg:block">
@@ -145,6 +190,68 @@ const EnterpriseShell = {
         `;
     },
 
+    injectCommandPalette() {
+        if (document.getElementById('command-palette')) return;
+        const palette = document.createElement('div');
+        palette.id = 'command-palette';
+        palette.className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[3000] hidden flex items-start justify-center pt-32 p-4";
+        palette.innerHTML = `
+            <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in">
+                <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                    <i class="fas fa-search text-slate-400"></i>
+                    <input type="text" id="palette-search" placeholder="Buscar módulo, orden o cliente..." class="flex-1 border-none focus:ring-0 text-sm font-bold text-slate-900 bg-transparent">
+                    <span class="text-[10px] font-black text-slate-300 uppercase">ESC para cerrar</span>
+                </div>
+                <div id="palette-results" class="max-h-[400px] overflow-y-auto p-4 space-y-1 custom-scrollbar">
+                    ${this.modules.map(m => `
+                        <a href="${m.path}" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group">
+                            <span class="text-2xl">${m.icon}</span>
+                            <div>
+                                <p class="text-[11px] font-black uppercase text-slate-900">${m.id}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${m.category}</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-200 group-hover:text-indigo-600 transition-all"></i>
+                        </a>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        palette.onclick = (e) => { if (e.target === palette) this.toggleCommandPalette(); };
+        document.body.appendChild(palette);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') palette.classList.add('hidden');
+        });
+
+        document.getElementById('palette-search')?.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('palette-results');
+            if (!results) return;
+            
+            const filtered = this.modules.filter(m => m.id.toLowerCase().includes(query) || m.category.toLowerCase().includes(query));
+            results.innerHTML = filtered.map(m => `
+                <a href="${m.path}" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group">
+                    <span class="text-2xl">${m.icon}</span>
+                    <div>
+                        <p class="text-[11px] font-black uppercase text-slate-900">${m.id}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${m.category}</p>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-200 group-hover:text-indigo-600 transition-all"></i>
+                </a>
+            `).join('') || '<p class="p-8 text-center text-[10px] font-black text-slate-400 uppercase">No se encontraron resultados</p>';
+        });
+    },
+
+    toggleCommandPalette() {
+        const palette = document.getElementById('command-palette');
+        if (palette.classList.contains('hidden')) {
+            palette.classList.remove('hidden');
+            document.getElementById('palette-search')?.focus();
+        } else {
+            palette.classList.add('hidden');
+        }
+    },
+
     injectCarbonitoUI() {
         if (document.getElementById('carbonito-launcher')) return;
         
@@ -157,7 +264,7 @@ const EnterpriseShell = {
         const chat = document.createElement('div');
         chat.id = 'carbonito-chat';
         chat.className = "fixed bottom-32 right-10 w-[400px] h-[600px] bg-white rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] hidden flex-col border border-slate-100 z-[2000] overflow-hidden transition-all duration-500 transform translate-y-10 opacity-0";
-        chat.innerHTML = \`
+        chat.innerHTML = `
             <div class="p-8 bg-indigo-600 text-white">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-3">
@@ -171,10 +278,10 @@ const EnterpriseShell = {
                 </div>
             </div>
             <div id="carbonito-messages" class="flex-1 p-8 overflow-y-auto space-y-6 text-xs font-medium text-slate-600 custom-scrollbar bg-slate-50/50">
-                <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed">
-                    ¡Saludos! Soy **Carbonito v3.1**. Mi red neuronal está sincronizada con el módulo de **\${document.body.getAttribute('data-active-module') || 'Gestión Global'}**.
+                <div class="bg-white p-6 rounded-3xl rounded-tl-none shadow-sm border border-slate-100 leading-relaxed animate-in">
+                    ¡Saludos! Soy **Carbonito v4.0**. Mi red neuronal está sincronizada con el módulo de **${document.body.getAttribute('data-active-module') || 'Gestión Global'}**.
                     <br><br>
-                    ¿Deseas una auditoría de rendimiento o proyecciones de stock?
+                    He detectado que el rendimiento del sistema es óptimo. ¿Deseas un reporte estratégico detallado?
                 </div>
             </div>
             <div class="p-6 bg-white border-t border-slate-100">
@@ -183,7 +290,7 @@ const EnterpriseShell = {
                     <button onclick="EnterpriseShell.sendCarbonitoMessage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95">➔</button>
                 </div>
             </div>
-        \`;
+        `;
 
         document.body.appendChild(launcher);
         document.body.appendChild(chat);
@@ -220,12 +327,12 @@ const EnterpriseShell = {
 
         const botDiv = document.createElement('div');
         botDiv.className = "bg-white p-6 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm animate-pulse";
-        botDiv.innerText = "Procesando telemetría industrial...";
+        botDiv.innerText = "Analizando datos industriales...";
         container.appendChild(botDiv);
 
         setTimeout(() => {
             botDiv.classList.remove('animate-pulse');
-            botDiv.innerHTML = \`Análisis estratégico completado. Para el contexto **\${document.body.getAttribute('data-active-module')}**, mi recomendación es: <br><br> 1. Optimizar los tiempos de carga.<br> 2. Revisar discrepancias en el inventario.<br> 3. Incrementar la visibilidad de KPIs críticos.\`;
+            botDiv.innerHTML = `Análisis estratégico para **${document.body.getAttribute('data-active-module')}**:<br><br>He procesado tu solicitud. Los KPIs indican una tendencia positiva. Recomiendo escalar las operaciones en este cuadrante.<br><br><span class="text-indigo-600 font-black uppercase text-[10px]">Estatus: Operación Segura</span>`;
             container.scrollTop = container.scrollHeight;
         }, 1500);
     },
@@ -234,8 +341,10 @@ const EnterpriseShell = {
         if (document.getElementById('shell-global-styles')) return;
         const style = document.createElement('style');
         style.id = 'shell-global-styles';
-        style.textContent = \`
+        style.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
+            @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+            
             body { 
                 padding-left: 6rem; 
                 background: #f8fafc; 
@@ -244,13 +353,30 @@ const EnterpriseShell = {
                 transition: padding-left 0.3s ease;
             }
             @media (min-width: 1024px) { body { padding-left: 20rem; } }
+            
             .custom-scrollbar::-webkit-scrollbar { width: 4px; }
             .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+            
             @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
             .animate-in { animation: slideIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-        \`;
+            
+            .collapsed body { padding-left: 6rem !important; }
+            #enterprise-sidebar.collapsed { width: 6rem !important; }
+            #enterprise-sidebar.collapsed .lg\:block { display: none !important; }
+            #enterprise-sidebar.collapsed .lg\:px-10 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+        `;
         document.head.appendChild(style);
+    },
+    
+    handleResponsive() {
+        const check = () => {
+            if (window.innerWidth < 1024) {
+                document.getElementById('enterprise-sidebar')?.classList.add('collapsed');
+            }
+        };
+        window.addEventListener('resize', check);
+        check();
     }
 };
 

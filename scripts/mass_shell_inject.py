@@ -67,12 +67,19 @@ def inject_shell():
         if 'name="google" content="notranslate"' not in content:
             content = content.replace("</head>", '    <meta name="google" content="notranslate">\n</head>')
         
-        # Ensure script is there
-        if SHELL_JS not in content:
-            if "</body>" in content:
-                content = content.replace("</body>", f"    {SHELL_JS}\n</body>")
-            else:
-                content += f"\n{SHELL_JS}"
+        # Ensure scripts are there
+        scripts = [
+            '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>',
+            '<script src="/static/js/enterprise_ui.js"></script>',
+            '<script src="/static/js/enterprise_shell.js"></script>'
+        ]
+        
+        for script in scripts:
+            if script not in content:
+                if "</body>" in content:
+                    content = content.replace("</body>", f"    {script}\n</body>")
+                else:
+                    content += f"\n{script}"
             
         # Ensure enterprise_shell.css is there
         if "enterprise_shell.css" not in content:

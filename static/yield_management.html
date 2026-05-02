@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Management | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Yield Management & Dynamic Pricing (AI)</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Motor de Precios Dinámicos según Demanda y Clima</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Auto-Pricing ACTIVADO
+                </span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- AI Triggers -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Triggers Activos (Madrid Centro)</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                            <span class="text-sm font-bold text-slate-700 flex items-center gap-2"><span class="material-symbols-outlined text-amber-500">rainy</span> Clima: Lluvia Fuerte</span>
+                            <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">+15% Delivery Surge</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                            <span class="text-sm font-bold text-slate-700 flex items-center gap-2"><span class="material-symbols-outlined text-rose-500">sports_soccer</span> Evento: Final Champions</span>
+                            <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">+20% Combos Grupo</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-slate-700 flex items-center gap-2"><span class="material-symbols-outlined text-indigo-500">inventory_2</span> Exceso Stock: Croquetas</span>
+                            <span class="text-xs font-black text-rose-600 bg-rose-50 px-2 py-1 rounded">-10% Flash Promo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competitor Tracker -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Competitor Scraping (Radio 2km)</h3>
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="pb-2">Competidor</th>
+                                <th class="pb-2">Precio Pollo Asado</th>
+                                <th class="pb-2">Nuestra Posición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-50">
+                                <td class="py-3 font-bold">Asador El Jefe</td>
+                                <td class="py-3 font-mono">€14.50</td>
+                                <td class="py-3 text-emerald-600 font-bold">Más Competitivo</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-bold">Pollos Hermanos</td>
+                                <td class="py-3 font-mono">€11.90</td>
+                                <td class="py-3 text-rose-600 font-bold">Más Caro (+€1.00)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Yield Management');
+        });
+    </script>
+</body>
+</html>

@@ -8,10 +8,20 @@ async def run():
     Sync Daemon (Background Worker)
     Mantiene sincronizados los estados entre Render, Base de datos local y APIs externas.
     """
-    logger.info("Sync Daemon [V8.0] - Inicializado correctamente.")
+    from backend.services.ai_bi_agent import BusinessAIAgent
+    from backend.database import SessionLocal
+    
+    agent = BusinessAIAgent()
+    
     while True:
         try:
-            # Simulación de ciclo de sincronización
+            # Ejecutar análisis estratégico
+            db = SessionLocal()
+            try:
+                await agent.analyze_and_notify(db)
+            finally:
+                db.close()
+                
             await asyncio.sleep(3600)  # Ejecutar cada hora
         except asyncio.CancelledError:
             logger.info("Sync Daemon detenido.")

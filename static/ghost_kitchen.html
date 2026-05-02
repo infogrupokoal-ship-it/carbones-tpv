@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Kitchen | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Virtual Brands & Ghost Kitchen</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión Multi-Marca desde una sola cocina operativa</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    Lanzar Nueva Marca Virtual
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Marca 1 -->
+                <div class="glass-panel p-6 border-t-4 border-t-amber-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-black text-slate-900 tracking-tight">Carbones y Pollos (Core)</h3>
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">ACTIVA</span>
+                    </div>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Volumen Hoy:</span><span class="font-bold">142 pedidos</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Ticket Medio:</span><span class="font-bold">€24.50</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Plataformas:</span><span class="font-bold">Uber, Glovo, JustEat</span></div>
+                    </div>
+                    <button class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg transition-colors">Ver Menú y Precios</button>
+                </div>
+
+                <!-- Marca 2 -->
+                <div class="glass-panel p-6 border-t-4 border-t-rose-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-black text-slate-900 tracking-tight">Wings Ninja (Virtual)</h3>
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">ACTIVA</span>
+                    </div>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Volumen Hoy:</span><span class="font-bold">38 pedidos</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Ticket Medio:</span><span class="font-bold">€18.90</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Plataformas:</span><span class="font-bold">Glovo Exclusive</span></div>
+                    </div>
+                    <button class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg transition-colors">Ver Menú y Precios</button>
+                </div>
+
+                <!-- Marca 3 -->
+                <div class="glass-panel p-6 border-t-4 border-t-indigo-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-black text-slate-900 tracking-tight">Healthy Bowl (Virtual)</h3>
+                        <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded-lg">EN PRUEBAS</span>
+                    </div>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Volumen Hoy:</span><span class="font-bold">12 pedidos</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Ticket Medio:</span><span class="font-bold">€15.20</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-500">Plataformas:</span><span class="font-bold">Uber Eats</span></div>
+                    </div>
+                    <button class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg transition-colors">Ver Menú y Precios</button>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-6">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Afinidad de Ingredientes (Cross-Utilization)</h3>
+                <p class="text-sm text-slate-600 mb-4">La marca "Wings Ninja" utiliza el 85% de los mismos ingredientes base (pollo, aceite, salsas) que la marca Core, minimizando el riesgo de inventario y desperdicio.</p>
+                <div class="h-2 bg-slate-100 rounded-full w-full">
+                    <div class="h-2 bg-emerald-500 rounded-full" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Ghost Kitchen');
+        });
+    </script>
+</body>
+</html>

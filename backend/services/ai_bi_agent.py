@@ -33,3 +33,28 @@ class BusinessAIAgent:
             return response.text
         except Exception as e:
             return f"Error en análisis IA: {str(e)}"
+
+    async def analyze_and_notify(self, db: Session):
+        """
+        Analiza la situación y genera una notificación estratégica si es necesario.
+        """
+        brief = await self.get_strategic_briefing(db)
+        
+        # Inyectar notificación en el sistema
+        from backend.routers.notifications import create_notification, Notification
+        from datetime import datetime
+        import uuid
+        
+        notif = Notification(
+            id=str(uuid.uuid4()),
+            title="Sugerencia IA Estratégica",
+            message=brief[:200] + "...",
+            type="info",
+            timestamp=datetime.now(),
+            module="AI Analyst"
+        )
+        # We call the function directly (demo purposes)
+        from backend.routers.notifications import NOTIFICATIONS_STORE
+        NOTIFICATIONS_STORE.insert(0, notif.dict())
+        
+        return brief

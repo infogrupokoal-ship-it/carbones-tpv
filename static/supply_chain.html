@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Traceability | TPV Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/industrial_light.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-panel { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03); border-radius: 1.5rem; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-slate-50">
+
+    <aside id="enterprise-sidebar" class="w-[280px] h-full bg-white border-r border-slate-100 flex-shrink-0 z-50 hidden md:block transition-all duration-300"></aside>
+
+    <main class="flex-1 h-full flex flex-col relative overflow-hidden">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 flex-shrink-0 z-40">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900">Supply Chain & Traceability</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Trazabilidad de Lotes y Cadena de Frío (Blockchain Ready)</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-sm">search</span>
+                    <input type="text" placeholder="Escanear o buscar Lote..." class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-64">
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="glass-panel p-6">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-6">Trazabilidad de Lote: <span class="text-indigo-600 font-mono">LOT-4992-P</span></h3>
+                
+                <div class="relative border-l-2 border-indigo-100 ml-4 space-y-8 pb-4">
+                    <!-- Step 1 -->
+                    <div class="relative pl-8">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></div>
+                        <h4 class="text-sm font-bold text-slate-900">Granja Origen (Pollo Campero)</h4>
+                        <p class="text-xs text-slate-500 mt-1">Granja El Robedal, Segovia. Certificado Bienestar Animal #BA-992.</p>
+                        <p class="text-[10px] text-slate-400 font-mono mt-2">12/05/2026 06:00 AM</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative pl-8">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></div>
+                        <h4 class="text-sm font-bold text-slate-900">Logística Frío (Transporte)</h4>
+                        <p class="text-xs text-slate-500 mt-1">Transportes Frigoríficos S.A. Temp registrada: <span class="font-bold text-emerald-600">3.2°C</span> (Sin rotura de cadena).</p>
+                        <p class="text-[10px] text-slate-400 font-mono mt-2">13/05/2026 04:30 AM</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative pl-8">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-indigo-500 ring-4 ring-indigo-50 animate-pulse"></div>
+                        <h4 class="text-sm font-bold text-slate-900">Almacén Central / Cocina</h4>
+                        <p class="text-xs text-slate-500 mt-1">Recibido por: Carlos R. Escaneado y asignado a lote de maceración nocturna.</p>
+                        <p class="text-[10px] text-slate-400 font-mono mt-2">13/05/2026 08:15 AM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/enterprise_shell.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            EnterpriseShell.init('Traceability');
+        });
+    </script>
+</body>
+</html>

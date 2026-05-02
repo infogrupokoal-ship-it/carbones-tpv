@@ -63,7 +63,15 @@
             </div>
         </header>
 
+        <div id="telemetry-grid" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-20"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+            <div id="sales-chart-container" class="lg:col-span-2"></div>
+            <div id="active-tasks-container"></div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <!-- (Cards follow) -->
             
             <!-- CAJA MAESTRA -->
             <a href="/static/caja.html" class="portal-card p-10 rounded-[3rem]">
@@ -151,9 +159,70 @@
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
         function logout() { localStorage.clear(); location.href = '/static/login.html'; }
+        
         window.onload = () => {
             if(!localStorage.getItem('token')) location.href = '/static/login.html';
+            
+            // Render Telemetry
+            EnterpriseUI.renderKPICard('telemetry-grid', {
+                title: 'Ventas Hoy',
+                value: '1,452',
+                unit: '€',
+                trend: 'up',
+                trendValue: '12%',
+                icon: 'fa-euro-sign'
+            });
+            EnterpriseUI.renderKPICard('telemetry-grid', {
+                title: 'Pedidos Activos',
+                value: '24',
+                unit: 'Uds',
+                trend: 'up',
+                trendValue: '4',
+                icon: 'fa-fire-burner'
+            });
+            EnterpriseUI.renderKPICard('telemetry-grid', {
+                title: 'Eficiencia Flota',
+                value: '98',
+                unit: '%',
+                trend: 'up',
+                trendValue: '2%',
+                icon: 'fa-route'
+            });
+            EnterpriseUI.renderKPICard('telemetry-grid', {
+                title: 'Margen Bruto',
+                value: '64',
+                unit: '%',
+                trend: 'down',
+                trendValue: '1%',
+                icon: 'fa-chart-pie'
+            });
+
+            // Render Sales Chart
+            EnterpriseUI.renderChart('sales-chart-container', {
+                title: 'Rendimiento Semanal de Ventas',
+                type: 'line',
+                labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+                datasets: [{
+                    label: 'Ventas (€)',
+                    data: [1200, 1900, 1500, 2100, 3200, 4500, 4100],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.05)'
+                }]
+            });
+
+            // Render Task List
+            EnterpriseUI.renderTable('active-tasks-container', {
+                title: 'Tareas Críticas',
+                headers: ['Tarea', 'Prioridad'],
+                rows: [
+                    ['Revisión Stock Carbón', '<span class="text-rose-500">ALTA</span>'],
+                    ['Mantenimiento Horno 2', '<span class="text-amber-500">MEDIA</span>'],
+                    ['Liquidación Riders', '<span class="text-emerald-500">BAJA</span>']
+                ]
+            });
         };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/enterprise_ui.js"></script>
 </body>
 </html>
