@@ -30,3 +30,6 @@
 - [x] Consolidación visual de todos los portales administrativos y comerciales a Enterprise Light Theme.
 - [x] Corrección de dependencias y validación completa del startup de uvicorn.
 - [x] Despliegue en Render verificado.
+
+- [x] Integrar parseo NLP en el chat Carbonito del Kiosko B2C.
+- [x] Corregir enlaces del Enterprise Shell hacia las vistas KDS y Fleet.

@@ -103,3 +103,8 @@
 - **Infrastructure Fix**: Resolved a critical ModuleNotFoundError: qrcode on Render by synchronizing requirements.txt with new dependencies (qrcode, pillow).
 - **UI Validation**: Generated and verified high-fidelity mockups for Kiosko Success Experience and Administrative Portals.
 - **Status**: Production-ready. Synchronized with live environment.
+
+## [2026-05-02] - Integración NLP Kiosko y Enlaces Shell
+- **IA Kiosko**: Integrado motor NLP (/api/ai/nlp-parse) en el asistente Carbonito del Kiosko para conversión automatizada de texto a pedidos en carrito.
+- **Enterprise Shell**: Actualizados enlaces del menú lateral hacia los nuevos módulos de KDS Cocina y Logística (Flota).
+- **Deploy**: Pusheado código a GitHub para auto-deploy en Render.
