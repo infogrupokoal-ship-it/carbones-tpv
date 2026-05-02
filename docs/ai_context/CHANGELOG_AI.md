@@ -73,3 +73,17 @@
   - **Auditor铆a:** La infraestructura general no requiere intervenci贸n local para el backend de Carbones TPV. Pendiente la liberaci贸n manual del cortafuegos de Kamatera para futuras interacciones de mantenimiento de contenedores Docker (WAHA).
 
 - **Estado**: Sincronizaci贸n de contexto completada en la nube; bloqueos de hardware identificados para resoluci贸n administrativa.
+
+## 2026-05-02 03:00:00
+- **Agente:** Antigravity
+- **Cambios:**
+  - **Industrializaci髇 de Interfaz:** Migraci髇 completa del Portal y Enterprise Shell a Light Theme (Tema Claro) para mejorar visibilidad en el TPV.
+  - **UX Mejorada:** Se implementaron submen鷖 minimalistas (acordeones) en la barra lateral para optimizar el espacio en pantallas t醕tiles.
+  - **Asistente Carbonito:** Componente actualizado para coincidir con la paleta de colores claros.
+- **Estado**: Cambios visuales validados y subidos a producci髇 mediante GitHub.
+
+## [2026-05-02] - Enterprise Light Theme Migration & TPV Accordion Navigation
+- **UI/UX**: Refactored the entire Enterprise Suite (Dashboard, Inventario, RRHH, Liquidaciones, Caja, KDS) to an 'Industrial Light Mode' prioritizing high contrast and legibility for retail environments.
+- **Navigation**: Migrated flat sidebar to an accordion-style minimalist menu for optimal touchscreen interaction.
+- **Responsiveness**: Adjusted sidebar breakpoints (from lg to md) and width to ensure the menu is natively visible on TPV screens (like iPads and 1024x768 screens).
+- **Deployment**: Pushed updates to production repository to trigger Render CI/CD.
