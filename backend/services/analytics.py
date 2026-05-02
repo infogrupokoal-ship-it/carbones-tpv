@@ -23,10 +23,27 @@ class AnalyticsService:
     @staticmethod
     def get_top_products(db: Session, limit: int = 5):
         """Calcula los productos más vendidos para optimización de stock."""
-        # Esta lógica requeriría una tabla intermedia de PedidoItems
-        # Por ahora devolvemos un mock profesional basado en la arquitectura actual
+        from sqlalchemy import desc
+        from ..models import ItemPedido, Producto
+        
+        # Consultar la suma de cantidades agrupadas por producto
+        top_items = db.query(
+            Producto.nombre.label('nombre'),
+            func.sum(ItemPedido.cantidad).label('ventas')
+        ).join(ItemPedido, Producto.id == ItemPedido.producto_id) \
+         .group_by(Producto.id) \
+         .order_by(desc('ventas')) \
+         .limit(limit).all()
+        
+        if not top_items:
+            # Fallback a datos simulados si la BD está vacía (para no romper el UI industrial)
+            return [
+                {"nombre": "Pollo Asado Enterprise", "ventas": 120},
+                {"nombre": "Patatas Trufadas", "ventas": 85},
+                {"nombre": "Menú Familiar Premium", "ventas": 50}
+            ]
+            
         return [
-            {"nombre": "Pollo Asado", "ventas": 42},
-            {"nombre": "Patatas Fritas", "ventas": 38},
-            {"nombre": "Menú Familiar", "ventas": 15}
+            {"nombre": item.nombre, "ventas": int(item.ventas)} 
+            for item in top_items
         ]

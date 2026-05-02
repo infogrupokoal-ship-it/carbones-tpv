@@ -173,10 +173,39 @@ async def get_dashboard_kpis(db: Session = Depends(get_db)):
             avg_rating=round(float(avg_rating), 1)
         )
         
-        # Charts (Mock industrial para visualización)
+        # Real Data for Charts
+        # 1. Ventas Semanales (Últimos 7 días)
+        fecha_inicio = datetime.date.today() - datetime.timedelta(days=6)
+        ventas_diarias = db.query(
+            func.date(Pedido.fecha).label('dia'),
+            func.sum(Pedido.total).label('total')
+        ).filter(Pedido.fecha >= fecha_inicio).group_by('dia').order_by('dia').all()
+        
+        # Mapear ventas diarias, rellenando días sin ventas con 0
+        ventas_dict = {str(v.dia): float(v.total) for v in ventas_diarias}
+        ventas_semanales = []
+        dias_semana = []
+        for i in range(7):
+            dia_actual = fecha_inicio + datetime.timedelta(days=i)
+            str_dia = str(dia_actual)
+            ventas_semanales.append(ventas_dict.get(str_dia, 0.0))
+            dias_semana.append(dia_actual.strftime("%a"))
+            
+        # 2. Categorías Top
+        from sqlalchemy import desc
+        top_categorias = db.query(
+            Categoria.nombre,
+            func.count(ItemPedido.id).label('cantidad')
+        ).select_from(ItemPedido).join(Producto, ItemPedido.producto_id == Producto.id)\
+         .join(Categoria, Producto.categoria_id == Categoria.id)\
+         .group_by(Categoria.id).order_by(desc('cantidad')).limit(4).all()
+        
+        categorias_nombres = [c.nombre for c in top_categorias] if top_categorias else ["Pollos", "Pizzas", "Bebidas", "Complementos"]
+        
         charts = {
-            "ventas_semanales": [450, 520, 380, 610, 890, 1200, 950],
-            "categorias_top": ["Pollos", "Pizzas", "Bebidas", "Complementos"]
+            "ventas_semanales": ventas_semanales if sum(ventas_semanales) > 0 else [0]*7,
+            "dias_semana": dias_semana,
+            "categorias_top": categorias_nombres
         }
         
         # Reviews recientes

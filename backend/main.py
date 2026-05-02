@@ -199,6 +199,7 @@ app.include_router(payments.router, prefix="/api", tags=["Pagos"])
 app.include_router(ai_assistant.router, prefix="/api", tags=["Inteligencia Artificial"])
 app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
 app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
+app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
 app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
 app.include_router(ws.router, tags=["Real-time"])
 
