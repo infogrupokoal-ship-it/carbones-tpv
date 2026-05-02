@@ -170,18 +170,78 @@
     </div>
 
     <script>
+        window.onload = async () => {
+            await initKiosko();
+        };
+
+        async function initKiosko() {
+            try {
+                const res = await fetch('/api/commercial/products');
+                const products = await res.json();
+                
+                renderCategories(products);
+                renderProducts(products);
+                
+                // Hide loading overlay
+                setTimeout(() => {
+                    const overlay = document.getElementById('loading-overlay');
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => overlay.classList.add('hidden'), 1000);
+                }, 1500);
+            } catch(e) {
+                console.error("Kiosko Init Error:", e);
+                // Fallback rendering
+                document.getElementById('loading-overlay').innerHTML = `
+                    <div class="text-center p-12">
+                        <p class="text-white text-xl font-black mb-4">Error de Conexión Neural</p>
+                        <button onclick="location.reload()" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl">Reintentar Sincronización</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCategories(products) {
+            const container = document.getElementById('categories-container');
+            const categories = [...new Set(products.map(p => p.categoria))];
+            
+            container.innerHTML = `
+                <div class="category-pill active p-6 rounded-3xl cursor-pointer flex items-center justify-between group" onclick="filterCategory('all')">
+                    <span class="text-xs font-black uppercase tracking-tight">Todo el Menú</span>
+                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🍽️</span>
+                </div>
+            ` + categories.map(cat => `
+                <div class="category-pill p-6 glass-card rounded-3xl cursor-pointer flex items-center justify-between group" onclick="filterCategory('${cat}')">
+                    <span class="text-xs font-black uppercase tracking-tight">${cat}</span>
+                    <span class="text-lg opacity-40 group-hover:opacity-100 transition-opacity">🔥</span>
+                </div>
+            `).join('');
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card glass-card rounded-[3rem] p-8 flex flex-col group cursor-pointer overflow-hidden relative">
+                    <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-all"></div>
+                    <div class="w-full aspect-square bg-slate-100 rounded-[2.5rem] mb-8 overflow-hidden relative">
+                        <img src="${p.imagen}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" alt="${p.nombre}">
+                    </div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-sm font-black uppercase tracking-tight text-slate-900">${p.nombre}</h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">${p.descripcion}</p>
+                        </div>
+                        <span class="text-lg font-black text-indigo-600">${p.precio}€</span>
+                    </div>
+                    <button class="mt-auto w-full py-5 bg-white border border-slate-100 rounded-3xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm">
+                        Añadir al Pedido
+                    </button>
+                </div>
+            `).join('');
+        }
+
         function toggleAssistant() {
             const panel = document.getElementById('assistant-panel');
             panel.classList.toggle('hidden');
-        }
-
-        // Simulación de carga de productos reales
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/commercial/products');
-                const data = await res.json();
-                // Aquí se renderizarían los productos dinámicamente
-            } catch(e) { console.warn('Products fetch failed'); }
         }
 
         // PWA logic
