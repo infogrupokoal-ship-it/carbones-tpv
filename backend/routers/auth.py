@@ -87,29 +87,38 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
     Punto de entrada seguro: Valida las credenciales del operador (PIN) 
     y emite un token de acceso industrial cifrado.
     """
-    user = db.query(Usuario).filter(Usuario.username == data.username).first()
-    
-    # En el contexto TPV, el PIN es la credencial principal del empleado
-    if not user or not verify_password(data.pin, user.pin_hash):
-        logger.warning(f"Fallo de autenticación: Usuario '{data.username}'")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o código PIN incorrectos.",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        user = db.query(Usuario).filter(Usuario.username == data.username).first()
+        
+        # En el contexto TPV, el PIN es la credencial principal del empleado
+        if not user or not verify_password(data.pin, user.pin_hash):
+            logger.warning(f"Fallo de autenticación: Usuario '{data.username}'")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario o código PIN incorrectos.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Generar token con claims de rol para control de acceso en frontend
+        access_token = create_access_token(
+            data={"sub": user.username, "role": user.rol}
         )
-    
-    # Generar token con claims de rol para control de acceso en frontend
-    access_token = create_access_token(
-        data={"sub": user.username, "role": user.rol}
-    )
-    
-    logger.info(f"Sesión Iniciada: {user.username} (Rol: {user.rol})")
-    
-    return TokenResponse(
-        access_token=access_token,
-        role=user.rol,
-        username=user.username
-    )
+        
+        logger.info(f"Sesión Iniciada: {user.username} (Rol: {user.rol})")
+        
+        return TokenResponse(
+            access_token=access_token,
+            role=user.rol,
+            username=user.username
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CRITICAL ERROR [Auth Login]: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno en el núcleo de autenticación: {str(e)}"
+        )
 
 @router.get("/me", response_model=UserProfile)
 async def read_users_me(current_user: Usuario = Depends(get_current_user)):

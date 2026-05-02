@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 import psutil
 import random
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -204,45 +204,50 @@ async def health_check() -> Dict[str, Any]:
         "ai_engine": __import__('backend.utils.ai_model_manager', fromlist=['ai_manager']).ai_manager.get_status()
     }
 
-# --- Registro de Routers Modulares ---
-app.include_router(auth.router, prefix="/api", tags=["Seguridad"])
-app.include_router(orders.router, prefix="/api", tags=["Operaciones"])
-app.include_router(inventory.router, prefix="/api", tags=["Logística"])
-app.include_router(inventory.router_legacy, prefix="/api", tags=["Logística Legacy"])
-app.include_router(inventory.router_productos, prefix="/api", tags=["Catálogo"])
-app.include_router(inventory.router_root, prefix="/api", tags=["Industrial Core API"])
-app.include_router(admin.router, prefix="/api", tags=["Gestión"])
-app.include_router(rrhh.router, prefix="/api", tags=["Personal"])
-app.include_router(hardware.router, prefix="/api", tags=["Hardware"])
-app.include_router(telemetry.router, prefix="/api/system", tags=["Mantenimiento"])
-app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
-app.include_router(admin_audit.router, prefix="/api", tags=["Auditoría y Seguridad"])
-app.include_router(customers.router, prefix="/api", tags=["Clientes y B2C"])
-app.include_router(payments.router, prefix="/api", tags=["Pagos"])
-app.include_router(feedback.router, prefix="/api", tags=["Feedback & NPS"])
-app.include_router(escandallos.router, prefix="/api", tags=["Escandallos"])
-app.include_router(fleet.router, prefix="/api", tags=["Fleet"])
-app.include_router(notifications.router, prefix="/api", tags=["Notificaciones"])
-app.include_router(loyalty.router, prefix="/api", tags=["Loyalty"])
-app.include_router(franchise.router, prefix="/api", tags=["Franchise"])
-app.include_router(esg.router, prefix="/api", tags=["ESG"])
-app.include_router(pricing.router, prefix="/api", tags=["Pricing"])
-app.include_router(iot.router, prefix="/api", tags=["IoT & Telemetry"])
-app.include_router(erp.router, prefix="/api", tags=["ERP"])
-app.include_router(crisis.router, prefix="/api", tags=["Crisis"])
-app.include_router(menu_engineering.router, prefix="/api", tags=["Menu Engineering"])
-app.include_router(procurement.router, prefix="/api", tags=["Procurement"])
-app.include_router(marketing.router, prefix="/api", tags=["Marketing"])
-app.include_router(reservas.router, prefix="/api", tags=["Reservas"])
-app.include_router(delivery_aggregators.router, prefix="/api", tags=["Delivery Aggregators"])
-app.include_router(mantenimiento.router, prefix="/api", tags=["Mantenimiento"])
-app.include_router(stats.router, prefix="/api", tags=["BI & Analytics"])
+# --- Orquestación de Routers (API Enterprise) ---
+api_router = APIRouter(prefix="/api")
+
+api_router.include_router(auth.router, tags=["Seguridad"])
+api_router.include_router(orders.router, tags=["Operaciones"])
+api_router.include_router(inventory.router, tags=["Logística"])
+api_router.include_router(inventory.router_legacy, tags=["Logística Legacy"])
+api_router.include_router(inventory.router_productos, tags=["Catálogo"])
+api_router.include_router(inventory.router_root, tags=["Industrial Core API"])
+api_router.include_router(admin.router, tags=["Gestión"])
+api_router.include_router(rrhh.router, tags=["Personal"])
+api_router.include_router(hardware.router, tags=["Hardware"])
+api_router.include_router(telemetry.router, prefix="/system", tags=["Mantenimiento"])
+api_router.include_router(webhooks.router, tags=["Webhooks"])
+api_router.include_router(admin_audit.router, tags=["Auditoría y Seguridad"])
+api_router.include_router(customers.router, tags=["Clientes y B2C"])
+api_router.include_router(payments.router, tags=["Pagos"])
+api_router.include_router(feedback.router, tags=["Feedback & NPS"])
+api_router.include_router(escandallos.router, tags=["Escandallos"])
+api_router.include_router(fleet.router, tags=["Fleet"])
+api_router.include_router(notifications.router, tags=["Notificaciones"])
+api_router.include_router(loyalty.router, tags=["Loyalty"])
+api_router.include_router(franchise.router, tags=["Franchise"])
+api_router.include_router(esg.router, tags=["ESG"])
+api_router.include_router(pricing.router, tags=["Pricing"])
+api_router.include_router(iot.router, tags=["IoT & Telemetry"])
+api_router.include_router(erp.router, tags=["ERP"])
+api_router.include_router(crisis.router, tags=["Crisis"])
+api_router.include_router(menu_engineering.router, tags=["Menu Engineering"])
+api_router.include_router(procurement.router, tags=["Procurement"])
+api_router.include_router(marketing.router, tags=["Marketing"])
+api_router.include_router(reservas.router, tags=["Reservas"])
+api_router.include_router(delivery_aggregators.router, tags=["Delivery Aggregators"])
+api_router.include_router(mantenimiento.router, tags=["Mantenimiento"])
+api_router.include_router(stats.router, tags=["BI & Analytics"])
+api_router.include_router(aoi.router, tags=["Inteligencia Autónoma"])
+api_router.include_router(enterprise_api.router, tags=["Enterprise Singularity"])
+api_router.include_router(ai_assistant.router, tags=["Asistente AI"])
+api_router.include_router(commercial.router, tags=["Gestión Comercial"])
+api_router.include_router(logistics.router, tags=["Logística y Riders"])
+
+# Registro final en la aplicación
+app.include_router(api_router)
 app.include_router(ws.router, tags=["Real-time"])
-app.include_router(aoi.router, prefix="/api", tags=["Inteligencia Autónoma"])
-app.include_router(enterprise_api.router, prefix="/api", tags=["Enterprise Singularity"])
-app.include_router(ai_assistant.router, prefix="/api", tags=["Asistente AI"])
-app.include_router(commercial.router, prefix="/api", tags=["Gestión Comercial"])
-app.include_router(logistics.router, prefix="/api", tags=["Logística y Riders"])
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_root():
