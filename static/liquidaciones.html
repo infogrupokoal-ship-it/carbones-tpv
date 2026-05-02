@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="/static/css/enterprise_shell.css">
     <style>
         :root {
-            --primary: #8b5cf6; /* violet-500 */
-            --bg-base: #f8fafc; /* slate-950 */
+            --primary: #6366f1; /* Indigo */
+            --bg-base: #f8fafc;
             --glass-bg: rgba(255, 255, 255, 0.8);
             --glass-border: rgba(0, 0, 0, 0.05);
         }
@@ -21,7 +21,7 @@
             background-color: var(--bg-base); 
             margin: 0;
             overflow-x: hidden;
-            color: white;
+            color: #1e293b;
         }
         
         .bg-grid {
@@ -29,8 +29,8 @@
             inset: 0;
             background-size: 50px 50px;
             background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                linear-gradient(to right, rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
             z-index: -2;
             pointer-events: none;
         }
@@ -41,7 +41,7 @@
             left: -10%;
             width: 800px;
             height: 800px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
             filter: blur(80px);
             z-index: -1;
             pointer-events: none;
@@ -52,7 +52,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -97,18 +97,18 @@
         <main class="flex-1 flex flex-col p-8 lg:p-10 overflow-y-auto relative z-10 custom-scrollbar">
             
             <!-- Header Section -->
-            <header class="flex justify-between items-end mb-10 border-b border-slate-200 pb-6">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-slate-100 pb-8">
                 <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(139,92,246,0.3)]">💰</span>
-                        <h1 class="text-4xl font-black text-slate-900 tracking-tight uppercase">Liquidaciones <span class="text-violet-500">Operativas</span></h1>
-                    </div>
-                    <p class="text-xs text-slate-500 font-bold tracking-[0.2em] uppercase">Módulo de Nóminas y Cierre Financiero</p>
+                    <h1 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase">Cierre <span class="text-indigo-600">Financiero</span></h1>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Fiscal Intelligence • Cashflow Control v3.0
+                    </p>
                 </div>
                 <div class="flex gap-4">
-                    <button class="bg-white hover:bg-slate-700 text-slate-900 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-colors border border-slate-100 flex items-center gap-2" onclick="window.print()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Exportar PDF
+                    <button class="bg-white hover:bg-slate-50 text-slate-900 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border border-slate-200 flex items-center gap-2 shadow-sm" onclick="window.print()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Exportar Reporte
                     </button>
                 </div>
             </header>
