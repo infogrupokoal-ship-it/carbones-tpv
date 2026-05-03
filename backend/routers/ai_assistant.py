@@ -13,7 +13,8 @@ from ..database import get_db
 from ..models import Producto, LogOperativo
 from ..config import settings
 from ..utils.logger import logger
-from ..utils.ai_model_manager import ai_manager
+from ..shared_ai.ai_router import global_router
+from ..shared_ai.ai_task_lock import check_is_degraded, get_remaining_cooldown
 
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 
@@ -100,12 +101,15 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
             f"Contexto del Sistema (Módulo): {req.context.get('module', 'n/a')}"
         )
 
-        reply_text, model_used = await ai_manager.generate_content_async(full_prompt)
+        reply_text, model_used = await global_router.execute_task_async(full_prompt)
 
         if reply_text is None:
             reply_text = "Lo siento, estoy avivando las brasas ahora mismo. ¿Puedo ayudarte con otra cosa? 🔥"
-
-        final_model_info = ai_manager.current_model_info
+            
+        final_model_info = {
+            "id": model_used,
+            "tier": "fallback" if "openrouter" in model_used or model_used in ["exhausted", "degraded"] else "primary"
+        }
         
         # --- NUEVO: Interceptación de AgentMessage (Industrialización) ---
         if "[[AGENT_REQUEST:" in reply_text:
@@ -154,9 +158,13 @@ async def get_ai_status():
     Devuelve el estado completo del gestor de modelos IA.
     Incluye modelo activo, tiempo para reset al primario, y jerarquía completa.
     """
+    is_degraded = check_is_degraded()
+    rem_cooldown = get_remaining_cooldown() if is_degraded else 0
     return {
-        "status": "operational",
-        **ai_manager.get_status()
+        "status": "degraded" if is_degraded else "operational",
+        "current_model": "openrouter/llama-3-8b-free" if is_degraded else "gemini-2.5-pro",
+        "is_fallback": is_degraded,
+        "cooldown_remaining": rem_cooldown
     }
 
 class NLPRequest(BaseModel):
@@ -188,7 +196,7 @@ async def parse_order_nlp(req: NLPRequest, db: Session = Depends(get_db)):
         
         full_prompt = f"{system_prompt}\nTexto: {req.text}"
         
-        reply_text, _ = await ai_manager.generate_content_async(full_prompt)
+        reply_text, _ = await global_router.execute_task_async(full_prompt)
         
         if not reply_text:
             raise ValueError("Respuesta vacía del modelo IA")

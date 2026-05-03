@@ -26,8 +26,20 @@ def migrate_schema():
     try:
         inspector = inspect(engine)
         
+        # 0. Fix legacy schemas before creating/updating
+        if 'audit_logs' in inspector.get_table_names():
+            columns = [col['name'] for col in inspector.get_columns('audit_logs')]
+            if 'accion' in columns:
+                logger.warning("DETECTADO ESQUEMA LEGACY EN audit_logs. RECREANDO TABLA...")
+                with engine.connect() as conn:
+                    conn.execute(text("DROP TABLE audit_logs"))
+                    conn.commit()
+        
         # 1. Crear tablas si no existen
         Base.metadata.create_all(bind=engine)
+        
+        # Actualizar el inspector después de recrear
+        inspector = inspect(engine)
         
         # 2. Verificar columnas faltantes en cada tabla
         for table_name, table_obj in Base.metadata.tables.items():

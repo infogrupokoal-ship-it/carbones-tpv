@@ -59,7 +59,7 @@ def get_business_summary(db: Session) -> str:
     - Ingresos Brutos: {ventas_hoy:.2f}€
     - Volumen de Pedidos: {num_pedidos}
     - Alertas de Suministro: {nombres_bajo_minimo}
-    - Modelo IA Activo: {ai_manager.current_model_info['name']}
+    - Modelo IA Activo: AIRouter (Gemini/Llama)
         """
     except Exception as e:
         logger.error(f"[AI Agent] Error obteniendo métricas: {e}")
