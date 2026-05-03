@@ -26,14 +26,14 @@ from ..config import settings
 # ──────────────────────────────────────────────────────────────────────────────
 MODEL_HIERARCHY = [
     {
-        "id": "gemini-1.5-flash",
-        "name": "Gemini 1.5 Flash (Primario)",
+        "id": "gemini-2.5-flash",
+        "name": "Gemini 2.5 Flash (Primario)",
         "tier": "SPEED",
         "rpm_limit": 15,          # Tier gratuito estándar
     },
     {
-        "id": "gemini-1.5-pro",
-        "name": "Gemini 1.5 Pro (Secundario)",
+        "id": "gemini-2.5-pro",
+        "name": "Gemini 2.5 Pro (Secundario)",
         "tier": "POWER",
         "rpm_limit": 2,
     },
