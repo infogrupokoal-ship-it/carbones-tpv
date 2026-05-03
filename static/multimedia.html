@@ -1,0 +1,253 @@
+<div id="module-container" class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">Multimedia Explorer</h2>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-60">Industrial Document Vault v2.0</p>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="document.getElementById('file-upload-input').click()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest hover:shadow-xl transition-all flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Subir Archivo
+            </button>
+            <input type="file" id="file-upload-input" class="hidden" multiple onchange="MultimediaUI.handleUpload(event)">
+        </div>
+    </div>
+
+    <!-- Stats / Filters -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="MultimediaUI.filterByCategory('all')">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl">📁</div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase">Total</p>
+                    <p id="stat-total" class="text-xl font-black text-slate-900">--</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="MultimediaUI.filterByCategory('facturas')">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-xl">📄</div>
+                <div>
+                    <p class="text-[10px] font-black text-amber-500 uppercase">Facturas</p>
+                    <p id="stat-facturas" class="text-xl font-black text-slate-900">--</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="MultimediaUI.filterByCategory('fotos')">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-xl">🖼️</div>
+                <div>
+                    <p class="text-[10px] font-black text-indigo-500 uppercase">Fotos</p>
+                    <p id="stat-fotos" class="text-xl font-black text-slate-900">--</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="MultimediaUI.filterByCategory('audios')">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-xl">🎙️</div>
+                <div>
+                    <p class="text-[10px] font-black text-emerald-500 uppercase">Audios</p>
+                    <p id="stat-audios" class="text-xl font-black text-slate-900">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Explorer -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
+        <div class="p-6 border-bottom border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div class="flex gap-4 items-center">
+                <span id="current-category-label" class="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white px-4 py-2 rounded-full border border-slate-100">Mostrando: Todos</span>
+                <div class="relative">
+                    <input type="text" id="file-search" placeholder="Buscar por nombre..." class="bg-white border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold focus:ring-2 focus:ring-indigo-600 transition-all w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-slate-300 text-xs"></i>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="MultimediaUI.refresh()" class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all shadow-sm">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                        <th class="px-8 py-6">Archivo</th>
+                        <th class="px-8 py-6">Categoría</th>
+                        <th class="px-8 py-6">Tamaño</th>
+                        <th class="px-8 py-6">Fecha</th>
+                        <th class="px-8 py-6 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="multimedia-list" class="divide-y divide-slate-50">
+                    <!-- Dynamic List -->
+                    <tr>
+                        <td colspan="5" class="px-8 py-20 text-center text-slate-400">
+                            <div class="animate-pulse flex flex-col items-center gap-4">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl"></i>
+                                <span class="text-xs font-bold uppercase tracking-widest">Sincronizando Vault...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const MultimediaUI = {
+            files: [],
+            currentCategory: 'all',
+
+            async init() {
+                await this.refresh();
+                this.bindSearch();
+            },
+
+            async refresh() {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    const url = this.currentCategory === 'all' 
+                        ? '/api/multimedia/list' 
+                        : `/api/multimedia/list?category=${this.currentCategory}`;
+                    
+                    const res = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (!res.ok) throw new Error("Error recuperando archivos");
+                    this.files = await res.json();
+                    this.render();
+                    this.updateStats();
+                } catch (e) {
+                    EnterpriseUI.notify(e.message, "error");
+                }
+            },
+
+            updateStats() {
+                document.getElementById('stat-total').innerText = this.files.length;
+                document.getElementById('stat-facturas').innerText = this.files.filter(f => f.category === 'facturas').length;
+                document.getElementById('stat-fotos').innerText = this.files.filter(f => f.category === 'fotos').length;
+                document.getElementById('stat-audios').innerText = this.files.filter(f => f.category === 'audios').length;
+            },
+
+            filterByCategory(cat) {
+                this.currentCategory = cat;
+                document.getElementById('current-category-label').innerText = `Mostrando: ${cat.toUpperCase()}`;
+                this.refresh();
+            },
+
+            bindSearch() {
+                document.getElementById('file-search')?.addEventListener('input', (e) => {
+                    const q = e.target.value.toLowerCase();
+                    const filtered = this.files.filter(f => f.original_name.toLowerCase().includes(q));
+                    this.render(filtered);
+                });
+            },
+
+            render(data = this.files) {
+                const list = document.getElementById('multimedia-list');
+                if (!list) return;
+
+                if (data.length === 0) {
+                    list.innerHTML = `<tr><td colspan="5" class="px-8 py-20 text-center text-slate-400">No hay archivos en esta categoría.</td></tr>`;
+                    return;
+                }
+
+                list.innerHTML = data.map(f => `
+                    <tr class="hover:bg-slate-50/50 transition-all group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-lg">
+                                    ${this.getIcon(f.mime_type)}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">${f.original_name}</p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase">${f.mime_type}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full border border-slate-100 bg-white text-slate-500">
+                                ${f.category}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-xs font-bold text-slate-500">
+                            ${(f.file_size / 1024 / 1024).toFixed(2)} MB
+                        </td>
+                        <td class="px-8 py-5 text-xs font-bold text-slate-500">
+                            ${new Date(f.created_at).toLocaleDateString()}
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="MultimediaUI.download('${f.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all">
+                                    <i class="fa-solid fa-download"></i>
+                                </button>
+                                <button onclick="MultimediaUI.view('${f.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            getIcon(mime) {
+                if (mime.includes('image')) return '🖼️';
+                if (mime.includes('pdf')) return '📄';
+                if (mime.includes('audio')) return '🎙️';
+                if (mime.includes('video')) return '🎥';
+                return '📁';
+            },
+
+            async handleUpload(e) {
+                const files = e.target.files;
+                if (!files.length) return;
+
+                EnterpriseUI.showLoading(`Procesando ${files.length} archivos...`);
+                const token = localStorage.getItem('auth_token');
+                
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    // Detect category automatically
+                    let cat = 'general';
+                    if (file.type.includes('image')) cat = 'fotos';
+                    if (file.type.includes('audio')) cat = 'audios';
+                    if (file.type.includes('pdf')) cat = 'facturas';
+
+                    try {
+                        const res = await fetch(`/api/multimedia/upload?category=${cat}`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` },
+                            body: formData
+                        });
+                        
+                        if (!res.ok) throw new Error(`Fallo al subir ${file.name}`);
+                        EnterpriseUI.notify(`Subido: ${file.name}`, "success");
+                    } catch (err) {
+                        EnterpriseUI.notify(err.message, "error");
+                    }
+                }
+                
+                EnterpriseUI.hideLoading();
+                this.refresh();
+            },
+
+            download(id) {
+                const token = localStorage.getItem('auth_token');
+                window.open(`/api/multimedia/download/${id}?access_token=${token}`, '_blank');
+            },
+
+            async view(id) {
+                // In a real system, we'd open a modal with a preview
+                const token = localStorage.getItem('auth_token');
+                window.open(`/api/multimedia/download/${id}?access_token=${token}`, '_blank');
+            }
+        };
+
+        MultimediaUI.init();
+    </script>
+</div>

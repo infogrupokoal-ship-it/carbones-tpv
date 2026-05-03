@@ -60,10 +60,7 @@
     </style>
 </head>
 <body class="min-h-screen text-slate-700">
-    <div class="bg-grid"></div>
-    <div id="toast-container" class="fixed bottom-10 right-10 z-[100] flex flex-col gap-4"></div>
-
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 custom-scrollbar space-y-8 md:space-y-12 animate-slide-up">
+    <div id="module-container" class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 custom-scrollbar space-y-8 md:space-y-12 animate-slide-up">
         <!-- Header Seccion con Saludo Dinamico -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
@@ -169,7 +166,7 @@
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Modal Cierre Z -->
     <div id="modal-cierre-z" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">

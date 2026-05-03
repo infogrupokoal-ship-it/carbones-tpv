@@ -51,72 +51,71 @@
 <body class="min-h-screen" data-active-module="Stock">
     <div class="bg-grid-industrial"></div>
 
-    <div class="flex h-screen overflow-hidden">
-        <div id="enterprise-sidebar"></div>
+        <div id="module-container" class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+                <div>
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.5em] mb-4">Logistics & Supply Unit</p>
+                    <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
+                        Gestión <span class="text-emerald-600">Stock</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="syncStock()" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-emerald-600 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                    <button onclick="openAddModal()" class="bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-emerald-100 hover:scale-105 active:scale-95 transition-all">
+                        Añadir Material
+                    </button>
+                </div>
+            </header>
 
-        <main class="flex-1 overflow-y-auto p-8 lg:p-20 custom-scrollbar">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
-            <div>
-                <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.5em] mb-4">Logistics & Supply Unit</p>
-                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase">
-                    Gestión <span class="text-emerald-600">Stock</span>
-                </h1>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="syncStock()" class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-slate-400 hover:text-emerald-600 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
-                <button onclick="openAddModal()" class="bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest px-10 py-5 rounded-2xl shadow-xl shadow-emerald-100 hover:scale-105 active:scale-95 transition-all">
-                    Añadir Material
-                </button>
-            </div>
-        </header>
+            <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
 
-        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Total SKUs</p>
+                    <h3 id="stat-total" class="text-4xl font-black text-slate-900 tracking-tighter">--</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Alertas Críticas</p>
+                    <h3 id="stat-alerts" class="text-4xl font-black text-red-500 tracking-tighter">--</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Valor Inventario</p>
+                    <h3 id="stat-value" class="text-4xl font-black text-slate-900 tracking-tighter">--€</h3>
+                </div>
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Mermas Hoy</p>
+                    <h3 id="stat-wastage" class="text-4xl font-black text-orange-500 tracking-tighter">--</h3>
+                </div>
+            </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div class="glass-panel p-10 rounded-[3rem]">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Total SKUs</p>
-                <h3 id="stat-total" class="text-4xl font-black text-slate-900 tracking-tighter">--</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem]">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Alertas Críticas</p>
-                <h3 id="stat-alerts" class="text-4xl font-black text-red-500 tracking-tighter">--</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem]">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Valor Inventario</p>
-                <h3 id="stat-value" class="text-4xl font-black text-slate-900 tracking-tighter">--€</h3>
-            </div>
-            <div class="glass-panel p-10 rounded-[3rem]">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Mermas Hoy</p>
-                <h3 id="stat-wastage" class="text-4xl font-black text-orange-500 tracking-tighter">--</h3>
-            </div>
-        </div>
-
-        <!-- Inventory Table -->
-        <div class="glass-panel rounded-[3rem] overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="table-header">
-                            <th class="px-10 py-6">Material / Recurso</th>
-                            <th class="px-10 py-6">Categoría</th>
-                            <th class="px-10 py-6 text-center">Stock Actual</th>
-                            <th class="px-10 py-6 text-center">Min. Reorden</th>
-                            <th class="px-10 py-6 text-right">Costo Unit.</th>
-                            <th class="px-10 py-6 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-body" class="divide-y divide-slate-50">
-                        <!-- Items -->
-                    </tbody>
-                </table>
+            <!-- Inventory Table -->
+            <div class="glass-panel rounded-[3rem] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="table-header">
+                                <th class="px-10 py-6">Material / Recurso</th>
+                                <th class="px-10 py-6">Categoría</th>
+                                <th class="px-10 py-6 text-center">Stock Actual</th>
+                                <th class="px-10 py-6 text-center">Min. Reorden</th>
+                                <th class="px-10 py-6 text-right">Costo Unit.</th>
+                                <th class="px-10 py-6 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body" class="divide-y divide-slate-50">
+                            <!-- Items -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
     <script src="/static/js/enterprise_shell.js"></script>
+    <script src="/static/js/ui_components.js"></script>
     <script>
         const API_URL = "/api";
 

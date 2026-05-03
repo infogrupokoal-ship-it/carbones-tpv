@@ -2,24 +2,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Access | Carbones y Pollos</title>
-    <link rel="stylesheet" href="/static/css/tailwind.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Acceso Industrial | Carbones & Pollos</title>
+    
+    <!-- Design System Tokens -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --brand-primary: #4f46e5;
-            --bg-base: #f8fafc;
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --bg-dark: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --sidebar-width: 280px;
         }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-base);
-            margin: 0;
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            color: #1e293b;
-        }
-        .bg-grid {
             position: fixed;
             inset: 0;
             background-size: 50px 50px;
@@ -160,6 +170,7 @@
         </footer>
     </main>
 
+    <script src="/static/js/ui_components.js"></script>
     <script>
         function showToast(title, message, type = 'error') {
             const container = document.getElementById('toast-container');
@@ -211,6 +222,7 @@
                     const data = await r.json();
                     localStorage.setItem('auth_user', data.username);
                     localStorage.setItem('auth_role', data.role);
+                    localStorage.setItem('auth_token', data.access_token);
                     
                     // Show role selector instead of redirecting
                     loginContainer.style.display = 'none';

@@ -22,13 +22,16 @@ from slowapi.middleware import SlowAPIMiddleware
 from .config import settings
 from .database import engine
 from .auto_migrate import migrate_schema
-from backend.routers import (
-    orders, inventory, customers, stats, auth, ai_assistant, rrhh, marketing, 
-    reservas, delivery_aggregators, mantenimiento, payments, feedback, 
-    escandallos, fleet, loyalty, franchise, esg, pricing, iot, erp, crisis, 
-    menu_engineering, procurement, admin, hardware, telemetry, webhooks, 
-    admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics,
-    multi_agent
+from .routers import (
+    auth, admin, orders, inventory, rrhh, hardware,
+    telemetry, webhooks, admin_audit, customers,
+    payments, feedback, escandallos, fleet,
+    notifications, loyalty, franchise, esg,
+    pricing, iot, erp, crisis, menu_engineering,
+    procurement, marketing, reservas, delivery_aggregators,
+    mantenimiento, stats, aoi, enterprise_api,
+    ai_assistant, commercial, logistics,
+    multi_agent, multimedia, ws
 )
 
 from .utils.logger import logger
@@ -266,42 +269,24 @@ async def health_check() -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "version": settings.APP_VERSION,
         "environment": os.environ.get("ENVIRONMENT", "production"),
-        "deployment": {
-            "node": os.uname().nodename if hasattr(os, "uname") else "windows-dev",
-            "uptime_sec": uptime,
-            "build_marker": "INDUSTRIAL-ULTRA-v3.1-SOFT-DELETES"
-        },
         "telemetry": {
-            "database": {
-                "status": db_status,
-                "latency_ms": db_latency_ms
+            "database": {"status": db_status, "latency_ms": db_latency_ms},
+            "system": {
+                "cpu": f"{cpu_percent}%",
+                "memory": f"{mem_percent}%",
+                "disk_free": f"{disk_free}%"
             },
-            "cpu_usage": cpu_percent,
-            "memory_usage": mem_percent,
-            "db_latency_ms": db_latency_ms,
-            "disk_free": disk_free,
-            "network": {
-                "bytes_sent": bytes_sent,
-                "bytes_recv": bytes_recv
-            },
-            "neural_core": {
-                "status": "active",
-                "synapses": 1024,
-                "load": round(random.random() * 100, 2) if 'random' in globals() else 12.5
-            }
+            "network": {"sent": bytes_sent, "recv": bytes_recv},
+            "uptime_seconds": uptime
         },
-        "integrity": {
-            "last_audit": "SUCCESS",
-            "security_mode": "ENFORCED",
-            "self_healing": "ACTIVE"
-        },
-        "ai_engine": __import__('backend.utils.ai_model_manager', fromlist=['ai_manager']).ai_manager.get_status()
+        "industrial_compliance": "V18.0-QUANTUM-STABLE"
     }
 
 # --- Orquestación de Routers (API Enterprise) ---
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(auth.router, tags=["Seguridad"])
+api_router.include_router(multimedia.router)
 api_router.include_router(orders.router, tags=["Operaciones"])
 api_router.include_router(inventory.router, tags=["Logística"])
 api_router.include_router(inventory.router_legacy, tags=["Logística Legacy"])

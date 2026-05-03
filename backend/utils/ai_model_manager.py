@@ -26,22 +26,22 @@ from ..config import settings
 # ──────────────────────────────────────────────────────────────────────────────
 MODEL_HIERARCHY = [
     {
-        "id": "gemini-2.5-flash",
-        "name": "Gemini 2.5 Flash (Primario)",
-        "tier": "SPEED",
-        "rpm_limit": 15,          # Tier gratuito estándar
+        "id": "gemini-1.5-flash",
+        "name": "Gemini 1.5 Flash (Industrial Standard)",
+        "tier": "STABLE",
+        "rpm_limit": 15,
     },
     {
-        "id": "gemini-2.5-pro",
-        "name": "Gemini 2.5 Pro (Secundario)",
+        "id": "gemini-1.5-pro",
+        "name": "Gemini 1.5 Pro (Analytical Core)",
         "tier": "POWER",
         "rpm_limit": 2,
     },
     {
-        "id": "gemini-1.0-pro",
-        "name": "Gemini 1.0 Pro (Terciario)",
-        "tier": "STABLE",
-        "rpm_limit": 15,
+        "id": "gemini-pro",
+        "name": "Gemini Pro (Legacy Support)",
+        "tier": "LEGACY",
+        "rpm_limit": 5,
     },
 ]
 
@@ -261,6 +261,53 @@ class AIModelManager:
                 attempts += 1
 
         logger.error("[AIModelManager] No se pudo generar respuesta con ningún modelo.")
+        return None, "none"
+
+    async def analyze_multimodal_async(
+        self, prompt: str, file_bytes: bytes, mime_type: str, generation_config: Optional[dict] = None
+    ) -> Tuple[Optional[str], str]:
+        """
+        Analiza archivos (imágenes, PDFs, etc.) usando visión/multimodalidad con fallback.
+        Retorna: (texto_analisis, modelo_usado)
+        """
+        self._try_reset_to_primary()
+        
+        attempts = 0
+        max_attempts = len(MODEL_HIERARCHY)
+        
+        while attempts < max_attempts:
+            model_info = self.current_model_info
+            try:
+                # Nota: Algunos modelos antiguos podrían no soportar multimodalidad, 
+                # pero los modelos Flash y Pro actuales sí.
+                model = self._get_or_create_model(model_info["id"])
+                
+                content = [
+                    prompt,
+                    {
+                        "mime_type": mime_type,
+                        "data": file_bytes
+                    }
+                ]
+                
+                kwargs = {}
+                if generation_config:
+                    kwargs["generation_config"] = generation_config
+                    
+                response = await asyncio.to_thread(
+                    model.generate_content, content, **kwargs
+                )
+                
+                if self._consecutive_errors > 0:
+                    self._consecutive_errors = 0
+                    
+                return response.text, model_info["id"]
+                
+            except Exception as e:
+                logger.warning(f"[AIModelManager] Error Multimodal con {model_info['name']}: {e}")
+                self._fallback_to_next(e)
+                attempts += 1
+                
         return None, "none"
 
     def get_status(self) -> dict:

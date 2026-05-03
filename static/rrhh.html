@@ -13,10 +13,7 @@
 <body data-active-module="RRHH" class="min-h-screen">
     <div class="bg-grid-industrial"></div>
 
-    <div class="flex h-screen overflow-hidden">
-        <div id="enterprise-sidebar"></div>
-
-        <main class="flex-1 p-8 lg:p-20 overflow-y-auto">
+        <div id="module-container" class="flex-1 p-8 lg:p-20 overflow-y-auto">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
                 <div>
                     <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-4">Human Resources Unit</p>
@@ -29,7 +26,7 @@
                 </div>
             </header>
 
-        <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
+            <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16"></div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 <!-- Clock-in Keypad -->
@@ -99,10 +96,11 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <script src="/static/js/enterprise_shell.js"></script>
+    <script src="/static/js/ui_components.js"></script>
     <script>
         window.onload = () => {
             EnterpriseShell.init('Recursos Humanos');

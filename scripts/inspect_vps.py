@@ -1,4 +1,9 @@
 import paramiko
+import sys
+
+# Ensure UTF-8 output for Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
 
 def inspect_vps():
     host = '113.30.148.104'
@@ -13,14 +18,16 @@ def inspect_vps():
         
         commands = [
             ("TPV Service", "systemctl status tpv.service"),
-            ("Carbones-TPV Service", "systemctl status carbones-tpv.service")
+            ("Carbones-TPV Service", "systemctl status carbones-tpv.service"),
+            ("Firewall Status", "ufw status"),
+            ("Listening Ports", "ss -tuln | grep -E '3000|8000|8022'")
         ]
 
         for name, cmd in commands:
             print(f"\n--- {name} ---")
             stdin, stdout, stderr = ssh.exec_command(cmd)
-            out = stdout.read().decode().strip()
-            err = stderr.read().decode().strip()
+            out = stdout.read().decode('utf-8', errors='replace').strip()
+            err = stderr.read().decode('utf-8', errors='replace').strip()
             if out:
                 print(out)
             if err:

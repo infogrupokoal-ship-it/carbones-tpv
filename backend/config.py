@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     WAHA_URL: str = Field(default="http://localhost:3000")
     STRIPE_SECRET_KEY: Optional[str] = Field(default=None)
     ADMIN_WHATSAPP: str = Field(default="34604864187@c.us")
+    TELEGRAM_BOT_TOKEN: Optional[str] = Field(default=None)
+    TELEGRAM_ADMIN_CHAT_ID: Optional[int] = Field(default=None)
 
     # BUSINESS LOGIC CONSTANTS
     CUBIERTOS_PRICE: float = 0.20

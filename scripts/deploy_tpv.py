@@ -5,7 +5,7 @@ import paramiko
 
 HOSTNAME = "113.30.148.104"
 USERNAME = "root"
-PASSWORD = "633660438Gk123"
+PASSWORD = "633660438gK1234"
 REMOTE_PATH = "/root/carbones_y_pollos_tpv"
 LOCAL_PATH = "d:\\proyecto\\carbones_y_pollos_tpv"
 

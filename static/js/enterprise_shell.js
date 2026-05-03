@@ -9,20 +9,30 @@ const EnterpriseShell = {
     user: null,
     modules: [
         { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/static/dashboard.html', roles: ['ADMIN', 'MANAGER'] },
-        { id: 'caja', label: 'Terminal Venta', icon: '💰', path: '/static/financial.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-        { id: 'inventario', label: 'Almacén', icon: '📦', path: '/static/inventario.html', roles: ['ADMIN', 'MANAGER'] },
-        { id: 'pedidos', label: 'Pedidos', icon: '📝', path: '/static/pedidos.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { id: 'analytics', label: 'Analítica', icon: '📈', path: '/static/analytics.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'caja', label: 'Caja', icon: '💰', path: '/static/caja.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { id: 'inventario', label: 'Inventario', icon: '📦', path: '/static/inventario.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'tpv', label: 'TPV Terminal', icon: '🖥️', path: '/static/tpv.html', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { id: 'kds', label: 'Cocina KDS', icon: '👨‍🍳', path: '/static/kds.html', roles: ['ADMIN', 'MANAGER', 'KITCHEN'] },
+        { id: 'matrix', label: 'Digital Twin', icon: '🌐', path: '/static/matrix.html', roles: ['ADMIN'] },
+        { id: 'repartidores', label: 'Logística', icon: '🛵', path: '/static/repartidores.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'rrhh', label: 'Talent', icon: '🧬', path: '/static/rrhh.html', roles: ['ADMIN', 'MANAGER'] },
         { id: 'clientes', label: 'Fidelización', icon: '👥', path: '/static/loyalty.html', roles: ['ADMIN', 'MANAGER'] },
-        { id: 'telemetria', label: 'Quantum Metrics', icon: '⚡', path: '/static/telemetria.html', roles: ['ADMIN'] },
+        { id: 'telemetria', label: 'Metrics', icon: '⚡', path: '/static/telemetria.html', roles: ['ADMIN'] },
         { id: 'config', label: 'Sistema', icon: '⚙️', path: '/static/settings.html', roles: ['ADMIN'] },
-        { id: 'matrix', label: 'Digital Twin', icon: '🌐', path: '/static/matrix_twin.html', roles: ['ADMIN'] },
-        { id: 'marketing', label: 'Marketing', icon: '🚀', path: '/static/marketing.html', roles: ['ADMIN', 'MANAGER'] }
+        { id: 'marketing', label: 'Marketing', icon: '🚀', path: '/static/marketing.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'financial', label: 'Finanzas', icon: '🏦', path: '/static/financial.html', roles: ['ADMIN', 'MANAGER'] },
+        { id: 'multimedia', label: 'Archivos', icon: '📂', path: '/static/multimedia.html', roles: ['ADMIN', 'MANAGER'] }
     ],
+    breadcrumb: ['Portal'],
+    initialized: false,
 
     async checkAuth() {
         try {
             const token = localStorage.getItem('auth_token');
-            if (!token) throw new Error("No token");
+            const user = localStorage.getItem('auth_user');
+            
+            if (!token || !user) throw new Error("No token/user");
 
             const response = await fetch('/api/auth/me', {
                 headers: { 
@@ -40,6 +50,9 @@ const EnterpriseShell = {
     },
 
     async init() {
+        if (this.initialized) return;
+        this.initialized = true;
+
         console.log("%c[QuantumShell] Starting Secure Core V11...", "color: #f59e0b; font-weight: bold;");
         await this.checkAuth();
         
@@ -48,9 +61,11 @@ const EnterpriseShell = {
 
         this.injectGlobalStyles();
         this.renderBase();
+        this.updateBreadcrumbs();
         this.renderSecureUI();
         this.applyRoleShields();
         this.bindEvents();
+        this.initKeyboardShortcuts();
         
         this.injectSystemBanner();
         this.injectCarbonitoUI();
@@ -95,7 +110,6 @@ const EnterpriseShell = {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
-            // Intentar encontrar el contenedor principal en la página destino
             const content = doc.querySelector('#module-container') || doc.body;
             
             const container = document.getElementById('module-container');
@@ -107,7 +121,16 @@ const EnterpriseShell = {
                     container.innerHTML = content.innerHTML;
                     document.getElementById('module-title').innerText = module.label;
                     
-                    // Re-ejecutar scripts
+                    // Update Breadcrumbs
+                    this.breadcrumb = ['Portal', module.label];
+                    this.updateBreadcrumbs();
+
+                    // Update active state in nav
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.toggle('active', nav.getAttribute('data-module') === moduleId);
+                    });
+
+                    // Re-run scripts
                     content.querySelectorAll('script').forEach(oldScript => {
                         const newScript = document.createElement('script');
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
@@ -118,7 +141,10 @@ const EnterpriseShell = {
                     container.style.opacity = '1';
                     container.style.transform = 'translateY(0)';
                     if (typeof EnterpriseUI !== 'undefined') EnterpriseUI.hideLoading();
-                }, 300);
+                    
+                    // Smooth scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 400);
 
                 if (!skipPushState) {
                     history.pushState({ moduleId }, module.label, module.path);
@@ -137,6 +163,15 @@ const EnterpriseShell = {
         this.playSound('navigate');
     },
 
+    updateBreadcrumbs() {
+        const bc = document.getElementById('shell-breadcrumbs');
+        if (!bc) return;
+        bc.innerHTML = this.breadcrumb.map((b, i) => `
+            <span class="bc-item ${i === this.breadcrumb.length - 1 ? 'current' : ''}">${b}</span>
+            ${i < this.breadcrumb.length - 1 ? '<span class="bc-sep">/</span>' : ''}
+        `).join('');
+    },
+
     playSound(type) {
         const sounds = {
             navigate: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
@@ -150,10 +185,7 @@ const EnterpriseShell = {
 
     gatekeep() {
         const path = window.location.pathname;
-        if (path === '/static/login.html' || path === '/static/index.html' || path === '/') return true;
-
-        const currentModule = this.modules.find(m => path.includes(m.path) || path.includes(m.id));
-        if (!currentModule) return true; // Pagina no catalogada, permitida por ahora
+        if (path.includes('login.html') || path.includes('index.html') || path === '/') return true;
 
         if (!this.user) {
             console.error("[Gatekeeper] Unauthorized access detected. Redirecting to login.");
@@ -161,7 +193,8 @@ const EnterpriseShell = {
             return false;
         }
 
-        if (!currentModule.roles.includes(this.user.rol)) {
+        const currentModule = this.modules.find(m => path.includes(m.path) || path.includes(m.id));
+        if (currentModule && !currentModule.roles.includes(this.user.rol)) {
             console.error(`[Gatekeeper] Access Denied for role ${this.user.rol} on module ${currentModule.id}`);
             this.renderAccessDenied();
             return false;
@@ -170,17 +203,43 @@ const EnterpriseShell = {
     },
 
     renderAccessDenied() {
-        document.body.innerHTML = `
-            <div style="height: 100vh; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; text-align: center; padding: 2rem;">
-                <div style="font-size: 5rem; margin-bottom: 1rem;">🚫</div>
-                <h1 style="font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase;">Acceso Restringido</h1>
-                <p style="color: #94a3b8; max-width: 500px; margin-bottom: 2rem;">Tus credenciales actuales (${this.user ? this.user.rol : 'GUEST'}) no poseen los privilegios neuronales necesarios para acceder a este nodo de la Singularity.</p>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="/static/portal.html" style="background: #4f46e5; color: white; padding: 1rem 2rem; border-radius: 1rem; text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Volver al Portal</a>
-                    <button onclick="localStorage.clear(); location.href='/static/login.html'" style="background: rgba(255,255,255,0.1); color: white; padding: 1rem 2rem; border-radius: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Cambiar Usuario</button>
+        const container = document.getElementById('module-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+                    <div class="text-6xl mb-6">🚫</div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">ACCESO RESTRINGIDO</h2>
+                    <p class="text-slate-500 max-w-md">Tu rol actual (<b>${this.user.rol}</b>) no tiene permisos para visualizar este módulo industrial.</p>
+                    <button onclick="EnterpriseShell.loadModule('dashboard')" class="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:shadow-xl transition-all">Volver al Panel Central</button>
                 </div>
-            </div>
-        `;
+            `;
+        }
+    },
+
+    initKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+K for Search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                this.toggleCommandPalette();
+            }
+            // Esc to close palette/monitor
+            if (e.key === 'Escape') {
+                document.getElementById('command-palette')?.classList.add('hidden');
+                document.getElementById('neural-monitor')?.classList.add('translate-x-full');
+                document.getElementById('carbonito-chat')?.classList.add('hidden');
+            }
+        });
+    },
+
+    filterModules(query) {
+        const q = query.toLowerCase();
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            const label = nav.querySelector('.nav-label')?.innerText.toLowerCase() || '';
+            const matches = label.includes(q);
+            nav.style.display = matches ? 'flex' : 'none';
+        });
+    },
     },
 
     applyRoleShields() {
@@ -204,7 +263,11 @@ const EnterpriseShell = {
             <aside id="shell-sidebar">
                 <div class="sidebar-brand">
                     <div class="brand-logo">🔥</div>
-                    <span>SINGULARITY V10</span>
+                    <span>SINGULARITY V11</span>
+                </div>
+                <div class="sidebar-search">
+                    <input type="text" id="sidebar-module-search" placeholder="Buscar módulo... (Ctrl+K)" class="search-input">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 </div>
                 <nav id="shell-nav">
                     <!-- Dynamic Nav -->
@@ -225,7 +288,10 @@ const EnterpriseShell = {
                 <header id="shell-topbar">
                     <div class="topbar-left">
                         <button id="sidebar-toggle">☰</button>
-                        <h1 id="module-title">Neural Matrix</h1>
+                        <div class="flex flex-col">
+                            <h1 id="module-title">Neural Matrix</h1>
+                            <nav id="shell-breadcrumbs"></nav>
+                        </div>
                     </div>
                     <div class="topbar-right">
                         <div id="neural-load" class="telemetry-item" style="display:none">
@@ -307,8 +373,10 @@ const EnterpriseShell = {
 
         document.getElementById('btn-logout')?.addEventListener('click', () => {
             localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
             localStorage.removeItem('auth_role');
-            window.location.href = '/login.html';
+            localStorage.removeItem('active_shift');
+            window.location.href = '/static/login.html';
         });
 
         document.getElementById('btn-notifications')?.addEventListener('click', () => {
@@ -320,13 +388,28 @@ const EnterpriseShell = {
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleCommandPalette(); }
-            if (e.ctrlKey && e.key === 'j') { e.preventDefault(); this.toggleNeuralMonitor(); }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') { 
+                e.preventDefault(); 
+                const search = document.getElementById('sidebar-module-search');
+                if (search) {
+                    search.focus();
+                    const sidebar = document.getElementById('shell-sidebar');
+                    if (sidebar.classList.contains('collapsed')) sidebar.classList.remove('collapsed');
+                } else {
+                    this.toggleCommandPalette();
+                }
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'j') { e.preventDefault(); this.toggleNeuralMonitor(); }
             if (e.key === 'Escape') { 
                 document.getElementById('command-palette')?.classList.add('hidden');
                 document.getElementById('neural-monitor')?.classList.add('translate-x-full');
                 document.getElementById('notification-panel')?.classList.add('hidden');
+                document.getElementById('carbonito-chat')?.classList.add('hidden');
             }
+        });
+
+        document.getElementById('sidebar-module-search')?.addEventListener('input', (e) => {
+            this.filterModules(e.target.value);
         });
     },
 
@@ -678,6 +761,10 @@ const EnterpriseShell = {
             .insight-pill.critical { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; }
             .insight-pill.info { background: #e0f2fe; color: #0ea5e9; border: 1px solid #7dd3fc; }
             .insight-pill.success { background: #dcfce7; color: #22c55e; border: 1px solid #86efac; }
+            
+            #shell-breadcrumbs { display: flex; gap: 0.5rem; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-top: -4px; }
+            .bc-item.current { color: #4f46e5; }
+            .bc-sep { opacity: 0.3; }
             
             @media (max-width: 1024px) {
                 .shell-panel { right: 1rem; width: calc(100vw - 2rem); max-width: 380px; }

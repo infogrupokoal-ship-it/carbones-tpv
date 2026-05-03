@@ -1,5 +1,13 @@
 # CHANGELOG_AI.md
 
+## [V17.1-SPA-SINGULARITY-ORCHESTRATION] - 2026-05-03
+### Industrialización Total y Estabilización SPA
+- **Arquitectura SPA**: Refactorización masiva de los módulos de **Inventario**, **RRHH** y **Analytics** al paradigma de Single Page Application. Todo el contenido ahora reside dentro de un `#module-container` estandarizado.
+- **Enterprise Shell V17**: Centralización absoluta del ciclo de vida de la UI. El shell ahora gestiona de forma autónoma la carga dinámica de scripts, la generación de breadcrumbs y el gatekeeping de roles.
+- **Librería de Componentes Unificada**: Integración de `ui_components.js` en todos los nodos administrativos, garantizando una estética profesional 20x con widgets de telemetría, pulso neuronal y tarjetas de KPI consistentes.
+- **Estabilidad Industrial**: Eliminación de dependencias de scroll y fondos fijos en archivos individuales para prevenir conflictos en el contenedor global de la SPA.
+- **Verificación**: Auditoría visual y funcional del flujo de navegación PWA completada con 0 errores de inyección de scripts.
+
 ## [V21.1-STRIPE-KDS-INTEGRATION] - 2026-05-03
 ### Integración Total B2C a KDS y Stripe Webhooks
 - **Frontend (B2C)**: Integración de `stripe_url` en la respuesta de `/api/orders` para redirigir automáticamente al checkout alojado de Stripe. Modificado envío dinámico de método de pago.

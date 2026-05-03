@@ -25,4 +25,4 @@ services:
       name: tpv-data-storage
       mountPath: /data
       sizeGB: 1
-    healthCheckPath: /health
+    healthCheckPath: /api/health

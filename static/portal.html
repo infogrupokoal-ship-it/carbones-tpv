@@ -163,6 +163,67 @@
         </div>
     </div>
 
+    <!-- Quantum Neural Sidebar (Dynamic Actions) -->
+    <div id="quantum-hub" class="fixed left-6 top-1/2 -translate-y-1/2 z-[1000] flex flex-col gap-4">
+        <button onclick="toggleQuantumSidebar()" class="w-14 h-14 bg-indigo-600/20 backdrop-blur-xl border border-indigo-500/30 rounded-2xl flex items-center justify-center text-xl hover:bg-indigo-600 transition-all group relative">
+            ⚡
+            <span class="absolute left-20 bg-slate-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase opacity-0 group-hover:opacity-100 pointer-events-none transition-all border border-white/5 whitespace-nowrap">Neural Hub</span>
+        </button>
+        <div id="hub-actions" class="flex flex-col gap-3 scale-0 origin-left transition-all duration-500 opacity-0">
+            <button onclick="EnterpriseShell.loadModule('tpv')" class="w-12 h-12 bg-slate-800/40 backdrop-blur-lg border border-white/5 rounded-xl flex items-center justify-center text-lg hover:scale-110 transition-all group relative">
+                🛒
+                <span class="absolute left-16 bg-slate-900 px-3 py-1 rounded-lg text-[8px] font-black uppercase opacity-0 group-hover:opacity-100 pointer-events-none transition-all">Nueva Venta</span>
+            </button>
+            <button onclick="EnterpriseShell.loadModule('caja')" class="w-12 h-12 bg-slate-800/40 backdrop-blur-lg border border-white/5 rounded-xl flex items-center justify-center text-lg hover:scale-110 transition-all group relative">
+                💰
+                <span class="absolute left-16 bg-slate-900 px-3 py-1 rounded-lg text-[8px] font-black uppercase opacity-0 group-hover:opacity-100 pointer-events-none transition-all">Cierre Caja</span>
+            </button>
+            <button onclick="EnterpriseShell.loadModule('inventario')" class="w-12 h-12 bg-slate-800/40 backdrop-blur-lg border border-white/5 rounded-xl flex items-center justify-center text-lg hover:scale-110 transition-all group relative">
+                📦
+                <span class="absolute left-16 bg-slate-900 px-3 py-1 rounded-lg text-[8px] font-black uppercase opacity-0 group-hover:opacity-100 pointer-events-none transition-all">Stock Check</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleQuantumSidebar() {
+            const hub = document.getElementById('hub-actions');
+            const btn = document.querySelector('#quantum-hub button');
+            const isOpen = hub.classList.contains('scale-100');
+            
+            if (isOpen) {
+                hub.classList.remove('scale-100', 'opacity-100');
+                hub.classList.add('scale-0', 'opacity-0');
+                btn.innerHTML = '⚡';
+            } else {
+                hub.classList.remove('scale-0', 'opacity-0');
+                hub.classList.add('scale-100', 'opacity-100');
+                btn.innerHTML = '✕';
+            }
+        }
+
+        // Industrial Pulse Monitoring
+        async function updateSystemPulse() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                const hubBtn = document.querySelector('#quantum-hub button');
+                
+                if (data.status === 'ok') {
+                    hubBtn.style.boxShadow = '0 0 20px rgba(79, 70, 229, 0.4)';
+                    hubBtn.style.borderColor = 'rgba(79, 70, 229, 0.6)';
+                } else {
+                    hubBtn.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.4)';
+                    hubBtn.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                }
+            } catch (e) {
+                console.error("Pulse Failed", e);
+            }
+        }
+        setInterval(updateSystemPulse, 30000); // Pulse every 30s
+        updateSystemPulse();
+    </script>
+
     <div class="portal-container z-10 w-full max-w-7xl px-12">
         <div class="text-center mb-20">
             <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.8em] mb-4 opacity-50">Enterprise Operations Core</p>
@@ -185,7 +246,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <!-- Analytics -->
-            <a href="/static/analytics.html" class="module-card p-10 rounded-[3rem] group">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('analytics')" class="module-card p-10 rounded-[3rem] group">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-indigo-500/30 uppercase group-hover:text-indigo-400 transition-colors">BI CORE</div>
                 <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">📊</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Analytics</h3>
@@ -197,7 +258,7 @@
             </a>
 
             <!-- TPV Mostrador (new) -->
-            <a href="/static/tpv.html" class="module-card p-10 rounded-[3rem] group border-emerald-500/10 hover:border-emerald-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('tpv')" class="module-card p-10 rounded-[3rem] group border-emerald-500/10 hover:border-emerald-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-emerald-500/30 uppercase group-hover:text-emerald-400 transition-colors">TPV</div>
                 <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🛒</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">TPV Mostrador</h3>
@@ -209,7 +270,7 @@
             </a>
 
             <!-- Caja (queue) -->
-            <a href="/static/caja.html" class="module-card p-10 rounded-[3rem] group border-sky-500/10 hover:border-sky-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('caja')" class="module-card p-10 rounded-[3rem] group border-sky-500/10 hover:border-sky-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-sky-500/30 uppercase group-hover:text-sky-400 transition-colors">CAJA</div>
                 <div class="w-16 h-16 bg-sky-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">💰</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Cola de Caja</h3>
@@ -221,7 +282,7 @@
             </a>
 
             <!-- Kitchen -->
-            <a href="/static/kds.html" class="module-card p-10 rounded-[3rem] group border-orange-500/10 hover:border-orange-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('kds')" class="module-card p-10 rounded-[3rem] group border-orange-500/10 hover:border-orange-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-orange-500/30 uppercase group-hover:text-orange-400 transition-colors">KDS</div>
                 <div class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🍳</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Kitchen</h3>
@@ -233,7 +294,7 @@
             </a>
 
             <!-- Matrix -->
-            <a href="/static/matrix.html" class="module-card p-10 rounded-[3rem] group border-purple-500/10 hover:border-purple-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('matrix')" class="module-card p-10 rounded-[3rem] group border-purple-500/10 hover:border-purple-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-purple-500/30 uppercase group-hover:text-purple-400 transition-colors">DIGITAL TWIN</div>
                 <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🌌</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Matrix</h3>
@@ -245,7 +306,7 @@
             </a>
 
             <!-- Logistics -->
-            <a href="/static/repartidores.html" class="module-card p-10 rounded-[3rem] group border-blue-500/10 hover:border-blue-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('repartidores')" class="module-card p-10 rounded-[3rem] group border-blue-500/10 hover:border-blue-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-blue-500/30 uppercase group-hover:text-blue-400 transition-colors">FLEET</div>
                 <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🚚</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Logistics</h3>
@@ -257,7 +318,7 @@
             </a>
 
             <!-- RRHH -->
-            <a href="/static/rrhh.html" class="module-card p-10 rounded-[3rem] group border-pink-500/10 hover:border-pink-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('rrhh')" class="module-card p-10 rounded-[3rem] group border-pink-500/10 hover:border-pink-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-pink-500/30 uppercase group-hover:text-pink-400 transition-colors">HUMAN CORE</div>
                 <div class="w-16 h-16 bg-pink-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">👥</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Talent & RRHH</h3>
@@ -269,7 +330,7 @@
             </a>
 
             <!-- Finance -->
-            <a href="/static/financial.html" class="module-card p-10 rounded-[3rem] group border-amber-500/10 hover:border-amber-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('financial')" class="module-card p-10 rounded-[3rem] group border-amber-500/10 hover:border-amber-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-amber-500/30 uppercase group-hover:text-amber-400 transition-colors">FINANCE</div>
                 <div class="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">🏦</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Financials</h3>
@@ -281,7 +342,7 @@
             </a>
 
             <!-- Marketing -->
-            <a href="/static/marketing.html" class="module-card p-10 rounded-[3rem] group border-cyan-500/10 hover:border-cyan-500">
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('marketing')" class="module-card p-10 rounded-[3rem] group border-cyan-500/10 hover:border-cyan-500">
                 <div class="absolute top-6 right-8 text-[10px] font-black text-cyan-500/30 uppercase group-hover:text-cyan-400 transition-colors">GROWTH</div>
                 <div class="w-16 h-16 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">📣</div>
                 <h3 class="text-lg font-black uppercase tracking-tight mb-2">Marketing</h3>
@@ -301,6 +362,17 @@
                 <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
                     <span class="text-[8px] bg-green-500/20 text-green-300 px-2 py-1 rounded uppercase font-black">Audit</span>
                     <span class="text-[8px] bg-green-500/20 text-green-300 px-2 py-1 rounded uppercase font-black">Agents</span>
+                </div>
+            </a>
+            <!-- Multimedia -->
+            <a href="javascript:void(0)" onclick="EnterpriseShell.loadModule('multimedia')" class="module-card p-10 rounded-[3rem] group border-indigo-500/10 hover:border-indigo-500">
+                <div class="absolute top-6 right-8 text-[10px] font-black text-indigo-500/30 uppercase group-hover:text-indigo-400 transition-colors">ARCHIVOS</div>
+                <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-all duration-500">📂</div>
+                <h3 class="text-lg font-black uppercase tracking-tight mb-2">Multimedia</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Gestión de facturas, fotos, audios y documentos industriales.</p>
+                <div class="mt-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <span class="text-[8px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded uppercase font-black">Audit</span>
+                    <span class="text-[8px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded uppercase font-black">Vault</span>
                 </div>
             </a>
         </div>
@@ -341,6 +413,7 @@
         </div>
     </div>
 
+    <script src="/static/js/ui_components.js"></script>
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
         let isAuditing = false;
@@ -438,14 +511,14 @@
                 const res = await fetch('/api/health');
                 const data = await res.json();
                 const cpu = data.telemetry.cpu_usage;
+                const dbLat = data.telemetry.database.latency_ms;
+                
                 document.getElementById('cpu-load').innerText = `${cpu}%`;
                 document.getElementById('cpu-bar').style.width = `${cpu}%`;
-                document.getElementById('latency').innerText = `${data.telemetry.db_latency_ms.toFixed(1)} ms`;
-            } catch(e) {
-                console.error("Telemetry error:", e);
-            }
+                document.getElementById('latency').innerText = `${dbLat.toFixed(1)} ms`;
+            } catch(e) {}
         }
-        setInterval(fetchTelemetry, 3000);
+        setInterval(fetchTelemetry, 5000);
         fetchTelemetry();
 
         function checkActiveShift() {
@@ -469,7 +542,6 @@
         }
 
         window.onload = () => {
-            EnterpriseShell.init('Portal');
             checkActiveShift();
         };
     </script>

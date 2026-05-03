@@ -537,3 +537,18 @@ class Attachment(Base):
     labels = Column(String(255)) # Tagging IA
 
     uploader = relationship("Usuario", foreign_keys=[uploaded_by])
+
+class Multimedia(Base):
+    __tablename__ = "multimedia"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    original_name = Column(String(255), nullable=False)
+    file_hash = Column(String(64), unique=True, index=True) # SHA-256
+    file_path = Column(String(512), nullable=False)
+    mime_type = Column(String(100))
+    file_size = Column(Integer)
+    project = Column(String(50))
+    category = Column(String(50)) # audios, photos, pdfs, etc.
+    metadata_json = Column(Text) # JSON for extra info
+    verified = Column(Boolean, default=False)
+    uploaded_by = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

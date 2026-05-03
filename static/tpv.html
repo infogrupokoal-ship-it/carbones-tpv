@@ -77,7 +77,22 @@
                 <h1 class="text-lg md:text-xl font-black text-slate-900 tracking-tight uppercase leading-none">TPV <span class="text-indigo-600">Rápido</span></h1>
             </div>
         </div>
+        
+        <!-- Search Bar: DYNAMISM -->
+        <div class="hidden sm:flex flex-1 max-w-md mx-8">
+            <div class="relative w-full">
+                <input type="text" id="prod-search" placeholder="Buscar producto (F2)..." 
+                    class="w-full bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all"
+                    oninput="handleSearch(this.value)">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+        </div>
+
         <div class="flex items-center gap-3">
+            <div id="operator-info" class="hidden lg:flex flex-col items-end mr-2">
+                <span id="user-display" class="text-[10px] font-black text-slate-900 uppercase">OPERADOR</span>
+                <span id="shift-display" class="text-[8px] font-bold text-slate-400 uppercase">TURNO MAÑANA</span>
+            </div>
             <div id="clock" class="hidden sm:block text-sm font-black text-slate-500 tabular-nums"></div>
             <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
             <span class="text-[8px] md:text-[9px] font-black text-emerald-600 uppercase tracking-widest">Activo</span>
@@ -216,12 +231,21 @@
     <div id="print-area" class="hidden"></div>
 
     <script>
+        // GATEKEEPER INDUSTRIAL
+        if (!localStorage.getItem('auth_user') || !localStorage.getItem('auth_token')) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('user-display').innerText = localStorage.getItem('auth_user') || 'ANÓNIMO';
+        document.getElementById('shift-display').innerText = localStorage.getItem('active_shift') || 'SIN TURNO';
+
         const API = '/api';
         let carrito = [];
         let productos = [];
         let categorias = [];
         let catActiva = null;
         let lastTicket = null;
+        let searchQuery = '';
 
         // UI Helpers
         function toggleTicket(show) {
@@ -237,6 +261,11 @@
         }
 
         // Clock
+        function handleSearch(val) {
+            searchQuery = val.toLowerCase();
+            filterByCategory(catActiva);
+        }
+
         function updateClock() {
             const now = new Date();
             const el = document.getElementById('clock');
@@ -281,7 +310,11 @@
         function filterByCategory(catId) {
             catActiva = catId;
             renderCats();
-            const filtered = catId ? productos.filter(p => p.categoria_id === catId) : productos;
+            const filtered = productos.filter(p => {
+                const matchCat = !catId || p.categoria_id === catId;
+                const matchSearch = p.nombre.toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
             renderProducts(filtered);
         }
 
@@ -508,10 +541,14 @@
 
         // Init
         loadCatalog();
-    </script>
-</body>
-</html>
 
+        // Keyboard support
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('prod-search').focus();
+            }
+        });
     </script>
 </body>
 </html>
