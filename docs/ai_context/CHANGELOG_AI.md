@@ -6,6 +6,7 @@
 - **Limpieza de UX**: La raíz (`/`) ahora es una máquina de ventas directa y pulida, sin opciones administrativas visibles.
 - **Carrito Inteligente**: Barra de envío gratis dinámica (umbral 30€), y cálculo en tiempo real con sistema de Customización de Productos (Up-sells).
 - **Animaciones Premium**: Interfaz fluida y optimizada para carga hiperrápida en dispositivos móviles con red 3G.
+- **Purga de PWA (Service Worker)**: Bumping de caché a v21.0 en `sw.js` para forzar a todos los clientes a descargar el nuevo frontend minimalista.
 
 ## [13.2.0-FULL-SALES-AUDIT] - 2026-05-02
 ### Auditoría Completa de Ventas + Catálogo Real + Checkout Funcional
