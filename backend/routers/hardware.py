@@ -5,9 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import HardwareCommand
+from ..models import HardwareCommand, Usuario
+from .dependencies import require_admin
 
-router = APIRouter()
+router = APIRouter(prefix="/hardware", tags=["Hardware"])
 
 
 @router.get("/poll")
@@ -38,7 +39,7 @@ def acknowledge_command(command_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/abrir_caja")
-def push_abrir_caja(origen: str = "ADMIN_API", db: Session = Depends(get_db)):
+def push_abrir_caja(origen: str = "ADMIN_API", db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """Encola un comando para abrir el cajón portamonedas."""
     nuevo_cmd = HardwareCommand(
         id=str(uuid.uuid4()), accion="abrir_caja", origen=origen

@@ -8,13 +8,14 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria
+from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria, Usuario
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
 from scripts.seed_ultra import seed_ultra_industrial
 from .admin_audit import log_audit_action
+from .dependencies import require_admin, get_current_user
 
-router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"])
+router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"], dependencies=[Depends(require_admin)])
 
 # --- Esquemas de Datos ---
 
@@ -129,7 +130,7 @@ async def seed_production_data(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/factory_reset", status_code=status.HTTP_200_OK)
-async def factory_reset(db: Session = Depends(get_db)):
+async def factory_reset(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Comando de Emergencia: Limpia todo el catálogo y pedidos para un despliegue limpio.
     ¡USAR CON PRECAUCIÓN!
@@ -143,7 +144,7 @@ async def factory_reset(db: Session = Depends(get_db)):
         # Auditoría Industrial
         log_audit_action(
             db=db,
-            usuario_id=None,
+            usuario_id=current_user.id,
             accion="FACTORY_RESET",
             entidad="SISTEMA",
             payload_nuevo="Reseteo completo de tablas transaccionales y catálogo."
@@ -156,7 +157,7 @@ async def factory_reset(db: Session = Depends(get_db)):
         raise HTTPException(500, detail=str(e))
 
 @router.post("/abrir-cajon", status_code=status.HTTP_202_ACCEPTED)
-async def abrir_cajon_remoto(db: Session = Depends(get_db)):
+async def abrir_cajon_remoto(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Comando de Seguridad: Solicita la apertura física del cajón portamonedas 
     desde el panel de administración central. Registra el evento para auditoría.
@@ -171,14 +172,14 @@ async def abrir_cajon_remoto(db: Session = Depends(get_db)):
     # Auditoría Industrial
     log_audit_action(
         db=db,
-        usuario_id=None,
+        usuario_id=current_user.id,
         accion="ABRIR_CAJON_REMOTO",
         entidad="HARDWARE",
-        payload_nuevo="Solicitud remota de apertura de caja desde admin dashboard."
+        payload_nuevo=f"Solicitud remota de apertura de caja por {current_user.username}."
     )
     
     db.commit()
-    logger.warning("AUDITORÍA: Apertura de cajón solicitada remotamente por administrador.")
+    logger.warning(f"AUDITORÍA: Apertura de cajón solicitada remotamente por {current_user.username}.")
     return {"status": "success", "detail": "Comando de apertura encolado"}
 
 @router.get("/dashboard/kpis", response_model=DashboardOut)

@@ -5,11 +5,13 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.services.ai_bi_engine import AIBIEngine
+from .dependencies import require_admin
+from backend.models import Usuario
 
 router = APIRouter(prefix="/telemetry", tags=["Hardware Telemetry & Digital Twin"])
 
 @router.get("/global-nodes")
-def get_global_nodes_status():
+def get_global_nodes_status(current_user: Usuario = Depends(require_admin)):
     """
     Simula el estado de todos los nodos de hardware en el ecosistema Singularity.
     Esto alimenta la visualizacion del Digital Twin.
@@ -40,7 +42,7 @@ def get_global_nodes_status():
     }
 
 @router.get("/logs")
-def get_system_logs():
+def get_system_logs(current_user: Usuario = Depends(require_admin)):
     """
     Recupera las últimas líneas de los logs del sistema para diagnóstico remoto.
     Reservado para auditoría industrial.
@@ -64,7 +66,7 @@ def get_system_logs():
     }
 
 @router.get("/system-load")
-def get_system_load():
+def get_system_load(current_user: Usuario = Depends(require_admin)):
     """Métricas de carga del servidor para el Dashboard Enterprise."""
     import psutil
     import os
@@ -78,7 +80,7 @@ def get_system_load():
     }
 
 @router.get("/advanced")
-def get_advanced_telemetry():
+def get_advanced_telemetry(current_user: Usuario = Depends(require_admin)):
     """
     Detailed hardware-level profiling for UEOS Singularity Matrix.
     Provides per-core metrics and IO pressure.
@@ -127,7 +129,7 @@ def get_advanced_telemetry():
     }
 
 @router.get("/insights")
-def get_proactive_insights(db: Session = Depends(get_db)):
+def get_proactive_insights(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Recupera 'Neural Insights' generados por la IA proactiva.
     Alimenta las notificaciones inteligentes del Dashboard.

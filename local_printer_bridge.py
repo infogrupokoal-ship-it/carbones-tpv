@@ -1,8 +1,9 @@
-﻿import logging
+import logging
 import threading
 import time
 import os
 import json
+import sys
 from datetime import datetime
 
 import requests
@@ -57,9 +58,42 @@ config = load_config()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] [PRINTER_BRIDGE] %(message)s",
-    handlers=[logging.FileHandler("instance/bridge.log"), logging.StreamHandler()]
+    handlers=[
+        logging.FileHandler("instance/bridge.log", encoding="utf-8"),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger("PrinterBridge")
+
+# --- PID LOCK ---
+PID_FILE = "instance/bridge.pid"
+
+def acquire_lock():
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, 'r') as f:
+                old_pid = int(f.read().strip())
+            if os.name == 'posix':
+                import os as os_native
+                os_native.kill(old_pid, 0)
+            else:
+                import ctypes
+                PROCESS_QUERY_INFORMATION = 0x0400
+                handle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, False, old_pid)
+                if handle != 0:
+                    ctypes.windll.kernel32.CloseHandle(handle)
+                else:
+                    raise OSError
+            logger.error(f"[LOCK] Bridge ya activo (PID: {old_pid}).")
+            sys.exit(0)
+        except (OSError, ValueError):
+            os.remove(PID_FILE)
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+
+def release_lock():
+    if os.path.exists(PID_FILE):
+        os.remove(PID_FILE)
 
 # --- ESTADO DE HARDWARE ---
 hardware_status = {
@@ -112,17 +146,17 @@ async def pagina_instalacion():
         </style>
     </head>
     <body>
-        <h1>ðŸš€ TPV Bridge Control Center</h1>
+        <h1>[BOOT] TPV Bridge Control Center</h1>
         <div class="status-bar">
             <div class="indicator"><div class="dot" id="dot-print"></div> Impresora: <span id="txt-print">Detectando...</span></div>
             <div class="indicator"><div class="dot" id="dot-cloud"></div> Cloud: <span id="txt-cloud">Conectando...</span></div>
         </div>
 
         <div class="card">
-            <h2>ðŸ“¦ InstalaciÃ³n en un Toque</h2>
+            <h2>[SETUP] Instalación en un Toque</h2>
             <p>Ejecuta este comando en tu terminal local para sincronizar con la nube:</p>
             <div class="code-box">curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash</div>
-            <button onclick="navigator.clipboard.writeText('curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash')">ðŸ“‹ COPIAR COMANDO MAESTRO</button>
+            <button onclick="navigator.clipboard.writeText('curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash')">COPIAR COMANDO MAESTRO</button>
         </div>
 
         <script>
@@ -206,5 +240,9 @@ def hardware_loop():
         time.sleep(10)
 
 if __name__ == "__main__":
-    threading.Thread(target=hardware_loop, daemon=True).start()
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    acquire_lock()
+    try:
+        threading.Thread(target=hardware_loop, daemon=True).start()
+        uvicorn.run(app, host="0.0.0.0", port=8001)
+    finally:
+        release_lock()

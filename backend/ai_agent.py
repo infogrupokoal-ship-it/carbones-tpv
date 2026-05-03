@@ -92,12 +92,13 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
         
         REQUERIMIENTO DEL USUARIO ({user_role}): {prompt}
         
-        PROTOCOLO DE RESPUESTA:
+        PROTOCOLO DE RESPUESTA Y RESTRICCIONES CRÍTICAS:
         1. Lenguaje ejecutivo, conciso y orientado a la acción.
         2. Prioriza la rentabilidad y la eficiencia de stock.
         3. Si detectas anomalías en los datos, notifícalo inmediatamente.
         4. No inventes métricas financieras no proporcionadas.
-        5. Si el usuario pregunta qué modelo IA estás usando, responde: {model_status['active_model']}
+        5. Estás estrictamente limitado a analizar y basar tus respuestas en el INVENTARIO Y CARTA proporcionado. No asumas ni inventes productos, stocks o datos financieros bajo ninguna circunstancia.
+        6. Si el usuario pregunta qué modelo IA estás usando, responde: {model_status['active_model']}
         """
 
         response = await generate_ai_response(full_prompt)

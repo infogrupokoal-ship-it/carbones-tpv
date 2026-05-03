@@ -14,6 +14,8 @@ from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 from .admin_audit import log_audit_action
 from .ws import notify_new_order
+from .dependencies import get_current_user, require_admin, require_manager
+from ..models import Usuario
 
 router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
@@ -67,7 +69,7 @@ class PedidoOut(BaseModel):
 
 @router.get("/", response_model=List[PedidoOut])
 @router_legacy.get("/", response_model=List[PedidoOut])
-def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
+def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Lista los pedidos con soporte para filtrado por estado y paginación básica.
     """
@@ -82,7 +84,7 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
         raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
 
 @router.get("/pending", response_model=List[PedidoOut])
-def listar_pedidos_pendientes(db: Session = Depends(get_db)):
+def listar_pedidos_pendientes(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Endpoint optimizado para el KDS: Retorna pedidos en estado EN_PREPARACION.
     """
@@ -93,7 +95,7 @@ def listar_pedidos_pendientes(db: Session = Depends(get_db)):
         return []
 
 @router.get("/today", response_model=List[PedidoOut])
-def listar_pedidos_hoy(db: Session = Depends(get_db)):
+def listar_pedidos_hoy(db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Retorna todos los pedidos realizados en la fecha actual (Jornada Operativa).
     """
@@ -109,7 +111,7 @@ def listar_pedidos_activos(db: Session = Depends(get_db)):
     return db.query(Pedido).filter(Pedido.estado.in_(["ESPERANDO_PAGO", "EN_PREPARACION", "PREPARADO", "EN_CAMINO"])).all()
 
 @router.get("/cierre-z")
-def obtener_cierre_z(db: Session = Depends(get_db)):
+def obtener_cierre_z(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Genera el Cierre Z de la jornada actual: Ingresos por método de pago y totales.
     """
@@ -358,7 +360,7 @@ async def crear_pedido(
 
 @router.put("/{pedido_id}/estado")
 @router_legacy.post("/{pedido_id}/estado")
-def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Cambia el flujo operativo de un pedido y dispara comandos de hardware (impresión) según el cambio.
     """
@@ -441,7 +443,7 @@ def actualizar_ubicacion(pedido_id: str, payload: UbicacionPayload, db: Session 
 
 @router.post("/{pedido_id}/cobrar")
 @router_legacy.post("/{pedido_id}/cobrar")
-def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
+def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Finaliza el proceso de cobro, gestiona el cajón inteligente y emite tickets legales.
     A través de la arquitectura de repositorios (OrderService).
