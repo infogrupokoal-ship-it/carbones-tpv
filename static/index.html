@@ -21,7 +21,7 @@
         
         /* Hero Banner */
         .hero-banner {
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('/static/img/hero_bg.png') center/cover;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('/static/img/hero_premium.png') center/cover;
             height: 35vh;
             min-height: 250px;
             border-radius: 0 0 2rem 2rem;
@@ -172,9 +172,9 @@
                         <p class="text-gray-500 text-sm font-500">El mejor pollo a la brasa, directo a tu mesa.</p>
                     </div>
                     <div class="flex gap-4">
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition"><i class="fa-brands fa-instagram text-lg"></i></a>
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition"><i class="fa-brands fa-facebook-f text-lg"></i></a>
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                        <a href="/static/nosotros.html" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition" title="Sobre Nosotros"><i class="fa-solid fa-fire-burner text-lg"></i></a>
+                        <a href="https://instagram.com" target="_blank" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition"><i class="fa-brands fa-instagram text-lg"></i></a>
+                        <a href="https://facebook.com" target="_blank" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:bg-orange-50 transition"><i class="fa-brands fa-facebook-f text-lg"></i></a>
                     </div>
                 </div>
                 <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-600 text-gray-400">
@@ -182,9 +182,9 @@
                     <div class="flex gap-4">
                         <a href="/static/login.html" class="hover:text-orange-500 transition-all flex items-center gap-1 font-800"><i class="fa-solid fa-shield-halved"></i> Acceso Empleados</a>
                         <span class="opacity-10">|</span>
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="hover:text-gray-900 transition">Aviso Legal</a>
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="hover:text-gray-900 transition">Privacidad</a>
-                        <a href="javascript:void(0)" onclick="alert('Esta sección estará disponible próximamente.')" class="hover:text-gray-900 transition">Cookies</a>
+                        <a href="/static/legal.html" class="hover:text-gray-900 transition">Aviso Legal</a>
+                        <a href="/static/legal.html?section=privacidad" class="hover:text-gray-900 transition">Privacidad</a>
+                        <a href="/static/legal.html?section=cookies" class="hover:text-gray-900 transition">Cookies</a>
                     </div>
                 </div>
             </footer>
@@ -364,11 +364,16 @@
         // Mock Images for Categories & Fallbacks
         const defaultImages = {
             'Nuestra Brasa': '/static/img/pollo_asado.png',
-            'Bocadillos & Baguettes 🥖': '/static/img/pollo_asado.png',
-            'Entrantes': '/static/img/pollo_asado.png',
-            'Salsas': '/static/img/pollo_asado.png',
-            'Bebidas': '/static/img/pollo_asado.png',
-            'Postres': '/static/img/pollo_asado.png',
+            'Pollos Asados 🔥': '/static/assets/minimalist/pollo.png',
+            'Bocadillos & Baguettes 🥖': '/static/assets/minimalist/bocadillo.png',
+            'Pizzas Artesanas 🍕': '/static/assets/minimalist/pizza.png',
+            'Hamburguesas Pro 🍔': '/static/assets/minimalist/burger.png',
+            'Arroces & Paellas 🥘': '/static/assets/minimalist/arroz.png',
+            'Sándwiches & Snacks 🥪': '/static/assets/minimalist/sandwich.png',
+            'Bebidas Frías 🥤': '/static/assets/minimalist/refresco.png',
+            'Combos Ahorro 🛍️': '/static/assets/minimalist/refresco.png',
+            'Complementos 🍟': '/static/assets/minimalist/burger.png',
+            'Postres Caseros 🍰': '/static/assets/minimalist/sandwich.png',
             'default': '/static/img/pollo_asado.png'
         };
 

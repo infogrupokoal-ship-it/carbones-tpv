@@ -8,7 +8,7 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria, Usuario
+from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria, Usuario, TareaOperativa
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
 from scripts.seed_ultra import seed_ultra_industrial
@@ -18,6 +18,14 @@ from .dependencies import require_admin, get_current_user
 router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"], dependencies=[Depends(require_admin)])
 
 # --- Esquemas de Datos ---
+
+class TareaCreate(BaseModel):
+    titulo: str = Field(..., min_length=3, max_length=100)
+    descripcion: Optional[str] = None
+    prioridad: str = "MEDIA" # BAJA, MEDIA, ALTA, CRITICA
+
+class TareaUpdate(BaseModel):
+    estado: str # PENDIENTE, COMPLETADO
 
 class ProductoCreate(BaseModel):
     nombre: str = Field(..., json_schema_extra={"example": "Pollo Asado XL"})
@@ -260,3 +268,67 @@ async def get_dashboard_kpis(db: Session = Depends(get_db)):
             charts={},
             reviews=[]
         )
+
+# --- Gestión de Tareas Operativas ---
+
+@router.get("/tasks", response_model=List[Dict[str, Any]])
+async def list_tasks(db: Session = Depends(get_db)):
+    tasks = db.query(TareaOperativa).order_by(TareaOperativa.fecha.desc()).limit(50).all()
+    return [
+        {
+            "id": t.id,
+            "fecha": t.fecha.isoformat(),
+            "titulo": t.titulo,
+            "descripcion": t.descripcion,
+            "prioridad": t.prioridad,
+            "estado": t.estado
+        } for t in tasks
+    ]
+
+@router.post("/tasks", status_code=status.HTTP_201_CREATED)
+async def create_task(tarea: TareaCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    # Obtener tienda_id del usuario o tienda central por defecto
+    tienda_id = current_user.tienda_id if current_user else db.query(Usuario).first().tienda_id
+    
+    new_task = TareaOperativa(
+        id=str(uuid.uuid4()),
+        titulo=tarea.titulo,
+        descripcion=tarea.descripcion,
+        prioridad=tarea.prioridad,
+        estado="PENDIENTE",
+        usuario_id=current_user.id if current_user else None,
+        tienda_id=tienda_id
+    )
+    db.add(new_task)
+    
+    log_audit_action(
+        db=db,
+        usuario_id=current_user.id if current_user else None,
+        accion="CREATE_TASK",
+        entidad="TAREA_OPERATIVA",
+        payload_nuevo=f"Nueva tarea: {tarea.titulo} ({tarea.prioridad})"
+    )
+    
+    db.commit()
+    return {"status": "success", "id": new_task.id}
+
+@router.patch("/tasks/{task_id}")
+async def update_task_status(task_id: str, update: TareaUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    task = db.query(TareaOperativa).filter(TareaOperativa.id == task_id).first()
+    if not task:
+        raise HTTPException(404, detail="Tarea no encontrada")
+    
+    old_status = task.estado
+    task.estado = update.estado
+    
+    log_audit_action(
+        db=db,
+        usuario_id=current_user.id if current_user else None,
+        accion="UPDATE_TASK_STATUS",
+        entidad="TAREA_OPERATIVA",
+        payload_previo=f"Estado: {old_status}",
+        payload_nuevo=f"Estado: {update.estado}"
+    )
+    
+    db.commit()
+    return {"status": "success"}

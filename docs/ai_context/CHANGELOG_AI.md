@@ -1,5 +1,14 @@
 # CHANGELOG_AI.md
 
+## [V17.2-OPERATIONAL-INDUSTRIALIZATION] - 2026-05-03
+### Industrialización Operativa y Comunicación Proactiva
+- **Gestión de Incidencias**: Creación del modelo `TareaOperativa` y endpoints CRUD para el seguimiento de fallos técnicos y operativos en tiempo real.
+- **Captura Rápida (Dashboard)**: Integración del panel de captura de tareas en el dashboard administrativo, permitiendo al staff reportar incidencias con prioridad y descripción.
+- **Motor de WhatsApp "One-Click"**: Implementación de disparadores de comunicación directa en los módulos de **RRHH** (contacto con personal) y **Procurement** (compras urgentes por rotura de stock).
+- **Autocompletado Transversal**: Nuevo motor de búsqueda predictiva (`autocomplete.py`) integrado en la UI para acelerar la entrada de clientes, productos, proveedores y personal.
+- **Empty State Engine**: Sistema de estados vacíos con guía contextual y acciones sugeridas para módulos sin registros.
+- **Verificación**: Auditoría visual exitosa de todos los nuevos disparadores y paneles en el ecosistema TPV.
+
 ## [V17.1-SPA-SINGULARITY-ORCHESTRATION] - 2026-05-03
 ### Industrialización Total y Estabilización SPA
 - **Arquitectura SPA**: Refactorización masiva de los módulos de **Inventario**, **RRHH** y **Analytics** al paradigma de Single Page Application. Todo el contenido ahora reside dentro de un `#module-container` estandarizado.

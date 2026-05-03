@@ -210,6 +210,17 @@ class LogOperativo(Base):
     modulo = Column(String(50))
     mensaje = Column(Text)
 
+class TareaOperativa(Base):
+    __tablename__ = "tareas_operativas"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    titulo = Column(String(100), nullable=False)
+    descripcion = Column(Text)
+    prioridad = Column(String(20), default="MEDIA") # BAJA, MEDIA, ALTA, CRITICA
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, COMPLETADO
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+
 
 class ReporteZ(Base):
     __tablename__ = "reportes_z"

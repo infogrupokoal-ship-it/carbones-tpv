@@ -30,7 +30,7 @@ from .routers import (
     procurement, marketing, reservas, delivery_aggregators,
     mantenimiento, stats, aoi, enterprise_api,
     ai_assistant, commercial, logistics,
-    multi_agent, multimedia, ws
+    multi_agent, multimedia, ws, autocomplete
 )
 
 from .utils.logger import logger
@@ -323,6 +323,7 @@ api_router.include_router(ai_assistant.router, tags=["Asistente AI"])
 api_router.include_router(commercial.router, tags=["Gestión Comercial"])
 api_router.include_router(logistics.router, tags=["Logística y Riders"])
 api_router.include_router(multi_agent.router, tags=["Autonomous Agents"])
+api_router.include_router(autocomplete.router, tags=["Predictive Search"])
 
 # Registro final en la aplicación
 app.include_router(api_router)
