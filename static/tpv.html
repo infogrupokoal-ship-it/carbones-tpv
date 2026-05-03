@@ -533,7 +533,16 @@
                     body: JSON.stringify(payload)
                 });
                 
-                if (!res.ok) throw new Error('Error al enviar a impresora');
+                const data = await res.json();
+                
+                if (!res.ok && data.mode !== 'bridge') throw new Error(data.message || 'Error al enviar a impresora');
+                
+                // Fallback / Integración directa para Android (RawBT)
+                const isAndroid = /Android/i.test(navigator.userAgent);
+                if (isAndroid && data.ticket_text) {
+                    const b64 = btoa(unescape(encodeURIComponent(data.ticket_text)));
+                    window.location.href = `intent://${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+                }
                 
                 if (btn) btn.innerHTML = '✅ Enviado!';
                 setTimeout(() => { if (btn) btn.innerHTML = originalText; }, 2000);

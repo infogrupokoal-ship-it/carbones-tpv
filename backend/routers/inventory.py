@@ -86,6 +86,8 @@ class PrintItem(BaseModel):
 class PrintPayload(BaseModel):
     order_id: Optional[str] = None
     channel: Optional[str] = "TPV"
+    customer_name: Optional[str] = None
+    notes: Optional[str] = None
     items: List[PrintItem] = []
 
 # --- Rutas ---
@@ -148,8 +150,18 @@ def products_alias(db: Session = Depends(get_db)):
 
 @router_root.post("/print")
 def api_print(payload: PrintPayload):
+    """
+    Endpoint para solicitar impresión del ticket.
+    Delegado al print_service que enruta a mock, local bridge o ESC/POS nativo.
+    """
     data = payload.model_dump()
-    return print_ticket(data)
+    result = print_ticket(data)
+    
+    if result.get("ok"):
+        return {"msg": "Impresión encolada/enviada", **result}
+    else:
+        # Devolvemos el texto generado incluso si falla el envío, para fallback en frontend
+        return {"msg": "Fallo en envío de impresión", **result}
 
 @router.patch("/productos/{producto_id}", response_model=ProductoOut)
 @router_productos.patch("/{producto_id}", response_model=ProductoOut)
