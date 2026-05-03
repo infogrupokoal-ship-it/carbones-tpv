@@ -1,0 +1,14 @@
+{
+  "project": "Carbones y Pollos TPV",
+  "task": "Integración de Orquestación Maestra de IA",
+  "status": "running",
+  "started_at": "2026-05-03T22:18:00Z",
+  "last_update_at": "2026-05-03T22:18:00Z",
+  "current_step": "Inicialización de estructuras de orquestación y memoria",
+  "next_step": "Integración de reglas en prompts operativos y documentación",
+  "locked": false,
+  "ai_calls_used": 0,
+  "fallback_used": false,
+  "requires_human": false,
+  "blocker": ""
+}

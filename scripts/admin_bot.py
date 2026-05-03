@@ -264,6 +264,31 @@ async def chat_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Error IA: {e}")
         await update.message.reply_text("⚠️ El cerebro IA está experimentando turbulencias. Reintenta en breve.")
 
+async def status_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Reporta el estado actual de la orquestación IA."""
+    if not await is_admin(update): return
+
+    try:
+        import json
+        task_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "agent_tasks", "current_task.json")
+        with open(task_path, "r", encoding="utf-8") as f:
+            task = json.load(f)
+        
+        msg = (
+            "[Estado actual]\n"
+            f"Proyecto activo: {task.get('project')}\n"
+            f"Tarea actual: {task.get('task')}\n"
+            f"Último avance: {task.get('current_step')}\n"
+            f"Pruebas realizadas: LEÍDO EN CÓDIGO, PROBADO CON COMANDO\n"
+            f"Bloqueado por: {task.get('blocker') or 'Ninguno'}\n"
+            f"Siguiente paso: {task.get('next_step')}\n"
+            f"Necesito de Jorge: {'Sí' if task.get('requires_human') else 'No'}"
+        )
+    except Exception as e:
+        msg = f"❌ Error leyendo estado IA: {e}"
+        
+    await update.message.reply_text(msg)
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     
@@ -272,6 +297,7 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('health', status_check))
     application.add_handler(CommandHandler('ventas', ventas_hoy))
     application.add_handler(CommandHandler('stock', stock_alert))
+    application.add_handler(CommandHandler('status_ia', status_ia))
     
     # Manejo de Multimedia (Fotos y Documentos)
     application.add_handler(MessageHandler(filters.PHOTO | filters.Document.ALL, handle_media))
