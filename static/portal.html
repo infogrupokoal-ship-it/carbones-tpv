@@ -342,15 +342,57 @@
 
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
+        let isAuditing = false;
+        
         async function triggerMultiAgentAudit(e) {
             e.preventDefault();
+            
+            // 1. Control de Spam / Doble click
+            if (isAuditing) return;
+            isAuditing = true;
+            
+            // 2. Control de Sesión Básico (Cliente)
+            const token = localStorage.getItem('access_token');
+            const role = localStorage.getItem('user_role');
+            
             const modal = document.getElementById('aiModal');
             const content = document.getElementById('aiContent');
             modal.classList.remove('hidden');
-            content.innerHTML = '<div class="flex items-center gap-3 text-indigo-400 animate-pulse font-mono"><i class="fa-solid fa-circle-notch fa-spin"></i> Conectando con Agentes (Business, Security)...</div>';
+            
+            if (!token || (role !== 'ADMIN' && role !== 'MANAGER')) {
+                content.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 animate-pulse"></i>
+                        <h3 class="text-xl font-bold text-red-400 mb-2">Acceso Denegado</h3>
+                        <p class="text-slate-400">Solo el personal de gerencia (MANAGER/ADMIN) puede inicializar el Oráculo de Auditoría de IA. Los costes operativos de esta acción están restringidos.</p>
+                    </div>`;
+                isAuditing = false;
+                return;
+            }
+
+            content.innerHTML = '<div class="flex items-center gap-3 text-indigo-400 animate-pulse font-mono"><i class="fa-solid fa-circle-notch fa-spin"></i> Inicializando conexión cuántica con Gemini AI...</div>';
             
             try {
-                const res = await fetch('/api/agents/audit-day', { method: 'POST' });
+                // 3. Timeout Controller para evitar cuelgues indefinidos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s max
+                
+                const res = await fetch('/api/agents/audit-day', { 
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (res.status === 401 || res.status === 403) {
+                     content.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-ban"></i> Permisos Insuficientes o Sesión Caducada.</span>`;
+                     isAuditing = false;
+                     return;
+                }
+                
                 const data = await res.json();
                 if (data.status === 'success') {
                     let html = data.report.replace(/\n/g, '<br>')
@@ -359,10 +401,17 @@
                                           .replace(/---/g, '<hr class="border-indigo-500/20 my-6">');
                     content.innerHTML = html;
                 } else {
-                    content.innerHTML = `<span class="text-red-400">Error: ${data.detail || data.message}</span>`;
+                    content.innerHTML = `<span class="text-amber-400 font-mono"><i class="fa-solid fa-triangle-exclamation"></i> Aviso de IA: ${data.detail || data.message || "La IA devolvió un error controlado."}</span>`;
                 }
             } catch (err) {
-                content.innerHTML = `<span class="text-red-400 font-mono">Error de conexión: ${err.message}</span>`;
+                if (err.name === 'AbortError') {
+                    content.innerHTML = `<span class="text-red-400 font-mono"><i class="fa-solid fa-clock-rotate-left"></i> Timeout: El Oráculo tardó demasiado en responder (posible límite de cuota).</span>`;
+                } else {
+                    content.innerHTML = `<span class="text-red-400 font-mono"><i class="fa-solid fa-plug-circle-xmark"></i> Error de conexión: ${err.message}</span>`;
+                }
+            } finally {
+                // Liberar el cerrojo para permitir futuras auditorías tras terminar (con éxito o error)
+                isAuditing = false;
             }
         }
 

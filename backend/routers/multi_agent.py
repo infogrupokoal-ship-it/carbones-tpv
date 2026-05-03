@@ -4,15 +4,21 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from ..database import get_db
-from ..models import Pedido, LogOperativo
+from ..models import Pedido, LogOperativo, Usuario
 from ..ai.gemini_provider import GeminiProvider
 from ..ai.agent_roles import AgentRoles
 from ..utils.logger import logger
 
+# Importar las dependencias de seguridad del módulo de autenticación
+from .auth import require_manager
+
 router = APIRouter(prefix="/agents", tags=["Autonomous Agents"])
 
 @router.post("/audit-day")
-async def run_daily_audit(db: Session = Depends(get_db)):
+async def run_daily_audit(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_manager) # Proteger con rol MANAGER o ADMIN
+):
     """
     Inicia una auditoría multi-agente del día actual.
     Extrae ventas, pedidos cancelados y registros operativos para detectar anomalías.
