@@ -30,6 +30,7 @@
 - [ ] Conectar módulo de hardware local (impresoras/cajón de monedas) mediante agentes puente (WebSocket/Python local) en la sucursal física.
 
 ## Finalización de Industrialización (V5.0)
+
 - [x] Integración final de componentes backend (Delivery Aggregators, Mantenimiento, Estadísticas BI reales).
 - [x] Consolidación visual de todos los portales administrativos y comerciales a Enterprise Light Theme.
 - [x] Corrección de dependencias y validación completa del startup de uvicorn.
@@ -41,9 +42,10 @@
 - [x] Desarrollar backend y frontend de Gestión de Franquicias (Franchise).
 - [x] Desarrollar backend y frontend de Panel de Sostenibilidad (ESG).
 - [x] Conectar módulos al Enterprise Shell.
-* [x] Implementación completa V6.0 Enterprise (IoT, Crisis, ERP, Procurement, Menu Engineering).
+- [x] Implementación completa V6.0 Enterprise (IoT, Crisis, ERP, Procurement, Menu Engineering).
 
 ## Fase VII: Industrialización Singularity (V7.0)
+
 - [x] **Enterprise Shell v3.1**: Navegación por categorías colapsables (Accordion) y telemetría de latencia.
 - [x] **Mass Injection Pipeline**: Automatización de la inyección del shell en 27 módulos industriales.
 - [x] **Carbonito AI Business Analyst**: Integración en todos los módulos administrativos con contexto dinámico.
@@ -52,6 +54,7 @@
 - [x] **UI Audit & Fix**: Eliminación de duplicados visuales y restauración de lógica única por módulo.
 
 ## Fase VIII: Quantum Evolution (V9.0)
+
 - [x] **Quantum Portal**: Nueva puerta de enlace centralizada para administración Enterprise.
 - [x] **Predictive Analytics Portal**: Visualización BI avanzada con Chart.js y telemetría en tiempo real.
 - [x] **Autonomous Dispatch Engine**: Motor de optimización logística con IA.
@@ -59,6 +62,7 @@
 - [x] **Robotics Telemetry Bridge**: Simulación y monitorización de hardware industrial de cocina.
 
 ## Fase IX: Quantum Singularity (V10.0)
+
 - [x] Despliegue de Portal Quantum y Matrix Control.
 - [x] Industrialización de Kiosko B2C con Carbonito AI.
 - [x] Sincronización 100% de 37+ routers en backend.
@@ -73,6 +77,7 @@
 - [x] **Final Singularity Audit**: Corrección de importaciones y enrutamiento modular completada.
 
 ## Fase X: Singularity Industrialization (V9.3)
+
 - [x] **Self-Healing Engine [V6.0]**: Implementación de protocolos Omega/Sigma para recuperación automática de BD y activos.
 - [x] **BI Stats Optimization**: Corrección de tipos de datos SQLAlchemy y cast de fechas para analítica precisa.
 - [x] **IoT Hardware Stabilization**: Sincronización de modelos de logs operativos con el puente de telemetría.
@@ -82,6 +87,7 @@
 - [x] **Production Ready Audit**: Creación de la lista de verificación final para despliegue zero-touch en Render.
 
 ## Fase XI: B2C Storefront & Backend Stabilization [V11.0]
+
 - [x] **B2C Primary Entry**: Configuración de `index.html` como raíz (`/`) para priorizar la venta directa.
 - [x] **Admin Decoupling**: Movimiento del portal administrativo a `/admin` para separación clara de contextos.
 - [x] **Circular Import Resolution**: Desacoplamiento de `auth.py` y `admin_audit.py` mediante importaciones diferidas.
@@ -89,6 +95,7 @@
 - [x] **Visual Audit Completion**: Verificación de integridad de UI tanto en el catálogo B2C como en el dashboard administrativo.
 
 ## Fase XII: Industrial Singularity Reinforcement [V11.5]
+
 - [x] **RBAC Gatekeeping**: Implementación de escoltas de ruta y pantallas de acceso denegado en Enterprise Shell.
 - [x] **DOM Shielding**: Ocultación y eliminación dinámica de elementos sensibles basada en roles (data-role).
 - [x] **Carbonito Contextual**: Mejora de la IA para recibir y procesar el contexto operativo (ruta/módulo) en tiempo real.
@@ -96,12 +103,15 @@
 - [x] **Kiosko Polish**: Resolución de 404s de imagen y mejora de la estética profesional del catálogo B2C.
 
 ## Fase XIII: Supermega Singularity [V12.0]
+
 - [x] **AI Proactive BI**: Implementación de motor de insights proactivos basados en flujo de datos real.
 - [x] **Digital Twin Matrix**: Visualización 360° de nodos de hardware e infraestructura IoT.
 - [x] **Quantum Loyalty**: Portal de fidelización gamificado para expansión de marca y retención.
 - [x] **Industrial UX+**: Integración de feedback auditivo y visualización de carga neuronal en tiempo real.
 - [x] **Final 20x Professionalization**: Auditoría total y sincronización global en Render.
+
 ## Fase XIV: Autonomous Proactive Intelligence [V13.0]
+
 - [x] **AuditLog Consolidation**: Unificación del esquema industrial y eliminación de redundancias estructurales.
 - [x] **Zero-Touch Seeding**: Implementación de inyección automática de catálogo industrial en primer arranque.
 - [x] **AI Real-Time Awareness**: Inyección de logs operativos (LogOperativo) en el contexto de Carbonito AI.
@@ -110,6 +120,7 @@
 - [x] **Industrial Recovery Tool**: Creación de script de fuerza bruta para reset y sembrado de base de datos (`force_seed.py`).
 
 ## Fase XVI: Advanced Multi-Agent Oracle [V15.0]
+
 - [x] **Agent Specialization**: Separación de lógica en Agente Business (Ventas) y Agente Auditor (Seguridad).
 - [x] **Strict Schema Enforcement**: Implementación de `response_mime_type="application/json"` en el `GeminiProvider`.
 - [x] **Markdown Stripper**: Sistema de sanitización para eliminar bloques de código Markdown generados por la IA.
@@ -118,29 +129,37 @@
 - [x] **Clean Code Audit**: Resolución de variables huérfanas en `multi_agent.py` logrando 0 errores en `ruff check`.
 
 ## Fase XVII: Full Industrial Hardening & Autonomous Stability (V16.0)
+
 - [x] **Linting Zero-Tolerance**: Elimination of all critical E/F violations across the entire codebase.
 - [x] **Lifespan Migration**: Modernization of FastAPI startup/shutdown handlers.
 - [x] **Windows encoding fix**: Global enforcement of UTF-8 in stdout/stderr and logging handlers.
 - [x] **Model Integrity**: Resolution of schema mismatches in `multi_agent` and `stats` routers.
 
 ## Fase XVIII: Industrialization V16.2 (TPV & Access Control)
+
 - [x] **Unificación de Repositorio**: Consolidación total en `d:\proyecto\carbones_y_pollos_tpv`.
 - [x] **Seguridad JWT**: Integración de almacenamiento de tokens en `login.html` y gatekeeper en `tpv.html`.
 - [x] **TPV Search Upgrade**: Implementación de buscador dinámico de productos (trigger F2) y filtrado en tiempo real.
 - [x] **Verificación Operativa**: Auditoría visual y funcional del sistema de acceso y terminal de ventas.
+
 ## Fase XIX: Industrial Singularity SPA Orchestration (V17.0)
+
 - [x] **Module Containerization**: Standardized Inventory, HR, and Analytics modules into the `#module-container` architecture.
 - [x] **Enterprise Shell Integration**: Centralized UI lifecycle management, offloading telemetry and overlays to the global shell.
 - [x] **UI Components Synchronization**: Integrated the unified `ui_components.js` library across all administrative nodes for a 20x professional aesthetic.
 - [x] **Zero-Touch Navigation**: Verified breadcrumb generation and dynamic script re-injection for seamless module transitions.
+
 ## Fase XX: Zero-Touch Infrastructure & RBAC Hardening (V18.0)
+
 - [x] **RBAC Enforcement**: Mandatory JWT and role-checking dependencies applied to all administrative routers (`admin`, `orders`, `inventory`, `rrhh`, `telemetry`).
 - [x] **Audit Log Integration**: Automatic recording of sensitive actions linked to authorized user IDs for industrial compliance.
 - [x] **PID Locking Stability**: Implementation of robust file locks in `sync_daemon` and `local_printer_bridge` to prevent port collisions and redundant process execution.
 - [x] **UTF-8 Industrialization**: System-wide log sanitization and encoding enforcement to ensure stability across Windows and Linux environments.
 - [x] **Master Recovery Tooling**: Deployment of `master_restart.bat` and `watchdog_bridge.bat` for one-click autonomous infrastructure recovery.
 - [x] **Security QA Verified**: Confirmed 401/403 blocking on secured endpoints via remote telemetry audit.
+
 ## Fase XXI: UX Cohesion & Operational Readiness (V19.0)
+
 - [x] **Navigation Audit**: Fixed blind links in index.html and standardized footers across public pages.
 - [x] **Legal Framework**: Created unified `legal.html` (Aviso Legal, Privacidad, Cookies) for enterprise compliance.
 - [x] **Enterprise Shell v11.1**: Optimized active module detection and automatic breadcrumb initialization from URL.

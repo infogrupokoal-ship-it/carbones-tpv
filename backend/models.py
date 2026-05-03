@@ -579,5 +579,19 @@ class AgentMessage(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     processed_at = Column(DateTime)
 
+
+class PrintJob(Base):
+    __tablename__ = "print_jobs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    payload = Column(Text, nullable=False) # Contenido del ticket (JSON o Texto)
+    printer_type = Column(String(50), default="thermal") # thermal, A4, label
+    target_device = Column(String(100), nullable=True) # ID del dispositivo destino (Tablet ID o IP)
+    status = Column(String(20), default="PENDING") # PENDING, IN_FLIGHT, COMPLETED, FAILED
+    error_log = Column(Text, nullable=True)
+    attempts = Column(Integer, default=0)
+    last_attempt = Column(DateTime, nullable=True)
+    metadata_json = Column(JSON, nullable=True) # Datos extra (nº pedido, canal, etc)
+
     def __repr__(self):
-        return f"<AgentMessage from {self.sender_agent} to {self.receiver_agent}>"
+        return f"<PrintJob {self.id} status={self.status}>"

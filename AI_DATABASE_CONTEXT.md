@@ -1,6 +1,7 @@
 # AI DATABASE CONTEXT
 
 ## Motor y Configuración
+
 - **Motor:** SQLite en local. PostgreSQL recomendado para Producción, aunque el Render.yaml actual indica `sqlite:////data/tpv_data.sqlite` en un Persistent Disk de Render de 1GB.
 - **ORM:** SQLAlchemy (v2+).
 - **Migraciones:** Alembic está instalado, pero parece que el proyecto usa un script `auto_migrate.py` y `scripts/migrate_v5.py` para sincronizar las columnas sin alembic puro.
@@ -34,6 +35,7 @@
   - `AgentMessage` (agent_messages): Comunicación entre agentes de software autónomos.
 
 ## Estado de los Datos
+
 - **Seeds:** Existe `seed_ultra.py` que asegura que hay una Tienda y un Usuario administrador. Existe `seed_catalog_completo.py` (Carta nocturna real, bocadillos, chivitos).
 - **Datos Reales vs Demo:** El catálogo incluye productos reales (chivito de pollo a 6.50, brascada, etc.), pero las ventas en local son pruebas.
 - **Campos de Pagos:** Pedidos incluye `metodo_pago` y soporta `stripe_session_id`.

@@ -11,7 +11,7 @@ from sqlalchemy import func
 from .models import Producto, Pedido, Ingrediente
 from .config import settings
 from .database import SessionLocal
-from .utils.ai_model_manager import ai_manager, generate_ai_response
+from .shared_ai.ai_router import global_router, generate_ai_response
 from .utils.logger import logger
 
 
@@ -78,8 +78,7 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
     try:
         business_data = get_business_summary(db)
         menu_data = get_menu_text(db)
-        model_status = ai_manager.get_status()
-
+        
         import os
         global_prompt = ""
         prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "GLOBAL_AI_OPERATING_PROMPT.md")
@@ -111,7 +110,7 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
         3. Si detectas anomalías en los datos, notifícalo inmediatamente.
         4. No inventes métricas financieras no proporcionadas.
         5. Estás estrictamente limitado a analizar y basar tus respuestas en el INVENTARIO Y CARTA proporcionado. No asumas ni inventes productos, stocks o datos financieros bajo ninguna circunstancia.
-        6. Si el usuario pregunta qué modelo IA estás usando, responde: {model_status['active_model']}
+        6. Si el usuario pregunta qué modelo IA estás usando, responde: Gemini / OpenRouter Múltiple
         """
 
         response = await generate_ai_response(full_prompt)

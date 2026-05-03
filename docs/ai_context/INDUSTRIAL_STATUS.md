@@ -20,15 +20,16 @@ Este documento certifica que el ecosistema ha sido completamente industrializado
 ### 🛠️ Infraestructura de UI (Enterprise Shell)
 
 Se ha implementado un sistema de orquestación centralizado (`enterprise_shell.js` / `.css`) que garantiza:
-1.  **Consistencia Estética**: Todas las interfaces comparten el mismo grid industrial, tipografía Outfit y efectos de cristal.
-2.  **Navegación Modular**: Sidebar persistente con categorías lógica (Core, Logistics, Management, System).
-3.  **Sincronización de Datos**: Cada módulo inicializa su contexto a través del Shell, reduciendo la latencia de carga.
+
+1. **Consistencia Estética**: Todas las interfaces comparten el mismo grid industrial, tipografía Outfit y efectos de cristal.
+2. **Navegación Modular**: Sidebar persistente con categorías lógica (Core, Logistics, Management, System).
+3. **Sincronización de Datos**: Cada módulo inicializa su contexto a través del Shell, reduciendo la latencia de carga.
 
 ### 🚀 Despliegue y Autonomía (Zero-Touch)
 
-*   **Render Pipeline**: Configurado para despliegue continuo con health-checks automáticos.
-*   **Database**: SQLite con migraciones automáticas para asegurar que los nuevos esquemas de auditoría y escandallos no corrompan los datos existentes.
-*   **AI Integration**: El asistente "Carbonito" está integrado en el Kiosko y los Dashboards para ofrecer insights predictivos.
+* **Render Pipeline**: Configurado para despliegue continuo con health-checks automáticos.
+* **Database**: SQLite con migraciones automáticas para asegurar que los nuevos esquemas de auditoría y escandallos no corrompan los datos existentes.
+* **AI Integration**: El asistente "Carbonito" está integrado en el Kiosko y los Dashboards para ofrecer insights predictivos.
 
 ---
 **Generado por Antigravity AI - Google Deepmind Team**

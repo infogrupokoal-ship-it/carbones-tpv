@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.config import settings
 from backend.utils.logger import logger as central_logger
-from backend.utils.ai_model_manager import ai_manager, generate_ai_response
+from backend.shared_ai.ai_router import global_router, generate_ai_response
 
 # Logger adaptado al central
 logger = central_logger
@@ -222,11 +222,11 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"🛡️ MIME: `{result['mime']}`\n"
             )
             
-            from backend.utils.ai_model_manager import ai_manager
+            from backend.shared_ai.ai_router import global_router
             prompt = "Analiza este documento/imagen del TPV. Si es un ticket, resume los totales. Si es una incidencia, explícala. Responde breve en Español."
             
             await update.message.reply_chat_action("typing")
-            analysis, model = await ai_manager.analyze_multimodal_async(
+            analysis, model = await global_router.analyze_multimodal_async(
                 prompt=prompt,
                 file_bytes=bytes(file_bytes),
                 mime_type=result['mime']
