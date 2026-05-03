@@ -4,7 +4,7 @@ import datetime
 from typing import List, Optional, Dict, Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -21,21 +21,21 @@ router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
 # --- Esquemas Pydantic ---
 
 class ItemCrear(BaseModel):
-    producto_id: str = Field(..., example="uuid-producto")
-    cantidad: int = Field(..., gt=0, example=1)
-    notas: Optional[str] = Field(None, example="Sin cebolla")
+    producto_id: str = Field(..., json_schema_extra={"example": "uuid-producto"})
+    cantidad: int = Field(..., gt=0, json_schema_extra={"example": 1})
+    notas: Optional[str] = Field(None, json_schema_extra={"example": "Sin cebolla"})
 
 class PedidoCrear(BaseModel):
     items: List[ItemCrear]
-    origen: str = Field("QUIOSCO", example="QUIOSCO")
-    estado_inicial: str = Field("ESPERANDO_PAGO", example="ESPERANDO_PAGO")
+    origen: str = Field("QUIOSCO", json_schema_extra={"example": "QUIOSCO"})
+    estado_inicial: str = Field("ESPERANDO_PAGO", json_schema_extra={"example": "ESPERANDO_PAGO"})
     cubiertos_qty: int = Field(0, ge=0)
     notas_cliente: Optional[str] = None
     canjear_puntos: bool = False
     cliente_id: Optional[str] = None
-    metodo_envio: str = Field("LOCAL", example="LOCAL")
+    metodo_envio: str = Field("LOCAL", json_schema_extra={"example": "LOCAL"})
     direccion: Optional[str] = None
-    metodo_pago: str = Field("TARJETA", example="TARJETA")
+    metodo_pago: str = Field("TARJETA", json_schema_extra={"example": "TARJETA"})
 
 class ItemPedidoOut(BaseModel):
     id: str
@@ -44,8 +44,7 @@ class ItemPedidoOut(BaseModel):
     cantidad: int
     precio: float
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PedidoOut(BaseModel):
     id: str
@@ -62,8 +61,7 @@ class PedidoOut(BaseModel):
     cliente_telefono: Optional[str] = None
     items: List[ItemPedidoOut] = [] # Incluimos items para el listado de caja
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- Rutas ---
 

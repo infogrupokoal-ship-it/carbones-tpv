@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from backend.database import get_db
 from backend.models import WhatsAppTemplate, AuditLog
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 import uuid
 import qrcode
@@ -22,8 +22,7 @@ class TemplateCreate(BaseModel):
 class TemplateOut(TemplateCreate):
     id: str
     creado_en: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CuponCreate(BaseModel):
     codigo: str = Field(..., max_length=15, description="Código del cupón (ej: VERANO20)")

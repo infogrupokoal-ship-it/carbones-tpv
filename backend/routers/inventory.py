@@ -2,7 +2,7 @@ import uuid
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -26,9 +26,7 @@ class IngredienteOut(BaseModel):
     proveedor_nombre: Optional[str] = "Sin Proveedor"
     proveedor_email: Optional[str] = ""
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class ProductoOut(BaseModel):
     id: str
@@ -45,17 +43,14 @@ class ProductoOut(BaseModel):
     is_active: bool
     turno_disponible: Optional[str] = "ALL"
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class CategoriaOut(BaseModel):
     id: str
     nombre: str
     imagen_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UpdateProductoRequest(BaseModel):
     imagen_url: Optional[str] = None

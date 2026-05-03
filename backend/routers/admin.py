@@ -19,13 +19,13 @@ router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"])
 # --- Esquemas de Datos ---
 
 class ProductoCreate(BaseModel):
-    nombre: str = Field(..., example="Pollo Asado XL")
-    precio: float = Field(..., gt=0, example=12.50)
-    categoria_id: str = Field(..., example="cat-pollos")
+    nombre: str = Field(..., json_schema_extra={"example": "Pollo Asado XL"})
+    precio: float = Field(..., gt=0, json_schema_extra={"example": 12.50})
+    categoria_id: str = Field(..., json_schema_extra={"example": "cat-pollos"})
     stock_actual: float = Field(0, ge=0)
 
 class CierreRequest(BaseModel):
-    efectivo_declarado: Optional[float] = Field(None, ge=0, example=150.00)
+    efectivo_declarado: Optional[float] = Field(None, ge=0, json_schema_extra={"example": 150.00})
 
 class KPIOut(BaseModel):
     ventas_hoy: float

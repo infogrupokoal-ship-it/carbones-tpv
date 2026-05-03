@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import uuid
 
 from ..database import get_db
@@ -12,8 +12,8 @@ from ..utils.logger import logger
 router = APIRouter(prefix="/rrhh", tags=["Recursos Humanos"])
 
 class FichajeRequest(BaseModel):
-    pin: str = Field(..., example="1234")
-    tipo: str = Field(..., example="ENTRADA") # ENTRADA, SALIDA, PAUSA
+    pin: str = Field(..., json_schema_extra={"example": "1234"})
+    tipo: str = Field(..., json_schema_extra={"example": "ENTRADA"}) # ENTRADA, SALIDA, PAUSA
 
 class FichajeOut(BaseModel):
     id: str
@@ -21,8 +21,7 @@ class FichajeOut(BaseModel):
     tipo: str
     fecha: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.post("/fichar")
 def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):

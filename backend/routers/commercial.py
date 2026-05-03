@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Presupuesto, ItemPresupuesto, Producto, Referido, WhatsAppTemplate, Pedido, ItemPedido
@@ -78,13 +78,12 @@ class ItemPresupuestoOut(BaseModel):
     precio_unitario: float
     nombre: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_orm(cls, obj):
-        data = super().from_orm(obj)
-        if obj.producto:
+    def model_validate(cls, obj, *args, **kwargs):
+        data = super().model_validate(obj, *args, **kwargs)
+        if hasattr(obj, 'producto') and obj.producto:
             data.nombre = obj.producto.nombre
         return data
 
@@ -99,13 +98,12 @@ class PresupuestoOut(BaseModel):
     cliente_nombre: Optional[str] = "Anónimo"
     items: List[ItemPresupuestoOut]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_orm(cls, obj):
-        data = super().from_orm(obj)
-        if obj.cliente:
+    def model_validate(cls, obj, *args, **kwargs):
+        data = super().model_validate(obj, *args, **kwargs)
+        if hasattr(obj, 'cliente') and obj.cliente:
             data.cliente_nombre = obj.cliente.nombre
         else:
             data.cliente_nombre = "Anónimo"
@@ -113,8 +111,8 @@ class PresupuestoOut(BaseModel):
         # Mapear items manualmente para incluir el nombre del producto
         mapped_items = []
         for it in obj.items:
-            item_out = ItemPresupuestoOut.from_orm(it)
-            item_out.nombre = it.producto.nombre if it.producto else "Producto"
+            item_out = ItemPresupuestoOut.model_validate(it)
+            item_out.nombre = it.producto.nombre if hasattr(it, 'producto') and it.producto else "Producto"
             mapped_items.append(item_out)
         data.items = mapped_items
         return data
@@ -126,8 +124,8 @@ def listar_presupuestos(db: Session = Depends(get_db)):
     try:
         quotes = db.query(Presupuesto).order_by(Presupuesto.fecha.desc()).all()
         # FastAPI se encarga del mapeo si usamos from_attributes=True y clases compatibles
-        # Pero para el nombre del cliente/producto, el from_orm ayuda
-        return [PresupuestoOut.from_orm(q) for q in quotes]
+        # Pero para el nombre del cliente/producto, el model_validate ayuda
+        return [PresupuestoOut.model_validate(q) for q in quotes]
     except Exception as e:
         logger.error(f"Error listando presupuestos: {e}")
         return []
@@ -169,7 +167,7 @@ def crear_presupuesto(data: PresupuestoCrear, db: Session = Depends(get_db)):
         nuevo.total = total
         db.commit()
         db.refresh(nuevo)
-        return PresupuestoOut.from_orm(nuevo)
+        return PresupuestoOut.model_validate(nuevo)
     except Exception as e:
         db.rollback()
         logger.error(f"Error creando presupuesto: {e}")
@@ -217,8 +215,7 @@ class WAPlateOut(BaseModel):
     contenido: str
     variables: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/wa-templates", response_model=List[WAPlateOut])
 def listar_plantillas(db: Session = Depends(get_db)):
@@ -234,8 +231,7 @@ class ReferidoOut(BaseModel):
     estado: str
     bono_aplicado: float
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/referrals", response_model=List[ReferidoOut])
 def listar_referidos(db: Session = Depends(get_db)):

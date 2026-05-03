@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..database import get_db
 from ..models import Usuario
@@ -17,8 +17,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 # --- Esquemas de Datos ---
 
 class LoginRequest(BaseModel):
-    username: str = Field(..., example="admin")
-    pin: str = Field(..., min_length=4, max_length=6, example="1234")
+    username: str = Field(..., json_schema_extra={"example": "admin"})
+    pin: str = Field(..., min_length=4, max_length=6, json_schema_extra={"example": "1234"})
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -31,9 +31,7 @@ class UserProfile(BaseModel):
     username: str
     role: str = Field(..., alias="rol")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 # --- Dependencias de Seguridad ---
 
