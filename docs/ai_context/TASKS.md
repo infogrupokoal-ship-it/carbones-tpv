@@ -7,6 +7,10 @@
 - [x] Migración masiva de toda la suite Enterprise (Dashboard, RRHH, Caja, Liquidaciones, etc.) al 'Industrial Light Mode'.
 - [x] Migración del sistema de navegación lateral a 'Accordion Submenus' táctiles optimizados para TPV.
 - [x] Conexión de métricas BI (Stats & Analytics) a consultas SQL en tiempo real (eliminación de datos estáticos/mockeados).
+- [x] Refactorizar `enterprise_shell.css` para soportar vista móvil (Sidebar overlay).
+- [x] Optimizar `dashboard.html` para rejillas responsivas y tipografía escalable.
+- [x] Implementar toggle de sidebar inteligente (Drawer en móvil, Collapse en Desktop).
+- [x] Sincronizar tokens de diseño (`--sidebar-width`) entre JS y CSS.
 
 ## 2. Importante
 

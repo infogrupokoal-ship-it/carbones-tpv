@@ -2,152 +2,228 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiosko | Carbones y Pollos La Granja</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Terminal Kiosko | Carbones y Pollos</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-  body { font-family: 'Outfit', sans-serif; background: #f8f8f5; }
-  .cat-pill { transition: all .3s; cursor: pointer; }
-  .cat-pill.active { background: #111; color: #fff; }
-  .prod-card { transition: transform .2s, box-shadow .2s; }
-  .prod-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
-  .cart-slide { transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); }
-  .cart-slide.open { transform: translateX(0); }
-  .overlay { opacity: 0; pointer-events: none; transition: opacity .3s; }
-  .overlay.open { opacity: 1; pointer-events: all; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background:#e5e5e5; border-radius:4px; }
-  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
-  .pop { animation: pop .3s ease; }
+  body { font-family: 'Outfit', sans-serif; background: #f8fafc; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  /* Kiosk specific animations */
+  .cat-btn { transition: all 0.3s; position: relative; overflow: hidden; }
+  .cat-btn.active { background: #111827; color: white; transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+  .cat-btn.active::after { content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%); border-width: 10px; border-style: solid; border-color: transparent transparent transparent #111827; }
+  
+  .prod-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+  .prod-card:active { transform: scale(0.95); }
+  
+  .cart-item-anim { animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  @keyframes popBtn { 0%{transform:scale(1)} 50%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  .pop-btn { animation: popBtn 0.3s ease; }
 </style>
 </head>
-<body class="min-h-screen">
+<body class="h-screen w-screen flex flex-row">
 
-<!-- HEADER -->
-<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <span class="text-3xl">🔥</span>
-    <div>
-      <h1 class="text-lg font-black uppercase tracking-tight leading-none">Carbones & Pollos</h1>
-      <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">La Granja · Av. Malvarrosa 112</p>
+  <!-- IDLE SCREENSAVER (100% OVERLAY) -->
+  <div id="screensaver" class="hidden absolute inset-0 z-[9999] bg-orange-600 flex flex-col items-center justify-center text-white cursor-pointer" onclick="wakeUpKiosk()">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+    <div class="relative z-10 text-center flex flex-col items-center justify-center h-full w-full p-12">
+      <div class="text-[150px] mb-8 animate__animated animate__pulse animate__infinite">🔥</div>
+      <h1 class="text-8xl md:text-[140px] font-900 uppercase tracking-tighter mb-8 leading-none drop-shadow-2xl">Carbones<br><span class="text-yellow-400">& Pollos</span></h1>
+      <div class="mt-auto mb-24 bg-white/20 backdrop-blur-xl rounded-full px-16 py-8 border border-white/30 animate-pulse shadow-[0_0_50px_rgba(255,255,255,0.2)]">
+        <p class="text-5xl font-900 uppercase tracking-widest text-white">Toca la pantalla para empezar</p>
+      </div>
     </div>
   </div>
-  <button id="cart-btn" onclick="toggleCart()" class="relative flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-2xl font-black text-sm hover:bg-orange-600 transition-colors">
-    <i class="fa-solid fa-bag-shopping"></i>
-    <span id="cart-count" class="hidden absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full text-[10px] font-black flex items-center justify-center">0</span>
-    <span id="cart-total-header">Mi pedido</span>
-  </button>
-</header>
 
-<!-- CATEGORIES -->
-<div class="sticky top-[73px] z-30 bg-white border-b border-gray-100 px-6 py-3 flex gap-3 overflow-x-auto no-scrollbar">
-  <button id="cat-all" class="cat-pill active flex-shrink-0 px-5 py-2 bg-gray-100 rounded-xl text-xs font-black uppercase tracking-wider" onclick="filterCat('all')">Todo</button>
-  <div id="cat-pills" class="flex gap-3"></div>
-</div>
-
-<!-- PRODUCTS -->
-<main class="max-w-7xl mx-auto px-6 py-8">
-  <div id="loading" class="py-24 text-center text-gray-400 font-black uppercase tracking-widest text-xs">
-    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-orange-500 mb-4 block"></i>Cargando menú...
-  </div>
-  <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden"></div>
-  <div id="empty-cat" class="hidden py-24 text-center">
-    <div class="text-5xl mb-4">🍽️</div>
-    <p class="font-black uppercase tracking-widest text-gray-400 text-xs">No hay productos en esta categoría</p>
-  </div>
-</main>
-
-<!-- CART OVERLAY -->
-<div id="cart-overlay" class="overlay fixed inset-0 z-50 bg-black/50" onclick="toggleCart()"></div>
-
-<!-- CART PANEL -->
-<div id="cart-panel" class="cart-slide fixed right-0 top-0 h-full w-full max-w-md z-50 bg-white shadow-2xl flex flex-col">
-  <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-    <h2 class="text-xl font-black uppercase tracking-tight">Tu Pedido</h2>
-    <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-900 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">✕</button>
-  </div>
-  <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-  <div class="p-6 border-t border-gray-100 bg-gray-50">
-    <div class="flex justify-between text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-      <span>Subtotal</span><span id="cart-sub">0.00€</span>
-    </div>
-    <div class="flex justify-between text-xs font-black uppercase tracking-widest text-gray-500 mb-4">
-      <span>Envío</span><span id="cart-ship">3.50€</span>
-    </div>
-    <div class="flex justify-between text-lg font-black uppercase tracking-tight mb-5">
-      <span>Total</span><span id="cart-total" class="text-orange-600">0.00€</span>
-    </div>
-    <button id="checkout-btn" onclick="openCheckout()" disabled class="w-full bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-orange-600 transition-colors">
-      Confirmar Pedido
-    </button>
-  </div>
-</div>
-
-<!-- CHECKOUT MODAL -->
-<div id="checkout-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl">
-    <h3 class="text-2xl font-black uppercase tracking-tight mb-6">Finalizar Pedido</h3>
-    <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-4">
-      <div class="grid grid-cols-2 gap-4">
+  <!-- LEFT AREA: MENU (72%) -->
+  <div class="w-[72%] h-full flex flex-col bg-gray-50 relative z-10">
+    
+    <!-- Header -->
+    <header class="bg-white h-24 px-8 shadow-sm flex items-center justify-between shrink-0 border-b border-gray-200 z-20">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center text-3xl shadow-lg">🔥</div>
         <div>
-          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Nombre *</label>
-          <input id="f-nombre" type="text" required placeholder="Tu nombre" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
-        </div>
-        <div>
-          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Teléfono *</label>
-          <input id="f-tel" type="tel" required placeholder="6XX XXX XXX" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+          <h1 class="text-3xl font-900 uppercase tracking-tighter text-gray-900 leading-none">Carbones & Pollos</h1>
+          <p class="text-xs font-800 text-gray-400 uppercase tracking-widest">Toque para pedir</p>
         </div>
       </div>
-      <div>
-        <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Dirección (si es a domicilio)</label>
-        <input id="f-dir" type="text" placeholder="Calle, número, piso..." class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Pago</label>
-          <select id="f-pago" class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none appearance-none focus:ring-2 focus:ring-orange-500">
-            <option value="EFECTIVO">Efectivo</option>
-            <option value="TARJETA">Tarjeta</option>
-            <option value="BIZUM">Bizum</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Notas</label>
-          <input id="f-notas" type="text" placeholder="Opcional..." class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+      <div class="flex items-center gap-4">
+        <div class="px-6 py-3 bg-gray-100 rounded-full flex items-center gap-2">
+          <i class="fa-solid fa-globe text-gray-400"></i>
+          <span class="font-800 uppercase text-sm text-gray-700">Español</span>
         </div>
       </div>
-      <div class="pt-2 flex gap-3">
-        <button type="button" onclick="closeCheckout()" class="flex-1 border border-gray-200 py-4 rounded-2xl font-black uppercase text-xs text-gray-500 hover:bg-gray-50">Volver</button>
-        <button type="submit" id="submit-btn" class="flex-2 flex-grow-[2] bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-orange-600 transition-colors">
-          🔥 Confirmar y Pagar
+    </header>
+
+    <!-- Main Content: Sidebar + Grid -->
+    <div class="flex-1 flex overflow-hidden">
+      
+      <!-- Category Sidebar -->
+      <aside class="w-56 bg-white border-r border-gray-200 h-full overflow-y-auto hide-scrollbar py-6 px-4 flex flex-col gap-3 shadow-[5px_0_15px_rgba(0,0,0,0.02)] z-10" id="cat-sidebar">
+        <!-- Injected via JS -->
+      </aside>
+
+      <!-- Products Grid -->
+      <main class="flex-1 h-full overflow-y-auto hide-scrollbar p-8 bg-[#f8fafc] relative">
+        <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+          <i class="fa-solid fa-circle-notch fa-spin text-5xl text-orange-500 mb-6"></i>
+          <p class="font-900 uppercase tracking-widest text-lg">Cargando menú...</p>
+        </div>
+        
+        <div class="mb-6 flex items-center justify-between">
+          <h2 id="current-cat-title" class="text-4xl font-900 uppercase tracking-tighter text-gray-900">Todo el Menú</h2>
+        </div>
+        
+        <div id="products-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-24 hidden">
+          <!-- Injected via JS -->
+        </div>
+        
+        <div id="empty-cat" class="hidden flex-col items-center justify-center h-full text-gray-400">
+          <div class="text-7xl mb-6">🍽️</div>
+          <p class="font-900 uppercase tracking-widest text-xl">Sin productos</p>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- RIGHT AREA: CART (28%) -->
+  <div class="w-[28%] h-full bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] z-30 flex flex-col relative border-l border-gray-200">
+    <div class="h-24 px-6 border-b border-gray-200 flex items-center justify-between bg-gray-50 shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-basket-shopping text-2xl text-gray-900"></i>
+        <h2 class="text-2xl font-900 uppercase tracking-tighter">Mi Pedido</h2>
+      </div>
+      <button onclick="clearCart()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </div>
+
+    <div id="cart-items" class="flex-1 overflow-y-auto hide-scrollbar p-6 space-y-4 bg-white">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- Upsell Inline Banner (Dynamic) -->
+    <div id="inline-upsell" class="hidden mx-6 mb-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl p-4 border border-orange-200 cursor-pointer hover:shadow-md transition-shadow" onclick="addPatatasInline()">
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">🍟</div>
+        <div>
+          <p class="font-900 text-sm uppercase text-orange-900">¿Añadir Patatas Fritas?</p>
+          <p class="text-xs font-600 text-orange-700">Por solo +3.50€</p>
+        </div>
+        <i class="fa-solid fa-plus ml-auto text-orange-600 bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm"></i>
+      </div>
+    </div>
+
+    <div class="p-6 border-t border-gray-200 bg-gray-50 shrink-0">
+      <div class="flex justify-between items-center mb-6">
+        <span class="text-lg font-800 uppercase text-gray-500">Total a Pagar</span>
+        <span id="cart-total" class="text-4xl font-900 tracking-tighter text-gray-900">0.00€</span>
+      </div>
+      <button id="checkout-btn" onclick="openCheckout()" disabled class="w-full h-20 bg-gray-900 disabled:opacity-30 disabled:scale-100 disabled:cursor-not-allowed text-white rounded-3xl font-900 uppercase tracking-widest text-2xl hover:bg-orange-600 transition-all active:scale-95 shadow-[0_10px_20px_rgba(0,0,0,0.1)] flex items-center justify-center gap-3">
+        <span>PAGAR</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL (FULL SCREEN OVERLAY) -->
+  <div id="checkout-modal" class="hidden fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-8">
+    <div class="bg-white rounded-[3rem] p-12 w-full max-w-3xl shadow-2xl relative overflow-hidden animate__animated animate__zoomIn">
+      <button onclick="closeCheckout()" class="absolute top-8 right-8 w-14 h-14 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center text-xl hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+      
+      <h3 class="text-4xl font-900 uppercase tracking-tighter mb-10 text-center">Finalizar Pedido</h3>
+      
+      <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-8">
+        
+        <div>
+          <label class="text-sm font-900 uppercase tracking-widest text-gray-400 mb-3 block">¿Cómo te llamas? (Para llamarte al mostrador)</label>
+          <input id="f-nombre" type="text" required placeholder="Ej: Carlos" class="w-full bg-gray-50 border-2 border-gray-100 rounded-3xl px-8 py-6 text-2xl font-800 outline-none focus:border-orange-500 focus:bg-white transition-all text-center placeholder-gray-300">
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <label class="relative cursor-pointer">
+            <input type="radio" name="f-tipo" value="LLEVAR" class="peer sr-only" checked>
+            <div class="h-32 border-4 border-gray-100 rounded-3xl flex flex-col items-center justify-center peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-gray-400 peer-checked:text-orange-600">
+              <i class="fa-solid fa-bag-shopping text-3xl mb-2"></i>
+              <span class="font-900 uppercase tracking-widest text-sm">Para Llevar</span>
+            </div>
+          </label>
+          <label class="relative cursor-pointer">
+            <input type="radio" name="f-tipo" value="AQUI" class="peer sr-only">
+            <div class="h-32 border-4 border-gray-100 rounded-3xl flex flex-col items-center justify-center peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-gray-400 peer-checked:text-orange-600">
+              <i class="fa-solid fa-utensils text-3xl mb-2"></i>
+              <span class="font-900 uppercase tracking-widest text-sm">Tomar Aquí</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <label class="relative cursor-pointer">
+            <input type="radio" name="f-pago" value="TARJETA" class="peer sr-only" checked>
+            <div class="h-32 border-4 border-gray-100 rounded-3xl flex flex-col items-center justify-center peer-checked:border-gray-900 peer-checked:bg-gray-50 transition-all text-gray-400 peer-checked:text-gray-900">
+              <i class="fa-solid fa-credit-card text-3xl mb-2"></i>
+              <span class="font-900 uppercase tracking-widest text-sm">Tarjeta / Móvil</span>
+            </div>
+          </label>
+          <label class="relative cursor-pointer">
+            <input type="radio" name="f-pago" value="EFECTIVO" class="peer sr-only">
+            <div class="h-32 border-4 border-gray-100 rounded-3xl flex flex-col items-center justify-center peer-checked:border-gray-900 peer-checked:bg-gray-50 transition-all text-gray-400 peer-checked:text-gray-900">
+              <i class="fa-solid fa-coins text-3xl mb-2"></i>
+              <span class="font-900 uppercase tracking-widest text-sm">Efectivo en Caja</span>
+            </div>
+          </label>
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full h-24 bg-orange-600 text-white rounded-3xl font-900 uppercase tracking-widest text-3xl hover:bg-orange-700 transition-all active:scale-95 shadow-[0_15px_30px_rgba(234,88,12,0.3)] mt-4">
+          Confirmar y Enviar a Cocina
         </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- SUCCESS MODAL -->
-<div id="success-modal" class="hidden fixed inset-0 z-[70] bg-black/60 flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl p-10 w-full max-w-sm text-center shadow-2xl">
-    <div class="text-6xl mb-4">🔥</div>
-    <h2 class="text-2xl font-black uppercase tracking-tight mb-2">¡Pedido Enviado!</h2>
-    <p id="success-name" class="text-gray-500 mb-1 text-sm"></p>
-    <p id="success-ticket" class="text-orange-600 font-black text-lg mb-6"></p>
-    <div class="bg-orange-50 rounded-2xl p-4 mb-6 border border-orange-100">
-      <p class="text-[10px] font-black uppercase tracking-widest text-orange-500 mb-1">Tiempo estimado</p>
-      <p class="text-2xl font-black">20 – 35 min</p>
+      </form>
     </div>
-    <button onclick="closeSuccess()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-orange-600 transition-colors">
-      ¡Perfecto!
-    </button>
   </div>
-</div>
+
+  <!-- SUCCESS MODAL -->
+  <div id="success-modal" class="hidden fixed inset-0 z-[2000] bg-orange-600 flex items-center justify-center p-8">
+    <div class="bg-white rounded-[4rem] p-16 w-full max-w-2xl text-center shadow-[0_0_100px_rgba(0,0,0,0.5)] animate__animated animate__bounceIn">
+      <div class="w-32 h-32 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-6xl mx-auto mb-8 animate__animated animate__tada animate__delay-1s">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h2 class="text-6xl font-900 uppercase tracking-tighter mb-4">¡Pedido Recibido!</h2>
+      <p id="success-name" class="text-2xl text-gray-500 font-600 mb-8"></p>
+      
+      <div class="bg-gray-50 border-4 border-gray-100 rounded-[3rem] p-10 mb-10">
+        <p class="text-sm font-900 uppercase tracking-widest text-gray-400 mb-2">Tu Número de Recogida</p>
+        <p id="success-ticket" class="text-8xl font-900 text-gray-900 tracking-tighter"></p>
+      </div>
+      
+      <button onclick="closeSuccess()" class="w-full h-24 bg-gray-900 text-white rounded-3xl font-900 uppercase tracking-widest text-2xl hover:bg-black transition-all active:scale-95">
+        Terminar
+      </button>
+    </div>
+  </div>
 
 <script>
 let allProducts = [];
 let cart = [];
 let currentCat = 'all';
+
+// Icons mapping for categories
+const catIcons = {
+  'Pollos Asados': 'fa-drumstick-bite',
+  'Guarniciones': 'fa-bowl-food',
+  'Bocadillos & Baguettes🥖': 'fa-hotdog',
+  'Bebidas': 'fa-bottle-water',
+  'Postres': 'fa-ice-cream',
+  'Otros': 'fa-utensils'
+};
 
 async function init() {
   try {
@@ -160,60 +236,84 @@ async function init() {
     renderProducts();
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('products-grid').classList.remove('hidden');
+    startScreensaverTimer();
   } catch(e) {
-    document.getElementById('loading').innerHTML = `<p class="text-red-500 font-black">Error cargando menú. <button onclick="init()" class="underline">Reintentar</button></p>`;
+    document.getElementById('loading').innerHTML = `<p class="text-red-500 font-900 uppercase">Error de conexión. <button onclick="init()" class="underline ml-2">Reintentar</button></p>`;
   }
 }
 
 function getCatName(p) {
   const c = p.categoria;
   if (!c) return 'Otros';
-  if (typeof c === 'string') return c;
-  return c.nombre || c.name || JSON.stringify(c);
+  return typeof c === 'string' ? c : (c.nombre || c.name || 'Otros');
 }
 
 function renderCats() {
-  const cats = [...new Set(allProducts.map(getCatName))];
-  const el = document.getElementById('cat-pills');
-  el.innerHTML = cats.map(c => `
-    <button class="cat-pill flex-shrink-0 px-5 py-2 bg-gray-100 rounded-xl text-xs font-black uppercase tracking-wider" onclick="filterCat('${c}')">${c}</button>
-  `).join('');
+  const cats = ['all', ...new Set(allProducts.map(getCatName))];
+  const el = document.getElementById('cat-sidebar');
+  
+  el.innerHTML = cats.map(c => {
+    const name = c === 'all' ? 'Todo el Menú' : c;
+    const icon = c === 'all' ? 'fa-list' : (catIcons[c] || 'fa-utensils');
+    const isActive = c === currentCat ? 'active' : 'bg-white text-gray-600 hover:bg-gray-100';
+    return `
+      <button class="cat-btn w-full p-4 rounded-2xl flex flex-col items-center justify-center gap-3 border border-gray-100 ${isActive}" onclick="filterCat('${c}')">
+        <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-xl mb-1">
+          <i class="fa-solid ${icon}"></i>
+        </div>
+        <span class="text-xs font-900 uppercase tracking-widest text-center leading-tight">${name}</span>
+      </button>
+    `;
+  }).join('');
 }
 
 function filterCat(cat) {
   currentCat = cat;
-  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-  const target = cat === 'all' ? document.getElementById('cat-all') : [...document.querySelectorAll('.cat-pill')].find(b => b.textContent.trim() === cat);
-  if (target) target.classList.add('active');
+  document.getElementById('current-cat-title').textContent = cat === 'all' ? 'Todo el Menú' : cat;
+  renderCats(); // re-render to update active state
   renderProducts();
+  document.getElementById('products-grid').scrollTo(0,0);
 }
 
 function renderProducts() {
   const filtered = currentCat === 'all' ? allProducts : allProducts.filter(p => getCatName(p) === currentCat);
   const grid = document.getElementById('products-grid');
   const empty = document.getElementById('empty-cat');
-  if (!filtered.length) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  
+  if (!filtered.length) { 
+    grid.classList.add('hidden'); 
+    empty.classList.remove('hidden'); 
+    empty.style.display = 'flex';
+    return; 
+  }
+  
   empty.classList.add('hidden');
-  grid.innerHTML = filtered.map(p => `
-    <div class="prod-card bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col cursor-pointer" onclick="addToCart('${p.id}','${esc(p.nombre)}',${parseFloat(p.precio)},'${p.imagen_url||''}')">
-      <div class="aspect-square bg-gray-100 overflow-hidden">
-        <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&q=70'}" 
-             alt="${esc(p.nombre)}" 
-             class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-             onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&q=70'">
-      </div>
-      <div class="p-4 flex flex-col flex-1">
-        <h3 class="font-black text-sm uppercase tracking-tight leading-tight mb-1">${p.nombre}</h3>
-        <p class="text-[10px] text-gray-400 font-semibold leading-relaxed flex-1 line-clamp-2">${p.descripcion || ''}</p>
-        <div class="flex items-center justify-between mt-3">
-          <span class="text-orange-600 font-black text-lg">${parseFloat(p.precio).toFixed(2)}€</span>
-          <button class="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-orange-600 transition-colors shadow-sm">
-            <i class="fa-solid fa-plus text-xs"></i>
-          </button>
+  empty.style.display = 'none';
+  grid.classList.remove('hidden');
+  
+  grid.innerHTML = filtered.map(p => {
+    const isBestSeller = p.nombre.toLowerCase().includes('pollo asado') || p.nombre.toLowerCase().includes('medio pollo');
+    return `
+    <div class="prod-card bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full" onclick="addToCart('${p.id}','${esc(p.nombre)}',${parseFloat(p.precio)},'${p.imagen_url||''}')">
+      <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+        ${isBestSeller ? '<div class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-900 uppercase tracking-widest px-3 py-1.5 rounded-full z-10 shadow-lg animate-pulse"><i class="fa-solid fa-fire mr-1"></i> TOP VENTAS</div>' : ''}
+        <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80'}" 
+             class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+             onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+          <span class="text-white font-900 text-2xl drop-shadow-md">${parseFloat(p.precio).toFixed(2)}€</span>
+          <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30">
+            <i class="fa-solid fa-plus"></i>
+          </div>
         </div>
       </div>
+      <div class="p-5 flex flex-col flex-1 bg-white">
+        <h3 class="font-900 text-lg uppercase tracking-tight leading-tight mb-2 text-gray-900">${p.nombre}</h3>
+        <p class="text-xs text-gray-400 font-600 leading-relaxed line-clamp-2">${p.descripcion || ''}</p>
+      </div>
     </div>
-  `).join('');
+  `;}).join('');
 }
 
 function esc(s){ return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
@@ -223,11 +323,8 @@ function addToCart(id, name, price, img) {
   if (existing) { existing.qty++; } 
   else { cart.push({id, name, price, img, qty: 1}); }
   updateCartUI();
-  // pop animation on button
-  const btn = document.getElementById('cart-btn');
-  btn.classList.remove('pop');
-  void btn.offsetWidth;
-  btn.classList.add('pop');
+  
+  // Play sound or haptic feedback if possible in future
 }
 
 function removeFromCart(id) {
@@ -243,62 +340,71 @@ function changeQty(id, delta) {
   updateCartUI();
 }
 
+function clearCart() {
+  if(cart.length === 0) return;
+  if(confirm("¿Vaciar el pedido?")) {
+    cart = [];
+    updateCartUI();
+  }
+}
+
 function updateCartUI() {
   const sub = cart.reduce((s,i) => s + i.price*i.qty, 0);
-  const ship = sub >= 30 ? 0 : 3.50;
-  const total = sub + ship;
   const count = cart.reduce((s,i)=>s+i.qty,0);
 
-  document.getElementById('cart-count').textContent = count;
-  document.getElementById('cart-count').classList.toggle('hidden', count===0);
-  document.getElementById('cart-total-header').textContent = count>0 ? `${total.toFixed(2)}€` : 'Mi pedido';
-  document.getElementById('cart-sub').textContent = sub.toFixed(2)+'€';
-  document.getElementById('cart-ship').textContent = ship===0 ? '🎉 GRATIS' : ship.toFixed(2)+'€';
-  document.getElementById('cart-total').textContent = total.toFixed(2)+'€';
-  document.getElementById('checkout-btn').disabled = cart.length===0;
+  document.getElementById('cart-total').textContent = sub.toFixed(2)+'€';
+  document.getElementById('checkout-btn').disabled = cart.length === 0;
+
+  // Inline Upsell Logic
+  const hasPatatas = cart.some(i => i.name.toLowerCase().includes('patata'));
+  const upsellBanner = document.getElementById('inline-upsell');
+  if (!hasPatatas && cart.length > 0) {
+    upsellBanner.classList.remove('hidden');
+  } else {
+    upsellBanner.classList.add('hidden');
+  }
 
   const el = document.getElementById('cart-items');
-  if (cart.length===0) {
-    el.innerHTML = `<div class="py-16 text-center text-gray-300"><div class="text-5xl mb-4">🛒</div><p class="font-black uppercase tracking-widest text-xs">Carrito vacío</p></div>`;
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-gray-300 opacity-50">
+        <i class="fa-solid fa-basket-shopping text-6xl mb-4"></i>
+        <p class="font-900 uppercase tracking-widest text-sm text-center">Añade productos<br>para empezar</p>
+      </div>`;
     return;
   }
+
   el.innerHTML = cart.map(i => `
-    <div class="flex items-center gap-4 py-3 border-b border-gray-100">
-      <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-        <img src="${i.img||''}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+    <div class="cart-item-anim flex flex-col gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+      <div class="flex items-start gap-3">
+        <img src="${i.img||'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=100'}" class="w-16 h-16 rounded-xl object-cover bg-gray-200">
+        <div class="flex-1 min-w-0 pt-1">
+          <p class="font-900 text-sm uppercase tracking-tight leading-tight text-gray-900">${i.name}</p>
+          <p class="text-orange-600 font-900 text-sm mt-1">${(i.price*i.qty).toFixed(2)}€</p>
+        </div>
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="font-black text-xs uppercase tracking-tight truncate">${i.name}</p>
-        <p class="text-orange-600 font-black text-sm mt-0.5">${(i.price*i.qty).toFixed(2)}€</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="changeQty('${i.id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-black text-xs">−</button>
-        <span class="w-6 text-center font-black text-sm">${i.qty}</span>
-        <button onclick="changeQty('${i.id}',1)" class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-black text-xs">+</button>
-        <button onclick="removeFromCart('${i.id}')" class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100 ml-1">
-          <i class="fa-solid fa-trash-can text-[9px]"></i>
+      <div class="flex items-center justify-between border-t border-gray-200 pt-3 mt-1">
+        <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden h-10">
+          <button onclick="changeQty('${i.id}',-1)" class="w-10 h-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 font-900 text-lg flex items-center justify-center">−</button>
+          <span class="w-8 text-center font-900 text-gray-900">${i.qty}</span>
+          <button onclick="changeQty('${i.id}',1)" class="w-10 h-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 font-900 text-lg flex items-center justify-center">+</button>
+        </div>
+        <button onclick="removeFromCart('${i.id}')" class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
+          <i class="fa-solid fa-trash-can text-sm"></i>
         </button>
       </div>
     </div>
   `).join('');
+}
 
-  if (sub < 30) {
-    const left = (30-sub).toFixed(2);
-    const pct = Math.min((sub/30)*100,100);
-    el.innerHTML += `<div class="mt-4 p-4 bg-orange-50 rounded-2xl border border-orange-100">
-      <p class="text-[9px] font-black uppercase tracking-widest text-orange-500 mb-2">Te faltan <strong>${left}€</strong> para envío gratis 🚀</p>
-      <div class="h-2 bg-orange-100 rounded-full overflow-hidden"><div class="h-full bg-orange-400 rounded-full transition-all" style="width:${pct}%"></div></div>
-    </div>`;
+function addPatatasInline() {
+  const patatas = allProducts.find(p => p.nombre.toLowerCase().includes('patata'));
+  if (patatas) {
+    addToCart(patatas.id, patatas.nombre, patatas.precio, patatas.imagen_url);
   }
 }
 
-function toggleCart() {
-  document.getElementById('cart-panel').classList.toggle('open');
-  document.getElementById('cart-overlay').classList.toggle('open');
-}
-
 function openCheckout() {
-  toggleCart();
   document.getElementById('checkout-modal').classList.remove('hidden');
 }
 
@@ -310,27 +416,27 @@ function closeSuccess() {
   document.getElementById('success-modal').classList.add('hidden');
   cart = [];
   updateCartUI();
+  filterCat('all');
 }
 
 async function submitOrder(event) {
   event.preventDefault();
   const btn = document.getElementById('submit-btn');
-  const nombre = document.getElementById('f-nombre').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  const dir = document.getElementById('f-dir').value.trim();
-  const pago = document.getElementById('f-pago').value;
-  const notas = document.getElementById('f-notas').value.trim();
+  const nombre = document.getElementById('f-nombre').value.trim() || 'Cliente Kiosko';
+  const tipo = document.querySelector('input[name="f-tipo"]:checked').value;
+  const pago = document.querySelector('input[name="f-pago"]:checked').value;
 
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Enviando...';
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-4xl"></i>';
 
   const payload = {
     items: cart.map(i => ({ producto_id: i.id, cantidad: i.qty })),
     origen: 'KIOSKO',
     estado_inicial: 'PENDIENTE',
     metodo_pago: pago,
-    notas_cliente: [nombre&&`Cliente: ${nombre}`, tel&&`Tel: ${tel}`, dir&&`Dir: ${dir}`, notas].filter(Boolean).join(' | '),
-    metodo_envio: dir ? 'DELIVERY' : 'LOCAL'
+    notas_cliente: `Cliente: ${nombre} | Pedido para: ${tipo === 'AQUI' ? 'TOMAR AQUÍ' : 'LLEVAR'}`,
+    metodo_envio: 'LOCAL'
   };
 
   try {
@@ -340,23 +446,60 @@ async function submitOrder(event) {
       body: JSON.stringify(payload)
     });
     const data = await r.json();
-    if (!r.ok) throw new Error(data.detail || 'Error');
+    if (!r.ok) throw new Error(data.detail || 'Error en el servidor');
 
     closeCheckout();
-    document.getElementById('success-name').textContent = `Hola ${nombre}, ¡empezamos ahora!`;
-    document.getElementById('success-ticket').textContent = `Ticket #${data.numero_ticket || data.id?.substring(0,8) || '—'}`;
+    document.getElementById('success-name').textContent = `Hola ${nombre}, por favor espera tu turno.`;
+    const ticketId = data.numero_ticket || data.id?.substring(0,4).toUpperCase() || Math.floor(Math.random()*1000);
+    document.getElementById('success-ticket').textContent = `#${ticketId}`;
     document.getElementById('success-modal').classList.remove('hidden');
+    
+    // Auto close success after 10s
+    setTimeout(() => {
+      if(!document.getElementById('success-modal').classList.contains('hidden')) {
+        closeSuccess();
+      }
+    }, 10000);
 
   } catch(e) {
     console.error("Order error:", e);
+    alert(`Error: ${e.message}`);
+  } finally {
     btn.disabled = false;
-    btn.innerHTML = '🔥 Confirmar y Pagar';
-    alert(`Ocurrió un error al enviar el pedido: ${e.message}. Por favor, inténtelo de nuevo.`);
+    btn.innerHTML = originalHtml;
   }
 }
 
+// SCREENSAVER LOGIC
+let idleTimer;
+const IDLE_TIMEOUT = 60000; // 60 seconds
+
+function startScreensaverTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(showScreensaver, IDLE_TIMEOUT);
+}
+
+function showScreensaver() {
+  document.getElementById('screensaver').classList.remove('hidden');
+  // Clear cart to protect privacy of abandoned orders
+  if(cart.length > 0) {
+    cart = [];
+    updateCartUI();
+    closeCheckout();
+  }
+}
+
+function wakeUpKiosk() {
+  document.getElementById('screensaver').classList.add('hidden');
+  startScreensaverTimer();
+}
+
+// Reset timer on any interaction
+['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
+  document.addEventListener(evt, startScreensaverTimer, true);
+});
+
 init();
-updateCartUI();
 </script>
 </body>
 </html>

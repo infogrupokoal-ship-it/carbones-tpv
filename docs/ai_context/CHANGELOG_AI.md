@@ -1,5 +1,12 @@
 # CHANGELOG_AI.md
 
+## [V21-MINIMALIST-STOREFRONT] - 2026-05-03
+### Rediseño Arquitectónico B2C a Paradigma de Carpetas
+- **Navegación Minimalista**: Eliminado el scroll infinito de catálogo. Los productos ahora se cargan mediante un sistema SPA de "Carpetas/Categorías".
+- **Limpieza de UX**: La raíz (`/`) ahora es una máquina de ventas directa y pulida, sin opciones administrativas visibles.
+- **Carrito Inteligente**: Barra de envío gratis dinámica (umbral 30€), y cálculo en tiempo real con sistema de Customización de Productos (Up-sells).
+- **Animaciones Premium**: Interfaz fluida y optimizada para carga hiperrápida en dispositivos móviles con red 3G.
+
 ## [13.2.0-FULL-SALES-AUDIT] - 2026-05-02
 ### Auditoría Completa de Ventas + Catálogo Real + Checkout Funcional
 - **Catálogo Completo**: `scripts/seed_catalog_completo.py` con **61 productos reales** en **10 categorías** (Pollos, Bocadillos, Hamburguesas, Pizzas, Arroces, Sándwiches, Complementos, Bebidas, Combos, Postres). Precios reales del negocio.
@@ -105,7 +112,12 @@
 
   - **SincronizaciÃ³n de Entorno**: InstalaciÃ³n de `stripe` y `ruff` en el `.venv` local para eliminar alertas de entorno.
 
-  - **Saneamiento Documental**: ResoluciÃ³n de mÃ¡s de 35 errores de formato en archivos Markdown clave.
+### [2026-05-03] - Estabilización Mobile Enterprise Shell
+- **UI/UX**: Rediseño completo del motor de la Shell para dispositivos móviles (< 1024px).
+- **CSS**: Implementación de media queries avanzadas y variables unificadas (`--sidebar-width`).
+- **JS**: Refactorización del motor `EnterpriseShell` para manejo de eventos táctiles y overlays neuronales.
+- **Dashboard**: Optimización de `dashboard.html` con rejillas dinámicas (`sm:grid-cols-2`) y padding adaptativo.
+- **Limpieza**: Eliminación de estilos hardcoded en JS a favor de clases CSS puras.
 
   - **ValidaciÃ³n Premium**: VerificaciÃ³n del Portal de Staff (`portal.html`) para asegurar navegaciÃ³n 100% funcional.
 
@@ -216,3 +228,9 @@
 - **Frictionless Upselling**: Deployed an intelligent "Completa tu pedido" banner within the cart checkout flow. It detects missing high-margin pairings (like side dishes) and allows one-click addition directly from the cart.
 - **FOMO Triggers (Fear Of Missing Out)**: Implemented aggressive but professional scarcity badges ("Solo quedan 3", "Ahorra 15%") on high-value Combos with pulse animations to drive immediate conversion.
 - **Micro-Animations Mastery**: Upgraded the UI with premium `animate.css` transitions on cart updates and upselling elements to provide a tactile, responsive "Selling Machine" experience.
+## [V15.0-FULL-STOREFRONT-REVAMP] - 2026-05-02
+### Kiosko, Cocina, y B2C Storefront Finalizados
+- **Kiosko B2C Totalmente Funcional**: Carrito, cálculo de gastos de envío, upsells dinámicos y envío directo de pedidos al backend (/api/orders/) implementado en kiosko.html y el nuevo index.html.
+- **KDS Operativo (Cocina)**: Resuelto bug de parseo de fechas ISO con Z y agregado alerta sónica de pedidos entrantes.
+- **Enterprise Dashboard BI**: Revisado y validado como operativo.
+- **Github y Render**: Se realizó commit de estabilización y despliegue autómata hacia los entornos remotos.
