@@ -130,10 +130,10 @@ async def run_daily_audit(db: Session = Depends(get_db)):
 **Nivel de Riesgo:** {risk_emoji} {a_data.get('risk_level')}
 
 **Anomalías Detectadas:**
-{"".join([f"- {a}\\n" for a in a_data.get('anomalies', [])])}
+{a_anomalies}
 
 **Recomendaciones:**
-{"".join([f"- {r}\\n" for r in a_data.get('recommendations', [])])}
+{a_recs}
 """
         return {"status": "success", "report": final_markdown}
         

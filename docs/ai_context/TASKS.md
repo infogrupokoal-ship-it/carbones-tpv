@@ -109,9 +109,10 @@
 - [x] **Persistent Stock Guard**: Registro automático de alertas críticas de inventario en logs operacionales.
 - [x] **Industrial Recovery Tool**: Creación de script de fuerza bruta para reset y sembrado de base de datos (`force_seed.py`).
 
-## Fase XV: Hyper-Conversion "Selling Machine" Engine [V14.0]
-- [x] **Gamified Logistics**: Barra de progreso interactiva para desbloqueo de envío gratuito.
-- [x] **Frictionless Upselling**: Sugerencias automáticas de productos complementarios (Patatas/Bebidas) en carrito con 1 clic.
-- [x] **FOMO Engineering**: Emblemas dinámicos de escasez y urgencia ("Solo quedan 3") en Combos estrella.
-- [x] **Premium Transitions**: Animaciones fluidas (`animate.css`) para interacciones de carrito y validación visual.
-- [x] **20x Professionalization**: Verificación visual y funcional extrema en toda la experiencia B2C.
+## Fase XVI: Advanced Multi-Agent Oracle [V15.0]
+- [x] **Agent Specialization**: Separación de lógica en Agente Business (Ventas) y Agente Auditor (Seguridad).
+- [x] **Strict Schema Enforcement**: Implementación de `response_mime_type="application/json"` en el `GeminiProvider`.
+- [x] **Markdown Stripper**: Sistema de sanitización para eliminar bloques de código Markdown generados por la IA.
+- [x] **Executive UI Rendering**: Transformación del JSON estructurado a HTML visual con emojis y listas de impacto en `portal.html`.
+- [x] **E2E Anomaly Seeding**: Creación de `seed_audit_data.py` para generar fraudes y pruebas de esfuerzo para los agentes.
+- [x] **Clean Code Audit**: Resolución de variables huérfanas en `multi_agent.py` logrando 0 errores en `ruff check`.
