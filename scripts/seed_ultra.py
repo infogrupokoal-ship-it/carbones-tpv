@@ -1,7 +1,7 @@
 import uuid
 import sys
-from backend.database import SessionLocal, Base, engine
-from backend.models import Categoria, Producto, Usuario, Tienda, Ingrediente, Proveedor
+from backend.database import SessionLocal
+from backend.models import Categoria, Producto, Usuario, Tienda
 from backend.utils.auth import get_password_hash
 from backend.utils.logger import logger
 

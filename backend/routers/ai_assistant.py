@@ -14,7 +14,6 @@ from ..models import Producto, LogOperativo
 from ..config import settings
 from ..utils.logger import logger
 from ..utils.ai_model_manager import ai_manager
-from .admin_audit import log_audit_action
 
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 

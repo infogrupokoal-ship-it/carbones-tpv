@@ -163,7 +163,7 @@ def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
     return out
 
 @router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
-def crear_pedido(
+async def crear_pedido(
     pedido: PedidoCrear,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -334,12 +334,24 @@ def crear_pedido(
         }
         background_tasks.add_task(notify_new_order, ws_payload)
         
-        return {
+        response_data = {
             "status": "success",
             "pedido_id": nuevo_pedido.id,
             "ticket": nuevo_pedido.numero_ticket,
             "total": nuevo_pedido.total,
         }
+
+        # Integración con Stripe para pagos online
+        if pedido.metodo_pago == "TARJETA" and "QUIOSCO" in pedido.origen:
+            from ..services.stripe_gateway import StripeGateway
+            stripe_gw = StripeGateway()
+            # Stripe session URL
+            session_url = await stripe_gw.crear_checkout_session(nuevo_pedido.id, nuevo_pedido.total)
+            if session_url:
+                response_data["stripe_url"] = session_url
+                logger.info(f"Stripe Checkout generado para pedido {nuevo_pedido.id}")
+
+        return response_data
 
     except Exception as e:
         db.rollback()

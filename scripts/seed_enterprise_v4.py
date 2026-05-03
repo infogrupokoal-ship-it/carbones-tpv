@@ -1,7 +1,6 @@
 import sys
 import os
 import uuid
-from sqlalchemy.orm import Session
 
 # Añadir el path del proyecto para importar los modelos
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

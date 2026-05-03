@@ -1,12 +1,12 @@
 import sys
 import os
-from datetime import datetime, date, timedelta
+from datetime import datetime
 import random
 
 # Añadir el directorio raíz al path para importar el backend
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.database import SessionLocal, engine
+from backend.database import SessionLocal
 from backend.models import Pedido, ItemPedido, Producto, Review, MovimientoStock
 
 def seed_today():

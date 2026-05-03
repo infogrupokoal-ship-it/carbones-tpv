@@ -1,12 +1,7 @@
-import uuid
 import random
-from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
 from backend.database import SessionLocal
 from backend.models import (
-    GhostBrand, RoboticsTelemetry, ESGMétrics, YieldRule, QSCAudit,
-    FinancialSnapshot, FranchiseContract, CallInteraction, MenuPerformance,
-    BatchTraceability, Tienda, Producto, Usuario, Ingrediente
+    GhostBrand, RoboticsTelemetry, ESGMétrics, YieldRule, FinancialSnapshot, Tienda
 )
 
 def seed_enterprise_data():

@@ -53,7 +53,7 @@ class BusinessAIAgent:
             return None # No notificar errores técnicos a la UI
 
         # Inyectar notificación en el sistema (Solo visible para ADMINS)
-        from backend.routers.notifications import create_notification, Notification
+        from backend.routers.notifications import Notification
         from datetime import datetime
         import uuid
         

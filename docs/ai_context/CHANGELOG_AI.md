@@ -1,5 +1,12 @@
 # CHANGELOG_AI.md
 
+## [V21.1-STRIPE-KDS-INTEGRATION] - 2026-05-03
+### Integración Total B2C a KDS y Stripe Webhooks
+- **Frontend (B2C)**: Integración de `stripe_url` en la respuesta de `/api/orders` para redirigir automáticamente al checkout alojado de Stripe. Modificado envío dinámico de método de pago.
+- **Backend (Webhooks)**: Implementación de endpoint `/payments/stripe-webhook` con validación de firmas de Stripe para cambiar el estado del pedido a `EN_PREPARACION` e inyectar el evento por WebSocket hacia el KDS de cocina.
+- **Backend (Rutas)**: Creación de landing pages de retorno post-pago: `/pago_exitoso` y `/pago_cancelado` en `main.py`.
+- **KDS (Cocina)**: Adición de conexión por WebSocket (`/api/ws/kds`) con fallback a polling clásico de 5s. Adición de notificación auditiva real (campana de servicio `2868-preview.mp3`) para alertar al personal de nuevos pedidos recibidos desde Stripe o mostrador.
+
 ## [V21-MINIMALIST-STOREFRONT] - 2026-05-03
 ### Rediseño Arquitectónico B2C a Paradigma de Carpetas
 - **Navegación Minimalista**: Eliminado el scroll infinito de catálogo. Los productos ahora se cargan mediante un sistema SPA de "Carpetas/Categorías".

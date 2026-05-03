@@ -1,0 +1,1 @@
+# Gemini Multi-Agent Report\n(Actualizado para arquitectura centrada en Gemini)\n

@@ -1,5 +1,4 @@
 import os
-import sys
 import hashlib
 from datetime import datetime
 

@@ -1,6 +1,5 @@
 import asyncio
 import random
-import time
 from backend.database import SessionLocal
 from backend.models import RoboticsTelemetry
 

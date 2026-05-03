@@ -1,8 +1,6 @@
 import time
-import requests
 import sqlite3
 import os
-import json
 import logging
 from datetime import datetime
 

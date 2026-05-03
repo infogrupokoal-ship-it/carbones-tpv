@@ -1,5 +1,4 @@
 import uuid
-from sqlalchemy.orm import Session
 from backend.database import SessionLocal, engine
 from backend.models import Categoria, Producto, Base
 

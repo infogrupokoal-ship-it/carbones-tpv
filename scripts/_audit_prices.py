@@ -1,4 +1,6 @@
-import urllib.request, json, sys
+import urllib.request
+import json
+import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 url = "https://carbones-tpv.onrender.com/api/productos/?limit=200"
@@ -26,7 +28,7 @@ for p in with_price:
     print(f"  {p['precio']:6.2f}  |  {nombre[:35]:<35}  |  {cat}")
 
 if zero_price:
-    print(f"\n=== SIN PRECIO ===")
+    print("\n=== SIN PRECIO ===")
     for p in zero_price[:15]:
         nombre = p["nombre"].encode('ascii', 'replace').decode()
         cat = (p.get("categoria") or "?").encode('ascii', 'replace').decode()

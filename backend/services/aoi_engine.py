@@ -1,8 +1,6 @@
 import random
-from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from backend.models import Pedido, Producto, YieldRule, ESGMétrics
-from backend.utils.logger import logger
+from backend.models import YieldRule, ESGMétrics
 
 class AOIEngine:
     """

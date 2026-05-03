@@ -42,6 +42,11 @@
     <script>
         EnterpriseShell.init('KDS');
 
+        let currentOrderIds = new Set();
+        
+        // Cargar Sonido (Campana de Servicio)
+        const bellSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3');
+
         async function loadOrders() {
             try {
                 const res = await fetch('/api/pedidos');
@@ -51,6 +56,17 @@
                 
                 const activeOrders = orders.filter(o => o.estado === 'PENDIENTE' || o.estado === 'EN_PREPARACION');
                 document.getElementById('active-count').innerText = activeOrders.length;
+
+                // Detectar si hay pedidos nuevos basados en el ID para sonar la campana (fallback si falla WS)
+                const newIds = new Set(activeOrders.map(o => o.id));
+                let hasNew = false;
+                for (let id of newIds) {
+                    if (!currentOrderIds.has(id)) hasNew = true;
+                }
+                if (hasNew && currentOrderIds.size > 0) {
+                    bellSound.play().catch(e => console.log('Autoplay policy blocked sound', e));
+                }
+                currentOrderIds = newIds;
 
                 activeOrders.forEach(order => {
                     const card = document.createElement('div');
@@ -91,7 +107,31 @@
             loadOrders();
         }
 
-        setInterval(loadOrders, 5000);
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/kds`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_order') {
+                    bellSound.play().catch(e => console.log('Autoplay blocked:', e));
+                    loadOrders(); // Recargar inmediatamente
+                    // Mostrar notificación visual efímera
+                    if(typeof EnterpriseUI !== 'undefined') {
+                        EnterpriseUI.notify(`¡NUEVO PEDIDO RECIBIDO! #${data.payload.ticket}`, 'success');
+                    }
+                }
+            };
+            
+            ws.onclose = function() {
+                console.log('WS KDS cerrado. Reconectando...');
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // Init
+        connectWebSocket();
+        setInterval(loadOrders, 5000); // Polling as backup and for updating timers
         loadOrders();
     </script>
 </body>

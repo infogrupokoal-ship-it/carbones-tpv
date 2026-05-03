@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 import sys
 import os
 
@@ -6,8 +5,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.database import SessionLocal, engine, Base
-from backend.models import Usuario, Categoria, Producto, Cliente, Proveedor, Ingrediente
-from backend.utils.logger import logger
+from backend.models import Usuario, Categoria, Producto, Proveedor, Ingrediente
 
 def seed_enterprise():
     print("🚀 Iniciando Seed Data Enterprise v4.0...")

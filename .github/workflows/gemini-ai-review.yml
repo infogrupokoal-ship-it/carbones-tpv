@@ -1,0 +1,21 @@
+name: Gemini AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  gemini-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Gemini Reviewer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "No GEMINI_API_KEY set. Skipping review."
+            exit 0
+          fi
+          echo "Ejecutando revisión automatizada con Gemini..."
+          # Aquí iría el script python tools/ai_agents/run_gemini_agent_cycle.py --ci

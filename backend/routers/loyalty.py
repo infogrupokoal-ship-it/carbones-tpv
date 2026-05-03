@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Cliente
 from ..utils.logger import logger
-import uuid
 
 router = APIRouter(prefix="/loyalty", tags=["Loyalty & Gamification"])
 

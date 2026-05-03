@@ -7,7 +7,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.database import engine, Base
 from backend.models import *
 from scripts.seed_ultra import seed_ultra_industrial
-from sqlalchemy import text
 
 def force_reset_and_seed():
     print("🔥 INICIANDO RESET INDUSTRIAL DE BASE DE DATOS...")

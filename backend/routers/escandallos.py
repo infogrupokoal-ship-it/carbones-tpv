@@ -1,9 +1,6 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from typing import List, Dict
-from backend.database import get_db
+from fastapi import APIRouter
+from typing import List
 from pydantic import BaseModel
-import uuid
 
 router = APIRouter(prefix="/escandallos", tags=["Escandallos & Costes de Receta"])
 

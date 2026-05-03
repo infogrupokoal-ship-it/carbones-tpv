@@ -1,6 +1,5 @@
 import asyncio
 import random
-from sqlalchemy.orm import Session
 from backend.database import SessionLocal
 from backend.models import RoboticsTelemetry, LogOperativo
 from backend.utils.logger import logger

@@ -2,8 +2,7 @@ import random
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from backend.database import get_db
-from backend.models import Pedido, Producto, Tienda
-from typing import List, Optional
+from backend.models import Pedido
 
 router = APIRouter(prefix="/enterprise", tags=["Enterprise Singularity API"])
 

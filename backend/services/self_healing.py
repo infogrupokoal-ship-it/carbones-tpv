@@ -1,6 +1,5 @@
 import asyncio
 import httpx
-import logging
 import os
 from backend.utils.logger import logger
 from backend.database import SessionLocal

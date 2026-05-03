@@ -2,12 +2,13 @@
 seed_catalog_completo.py - Catálogo completo del negocio real
 Ejecutar en Render via force_seed o localmente para poblar la BD
 """
-import uuid, sys, os
+import uuid
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.database import SessionLocal, engine
-from backend.models import Categoria, Producto, Tienda, Usuario
-from backend.utils.auth import get_password_hash
+from backend.database import SessionLocal
+from backend.models import Categoria, Producto, Tienda
 
 CATALOG = {
     # ── POLLOS ──────────────────────────────────────────────────────────────
@@ -104,7 +105,6 @@ CATALOG = {
 }
 
 def seed_completo():
-    from backend.utils.logger import logger
     db = SessionLocal()
     try:
         # Tienda

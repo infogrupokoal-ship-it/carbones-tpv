@@ -47,7 +47,7 @@ def inject_shell():
             content = f.read()
         
         # Ensure data-active-module is in body
-        if f'data-active-module="' not in content:
+        if 'data-active-module="' not in content:
             content = content.replace("<body", f'<body data-active-module="{module_id}"')
         else:
             # Update existing module id

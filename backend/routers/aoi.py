@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.database import SessionLocal
-from backend.models import Pedido, Producto, Ingrediente, MovimientoStock, ESGMétrics, RoboticsTelemetry
+from backend.models import Pedido, Ingrediente, RoboticsTelemetry
 import random
 from datetime import datetime, timedelta
 from sqlalchemy import func

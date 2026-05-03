@@ -728,16 +728,19 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Procesando...';
             btn.disabled = true;
 
+            const methodText = document.querySelector('input[name="payment"]:checked').nextElementSibling.innerText.trim();
+            const metodoPago = methodText.includes('Tarjeta') ? 'TARJETA' : 'EFECTIVO';
+
             const orderData = {
-                origen: 'B2C',
-                tipo: orderMode.toUpperCase(),
-                total: cart.reduce((s, i) => s + (i.price * i.qty), 0) + (orderMode === 'delivery' && cart.reduce((s, i) => s + (i.price * i.qty), 0) < 30 ? 3.5 : 0),
-                metodo_pago: document.querySelector('input[name="payment"]:checked').nextElementSibling.innerText.trim(),
-                detalles: cart.map(i => ({ producto_id: parseInt(i.id) || 1, cantidad: i.qty, subtotal: i.price * i.qty, notas: i.name })),
+                items: cart.map(i => ({ producto_id: i.id, cantidad: i.qty, notas: i.name })),
+                origen: 'QUIOSCO-B2C',
+                estado_inicial: 'ESPERANDO_PAGO',
+                metodo_envio: orderMode === 'delivery' ? 'DOMICILIO' : 'LOCAL',
+                metodo_pago: metodoPago,
                 cliente_nombre: name,
                 cliente_telefono: phone,
-                cliente_direccion: orderMode === 'delivery' ? document.getElementById('chk-address').value : 'Recogida Local',
-                notas: document.getElementById('chk-notes').value || ''
+                direccion: orderMode === 'delivery' ? document.getElementById('chk-address').value : 'Recogida Local',
+                notas_cliente: document.getElementById('chk-notes').value || ''
             };
 
             try {
@@ -747,9 +750,13 @@
                 });
                 if(response.ok) {
                     const result = await response.json();
+                    if(result.stripe_url) {
+                        window.location.href = result.stripe_url;
+                        return;
+                    }
                     cart = []; saveCart(); updateCartUI();
                     closeCheckoutModal();
-                    alert(`¡Pedido Confirmado!\nNúmero de ticket: ${result.numero_ticket}\n${orderMode === 'delivery' ? 'Llegará en breve.' : 'Te avisaremos para la recogida.'}`);
+                    alert(`¡Pedido Confirmado!\nNúmero de ticket: ${result.ticket}\n${orderMode === 'delivery' ? 'Llegará en breve.' : 'Te avisaremos para la recogida.'}`);
                     window.location.reload();
                 } else {
                     alert("Hubo un error al procesar el pedido. Intenta de nuevo.");

@@ -13,7 +13,7 @@ def add_column(table, column, definition):
         try:
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
             print(f"Columna '{column}' añadida a '{table}'.")
-        except Exception as e:
+        except Exception:
             # Si ya existe, ignorar
             pass
 

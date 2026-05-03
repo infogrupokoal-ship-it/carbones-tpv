@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-import random
 
 router = APIRouter(prefix="/menu-engineering", tags=["AI Menu Engineering & Psychology"])
 

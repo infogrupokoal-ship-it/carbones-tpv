@@ -4,7 +4,7 @@ import paramiko
 
 host = "113.30.148.104"
 user = "root"
-password = "633660438Gk!123"
+password = "633660438gK1234"
 waha_key = "1060705b0a574d1fbc92fa10a2b5aca7"
 
 # Read the plan

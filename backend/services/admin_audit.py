@@ -3,7 +3,6 @@ import datetime
 import json
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
-from ..database import get_db
 from ..models import AuditLog
 
 logger = logging.getLogger("QuantumAudit")

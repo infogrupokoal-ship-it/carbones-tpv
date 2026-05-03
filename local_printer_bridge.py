@@ -2,7 +2,6 @@ import logging
 import threading
 import time
 import os
-import sys
 import json
 from datetime import datetime
 
@@ -26,9 +25,11 @@ except ImportError:
     # Fallback si se ejecuta fuera del entorno del proyecto
     class TicketFormatter:
         @staticmethod
-        def format_client_ticket(d): return f"TICKET CLIENTE {d.get('numero_ticket')}\nTOTAL: {d.get('total')}€"
+        def format_client_ticket(d): 
+            return f"TICKET CLIENTE {d.get('numero_ticket')}\nTOTAL: {d.get('total')}€"
         @staticmethod
-        def format_kitchen_ticket(d): return f"COMANDA COCINA {d.get('numero_ticket')}"
+        def format_kitchen_ticket(d): 
+            return f"COMANDA COCINA {d.get('numero_ticket')}"
 
 app = FastAPI(title="Carbones y Pollos - Puente Industrial v4.5")
 
@@ -42,11 +43,13 @@ app.add_middleware(
 
 # Configuración
 CONFIG_FILE = "instance/printer_config.json"
-if not os.path.exists("instance"): os.makedirs("instance")
+if not os.path.exists("instance"):
+    os.makedirs("instance")
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as f: return json.load(f)
+        with open(CONFIG_FILE, 'r') as f:
+            return json.load(f)
     return {"impresora_ticket": "POS-80", "impresora_cocina": "POS-80", "cloud_url": "https://carbones-tpv.onrender.com"}
 
 config = load_config()
@@ -72,7 +75,8 @@ def check_hardware():
         try:
             printers = [p[2] for p in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL)]
             hardware_status["printer_connected"] = config["impresora_ticket"] in printers
-        except:
+        except Exception as e:
+            logger.error(f"Error detectando impresoras: {e}")
             hardware_status["printer_connected"] = False
     else:
         # En Android asumimos que RawBT está ahí o simplemente reportamos modo Termux
@@ -85,7 +89,7 @@ async def get_status():
 
 @app.get("/", response_class=HTMLResponse)
 async def pagina_instalacion():
-    html = f"""
+    html = """
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -93,18 +97,18 @@ async def pagina_instalacion():
         <title>TPV Bridge Control Center</title>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
         <style>
-            :root {{ --primary: #ef4444; --bg: #0f172a; --card: #1e293b; }}
-            body {{ font-family: 'Outfit', sans-serif; background: var(--bg); color: white; padding: 40px; max-width: 800px; margin: auto; }}
-            .status-bar {{ background: var(--card); padding: 20px; border-radius: 12px; display: flex; gap: 20px; margin-bottom: 30px; border-left: 5px solid var(--primary); }}
-            .indicator {{ display: flex; align-items: center; gap: 8px; font-size: 14px; }}
-            .dot {{ width: 12px; height: 12px; border-radius: 50%; background: #4ade80; }}
-            .dot.off {{ background: #f87171; }}
-            .card {{ background: var(--card); padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }}
-            h1 {{ color: var(--primary); margin-top: 0; font-weight: 600; }}
-            .code-box {{ background: #000; color: #10b981; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; border: 1px solid #334155; }}
-            button {{ background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; width: 100%; }}
-            button:hover {{ opacity: 0.9; transform: translateY(-2px); }}
-            .secondary {{ background: #3b82f6; margin-top: 10px; }}
+            :root { --primary: #ef4444; --bg: #0f172a; --card: #1e293b; }
+            body { font-family: 'Outfit', sans-serif; background: var(--bg); color: white; padding: 40px; max-width: 800px; margin: auto; }
+            .status-bar { background: var(--card); padding: 20px; border-radius: 12px; display: flex; gap: 20px; margin-bottom: 30px; border-left: 5px solid var(--primary); }
+            .indicator { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+            .dot { width: 12px; height: 12px; border-radius: 50%; background: #4ade80; }
+            .dot.off { background: #f87171; }
+            .card { background: var(--card); padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+            h1 { color: var(--primary); margin-top: 0; font-weight: 600; }
+            .code-box { background: #000; color: #10b981; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; border: 1px solid #334155; }
+            button { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; width: 100%; }
+            button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .secondary { background: #3b82f6; margin-top: 10px; }
         </style>
     </head>
     <body>
@@ -122,16 +126,16 @@ async def pagina_instalacion():
         </div>
 
         <script>
-            async function updateStatus() {{
-                try {{
+            async function updateStatus() {
+                try {
                     const res = await fetch('/api/status');
                     const data = await res.json();
                     document.getElementById('dot-print').className = data.printer_connected ? 'dot' : 'dot off';
                     document.getElementById('txt-print').innerText = data.printer_connected ? 'CONECTADA' : 'NO DETECTADA';
                     document.getElementById('dot-cloud').className = data.cloud_connection ? 'dot' : 'dot off';
                     document.getElementById('txt-cloud').innerText = data.cloud_connection ? 'ONLINE' : 'OFFLINE';
-                }} catch(e) {{}}
-            }}
+                } catch(e) {}
+            }
             setInterval(updateStatus, 3000);
             updateStatus();
         </script>
@@ -196,7 +200,8 @@ def hardware_loop():
                         print_raw(config["impresora_ticket"], ticket)
                     
                     requests.post(f"{config['cloud_url']}/api/hardware/ack/{cmd['id']}")
-        except:
+        except Exception as e:
+            logger.error(f"Error en loop de hardware: {e}")
             hardware_status["cloud_connection"] = False
         time.sleep(10)
 

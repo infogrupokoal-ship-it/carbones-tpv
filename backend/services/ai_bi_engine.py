@@ -1,8 +1,6 @@
 import random
 from datetime import datetime, timedelta, UTC
 from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend.models import Pedido, ItemPedido, Producto
 
 class AIBIEngine:
     """

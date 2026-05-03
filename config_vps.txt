@@ -5,6 +5,7 @@ Este archivo contiene los datos necesarios para trabajar con el TPV en el servid
 ## Datos de Acceso
 - IP: 113.30.148.104
 - Usuario: root
+- Contraseña: 633660438gK1234
 - Carpeta: /root/carbones_y_pollos_tpv
 
 ## Comandos Rápidos (en el VPS)

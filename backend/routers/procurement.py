@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-import random
 
 router = APIRouter(prefix="/procurement", tags=["Autonomous Procurement & Vendor Bidding"])
 

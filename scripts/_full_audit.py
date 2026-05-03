@@ -1,7 +1,9 @@
 """
 full_audit.py - Auditoría completa del sistema de ventas en producción
 """
-import urllib.request, json, sys, time
+import urllib.request
+import json
+import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 BASE = "https://carbones-tpv.onrender.com"
@@ -68,7 +70,7 @@ endpoints = [
     ("/api/telemetry/advanced", "Telemetría"),
     ("/api/ai/status", "AI Status"),
 ]
-print(f"\n[4] Endpoints críticos:")
+print("\n[4] Endpoints críticos:")
 for path, desc in endpoints:
     s, d = get(path)
     ok = "OK" if s in [200, 405, 422] else f"ERROR {s}"
@@ -86,7 +88,7 @@ pages = [
     ("/static/login.html", "Login"),
     ("/static/dashboard.html", "Dashboard"),
 ]
-print(f"\n[5] Páginas HTML:")
+print("\n[5] Páginas HTML:")
 for path, desc in pages:
     s, d = get(path)
     size = len(d) if isinstance(d, str) else len(str(d))
@@ -94,7 +96,7 @@ for path, desc in pages:
     print(f"    {ok:8} {s:4} {size:6}B  {path:30} {desc}")
 
 # 6. Intentar crear un pedido de prueba
-print(f"\n[6] Test POST /api/orders/ (pedido de prueba):")
+print("\n[6] Test POST /api/orders/ (pedido de prueba):")
 try:
     test_payload = json.dumps({
         "items": [{"producto_id": with_price[0]['id'], "cantidad": 1}] if with_price else [],

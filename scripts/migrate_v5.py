@@ -6,10 +6,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import text
 from backend.database import engine, Base
-from backend.models import (
-    FinancialSnapshot, FranchiseContract, CallInteraction, MenuPerformance,
-    BatchTraceability, AIConfig, GlobalState
-)
 
 def run_migration():
     print("🚀 INICIANDO MIGRACIÓN ESTRUCTURAL V5.1...")

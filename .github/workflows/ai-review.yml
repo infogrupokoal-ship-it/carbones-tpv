@@ -1,0 +1,13 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dummy AI Review
+        run: echo "This workflow is a placeholder. It will run an AI script on PR changes."

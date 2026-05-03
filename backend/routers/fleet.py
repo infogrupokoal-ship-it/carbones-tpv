@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from typing import List, Dict
+from fastapi import APIRouter
+from typing import Dict
 import datetime
 
 router = APIRouter(prefix="/fleet", tags=["Fleet Management & Logistics"])

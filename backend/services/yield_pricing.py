@@ -1,5 +1,4 @@
 import asyncio
-from sqlalchemy.orm import Session
 from backend.database import SessionLocal
 from backend.models import Producto, YieldRule
 from backend.utils.logger import logger

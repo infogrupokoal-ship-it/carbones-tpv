@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter
 from typing import List
-from backend.database import get_db
 from pydantic import BaseModel
 import datetime
 import uuid

@@ -7,7 +7,7 @@ import datetime
 import uuid
 
 from ..database import get_db
-from ..models import AuditLog, Usuario
+from ..models import AuditLog
 # from .auth import require_admin  <-- Movido a los endpoints para evitar circular import
 
 from ..utils.logger import logger

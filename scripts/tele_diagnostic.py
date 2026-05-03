@@ -1,7 +1,5 @@
 import os
-import sys
 import psutil
-import time
 from datetime import datetime
 
 def run_diagnostic():

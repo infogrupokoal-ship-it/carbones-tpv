@@ -1,5 +1,4 @@
 import asyncio
-import threading
 import os
 import sys
 import time
@@ -29,17 +28,9 @@ from backend.routers import (
     menu_engineering, procurement, admin, hardware, telemetry, webhooks, 
     admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics
 )
-from backend.services import sync_daemon, ai_bi_agent, self_healing
-from backend.services.autonomous_dispatch import dispatcher
-from backend.services.yield_pricing import yield_engine
-from backend.services.robotics_sim import run_robotics_simulation
-from backend.services.iot_bridge import IoTBridge
 
 from .utils.logger import logger
 from .utils.exceptions import TPVException, global_exception_handler
-from .services.scheduler import scheduler_loop
-from .services.notification_service import NotificationService
-from .services.worker_manager import WorkerManager
 
 # --- Configuración de Control de Tráfico ---
 limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
@@ -70,6 +61,41 @@ async def read_admin():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return FileResponse(os.path.join(base_dir, "static", "portal.html"))
 
+@app.get("/pago_exitoso", response_class=HTMLResponse, include_in_schema=False)
+async def pago_exitoso(id: str = ""):
+    return """
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pago Exitoso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-green-50 flex items-center justify-center h-screen text-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">¡Pago Confirmado!</h1>
+            <p class="text-gray-600 mb-6">Tu pedido ha sido procesado correctamente y la cocina ya está trabajando en él.</p>
+            <a href="/" class="w-full block bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition">Volver al Kiosko</a>
+        </div>
+    </body></html>
+    """
+
+@app.get("/pago_cancelado", response_class=HTMLResponse, include_in_schema=False)
+async def pago_cancelado(id: str = ""):
+    return """
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pago Cancelado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-red-50 flex items-center justify-center h-screen text-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Pago Cancelado</h1>
+            <p class="text-gray-600 mb-6">No se ha realizado ningún cargo en tu tarjeta.</p>
+            <a href="/" class="w-full block bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition">Volver e intentar de nuevo</a>
+        </div>
+    </body></html>
+    """
 
 
 # --- Middlewares ---

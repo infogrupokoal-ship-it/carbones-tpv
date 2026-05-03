@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List
 from backend.database import get_db
 from backend.models import WhatsAppTemplate, AuditLog
 from pydantic import BaseModel, Field
-from datetime import datetime, timedelta
+from datetime import datetime
 import uuid
 import qrcode
 import io
