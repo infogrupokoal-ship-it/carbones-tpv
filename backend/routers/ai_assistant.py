@@ -85,6 +85,11 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         4. Si preguntan por el precio, dáselo exacto según el menú.
         5. Mantén las respuestas breves y directas.
         6. Responde siempre en Español.
+        
+        COMUNICACIÓN CON OTROS AGENTES (SISTEMA DE MENSAJERÍA AGENTE):
+        - Si detectas un error crítico (500, fallo de DB en logs), o si el usuario te pide algo técnico que no puedes hacer (ej: "reinicia el servidor", "revisa los logs de ayer"), puedes solicitar ayuda al agente "OPENCLAW" (DevOps).
+        - Para hacerlo, tu respuesta debe incluir al final (en una línea aparte) el comando: [[AGENT_REQUEST: OPENCLAW | Tarea: [Descripción detallada de la tarea]]]
+        - No abuses de esto, solo para tareas técnicas fuera de tu alcance.
         """
 
         full_prompt = (
@@ -100,6 +105,31 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
             reply_text = "Lo siento, estoy avivando las brasas ahora mismo. ¿Puedo ayudarte con otra cosa? 🔥"
 
         final_model_info = ai_manager.current_model_info
+        
+        # --- NUEVO: Interceptación de AgentMessage (Industrialización) ---
+        if "[[AGENT_REQUEST:" in reply_text:
+            try:
+                import json
+                from ..models import AgentMessage # Asumiendo que está en models.py
+                
+                # Extraer la tarea
+                parts = reply_text.split("[[AGENT_REQUEST:")[1].split("]]")[0].split("|")
+                target = parts[0].strip()
+                task_desc = parts[1].replace("Tarea:", "").strip() if len(parts) > 1 else "Tarea no especificada"
+                
+                new_agent_msg = AgentMessage(
+                    sender="CARBONITO_TPV",
+                    receiver=target,
+                    message_type="task_delegation",
+                    payload=json.dumps({"task": task_desc, "context": system_context}),
+                    status="pending"
+                )
+                db.add(new_agent_msg)
+                db.commit()
+                logger.info(f"[AI Assistant] Delegada tarea a {target}: {task_desc}")
+            except Exception as msg_err:
+                logger.error(f"[AI Assistant] Error al registrar AgentMessage: {msg_err}")
+
         return ChatResponse(
             reply=reply_text,
             agent="Carbonito",

@@ -8,7 +8,7 @@ import uuid
 
 from ..database import get_db
 from ..models import AuditLog
-# from .auth import require_admin  <-- Movido a los endpoints para evitar circular import
+from .dependencies import require_admin
 
 from ..utils.logger import logger
 
@@ -35,9 +35,7 @@ async def get_audit_logs(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    # Importación diferida para evitar circular import
-    admin_user = Depends(__import__('backend.routers.auth', fromlist=['require_admin']).require_admin)
-
+    admin_user = Depends(require_admin)
 ):
     """
     Recupera el historial de auditoría del sistema.
@@ -49,9 +47,7 @@ async def get_audit_logs(
 @router.get("/export/csv")
 async def export_audit_csv(
     db: Session = Depends(get_db),
-    # Importación diferida
-    admin_user = Depends(__import__('backend.routers.auth', fromlist=['require_admin']).require_admin)
-
+    admin_user = Depends(require_admin)
 ):
     """Genera un reporte CSV de la auditoría para cumplimiento legal."""
     import csv

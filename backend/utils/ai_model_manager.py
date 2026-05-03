@@ -27,20 +27,20 @@ from ..config import settings
 MODEL_HIERARCHY = [
     {
         "id": "gemini-1.5-flash",
-        "name": "Gemini 1.5 Flash (Industrial Standard)",
+        "name": "Gemini 1.5 Flash (Industrial Stable)",
         "tier": "STABLE",
         "rpm_limit": 15,
     },
     {
-        "id": "gemini-1.5-pro",
-        "name": "Gemini 1.5 Pro (Analytical Core)",
-        "tier": "POWER",
-        "rpm_limit": 2,
+        "id": "gemini-2.0-flash-exp",
+        "name": "Gemini 2.0 Flash (Experimental)",
+        "tier": "EXPERIMENTAL",
+        "rpm_limit": 30,
     },
     {
-        "id": "gemini-pro",
-        "name": "Gemini Pro (Legacy Support)",
-        "tier": "LEGACY",
+        "id": "gemini-1.5-pro",
+        "name": "Gemini 1.5 Pro (Powerhouse)",
+        "tier": "POWER",
         "rpm_limit": 5,
     },
 ]

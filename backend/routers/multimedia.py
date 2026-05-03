@@ -4,7 +4,7 @@ from typing import List, Optional
 from ..database import get_db
 from ..multimedia import manager
 from ..utils.logger import logger
-from ..routers.auth import get_current_active_user
+from .dependencies import get_current_active_user
 from ..models import Usuario
 
 router = APIRouter(prefix="/multimedia", tags=["Multimedia Industrial"])

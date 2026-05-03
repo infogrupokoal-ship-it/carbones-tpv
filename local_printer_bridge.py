@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import threading
 import time
 import os
@@ -18,7 +18,7 @@ try:
 except ImportError:
     PRINT_ENABLED = False
 
-# Intentar importar el formateador de la lógica del proyecto
+# Intentar importar el formateador de la lÃ³gica del proyecto
 try:
     from backend.utils.printer import TicketFormatter
 except ImportError:
@@ -26,7 +26,7 @@ except ImportError:
     class TicketFormatter:
         @staticmethod
         def format_client_ticket(d): 
-            return f"TICKET CLIENTE {d.get('numero_ticket')}\nTOTAL: {d.get('total')}€"
+            return f"TICKET CLIENTE {d.get('numero_ticket')}\nTOTAL: {d.get('total')}â‚¬"
         @staticmethod
         def format_kitchen_ticket(d): 
             return f"COMANDA COCINA {d.get('numero_ticket')}"
@@ -41,7 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configuración
+# ConfiguraciÃ³n
 CONFIG_FILE = "instance/printer_config.json"
 if not os.path.exists("instance"):
     os.makedirs("instance")
@@ -79,7 +79,7 @@ def check_hardware():
             logger.error(f"Error detectando impresoras: {e}")
             hardware_status["printer_connected"] = False
     else:
-        # En Android asumimos que RawBT está ahí o simplemente reportamos modo Termux
+        # En Android asumimos que RawBT estÃ¡ ahÃ­ o simplemente reportamos modo Termux
         hardware_status["printer_connected"] = True 
 
 @app.get("/api/status")
@@ -112,17 +112,17 @@ async def pagina_instalacion():
         </style>
     </head>
     <body>
-        <h1>🚀 TPV Bridge Control Center</h1>
+        <h1>ðŸš€ TPV Bridge Control Center</h1>
         <div class="status-bar">
             <div class="indicator"><div class="dot" id="dot-print"></div> Impresora: <span id="txt-print">Detectando...</span></div>
             <div class="indicator"><div class="dot" id="dot-cloud"></div> Cloud: <span id="txt-cloud">Conectando...</span></div>
         </div>
 
         <div class="card">
-            <h2>📦 Instalación en un Toque</h2>
+            <h2>ðŸ“¦ InstalaciÃ³n en un Toque</h2>
             <p>Ejecuta este comando en tu terminal local para sincronizar con la nube:</p>
             <div class="code-box">curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash</div>
-            <button onclick="navigator.clipboard.writeText('curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash')">📋 COPIAR COMANDO MAESTRO</button>
+            <button onclick="navigator.clipboard.writeText('curl -sSL https://carbones-tpv.onrender.com/static/setup.sh | bash')">ðŸ“‹ COPIAR COMANDO MAESTRO</button>
         </div>
 
         <script>
@@ -161,7 +161,7 @@ def print_raw(printer_name, content):
                 win32print.ClosePrinter(h)
         except Exception as e:
             hardware_status["last_error"] = str(e)
-            logger.error(f"Fallo impresión Windows: {e}")
+            logger.error(f"Fallo impresiÃ³n Windows: {e}")
             return False
     else:
         # Modo Android / RawBT
@@ -169,7 +169,7 @@ def print_raw(printer_name, content):
             res = requests.post("http://127.0.0.1:40213/", data=content.encode("utf-8") if isinstance(content, str) else content, timeout=3)
             return res.status_code == 200
         except Exception as e:
-            logger.error(f"Fallo conexión RawBT: {e}")
+            logger.error(f"Fallo conexiÃ³n RawBT: {e}")
             return False
 
 @app.post("/webhook/imprimir")
@@ -207,4 +207,4 @@ def hardware_loop():
 
 if __name__ == "__main__":
     threading.Thread(target=hardware_loop, daemon=True).start()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

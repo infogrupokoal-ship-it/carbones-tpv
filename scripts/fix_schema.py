@@ -37,5 +37,6 @@ if __name__ == "__main__":
     add_column("pedidos", "origen", "VARCHAR DEFAULT 'POS'")
     add_column("pedidos", "notas_cliente", "VARCHAR")
     add_column("pedidos", "cubiertos_qty", "INTEGER DEFAULT 0")
+    add_column("pedidos", "is_synced", "BOOLEAN DEFAULT 0")
 
     print("Esquema parcheado exitosamente.")

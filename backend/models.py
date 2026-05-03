@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Integer, Boolean, Text
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Integer, Boolean, Text, JSON
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -156,6 +156,8 @@ class Pedido(Base):
     stripe_session_id = Column(String(255), nullable=True)
     stripe_payment_status = Column(String(50), nullable=True) # pending, paid, failed
     external_payment_id = Column(String(255), nullable=True)
+    
+    is_synced = Column(Boolean, default=False)
     
     items = relationship("ItemPedido", back_populates="pedido")
     tienda = relationship("Tienda", back_populates="pedidos")
@@ -552,3 +554,17 @@ class Multimedia(Base):
     verified = Column(Boolean, default=False)
     uploaded_by = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class AgentMessage(Base):
+    __tablename__ = "agent_messages"
+    id = Column(Integer, primary_key=True)
+    sender_agent = Column(String(50), nullable=False) # e.g., 'TPV_ASSISTANT', 'OPENCLAW_DEVOPS'
+    receiver_agent = Column(String(50), nullable=False)
+    message_type = Column(String(50), default='info') # 'info', 'query', 'task', 'alert'
+    content = Column(JSON, nullable=False) 
+    status = Column(String(20), default='pending') 
+    created_at = Column(DateTime, default=datetime.utcnow)
+    processed_at = Column(DateTime)
+
+    def __repr__(self):
+        return f"<AgentMessage from {self.sender_agent} to {self.receiver_agent}>"

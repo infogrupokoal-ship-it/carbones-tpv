@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import os
 import time
 import signal
@@ -8,15 +8,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# Cargar configuración desde .env
+# Cargar configuraciÃ³n desde .env
 load_dotenv()
 
-# Configuración Profesional
+# ConfiguraciÃ³n Profesional
 VPS_URL = os.environ.get("VPS_URL", "https://carbones-tpv.onrender.com")
 LOCAL_DB_PATH = os.environ.get("DATABASE_URL", "sqlite:///./tpv_data.sqlite")
 SYNC_INTERVAL = int(os.environ.get("SYNC_INTERVAL", 15))
 
-# Logging con rotación y formato profesional
+# Logging con rotaciÃ³n y formato profesional
 INSTANCE_DIR = "instance"
 if not os.path.exists(INSTANCE_DIR):
     os.makedirs(INSTANCE_DIR)
@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("SyncDaemon")
 
-# Bloqueo de PID para evitar múltiples instancias
+# Bloqueo de PID para evitar mÃºltiples instancias
 PID_FILE = os.path.join(INSTANCE_DIR, "sync_daemon.pid")
 
 def acquire_lock():
@@ -48,7 +48,7 @@ def acquire_lock():
                 else:
                     raise OSError
                     
-            logger.error(f"❌ Ya hay una instancia ejecutándose (PID: {old_pid}). Abortando.")
+            logger.error(f"âŒ Ya hay una instancia ejecutÃ¡ndose (PID: {old_pid}). Abortando.")
             sys.exit(1)
         except (OSError, ValueError):
             os.remove(PID_FILE)
@@ -67,7 +67,7 @@ running = True
 
 def handle_exit(signum, frame):
     global running
-    logger.info("Recibida señal de parada. Finalizando sincronización de forma segura...")
+    logger.info("Recibida seÃ±al de parada. Finalizando sincronizaciÃ³n de forma segura...")
     running = False
     release_lock()
     sys.exit(0)
@@ -76,7 +76,7 @@ signal.signal(signal.SIGINT, handle_exit)
 signal.signal(signal.SIGTERM, handle_exit)
 
 def push_local_data():
-    """Envía pedidos locales nuevos al servidor central."""
+    """EnvÃ­a pedidos locales nuevos al servidor central."""
     db = SessionLocal()
     try:
         from backend.models import Pedido
@@ -103,9 +103,9 @@ def push_local_data():
             for p in pedidos_unsynced:
                 p.is_synced = True
             db.commit()
-            logger.info(f"✅ Sincronizados {len(pedidos_unsynced)} pedidos con éxito.")
+            logger.info(f"âœ… Sincronizados {len(pedidos_unsynced)} pedidos con Ã©xito.")
     except Exception as e:
-        logger.error(f"❌ Error en PUSH: {str(e)}")
+        logger.error(f"âŒ Error en PUSH: {str(e)}")
     finally:
         db.close()
 
@@ -123,7 +123,7 @@ def pull_remote_data():
                 if existe:
                     continue
                     
-                logger.info(f"📥 Nuevo pedido remoto recibido: {p_dict['numero_ticket']}")
+                logger.info(f"ðŸ“¥ Nuevo pedido remoto recibido: {p_dict['numero_ticket']}")
                 
                 p_local = Pedido(
                     id=p_dict.get('id'),
@@ -142,16 +142,16 @@ def pull_remote_data():
 
 def daemon_loop():
     acquire_lock()
-    logger.info(f"🚀 Demonio de Sincronización v4.5 Industrializado (Target: {VPS_URL})")
+    logger.info(f"ðŸš€ Demonio de SincronizaciÃ³n v4.5 Industrializado (Target: {VPS_URL})")
     
     while running:
         start_time = time.time()
         try:
             push_local_data()
             pull_remote_data()
-            # La gestión de hardware se delega al local_printer_bridge.py por limpieza arquitectónica
+            # La gestiÃ³n de hardware se delega al local_printer_bridge.py por limpieza arquitectÃ³nica
         except Exception as e:
-            logger.error(f"Fallo crítico en el loop: {e}")
+            logger.error(f"Fallo crÃ­tico en el loop: {e}")
         
         # Ajustar el sleep para mantener el intervalo exacto
         elapsed = time.time() - start_time
@@ -159,7 +159,7 @@ def daemon_loop():
         time.sleep(sleep_time)
     
     release_lock()
-    logger.info("👋 Sync Daemon detenido correctamente.")
+    logger.info("ðŸ‘‹ Sync Daemon detenido correctamente.")
 
 if __name__ == "__main__":
     daemon_loop()
