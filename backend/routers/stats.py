@@ -4,6 +4,7 @@ from sqlalchemy import func, Date
 from backend.database import get_db
 from backend.models import Pedido, Presupuesto, Referido
 from datetime import datetime, timedelta
+from backend.utils.logger import logger
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/stats", tags=["Business Intelligence"])

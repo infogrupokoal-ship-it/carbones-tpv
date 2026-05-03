@@ -51,7 +51,7 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         # Telemetría en tiempo real y logs operativos para la IA
         process = psutil.Process(os.getpid())
         recent_logs = db.query(LogOperativo).order_by(LogOperativo.fecha.desc()).limit(10).all()
-        logs_text = "\n".join([f"[{l.fecha.strftime('%H:%M')}] {l.modulo}: {l.mensaje}" for l in recent_logs])
+        logs_text = "\n".join([f"[{log_entry.fecha.strftime('%H:%M')}] {log_entry.modulo}: {log_entry.mensaje}" for log_entry in recent_logs])
 
         system_context = {
             "version": settings.APP_VERSION,

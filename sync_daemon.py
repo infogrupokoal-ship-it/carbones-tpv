@@ -80,7 +80,9 @@ def push_local_data():
     db = SessionLocal()
     try:
         from backend.models import Pedido
-        pedidos_unsynced = db.query(Pedido).filter(Pedido.is_synced == False).all()
+        pedidos_unsynced = db.query(Pedido).filter(Pedido.is_synced.is_(False)).all()
+
+
         
         if not pedidos_unsynced:
             return

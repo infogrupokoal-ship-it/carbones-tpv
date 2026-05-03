@@ -162,7 +162,9 @@ def seed_completo():
     except Exception as e:
         db.rollback()
         print(f"[ERROR] {e}")
-        import traceback; traceback.print_exc()
+        import traceback
+        traceback.print_exc()
+
     finally:
         db.close()
 

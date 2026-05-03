@@ -1,4 +1,3 @@
-import os
 
 # Simula el debate entre dos o más agentes
 def debate():

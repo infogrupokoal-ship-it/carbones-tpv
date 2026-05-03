@@ -15,21 +15,21 @@ class YieldPricingService:
             db = SessionLocal()
             try:
                 # 1. Buscar regla de Yield activa (prioridad alta)
-                active_rule = db.query(YieldRule).filter(YieldRule.is_active == True).first()
+                active_rule = db.query(YieldRule).filter(YieldRule.is_active.is_(True)).first()
                 
                 if active_rule:
                     multiplier = 1.0 + (active_rule.ajuste_precio_pct / 100)
                     logger.info(f"[YIELD] Aplicando multiplicador x{multiplier} ({active_rule.nombre})")
                     
                     # 2. Actualizar productos (solo si tienen precio_base definido)
-                    db.query(Producto).filter(Producto.precio_base != None).update({
+                    db.query(Producto).filter(Producto.precio_base.isnot(None)).update({
                         "precio": Producto.precio_base * multiplier
                     }, synchronize_session=False)
                     
                     db.commit()
                 else:
                     # Resetear a precio base
-                    db.query(Producto).filter(Producto.precio_base != None).update({
+                    db.query(Producto).filter(Producto.precio_base.isnot(None)).update({
                         "precio": Producto.precio_base
                     }, synchronize_session=False)
                     db.commit()

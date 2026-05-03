@@ -27,8 +27,10 @@ def get_global_nodes_status():
     
     # Añadir ruido aleatorio para realismo
     for node in nodes:
-        if "load" in node: node["load"] += random.randint(-5, 5)
-        if "temp" in node: node["temp"] += random.uniform(-0.5, 0.5)
+        if "load" in node:
+            node["load"] += random.randint(-5, 5)
+        if "temp" in node:
+            node["temp"] += random.uniform(-0.5, 0.5)
         
     return {
         "timestamp": datetime.now(UTC).isoformat(),

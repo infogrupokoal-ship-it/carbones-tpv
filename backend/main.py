@@ -26,7 +26,8 @@ from backend.routers import (
     reservas, delivery_aggregators, mantenimiento, payments, feedback, 
     escandallos, fleet, loyalty, franchise, esg, pricing, iot, erp, crisis, 
     menu_engineering, procurement, admin, hardware, telemetry, webhooks, 
-    admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics
+    admin_audit, ws, notifications, aoi, enterprise_api, commercial, logistics,
+    multi_agent
 )
 
 from .utils.logger import logger
@@ -317,6 +318,7 @@ api_router.include_router(enterprise_api.router, tags=["Enterprise Singularity"]
 api_router.include_router(ai_assistant.router, tags=["Asistente AI"])
 api_router.include_router(commercial.router, tags=["Gestión Comercial"])
 api_router.include_router(logistics.router, tags=["Logística y Riders"])
+api_router.include_router(multi_agent.router, tags=["Autonomous Agents"])
 
 # Registro final en la aplicación
 app.include_router(api_router)

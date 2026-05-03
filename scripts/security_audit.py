@@ -29,7 +29,9 @@ def run_security_audit():
     patterns = ["API_KEY", "SECRET_KEY", "PASSWORD", "TOKEN"]
     vulnerabilities = 0
     for root, dirs, files in os.walk("."):
-        if ".git" in root or "__pycache__" in root: continue
+        if ".git" in root or "__pycache__" in root:
+            continue
+
         for name in files:
             if name.endswith((".py", ".env", ".js")):
                 path = os.path.join(root, name)
@@ -41,7 +43,9 @@ def run_security_audit():
                                 # Simple check for hardcoded secrets
                                 print(f"  ALERT: Potential secret exposed in {path} ({p})")
                                 vulnerabilities += 1
-                except: pass
+                except Exception:
+                    pass
+
     
     if vulnerabilities == 0:
         print("  PASS: No hardcoded secrets detected in standard patterns.")

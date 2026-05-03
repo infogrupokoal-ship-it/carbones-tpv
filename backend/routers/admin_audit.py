@@ -101,8 +101,10 @@ def log_audit_action(
     try:
         import json
         details_dict = {}
-        if payload_previo: details_dict["prev"] = payload_previo
-        if payload_nuevo: details_dict["new"] = payload_nuevo
+        if payload_previo:
+            details_dict["prev"] = payload_previo
+        if payload_nuevo:
+            details_dict["new"] = payload_nuevo
         
         nuevo_log = AuditLog(
             id=str(uuid.uuid4()),

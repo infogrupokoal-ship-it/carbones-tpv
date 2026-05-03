@@ -18,25 +18,31 @@ def run_migration():
             try:
                 conn.execute(text("ALTER TABLE productos ADD COLUMN alergenos VARCHAR"))
                 print("➕ Columna 'alergenos' añadida.")
-            except: pass
+            except Exception:
+                pass
             try:
                 conn.execute(text("ALTER TABLE productos ADD COLUMN info_nutricional TEXT"))
                 print("➕ Columna 'info_nutricional' añadida.")
-            except: pass
+            except Exception:
+                pass
             
             # Soft Deletes (is_active)
             try:
                 conn.execute(text("ALTER TABLE categorias ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en categorias añadida.")
-            except: pass
+            except Exception:
+                pass
             try:
                 conn.execute(text("ALTER TABLE ingredientes ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en ingredientes añadida.")
-            except: pass
+            except Exception:
+                pass
             try:
                 conn.execute(text("ALTER TABLE proveedores ADD COLUMN is_active BOOLEAN DEFAULT 1"))
                 print("➕ Columna 'is_active' en proveedores añadida.")
-            except: pass
+            except Exception:
+                pass
+
                 
         print("✅ Esquemas de base de datos verificados/actualizados. AuditLogs creados.")
     except Exception as e:

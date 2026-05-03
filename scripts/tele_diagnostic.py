@@ -38,7 +38,7 @@ def run_diagnostic():
         branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
         last_commit = subprocess.check_output(["git", "log", "-1", "--format=%h %s"]).decode().strip()
         print(f"[GIT] Branch: {branch} | Last Commit: {last_commit}")
-    except:
+    except Exception:
         print("[GIT] Status: UNKNOWN (Not a git repo or git not found)")
         
     print("-" * 50)
