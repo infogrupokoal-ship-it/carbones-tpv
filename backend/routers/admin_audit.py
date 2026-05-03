@@ -109,7 +109,7 @@ def log_audit_action(
             resource_id=entidad_id,
             ip_address=ip_origen,
             details=json.dumps(details_dict) if details_dict else None,
-            timestamp=datetime.datetime.utcnow()
+            timestamp=datetime.datetime.now(datetime.timezone.utc)
         )
         db.add(nuevo_log)
         db.commit()

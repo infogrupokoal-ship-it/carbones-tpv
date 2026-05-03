@@ -20,7 +20,7 @@ def log_action(
     try:
         audit_entry = AuditLog(
             id=str(uuid.uuid4()),
-            fecha=datetime.utcnow(),
+            fecha=datetime.now(datetime.timezone.utc),
             usuario_id=usuario_id,
             accion=accion,
             entidad=entidad,

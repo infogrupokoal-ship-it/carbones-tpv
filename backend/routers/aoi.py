@@ -22,7 +22,7 @@ def get_neural_core_status(db: Session = Depends(get_db)):
     Analiza tendencias de ventas, stock y telemetria IoT para dar insights accionables.
     """
     # 1. Analisis de Demanda Predictiva
-    last_24h = datetime.utcnow() - timedelta(hours=24)
+    last_24h = datetime.now(datetime.timezone.utc) - timedelta(hours=24)
     ventas_hoy = db.query(func.count(Pedido.id)).filter(Pedido.fecha >= last_24h).scalar() or 0
     
     # Simulacion de proyeccion basada en historicos (en un entorno real usariamos un modelo ML)
@@ -52,7 +52,7 @@ def get_neural_core_status(db: Session = Depends(get_db)):
             "active_nodes": robots_activos + 12 # 12 nodos estaticos simulados
         },
         "neural_insights": random.sample(insights, 3),
-        "last_sync": datetime.utcnow().isoformat()
+        "last_sync": datetime.now(datetime.timezone.utc).isoformat()
     }
 
 @router.post("/procurement/optimize")

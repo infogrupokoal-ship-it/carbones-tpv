@@ -391,7 +391,7 @@ def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundT
         asignacion = db.query(AsignacionReparto).filter(AsignacionReparto.pedido_id == pedido.id).first()
         if asignacion:
             asignacion.estado = "ENTREGADO"
-            asignacion.fecha_entrega = datetime.datetime.utcnow()
+            asignacion.fecha_entrega = datetime.datetime.now(datetime.timezone.utc)
 
     db.commit()
 

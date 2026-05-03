@@ -1,9 +1,6 @@
-from fastapi.testclient import TestClient
 from backend.main import app
 
-client = TestClient(app)
-
-def test_ai_bi_insights_endpoint():
+def test_ai_bi_insights_endpoint(client):
     """Valida que el nuevo motor de BI proactivo devuelva insights válidos."""
     response = client.get("/api/telemetry/insights")
     assert response.status_code == 200
@@ -13,7 +10,7 @@ def test_ai_bi_insights_endpoint():
     assert len(data["insights"]) > 0
     assert "neural_load" in data["system_health"]
 
-def test_digital_twin_nodes():
+def test_digital_twin_nodes(client):
     """Verifica la integridad de los datos del Gemelo Digital."""
     response = client.get("/api/telemetry/global-nodes")
     assert response.status_code == 200
@@ -25,7 +22,7 @@ def test_digital_twin_nodes():
     assert oven is not None
     assert oven["status"] == "ACTIVE"
 
-def test_telemetry_logs_access():
+def test_telemetry_logs_access(client):
     """Verifica que el endpoint de logs sea accesible (simulado)."""
     response = client.get("/api/telemetry/logs")
     assert response.status_code == 200

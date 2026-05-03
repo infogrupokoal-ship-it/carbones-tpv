@@ -64,7 +64,7 @@ class WorkerManager:
             from backend.models import Presupuesto
             vencidos = db.query(Presupuesto).filter(
                 Presupuesto.estado.in_(["BORRADOR", "ENVIADO"]),
-                Presupuesto.fecha_validez < datetime.utcnow()
+                Presupuesto.fecha_validez < datetime.now(datetime.timezone.utc)
             ).all()
             
             for p in vencidos:

@@ -1,21 +1,17 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, ConfigDict
+from .dependencies import get_current_user
 
 from ..database import get_db
 from ..models import Usuario
-from ..utils.auth import verify_password, create_access_token, decode_access_token
+from ..utils.auth import verify_password, create_access_token
 from ..utils.logger import logger
 # from .admin_audit import log_audit_action  <-- Movido a funciones para evitar circular import
 
 
 router = APIRouter(prefix="/auth", tags=["Seguridad e Identidad"])
-from .dependencies import (
-    oauth2_scheme, get_current_user, get_current_active_user, 
-    RoleChecker, require_admin, require_manager
-)
 
 # --- Esquemas de Datos ---
 

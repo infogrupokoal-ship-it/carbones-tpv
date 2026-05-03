@@ -1,6 +1,7 @@
+import os
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 from ..database import get_db
 from ..multimedia import manager
 from ..utils.logger import logger
@@ -78,5 +79,3 @@ async def download_file(
         filename=record.original_name,
         media_type=record.mime_type
     )
-
-import os

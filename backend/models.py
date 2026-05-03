@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Integer, Boolean, Text, JSON
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -122,7 +122,7 @@ class VerificacionOTP(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     telefono = Column(String(20), index=True)
     codigo = Column(String(6))
-    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     fecha_expiracion = Column(DateTime)
     usado = Column(Boolean, default=False)
 
@@ -130,7 +130,7 @@ class Pedido(Base):
     __tablename__ = "pedidos"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     numero_ticket = Column(String(50), unique=True)
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     total = Column(Float, nullable=False)
     descuento_aplicado = Column(Float, default=0.0)
     
@@ -194,16 +194,18 @@ class ItemPedido(Base):
 class HardwareCommand(Base):
     __tablename__ = "hardware_commands"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     accion = Column(String(50))
     origen = Column(String(50))
     payload = Column(Text, nullable=True)
     procesado = Column(Boolean, default=False)
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, EJECUTADO, FALLIDO
+    fecha_ejecucion = Column(DateTime, nullable=True)
 
 class LogOperativo(Base):
     __tablename__ = "logs_operativos"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     nivel = Column(String(20))
     modulo = Column(String(50))
     mensaje = Column(Text)
@@ -212,7 +214,7 @@ class LogOperativo(Base):
 class ReporteZ(Base):
     __tablename__ = "reportes_z"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     total_ventas = Column(Float)
     total_efectivo = Column(Float)
     total_tarjeta = Column(Float)
@@ -225,7 +227,7 @@ class ReporteZ(Base):
 class MovimientoStock(Base):
     __tablename__ = "movimientos_stock"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     producto_id = Column(String(36), ForeignKey("productos.id"), nullable=True)
     cantidad = Column(Float)
     tipo = Column(String(20))
@@ -234,7 +236,7 @@ class MovimientoStock(Base):
 class Review(Base):
     __tablename__ = "reviews"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     rating = Column(Integer)
     comentario = Column(Text)
     cliente_id = Column(String(36), ForeignKey("clientes.id"), nullable=True)
@@ -244,14 +246,14 @@ class Fichaje(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     usuario_id = Column(String(36), ForeignKey("usuarios.id"))
     tipo = Column(String(20)) # ENTRADA, SALIDA, INICIO_PAUSA, FIN_PAUSA
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     
     usuario = relationship("Usuario", backref="fichajes")
 
 class Merma(Base):
     __tablename__ = "mermas"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     entidad_tipo = Column(String(20)) # PRODUCTO o INGREDIENTE
     entidad_id = Column(String(36)) # ID de Producto o Ingrediente
     cantidad = Column(Float, nullable=False)
@@ -280,7 +282,7 @@ class Notificacion(Base):
     mensaje = Column(Text)
     estado = Column(String(20), default="PENDIENTE") # PENDIENTE, ENVIADO, ERROR
     reintentos = Column(Integer, default=0)
-    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     fecha_envio = Column(DateTime, nullable=True)
 
 class Traduccion(Base):
@@ -295,7 +297,7 @@ class Presupuesto(Base):
     __tablename__ = "presupuestos"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     numero_presupuesto = Column(String(50), unique=True)
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     fecha_validez = Column(DateTime)
     total = Column(Float, nullable=False)
     estado = Column(String(20), default="BORRADOR") # BORRADOR, ENVIADO, ACEPTADO, RECHAZADO, VENCIDO
@@ -323,7 +325,7 @@ class Referido(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     cliente_referidor_id = Column(String(36), ForeignKey("clientes.id"))
     cliente_referido_id = Column(String(36), ForeignKey("clientes.id"))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     estado = Column(String(20), default="PENDIENTE") # PENDIENTE, COMPLETADO
     bono_aplicado = Column(Float, default=0.0)
     
@@ -345,7 +347,7 @@ class AsignacionReparto(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     pedido_id = Column(String(36), ForeignKey("pedidos.id"))
     repartidor_id = Column(String(36), ForeignKey("usuarios.id"))
-    fecha_asignacion = Column(DateTime, default=datetime.utcnow)
+    fecha_asignacion = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     fecha_entrega = Column(DateTime, nullable=True)
     estado = Column(String(20), default="EN_CAMINO") # EN_CAMINO, ENTREGADO, FALLIDO
     
@@ -381,7 +383,7 @@ class GhostBrand(Base):
 class RoboticsTelemetry(Base):
     __tablename__ = "robotics_telemetry"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     device_id = Column(String(50), index=True)
     sensor_type = Column(String(50)) # TEMP_FRAYER, OIL_QUALITY, DISPENSE_COUNT
     value = Column(Float)
@@ -391,7 +393,7 @@ class RoboticsTelemetry(Base):
 class ESGMétrics(Base):
     __tablename__ = "esg_metrics"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     co2_saved_kg = Column(Float, default=0.0)
     food_waste_kg = Column(Float, default=0.0)
@@ -411,7 +413,7 @@ class YieldRule(Base):
 class QSCAudit(Base):
     __tablename__ = "qsc_audits"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     auditor_id = Column(String(36), ForeignKey("usuarios.id"))
     score_calidad = Column(Float) # 0-100
@@ -423,7 +425,7 @@ class QSCAudit(Base):
 class FinancialSnapshot(Base):
     __tablename__ = "financial_snapshots"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     revenue = Column(Float)
     ebitda = Column(Float)
     burn_rate = Column(Float)
@@ -445,7 +447,7 @@ class FranchiseContract(Base):
 class CallInteraction(Base):
     __tablename__ = "call_interactions"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    fecha = Column(DateTime, default=datetime.utcnow)
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     telefono_cliente = Column(String(20))
     duracion_seg = Column(Integer)
     sentimiento = Column(String(20)) # POSITIVE, NEUTRAL, NEGATIVE
@@ -483,13 +485,13 @@ class GlobalState(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     key = Column(String(50), unique=True)
     value = Column(Text)
-    last_updated = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 # --- AUDITORÍA & SEGURIDAD INDUSTRIAL ---
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     user_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
     action = Column(String(100), nullable=False)
     resource = Column(String(50))
@@ -530,8 +532,8 @@ class Attachment(Base):
     is_sensitive = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
     preview_available = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None), onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # IA Meta
     ai_summary = Column(Text)
@@ -553,7 +555,7 @@ class Multimedia(Base):
     metadata_json = Column(Text) # JSON for extra info
     verified = Column(Boolean, default=False)
     uploaded_by = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 class AgentMessage(Base):
     __tablename__ = "agent_messages"
@@ -563,7 +565,7 @@ class AgentMessage(Base):
     message_type = Column(String(50), default='info') # 'info', 'query', 'task', 'alert'
     content = Column(JSON, nullable=False) 
     status = Column(String(20), default='pending') 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     processed_at = Column(DateTime)
 
     def __repr__(self):

@@ -49,7 +49,7 @@ def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
         id=str(uuid.uuid4()),
         usuario_id=target_user.id,
         tipo=req.tipo.upper(),
-        fecha=datetime.utcnow()
+        fecha=datetime.now(datetime.timezone.utc)
     )
     db.add(nuevo_fichaje)
     db.commit()
@@ -67,7 +67,7 @@ def obtener_estado_plantilla(db: Session = Depends(get_db)):
     """
     Retorna la lista de empleados y su último estado de fichaje hoy.
     """
-    today = datetime.utcnow().date()
+    today = datetime.now(datetime.timezone.utc).date()
     usuarios = db.query(Usuario).filter(Usuario.is_active).all()
     
     resultado = []

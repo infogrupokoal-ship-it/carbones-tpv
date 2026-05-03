@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import Dict, Any
 
 import psutil
-import random
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -46,8 +45,8 @@ async def lifespan(app: FastAPI):
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
     
-    # Asegurar codificación UTF-8 en Windows para logs limpios
-    if sys.platform == "win32":
+    # Asegurar codificación UTF-8 en Windows para logs limpios (evitar en tests)
+    if sys.platform == "win32" and "pytest" not in sys.modules:
         try:
             import io
             sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')

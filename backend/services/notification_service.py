@@ -32,7 +32,7 @@ class NotificationService:
             destino=destino,
             mensaje=mensaje,
             estado="PENDIENTE",
-            fecha_creacion=datetime.utcnow()
+            fecha_creacion=datetime.now(datetime.timezone.utc)
         )
         db.add(notif)
         db.commit()
@@ -70,7 +70,7 @@ class NotificationService:
                     
                     if success:
                         n.estado = "ENVIADO"
-                        n.fecha_envio = datetime.utcnow()
+                        n.fecha_envio = datetime.now(datetime.timezone.utc)
                     else:
                         n.reintentos += 1
                         if n.reintentos >= 3:

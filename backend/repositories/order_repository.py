@@ -1,6 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from ..models import Pedido
+from sqlalchemy import func
 from datetime import datetime
 
 class OrderRepository:
@@ -18,7 +19,7 @@ class OrderRepository:
 
     def get_today_orders(self) -> List[Pedido]:
         today = datetime.now().date()
-        return self.db.query(Pedido).filter(self.db.func.date(Pedido.fecha) == today).all()
+        return self.db.query(Pedido).filter(func.date(Pedido.fecha) == today).all()
 
     def create(self, order: Pedido) -> Pedido:
         self.db.add(order)

@@ -13,3 +13,9 @@ temp_media/
 backups/
 instance/
 uploads/
+
+# Environment and Audit Files
+*.env
+!example.env
+*audit*.json
+

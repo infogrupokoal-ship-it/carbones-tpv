@@ -31,7 +31,7 @@ class AdminAuditService:
                 resource_id=resource_id,
                 details=json.dumps(details) if details else None,
                 ip_address=ip_address,
-                timestamp=datetime.datetime.utcnow()
+                timestamp=datetime.datetime.now(datetime.timezone.utc)
             )
             db.add(audit_entry)
             db.commit()

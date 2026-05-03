@@ -29,7 +29,7 @@ def convertir_a_pedido(id: str, db: Session = Depends(get_db)):
         nuevo_pedido = Pedido(
             id=str(uuid.uuid4()),
             numero_ticket=num_ticket,
-            fecha=datetime.datetime.utcnow(),
+            fecha=datetime.datetime.now(datetime.timezone.utc),
             total=p.total,
             estado="PENDIENTE",
             origen="COMERCIAL",
@@ -139,8 +139,8 @@ def crear_presupuesto(data: PresupuestoCrear, db: Session = Depends(get_db)):
         nuevo = Presupuesto(
             id=str(uuid.uuid4()),
             numero_presupuesto=num,
-            fecha=datetime.datetime.utcnow(),
-            fecha_validez=data.fecha_validez or (datetime.datetime.utcnow() + datetime.timedelta(days=15)),
+            fecha=datetime.datetime.now(datetime.timezone.utc),
+            fecha_validez=data.fecha_validez or (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=15)),
             total=0,
             estado="BORRADOR",
             notas=data.notas,

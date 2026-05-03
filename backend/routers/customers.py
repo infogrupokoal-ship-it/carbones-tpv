@@ -55,7 +55,7 @@ def solicitar_otp(req: OTPRequest, db: Session = Depends(get_db)):
         id=str(uuid.uuid4()),
         telefono=req.telefono,
         codigo=codigo,
-        fecha_expiracion=datetime.utcnow() + timedelta(minutes=5)
+        fecha_expiracion=datetime.now(datetime.timezone.utc) + timedelta(minutes=5)
     )
     db.add(nuevo_otp)
     
@@ -80,7 +80,7 @@ def verificar_otp(req: OTPVerify, db: Session = Depends(get_db)):
         not VerificacionOTP.usado
     ).first()
     
-    if not verificacion or verificacion.fecha_expiracion < datetime.utcnow():
+    if not verificacion or verificacion.fecha_expiracion < datetime.now(datetime.timezone.utc):
         raise HTTPException(status_code=400, detail="Código inválido o caducado")
         
     verificacion.usado = True

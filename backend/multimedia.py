@@ -4,7 +4,6 @@ import magic
 import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any
-import shutil
 
 from sqlalchemy.orm import Session
 from .models import Multimedia

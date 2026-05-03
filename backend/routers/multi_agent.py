@@ -10,7 +10,7 @@ from ..ai.agent_roles import AgentRoles
 from ..utils.logger import logger
 
 # Importar las dependencias de seguridad del módulo de autenticación
-from .auth import require_manager
+from .dependencies import require_manager
 
 router = APIRouter(prefix="/agents", tags=["Autonomous Agents"])
 

@@ -26,11 +26,12 @@ def poll_commands(db: Session = Depends(get_db)):
 @router.post("/ack/{command_id}")
 def acknowledge_command(command_id: str, db: Session = Depends(get_db)):
     """Marca un comando como ejecutado."""
-    cmd = db.query(HardwareCommand).get(command_id)
+    cmd = db.query(HardwareCommand).filter(HardwareCommand.id == command_id).first()
     if not cmd:
         raise HTTPException(status_code=404, detail="Comando no encontrado")
 
     cmd.estado = "EJECUTADO"
+    cmd.procesado = True
     cmd.fecha_ejecucion = datetime.now()
     db.commit()
     return {"status": "ok"}
