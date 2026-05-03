@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import asyncio
 import os
 import sys
@@ -36,10 +37,73 @@ from .utils.exceptions import TPVException, global_exception_handler
 # --- Configuración de Control de Tráfico ---
 limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- Startup ---
+    os.makedirs("instance", exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
+    
+    # Asegurar codificación UTF-8 en Windows para logs limpios
+    if sys.platform == "win32":
+        try:
+            import io
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+        except Exception:
+            pass
+
+    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v16.0]...")
+    
+    # 1. Base de Datos y Estructura
+    try:
+        migrate_schema()
+        # Seeding Industrial: Ejecutar siempre (idempotente) para garantizar catálogo completo
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT count(*) FROM tiendas")).fetchone()
+            tienda_vacia = result and result[0] == 0
+
+        # Si no hay tienda, seed básico para crear estructura
+        if tienda_vacia:
+            logger.info("🧫 BD vacía. Ejecutando seed base...")
+            from scripts.seed_ultra import seed_ultra_industrial
+            seed_ultra_industrial()
+
+        # Siempre ejecutar el catálogo completo (idempotente - no duplica)
+        logger.info("📦 Sincronizando catálogo completo de productos...")
+        try:
+            from scripts.seed_catalog_completo import seed_completo
+            seed_completo()
+            logger.info("✅ Catálogo sincronizado correctamente.")
+        except Exception as cat_err:
+            logger.warning(f"⚠️ Catálogo completo no ejecutado: {cat_err}")
+
+    except Exception as e:
+        logger.error(f"Error en migración/seeding: {e}")
+
+
+    services_to_start = []
+    
+
+    for coro, name in services_to_start:
+        try:
+            # En V16.0, cada servicio tiene su propia tarea aislada para evitar cascada de fallos
+            asyncio.create_task(coro)
+            logger.info(f"[CORE] Sync: {name} started successfully.")
+        except Exception as e:
+            logger.error(f"[CRITICAL] Kernel failed to spawn service {name}: {e}")
+    
+    logger.info("Enterprise Singularity [V16.0] - FULL OPERATIONAL STATUS ACHIEVED.")
+    
+    yield
+    # --- Shutdown ---
+    logger.info("🛑 Finalizando servicios Enterprise...")
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="### Sistema TPV de Alto Rendimiento\nEcosistema profesional para la gestión operativa, financiera e inteligente de Carbones y Pollos.",
+    lifespan=lifespan
 )
 
 app.state.limiter = limiter
@@ -61,6 +125,19 @@ async def read_admin():
     """Acceso exclusivo a la administración Enterprise."""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
+@app.get("/portal.html", response_class=FileResponse, include_in_schema=False)
+async def read_portal_root():
+    """Sirve el portal desde la raíz para evitar errores 404 de enlaces relativos."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def read_favicon():
+    """Sirve el favicon para evitar errores 404 en navegadores."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Usamos icon.png de static como favicon
+    return FileResponse(os.path.join(base_dir, "static", "icon.png"))
 
 @app.get("/pago_exitoso", response_class=HTMLResponse, include_in_schema=False)
 async def pago_exitoso(id: str = ""):
@@ -152,63 +229,6 @@ app.add_exception_handler(Exception, global_exception_handler)
 # Servir estáticos
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.on_event("startup")
-async def startup_event():
-    os.makedirs("instance", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
-    
-    # Asegurar codificación UTF-8 en Windows para logs limpios
-    if sys.platform == "win32":
-        try:
-            import io
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
-        except Exception:
-            pass
-
-    logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v11.0]...")
-    
-    # 1. Base de Datos y Estructura
-    try:
-        migrate_schema()
-        # Seeding Industrial: Ejecutar siempre (idempotente) para garantizar catálogo completo
-        from sqlalchemy import text
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT count(*) FROM tiendas")).fetchone()
-            tienda_vacia = result and result[0] == 0
-
-        # Si no hay tienda, seed básico para crear estructura
-        if tienda_vacia:
-            logger.info("🧫 BD vacía. Ejecutando seed base...")
-            from scripts.seed_ultra import seed_ultra_industrial
-            seed_ultra_industrial()
-
-        # Siempre ejecutar el catálogo completo (idempotente - no duplica)
-        logger.info("📦 Sincronizando catálogo completo de productos...")
-        try:
-            from scripts.seed_catalog_completo import seed_completo
-            seed_completo()
-            logger.info("✅ Catálogo sincronizado correctamente.")
-        except Exception as cat_err:
-            logger.warning(f"⚠️ Catálogo completo no ejecutado: {cat_err}")
-
-    except Exception as e:
-        logger.error(f"Error en migración/seeding: {e}")
-
-
-    services_to_start = []
-    
-
-    for coro, name in services_to_start:
-        try:
-            # En V11.0, cada servicio tiene su propia tarea aislada para evitar cascada de fallos
-            asyncio.create_task(coro)
-            logger.info(f"[CORE] Sync: {name} started successfully.")
-        except Exception as e:
-            logger.error(f"[CRITICAL] Kernel failed to spawn service {name}: {e}")
-    
-    logger.info("Enterprise Singularity [V11.0] - FULL OPERATIONAL STATUS ACHIEVED.")
 
 
 @app.get("/health", tags=["Infraestructura"])

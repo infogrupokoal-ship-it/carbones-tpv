@@ -13,8 +13,8 @@ from backend.models import Categoria, Producto, Tienda
 CATALOG = {
     # ── POLLOS ──────────────────────────────────────────────────────────────
     "Pollos Asados 🔥": [
-        {"nombre": "Pollo Entero al Carbón",         "precio": 10.90, "desc": "Pollo de primera calidad asado en brasa de carbón de encina. Nuestro superventas.", "img": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=800&q=80"},
-        {"nombre": "Medio Pollo al Carbón",           "precio":  5.90, "desc": "Media unidad del pollo estrella, ideal para 1 persona.", "img": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=80"},
+        {"nombre": "Pollo Entero al Carbón",         "precio": 10.90, "desc": "Pollo de primera calidad asado en brasa de carbón de encina. Nuestro superventas.", "img": "/static/img/pollo_asado.png"},
+        {"nombre": "Medio Pollo al Carbón",           "precio":  5.90, "desc": "Media unidad del pollo estrella, ideal para 1 persona.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Cuarto de Pollo",                 "precio":  3.50, "desc": "Un cuarto de pollo, perfecto para acompañar o para los más pequeños."},
         {"nombre": "Alitas al Carbón (1kg)",          "precio":  8.50, "desc": "Kilogramo de alitas marinadas y asadas a la brasa. Para compartir."},
         {"nombre": "Muslos de Pollo (4uds)",          "precio":  7.90, "desc": "4 muslos de pollo cocinados a fuego lento sobre carbón de encina."},
@@ -31,7 +31,7 @@ CATALOG = {
     ],
     # ── HAMBURGUESAS ─────────────────────────────────────────────────────────
     "Hamburguesas 🍔": [
-        {"nombre": "Burger Koal Classic",              "precio": 10.90, "desc": "200g de ternera, queso cheddar, lechuga, tomate, cebolla y salsa secreta.", "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80"},
+        {"nombre": "Burger Koal Classic",              "precio": 10.90, "desc": "200g de ternera, queso cheddar, lechuga, tomate, cebolla y salsa secreta.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Burger Doble Koal",                "precio": 13.90, "desc": "400g de carne, doble queso y todo lo demás. Para los valientes."},
         {"nombre": "Burger de Pollo Crujiente",        "precio":  9.90, "desc": "Filetes de pechuga rebozados crujientes con salsa sriracha y col."},
         {"nombre": "Burger Veggie",                    "precio":  9.50, "desc": "Hamburguesa de garbanzos y verduras asadas, con aguacate y sprouts."},
@@ -39,7 +39,7 @@ CATALOG = {
     ],
     # ── PIZZAS ───────────────────────────────────────────────────────────────
     "Pizzas Artesanas 🍕": [
-        {"nombre": "Pizza Margarita",                  "precio":  9.50, "desc": "Tomate, mozzarella y albahaca fresca. Simple y perfecta.", "img": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80"},
+        {"nombre": "Pizza Margarita",                  "precio":  9.50, "desc": "Tomate, mozzarella y albahaca fresca. Simple y perfecta.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Pizza Pollo y Champiñones",        "precio": 12.50, "desc": "Pollo a la brasa, champiñones frescos, queso mozzarella y orégano."},
         {"nombre": "Pizza Cuatro Quesos",              "precio": 12.00, "desc": "Mozzarella, gorgonzola, emmental y parmesano. Para los amantes del queso."},
         {"nombre": "Pizza Pepperoni",                  "precio": 11.50, "desc": "Pepperoni americano con extra de mozzarella."},
@@ -48,7 +48,7 @@ CATALOG = {
     ],
     # ── ARROCES ──────────────────────────────────────────────────────────────
     "Arroces & Paellas 🥘": [
-        {"nombre": "Arroz con Pollo",                  "precio":  9.00, "desc": "Arroz cremoso cocinado en el jugo de nuestros pollos. Tradición pura.", "img": "https://images.unsplash.com/photo-1589502011-5bef0c2b5c5a?w=800&q=80"},
+        {"nombre": "Arroz con Pollo",                  "precio":  9.00, "desc": "Arroz cremoso cocinado en el jugo de nuestros pollos. Tradición pura.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Paella Valenciana (2 personas)",   "precio": 22.00, "desc": "Paella tradicional con pollo, conejo, garrofón y verduras de temporada."},
         {"nombre": "Arroz al Horno",                   "precio": 11.00, "desc": "Arroz al horno tradicional con costillas y embutido."},
         {"nombre": "Arroz Negro con Alioli",           "precio": 13.00, "desc": "Arroz negro con tinta de calamar y alioli casero."},
@@ -63,7 +63,7 @@ CATALOG = {
     ],
     # ── COMPLEMENTOS ─────────────────────────────────────────────────────────
     "Complementos 🍟": [
-        {"nombre": "Patatas Fritas (Ración)",           "precio":  3.50, "desc": "Patatas caseras fritas en aceite de girasol. Crujientes por fuera, tiernas por dentro.", "img": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&q=80"},
+        {"nombre": "Patatas Fritas (Ración)",           "precio":  3.50, "desc": "Patatas caseras fritas en aceite de girasol. Crujientes por fuera, tiernas por dentro.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Patatas Fritas (Tapa)",             "precio":  1.90, "desc": "Tapa de patatas fritas para acompañar."},
         {"nombre": "Ensalada Mixta",                   "precio":  4.50, "desc": "Lechuga, tomate, cebolla, maíz, zanahoria y aceituna con vinagreta."},
         {"nombre": "Ensalada César",                   "precio":  6.00, "desc": "Romana, pollo a la brasa, parmesano, crutones y salsa César."},
@@ -86,7 +86,7 @@ CATALOG = {
     ],
     # ── COMBOS ───────────────────────────────────────────────────────────────
     "Combos Ahorro 🛍️": [
-        {"nombre": "Menú Personal",                    "precio":  9.90, "desc": "1/2 Pollo + Patatas + Refresco. El menú del día de toda la vida.", "img": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80"},
+        {"nombre": "Menú Personal",                    "precio":  9.90, "desc": "1/2 Pollo + Patatas + Refresco. El menú del día de toda la vida.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Menú Familiar",                    "precio": 28.90, "desc": "2 Pollos enteros + 2 Patatas grandes + 4 Refrescos. Para toda la familia."},
         {"nombre": "Combo Pareja",                     "precio": 18.90, "desc": "1 Pollo + Patatas medianas + 2 Refrescos. Cena romántica en casa."},
         {"nombre": "Pack Party (4 personas)",          "precio": 39.90, "desc": "2 Pollos + 4 Hamburguesas + Patatas XL + 4 Refrescos. Para la fiesta."},

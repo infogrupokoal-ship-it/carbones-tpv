@@ -199,7 +199,7 @@ def listar_productos(db: Session = Depends(get_db)):
             "nombre": p.nombre,
             "precio": p.precio,
             "categoria": p.categoria,
-            "imagen": p.imagen_url if hasattr(p, 'imagen_url') else "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600",
+            "imagen": p.imagen_url if hasattr(p, 'imagen_url') else "/static/img/pollo_asado.png",
             "descripcion": p.descripcion if hasattr(p, 'descripcion') else "Receta artesanal al carbón"
         } for p in prods]
     except Exception as e:

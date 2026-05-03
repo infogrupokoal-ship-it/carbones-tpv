@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Terminal Kiosko | Carbones y Pollos</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/tailwind.css">
+
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -32,7 +33,7 @@
 
   <!-- IDLE SCREENSAVER (100% OVERLAY) -->
   <div id="screensaver" class="hidden absolute inset-0 z-[9999] bg-orange-600 flex flex-col items-center justify-center text-white cursor-pointer" onclick="wakeUpKiosk()">
-    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
+    <div class="absolute inset-0 bg-[url('/static/img/hero_bg.png')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
     <div class="relative z-10 text-center flex flex-col items-center justify-center h-full w-full p-12">
       <div class="text-[150px] mb-8 animate__animated animate__pulse animate__infinite">🔥</div>
@@ -297,9 +298,9 @@ function renderProducts() {
     <div class="prod-card bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full" onclick="addToCart('${p.id}','${esc(p.nombre)}',${parseFloat(p.precio)},'${p.imagen_url||''}')">
       <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
         ${isBestSeller ? '<div class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-900 uppercase tracking-widest px-3 py-1.5 rounded-full z-10 shadow-lg animate-pulse"><i class="fa-solid fa-fire mr-1"></i> TOP VENTAS</div>' : ''}
-        <img src="${p.imagen_url || 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80'}" 
+        <img src="${p.imagen_url || '/static/img/pollo_asado.png'}" 
              class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
-             onerror="this.src='https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80'">
+             onerror="this.src='/static/img/pollo_asado.png'">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
           <span class="text-white font-900 text-2xl drop-shadow-md">${parseFloat(p.precio).toFixed(2)}€</span>
@@ -377,7 +378,7 @@ function updateCartUI() {
   el.innerHTML = cart.map(i => `
     <div class="cart-item-anim flex flex-col gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
       <div class="flex items-start gap-3">
-        <img src="${i.img||'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=100'}" class="w-16 h-16 rounded-xl object-cover bg-gray-200">
+        <img src="${i.img||'/static/img/pollo_asado.png'}" class="w-16 h-16 rounded-xl object-cover bg-gray-200">
         <div class="flex-1 min-w-0 pt-1">
           <p class="font-900 text-sm uppercase tracking-tight leading-tight text-gray-900">${i.name}</p>
           <p class="text-orange-600 font-900 text-sm mt-1">${(i.price*i.qty).toFixed(2)}€</p>

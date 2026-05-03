@@ -16,7 +16,15 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 logger = logging.getLogger("TPV_ENTERPRISE")
 logger.setLevel(logging.INFO)
 
-# Handler para consola (Standard Output)
+# Handler para consola (Standard Output) con soporte robusto de codificación
+if sys.platform == "win32":
+    # En Windows, intentamos forzar UTF-8 para la consola si es posible
+    import io
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except (AttributeError, io.UnsupportedOperation):
+        pass
+
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setFormatter(logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT))
 logger.addHandler(console_handler)

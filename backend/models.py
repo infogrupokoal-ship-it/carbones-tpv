@@ -497,3 +497,43 @@ class AuditLog(Base):
     
     usuario = relationship("Usuario", backref="auditorias")
 
+# --- MULTIMEDIA & IA ---
+class Attachment(Base):
+    __tablename__ = "attachments"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    
+    # Core Identification
+    project = Column(String(50), nullable=False, default="carbones_tpv") # 'gestion_koal', 'carbones_tpv'
+    source = Column(String(50), nullable=False, default="web") # whatsapp, telegram, web, email, drive
+    entity_type = Column(String(50), nullable=False) # 'client', 'job', 'quote', 'invoice', 'provider', etc
+    entity_id = Column(String(36), nullable=False)
+    
+    # File Metadata
+    original_filename = Column(String(255), nullable=False)
+    safe_filename = Column(String(255), nullable=False)
+    mime_type = Column(String(100), nullable=False)
+    size_bytes = Column(Integer, nullable=False)
+    sha256 = Column(String(64), nullable=False, index=True) # Checksum real SHA-256
+    
+    # Storage
+    file_url = Column(String(500), nullable=False)
+    storage_path = Column(String(500), nullable=False)
+    
+    # Ownership
+    uploaded_by = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    phone_number = Column(String(50), nullable=True) # Para WhatsApp/Telegram sender
+    
+    # Security and Lifecycle
+    status = Column(String(50), default="received") # received, stored, analyzed, failed, needs_review
+    is_sensitive = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False)
+    preview_available = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # IA Meta
+    ai_summary = Column(Text)
+    ocr_text = Column(Text)
+    labels = Column(String(255)) # Tagging IA
+
+    uploader = relationship("Usuario", foreign_keys=[uploaded_by])

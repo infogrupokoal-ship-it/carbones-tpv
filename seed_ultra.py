@@ -36,7 +36,7 @@ def seed_industrial_ultra():
                 precio=14.50,
                 categoria_id=cats["POLLOS"].id,
                 stock_actual=50,
-                url_imagen="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             ),
             Producto(
@@ -46,7 +46,7 @@ def seed_industrial_ultra():
                 precio=8.50,
                 categoria_id=cats["POLLOS"].id,
                 stock_actual=100,
-                url_imagen="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             ),
             # Entrantes
@@ -57,7 +57,7 @@ def seed_industrial_ultra():
                 precio=5.90,
                 categoria_id=cats["ENTRANTES"].id,
                 stock_actual=200,
-                url_imagen="https://images.unsplash.com/photo-1518013391915-e44359403868?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             ),
             Producto(
@@ -67,7 +67,7 @@ def seed_industrial_ultra():
                 precio=7.50,
                 categoria_id=cats["ENTRANTES"].id,
                 stock_actual=150,
-                url_imagen="https://images.unsplash.com/photo-1626082896492-766af4eb6501?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             ),
             # Bebidas
@@ -78,7 +78,7 @@ def seed_industrial_ultra():
                 precio=3.80,
                 categoria_id=cats["BEBIDAS"].id,
                 stock_actual=300,
-                url_imagen="https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             ),
             Producto(
@@ -88,7 +88,7 @@ def seed_industrial_ultra():
                 precio=18.00,
                 categoria_id=cats["BEBIDAS"].id,
                 stock_actual=40,
-                url_imagen="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=800",
+                url_imagen="/static/img/pollo_asado.png",
                 is_active=True
             )
         ]

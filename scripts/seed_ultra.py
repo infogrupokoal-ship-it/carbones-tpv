@@ -76,7 +76,7 @@ def seed_ultra_industrial():
                 "desc": "Nuestro orgullo. Marinado 24h con 12 especias secretas y asado lentamente.",
                 "precio": 15.50,
                 "cat": "pollos",
-                "img": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Ninguno",
                 "nutri": "Proteínas: 25g, Grasas: 12g, Calorías: 210kcal por 100g"
             },
@@ -85,7 +85,7 @@ def seed_ultra_industrial():
                 "desc": "La mitad de nuestro pollo estrella, tierno y jugoso por dentro.",
                 "precio": 8.90,
                 "cat": "pollos",
-                "img": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Ninguno",
                 "nutri": "Proteínas: 25g, Calorías: 210kcal"
             },
@@ -95,7 +95,7 @@ def seed_ultra_industrial():
                 "desc": "2 Pollos + 2 Patatas Grandes + Ensalada de la Casa + Bebida 2L.",
                 "precio": 38.00,
                 "cat": "combos",
-                "img": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Huevo (Salsas), Gluten (Pan)",
                 "nutri": "Ideal para 4-6 personas."
             },
@@ -104,7 +104,7 @@ def seed_ultra_industrial():
                 "desc": "1 Pollo + Patatas Medianas + 2 Bebidas + 2 Postres.",
                 "precio": 24.50,
                 "cat": "combos",
-                "img": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Lactosa (Postre)",
                 "nutri": "Cena completa para dos."
             },
@@ -114,7 +114,7 @@ def seed_ultra_industrial():
                 "desc": "Patata agria seleccionada, cortada a mano y frita en tres tiempos.",
                 "precio": 4.50,
                 "cat": "lados",
-                "img": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Ninguno",
                 "nutri": "Energía pura."
             },
@@ -123,7 +123,7 @@ def seed_ultra_industrial():
                 "desc": "Pimientos de temporada asados en la misma parrilla que el pollo.",
                 "precio": 5.90,
                 "cat": "lados",
-                "img": "https://images.unsplash.com/photo-1516824467205-aba65913550e?auto=format&fit=crop&q=80&w=800",
+                "img": "/static/img/pollo_asado.png",
                 "alergenos": "Ninguno",
                 "nutri": "Fibra y sabor."
             },

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Carbones & Pollos | Delivery Premium</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/tailwind.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,7 +21,7 @@
         
         /* Hero Banner */
         .hero-banner {
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&q=80&w=800') center/cover;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('/static/img/hero_bg.png') center/cover;
             height: 35vh;
             min-height: 250px;
             border-radius: 0 0 2rem 2rem;
@@ -280,7 +281,7 @@
         <div id="cart-upsell-container" class="bg-orange-50 p-4 border-t border-orange-100 hidden">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-white rounded-lg p-1 shadow-sm"><img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover rounded"></div>
+                    <div class="w-12 h-12 bg-white rounded-lg p-1 shadow-sm"><img src="/static/img/pollo_asado.png" class="w-full h-full object-cover rounded"></div>
                     <div>
                         <p class="text-xs font-900 uppercase text-gray-900">¿Añadir Patatas Fritas?</p>
                         <p class="text-orange-600 font-900 text-sm">2.50€</p>
@@ -356,17 +357,17 @@
         
         // Mock Images for Categories & Fallbacks
         const defaultImages = {
-            'Nuestra Brasa': 'https://images.unsplash.com/photo-1544025162-811114bd41a9?auto=format&fit=crop&q=80&w=600',
-            'Bocadillos & Baguettes 🥖': 'https://images.unsplash.com/photo-1619860860774-1e2e17342152?auto=format&fit=crop&q=80&w=600',
-            'Entrantes': 'https://images.unsplash.com/photo-1623653387945-2fd256d475ce?auto=format&fit=crop&q=80&w=600',
-            'Salsas': 'https://images.unsplash.com/photo-1472476443507-c7a5948772bf?auto=format&fit=crop&q=80&w=400',
-            'Bebidas': 'https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&q=80&w=400',
-            'Postres': 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=400',
-            'default': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600'
+            'Nuestra Brasa': '/static/img/pollo_asado.png',
+            'Bocadillos & Baguettes 🥖': '/static/img/pollo_asado.png',
+            'Entrantes': '/static/img/pollo_asado.png',
+            'Salsas': '/static/img/pollo_asado.png',
+            'Bebidas': '/static/img/pollo_asado.png',
+            'Postres': '/static/img/pollo_asado.png',
+            'default': '/static/img/pollo_asado.png'
         };
 
         const upsellItemMock = {
-            id: 'upsell_patatas', nombre: 'Patatas Fritas Grandes', precio: 2.50, img: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&q=80&w=200'
+            id: 'upsell_patatas', nombre: 'Patatas Fritas Grandes', precio: 2.50, img: '/static/img/pollo_asado.png'
         };
 
         document.addEventListener("DOMContentLoaded", async () => {

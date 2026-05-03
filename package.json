@@ -1,0 +1,29 @@
+{
+  "name": "carbones_y_pollos_tpv",
+  "version": "1.0.0",
+  "description": "Sistema integral de Punto de Venta (TPV), Gestión de Cocina (KDS) e Inteligencia de Negocio (BI) diseñado para la máxima eficiencia operativa en entornos de hostelería de alto rendimiento.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/infogrupokoal-ship-it/carbones-tpv.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/infogrupokoal-ship-it/carbones-tpv/issues"
+  },
+  "homepage": "https://github.com/infogrupokoal-ship-it/carbones-tpv#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.4",
+    "tailwindcss": "^4.2.4"
+  }
+}
