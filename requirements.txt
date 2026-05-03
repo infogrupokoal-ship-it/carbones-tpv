@@ -27,7 +27,7 @@ pillow==10.2.0
 
 # --- Utilities & Telemetry ---
 requests==2.31.0
-httpx==0.27.0
+httpx==0.26.0
 psutil==5.9.8
 python-dotenv==1.0.1
 python-telegram-bot==20.8
