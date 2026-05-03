@@ -518,7 +518,7 @@ class Attachment(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Core Identification
-    project = Column(String(50), nullable=False, default="carbones_tpv") # 'gestion_koal', 'carbones_tpv'
+    project = Column(String(50), nullable=False, default="carbones_tpv") # 'carbones_tpv'
     source = Column(String(50), nullable=False, default="web") # whatsapp, telegram, web, email, drive
     entity_type = Column(String(50), nullable=False) # 'client', 'job', 'quote', 'invoice', 'provider', etc
     entity_id = Column(String(36), nullable=False)

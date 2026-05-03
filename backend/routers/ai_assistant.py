@@ -1,5 +1,5 @@
 """
-AI Assistant Router - Asistente de Ventas Koal-AI
+AI Assistant Router - Asistente de Ventas Carbones y Pollos
 ====================================================
 Usa AIModelManager para rotación automática de modelos Gemini.
 Endpoint: POST /api/ai/chat

@@ -1,5 +1,5 @@
 """
-Koal-AI Agent - Motor de Inteligencia Operacional
+Asistente AI - Motor de Inteligencia Operacional Carbones y Pollos
 ===================================================
 Usa AIModelManager para rotación automática de modelos Gemini.
 Modelo primario: gemini-2.5-pro → fallback automático si hay errores de cuota.
@@ -72,7 +72,7 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
     Usa rotación automática de modelos: gemini-2.5-pro → 2.0-flash → 2.0-flash-lite → 1.5-pro
     """
     if not settings.GOOGLE_API_KEY:
-        return "Koal-AI: El servicio no está configurado (Falta GOOGLE_API_KEY)."
+        return "AI: El servicio no está configurado (Falta GOOGLE_API_KEY)."
 
     db = SessionLocal()
     try:
@@ -90,7 +90,7 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
             pass
 
         full_prompt = f"""
-        Eres 'Koal-AI', el sistema de inteligencia operacional de Carbones y Pollos.
+        Eres el asistente de inteligencia operacional de Carbones y Pollos.
         Actúas como un Gerente de Operaciones Senior (COO) virtual.
         
         SITUACIÓN ACTUAL DEL NEGOCIO:

@@ -9,13 +9,12 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
+from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto, PrintJob, Usuario
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 from .admin_audit import log_audit_action
 from .ws import notify_new_order
 from .dependencies import get_current_user, require_admin, require_manager
-from ..models import Usuario
 
 router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
@@ -500,18 +499,28 @@ def _encolar_tickets(db: Session, pedido: Pedido):
         "fecha": pedido.fecha.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Ticket Producción (Cocina)
-    db.add(HardwareCommand(
+    # Ticket Producción (Cocina) - Arquitectura Zero-Touch
+    db.add(PrintJob(
         id=str(uuid.uuid4()),
-        accion="imprimir",
-        origen="backend_enterprise",
         payload=json.dumps({**base_payload, "tipo": "cocina"}),
+        target_device="KITCHEN_PRINTER_01",
+        status="PENDING",
+        metadata_json={"order_id": pedido.numero_ticket, "type": "KITCHEN"}
     ))
     
-    # Ticket Fiscal (Cliente)
+    # Ticket Fiscal (Cliente) - Arquitectura Zero-Touch
+    db.add(PrintJob(
+        id=str(uuid.uuid4()),
+        payload=json.dumps({**base_payload, "tipo": "cliente"}),
+        target_device="TPV_FRONT_PRINTER",
+        status="PENDING",
+        metadata_json={"order_id": pedido.numero_ticket, "type": "CUSTOMER"}
+    ))
+    
+    # Legacy Support (HardwareCommand)
     db.add(HardwareCommand(
         id=str(uuid.uuid4()),
         accion="imprimir",
         origen="backend_enterprise",
-        payload=json.dumps({**base_payload, "tipo": "cliente"}),
+        payload=json.dumps({**base_payload, "tipo": "legacy"}),
     ))

@@ -84,7 +84,7 @@ async def get_ai_insights(db: Session = Depends(get_db)):
         sugerencia = parts[1] if len(parts) > 1 else "Mantener niveles de producción según demanda histórica."
         
         return {
-            "resumen_reviews": resumen.replace("Koal-AI:", "").strip(),
+            "resumen_reviews": resumen.replace("AI:", "").strip(),
             "sugerencia_produccion": sugerencia.strip()
         }
     except Exception as e:
@@ -97,7 +97,7 @@ async def get_ai_insights(db: Session = Depends(get_db)):
 @router.post("/ai/chat")
 async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
     """
-    Agente Conversacional Koal-AI: Proporciona soporte operativo e insights 
+    Agente Conversacional: Proporciona soporte operativo e insights 
     estratégicos mediante interacción en lenguaje natural.
     """
     try:
@@ -108,7 +108,7 @@ async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
         # Contexto del sistema para el agente
         prompt = f"El usuario pregunta: {message}\nResponde como el asistente experto del TPV Carbones y Pollos."
         response = await ask_asador_ai(prompt, user_role="staff")
-        return {"response": response.replace("Koal-AI:", "").strip()}
+        return {"response": response.replace("AI:", "").strip()}
     except Exception as e:
         logger.error(f"Error en AI Chat: {e}")
         return {"response": "Lo siento, mi conexión con el núcleo neuronal está inestable. ¿Puedes repetir?"}

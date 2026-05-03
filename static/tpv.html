@@ -3,565 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Mostrador | Carbones y Pollos</title>
+    <title>TPV Enterprise | Carbones y Pollos</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/tailwind.css">
-
+    <link rel="stylesheet" href="/static/css/tpv_premium.css">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #f1f5f9; color: #1e293b; user-select: none; }
-        .cat-btn { transition: all 0.25s; border-bottom: 3px solid transparent; }
-        .cat-btn.active { border-color: #4f46e5; color: #4f46e5; font-weight: 900; }
-        .prod-card { background: white; border-radius: 1.5rem; border: 2px solid #f1f5f9; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); cursor: pointer; }
-        .prod-card:active { transform: scale(0.95); }
-        .prod-card:hover { border-color: #6366f1; box-shadow: 0 10px 25px -5px rgba(99,102,241,0.15); }
-        .ticket-panel { background: white; border-left: 1px solid #e2e8f0; }
-        .btn-pay { background: linear-gradient(135deg, #4f46e5, #4338ca); }
-        .btn-pay:active { transform: scale(0.98); }
-        .qty-badge { background: #4f46e5; color: white; border-radius: 9999px; font-size: 11px; font-weight: 900; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; position: absolute; top: -6px; right: -6px; }
-        .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .animate-slide { animation: slideIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        
-        /* Mobile Ticket Drawer */
-        @media (max-width: 1024px) {
-            #ticket-col {
-                position: fixed;
-                right: 0;
-                top: 0;
-                bottom: 0;
-                z-index: 50;
-                transform: translateX(100%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-                width: 85% !important;
-                max-width: 400px;
-            }
-            #ticket-col.open {
-                transform: translateX(0);
-            }
-            #ticket-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.4);
-                backdrop-filter: blur(2px);
-                z-index: 40;
-                display: none;
-            }
-            #ticket-overlay.active {
-                display: block;
-            }
-            #fab-ticket {
-                display: flex !important;
-            }
-        }
-
-        @media print {
-            #menu-col, #cat-bar, header, #fab-ticket { display: none !important; }
-            #ticket-col { width: 100% !important; border: none; transform: none !important; position: static !important; }
+        /* Ajustes específicos para el layout base */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
-
-    <!-- Header -->
-    <header class="bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center justify-between z-10 flex-shrink-0">
-        <div class="flex items-center gap-3 md:gap-4">
-            <a href="portal.html" class="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-xl hover:bg-slate-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            </a>
-            <div>
-                <p class="text-[8px] md:text-[9px] font-black text-indigo-600 uppercase tracking-[0.3em]">Mostrador Directo</p>
-                <h1 class="text-lg md:text-xl font-black text-slate-900 tracking-tight uppercase leading-none">TPV <span class="text-indigo-600">Rápido</span></h1>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Categorías -->
+        <aside id="cat-sidebar">
+            <div class="p-4 flex flex-col items-center border-bottom border-color mb-4">
+                <span class="text-[10px] font-black tracking-widest text-secondary">TPV v2.0</span>
             </div>
-        </div>
-        
-        <!-- Search Bar: DYNAMISM -->
-        <div class="hidden sm:flex flex-1 max-w-md mx-8">
-            <div class="relative w-full">
-                <input type="text" id="prod-search" placeholder="Buscar producto (F2)..." 
-                    class="w-full bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all"
-                    oninput="handleSearch(this.value)">
-                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div id="cat-list">
+                <!-- Injected via JS -->
             </div>
-        </div>
+        </aside>
 
-        <div class="flex items-center gap-3">
-            <div id="operator-info" class="hidden lg:flex flex-col items-end mr-2">
-                <span id="user-display" class="text-[10px] font-black text-slate-900 uppercase">OPERADOR</span>
-                <span id="shift-display" class="text-[8px] font-bold text-slate-400 uppercase">TURNO MAÑANA</span>
-            </div>
-            <div id="clock" class="hidden sm:block text-sm font-black text-slate-500 tabular-nums"></div>
-            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span class="text-[8px] md:text-[9px] font-black text-emerald-600 uppercase tracking-widest">Activo</span>
-        </div>
-    </header>
-
-    <div class="flex flex-1 overflow-hidden relative">
-        <!-- Ticket Overlay for Mobile -->
-        <div id="ticket-overlay" onclick="toggleTicket(false)"></div>
-
-        <!-- Left: Catalog -->
-        <div id="menu-col" class="flex-1 flex flex-col overflow-hidden">
-            <!-- Category bar -->
-            <div id="cat-bar" class="bg-white border-b border-slate-100 flex gap-0 px-2 md:px-4 overflow-x-auto scrollbar-thin flex-shrink-0">
-                <!-- Injected dynamically -->
-            </div>
-
-            <!-- Product grid -->
-            <div id="prod-grid" class="flex-1 overflow-y-auto scrollbar-thin p-3 md:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3 content-start">
-                <!-- Skeleton -->
-                <div class="prod-card p-4 h-32 animate-pulse bg-slate-100"></div>
-                <div class="prod-card p-4 h-32 animate-pulse bg-slate-100"></div>
-                <div class="prod-card p-4 h-32 animate-pulse bg-slate-100"></div>
-            </div>
-        </div>
-
-        <!-- Right: Ticket -->
-        <div id="ticket-col" class="w-80 xl:w-96 ticket-panel flex flex-col overflow-hidden flex-shrink-0 border-l border-slate-200">
-            <div class="px-5 pt-5 pb-3 border-b border-slate-100 flex-shrink-0">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                        <button onclick="toggleTicket(false)" class="lg:hidden p-2 -ml-2 text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                        <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">Ticket Actual</h2>
+        <!-- Área Principal: Buscador y Parrilla de Productos -->
+        <main id="product-area">
+            <header class="p-6 border-bottom border-color flex items-center justify-between glass">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-accent-fire rounded-2xl flex items-center justify-center text-2xl">🔥</div>
+                    <div>
+                        <h1 class="text-xl font-black uppercase tracking-tight m-0">Carbones y Pollos</h1>
+                        <p class="text-[9px] text-secondary font-bold uppercase tracking-widest">NIF: B24823270 | Av. Malvarrosa 112</p>
                     </div>
-                    <button onclick="limpiarTicket()" class="text-[9px] font-black text-red-400 hover:text-red-600 uppercase tracking-widest px-2 py-1 rounded-lg hover:bg-red-50 transition-all">Borrar</button>
                 </div>
-                <div class="flex gap-2">
-                    <select id="metodo-pago" class="flex-1 text-[10px] font-black uppercase tracking-wide border border-slate-200 rounded-xl px-2 py-2 bg-slate-50 focus:border-indigo-400 focus:outline-none">
-                        <option value="EFECTIVO">💵 Efectivo</option>
-                        <option value="TARJETA" selected>💳 Tarjeta</option>
-                        <option value="BIZUM">📱 Bizum</option>
-                        <option value="INVITACION">🎁 Invitación</option>
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <input type="text" id="main-search" placeholder="Buscar producto (F2)..." 
+                            class="bg-surface border border-color rounded-xl px-10 py-3 text-sm font-bold w-64 focus:border-accent-fire outline-none transition-all">
+                        <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
+                    </div>
+                    <div id="status-badge" class="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Online</span>
+                    </div>
+                </div>
+            </header>
+
+            <section id="prod-grid-container" class="product-grid">
+                <!-- Injected via JS -->
+            </section>
+        </main>
+
+        <!-- Sidebar Ticket -->
+        <aside id="ticket-sidebar">
+            <div class="ticket-header">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-secondary uppercase tracking-widest">Operación Activa</span>
+                    <h2 class="text-lg font-black uppercase m-0">Ticket #<span id="ticket-num">---</span></h2>
+                </div>
+                <button onclick="clearTicket()" class="text-[10px] font-black text-red-500 uppercase hover:bg-red-500/10 px-3 py-2 rounded-lg transition-all">Limpiar</button>
+            </div>
+
+            <div id="ticket-list" class="ticket-items">
+                <!-- Items injected here -->
+                <div id="empty-hint" class="flex flex-col items-center justify-center h-full opacity-20">
+                    <span class="text-6xl mb-4">🛒</span>
+                    <p class="font-black uppercase text-sm tracking-widest">Carrito Vacío</p>
+                </div>
+            </div>
+
+            <div class="ticket-footer glass">
+                <div class="flex flex-col gap-3 mb-6">
+                    <div class="flex justify-between items-center px-2">
+                        <span class="text-secondary font-bold">Subtotal</span>
+                        <span id="txt-subtotal" class="font-black">0.00 €</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2">
+                        <span class="text-secondary font-bold">IVA (10%)</span>
+                        <span id="txt-iva" class="font-black">0.00 €</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2 pt-3 border-top border-color">
+                        <span class="text-xl font-black uppercase">Total</span>
+                        <span id="txt-total" class="text-3xl font-black text-accent-fire">0.00 €</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <select id="sel-payment" class="bg-surface border border-color rounded-xl p-3 font-bold outline-none text-xs">
+                        <option value="EFECTIVO">💵 EFECTIVO</option>
+                        <option value="TARJETA" selected>💳 TARJETA</option>
+                        <option value="BIZUM">📱 BIZUM</option>
                     </select>
-                    <select id="origen-pedido" class="flex-1 text-[10px] font-black uppercase tracking-wide border border-slate-200 rounded-xl px-2 py-2 bg-slate-50 focus:border-indigo-400 focus:outline-none">
-                        <option value="MOSTRADOR">🏪 Mostrador</option>
-                        <option value="TELEFONO">📞 Teléfono</option>
-                        <option value="WHATSAPP">💬 WhatsApp</option>
-                        <option value="DELIVERY">🛵 Delivery</option>
+                    <select id="sel-origin" class="bg-surface border border-color rounded-xl p-3 font-bold outline-none text-xs">
+                        <option value="MOSTRADOR">🏪 MOSTRADOR</option>
+                        <option value="TELEFONO">📞 TELÉFONO</option>
+                        <option value="DELIVERY">🛵 DELIVERY</option>
                     </select>
                 </div>
-                <input id="notas-pedido" type="text" placeholder="Notas (sin cebolla...)" 
-                    class="mt-2 w-full text-[10px] font-bold border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 focus:border-indigo-400 focus:outline-none placeholder-slate-300">
-            </div>
 
-            <!-- Items list -->
-            <div id="ticket-items" class="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 space-y-2">
-                <div id="empty-ticket" class="flex flex-col items-center justify-center h-full text-center py-12">
-                    <span class="text-5xl mb-4 opacity-20">🛒</span>
-                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Ticket vacío</p>
-                    <p class="text-[9px] text-slate-300 mt-1">Pulsa un producto para añadir</p>
-                </div>
-            </div>
-
-            <!-- Totals & Pay -->
-            <div class="border-t border-slate-100 p-4 bg-white flex-shrink-0">
-                <div class="space-y-1 mb-4">
-                    <div class="flex justify-between text-xs text-slate-500">
-                        <span class="font-bold">Subtotal</span>
-                        <span id="subtotal" class="font-black tabular-nums">0.00 €</span>
-                    </div>
-                    <div class="flex justify-between text-xs text-slate-500">
-                        <span class="font-bold">IVA (10%)</span>
-                        <span id="iva" class="font-black tabular-nums">0.00 €</span>
-                    </div>
-                    <div class="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-100">
-                        <span>TOTAL</span>
-                        <span id="total" class="text-indigo-600 tabular-nums text-xl">0.00 €</span>
-                    </div>
-                </div>
-
-                <!-- Efectivo change calculator -->
-                <div id="cambio-section" class="hidden mb-3 p-3 bg-amber-50 rounded-2xl border border-amber-100">
-                    <label class="text-[9px] font-black text-amber-600 uppercase tracking-widest">Entrega cliente</label>
-                    <div class="flex gap-2 mt-1">
-                        <input id="entrega-cliente" type="number" step="0.50" min="0" placeholder="0.00"
-                            oninput="calcularCambio()"
-                            class="flex-1 text-base font-black border border-amber-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-amber-400 tabular-nums">
-                        <div class="px-3 py-2 bg-amber-500 text-white rounded-xl text-sm font-black tabular-nums min-w-[60px] flex items-center justify-center">
-                            <span id="cambio-valor">0.00</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button onclick="procesarPago()" id="btn-cobrar"
-                    class="btn-pay w-full text-white font-black text-sm uppercase tracking-widest py-4 rounded-2xl transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 disabled:opacity-50">
-                    <span>💰</span>
-                    <span id="btn-cobrar-text">COBRAR 0.00 €</span>
+                <button onclick="processCheckout()" class="btn-checkout">
+                    Confirmar Pago
                 </button>
             </div>
-        </div>
-
-        <!-- Mobile FAB -->
-        <button id="fab-ticket" onclick="toggleTicket(true)" class="hidden fixed bottom-6 right-6 w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl items-center justify-center z-30 animate-bounce">
-            <div class="relative">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                <div id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</div>
-            </div>
-        </button>
+        </aside>
     </div>
 
-    <!-- Success Modal -->
-    <div id="success-modal" class="fixed inset-0 modal-overlay z-[100] hidden flex items-center justify-center">
-        <div class="bg-white rounded-[2rem] p-8 md:p-10 max-w-sm w-full mx-4 text-center shadow-2xl animate-slide">
-            <div class="text-6xl mb-4">✅</div>
-            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">¡Cobrado!</h2>
-            <p id="success-ticket" class="text-sm font-bold text-slate-500 mb-1"></p>
-            <p id="success-total" class="text-4xl font-black text-indigo-600 tabular-nums mb-6"></p>
-            <div id="success-cambio" class="hidden mb-6 p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Cambio a devolver</p>
-                <p id="success-cambio-val" class="text-2xl font-black text-amber-700 tabular-nums"></p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="imprimirTicket(event)" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl transition-all">
-                    🖨️ Imprimir
-                </button>
-                <button onclick="cerrarModal()" class="flex-1 btn-pay text-white font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl shadow-lg shadow-indigo-200">
-                    Nuevo Ticket
-                </button>
+    <!-- Modales, Overlays, etc. -->
+    <div id="modal-success" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] hidden flex items-center justify-center">
+        <div class="bg-surface border border-color rounded-[2.5rem] p-12 text-center max-w-sm w-full animate-bounce-in">
+            <span class="text-7xl mb-6 block">🍗</span>
+            <h2 class="text-3xl font-black uppercase mb-2">¡Venta Exitosa!</h2>
+            <p class="text-secondary font-bold mb-8 uppercase tracking-widest">Imprimiendo tickets...</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="closeSuccess()" class="bg-accent-fire text-white font-black py-4 rounded-2xl uppercase tracking-widest">Siguiente Pedido</button>
+                <button onclick="forcePrint()" class="bg-white/5 text-secondary font-black py-4 rounded-2xl uppercase tracking-widest hover:bg-white/10">Re-Imprimir</button>
             </div>
         </div>
     </div>
-
-    <!-- Print Area -->
-    <div id="print-area" class="hidden"></div>
 
     <script>
-        // GATEKEEPER INDUSTRIAL
-        if (!localStorage.getItem('auth_user') || !localStorage.getItem('auth_token')) {
-            window.location.href = 'login.html';
-        }
+        // Lógica Industrial TPV
+        let state = {
+            products: [],
+            categories: [],
+            cart: [],
+            activeCat: null,
+            lastTicket: null
+        };
 
-        document.getElementById('user-display').innerText = localStorage.getItem('auth_user') || 'ANÓNIMO';
-        document.getElementById('shift-display').innerText = localStorage.getItem('active_shift') || 'SIN TURNO';
+        const CONFIG = {
+            api: '/api',
+            iva: 0.10
+        };
 
-        const API = '/api';
-        let carrito = [];
-        let productos = [];
-        let categorias = [];
-        let catActiva = null;
-        let lastTicket = null;
-        let searchQuery = '';
+        // Eventos de búsqueda
+        document.getElementById('main-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.nombre.toLowerCase().includes(term) || 
+                p.categoria.toLowerCase().includes(term)
+            );
+            renderProducts(filtered);
+        });
 
-        // UI Helpers
-        function toggleTicket(show) {
-            const col = document.getElementById('ticket-col');
-            const overlay = document.getElementById('ticket-overlay');
-            if (show) {
-                col.classList.add('open');
-                overlay.classList.add('active');
-            } else {
-                col.classList.remove('open');
-                overlay.classList.remove('active');
+        // Hotkeys
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('main-search').focus();
             }
+        });
+
+        async function init() {
+            await loadCatalog();
+            setupEvents();
+            render();
         }
 
-        // Clock
-        function handleSearch(val) {
-            searchQuery = val.toLowerCase();
-            filterByCategory(catActiva);
-        }
-
-        function updateClock() {
-            const now = new Date();
-            const el = document.getElementById('clock');
-            if (el) el.innerText = now.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Load catalog
         async function loadCatalog() {
             try {
-                const res = await fetch(`${API}/productos/`);
-                const json = await res.json();
-                const raw = Array.isArray(json) ? json : (json.value || []);
-                productos = raw.filter(p => p.is_active !== false && p.precio > 0);
-
+                const res = await fetch(`${CONFIG.api}/productos/`);
+                const data = await res.json();
+                state.products = Array.isArray(data) ? data : (data.value || []);
+                
+                // Extraer categorías únicas
                 const catMap = {};
-                productos.forEach(p => {
-                    if (p.categoria && !catMap[p.categoria_id]) {
-                        catMap[p.categoria_id] = p.categoria;
+                state.products.forEach(p => {
+                    if (p.categoria_id && !catMap[p.categoria_id]) {
+                        catMap[p.categoria_id] = p.categoria || "General";
                     }
                 });
-                categorias = Object.entries(catMap).map(([id, nombre]) => ({ id, nombre }));
-
-                renderCats();
-                if (categorias.length > 0) filterByCategory(categorias[0].id);
-                else renderProducts(productos);
-            } catch(e) {
-                console.error('Error cargando catálogo:', e);
-                document.getElementById('prod-grid').innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 font-bold">Error cargando catálogo</div>`;
+                state.categories = Object.entries(catMap).map(([id, nombre]) => ({ id, nombre }));
+                
+                if (state.categories.length > 0) state.activeCat = state.categories[0].id;
+            } catch (e) {
+                console.error("Fallo al cargar catálogo", e);
             }
         }
 
-        function renderCats() {
-            const bar = document.getElementById('cat-bar');
-            bar.innerHTML = `<button onclick="filterByCategory(null)" class="cat-btn px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap hover:text-indigo-600 transition-colors ${!catActiva ? 'active' : ''}">Todos</button>`;
-            categorias.forEach(cat => {
-                bar.innerHTML += `<button onclick="filterByCategory('${cat.id}')" class="cat-btn px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap hover:text-indigo-600 transition-colors ${catActiva === cat.id ? 'active' : ''}">${cat.nombre}</button>`;
+        function setupEvents() {
+            document.getElementById('main-search').addEventListener('input', (e) => {
+                renderProducts(e.target.value.toLowerCase());
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    document.getElementById('main-search').focus();
+                }
             });
         }
 
-        function filterByCategory(catId) {
-            catActiva = catId;
-            renderCats();
-            const filtered = productos.filter(p => {
-                const matchCat = !catId || p.categoria_id === catId;
-                const matchSearch = p.nombre.toLowerCase().includes(searchQuery);
-                return matchCat && matchSearch;
-            });
-            renderProducts(filtered);
+        function render() {
+            renderCategories();
+            renderProducts();
+            renderCart();
         }
 
-        function renderProducts(prods) {
-            const grid = document.getElementById('prod-grid');
-            if (!prods || prods.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-300 font-black uppercase tracking-widest text-sm">Sin productos en esta categoría</div>`;
-                return;
+        function renderCategories() {
+            const list = document.getElementById('cat-list');
+            list.innerHTML = state.categories.map(cat => `
+                <div onclick="setActiveCat('${cat.id}')" class="cat-item ${state.activeCat === cat.id ? 'active' : ''}">
+                    <span class="emoji">${getEmoji(cat.nombre)}</span>
+                    <span class="name">${cat.nombre}</span>
+                </div>
+            `).join('');
+        }
+
+        function setActiveCat(id) {
+            state.activeCat = id;
+            renderCategories();
+            renderProducts();
+        }
+
+        function renderProducts(search = "") {
+            const grid = document.getElementById('prod-grid-container');
+            const filtered = state.products.filter(p => {
+                const matchCat = !state.activeCat || p.categoria_id === state.activeCat;
+                const matchSearch = p.nombre.toLowerCase().includes(search);
+                return matchCat && matchSearch && p.is_active;
+            });
+
+            grid.innerHTML = filtered.map(p => `
+                <div onclick="addToCart('${p.id}')" class="prod-card">
+                    <span class="price-tag">${Number(p.price || p.precio).toFixed(2)}€</span>
+                    <img src="${p.imagen_url || '/static/img/placeholder.png'}" onerror="this.src='https://via.placeholder.com/150?text=Pollos'">
+                    <p class="font-black text-sm leading-tight">${p.nombre}</p>
+                    <p class="text-[9px] text-secondary font-bold uppercase">${p.categoria || ''}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderCart() {
+            const list = document.getElementById('ticket-list');
+            const hint = document.getElementById('empty-hint');
+            
+            if (state.cart.length === 0) {
+                list.innerHTML = "";
+                list.appendChild(hint);
+                hint.style.display = "flex";
+            } else {
+                hint.style.display = "none";
+                list.innerHTML = state.cart.map(item => `
+                    <div class="ticket-item">
+                        <div class="flex-1">
+                            <p class="font-black text-sm m-0">${item.nombre}</p>
+                            <p class="text-[10px] text-secondary font-bold">${item.precio.toFixed(2)}€ x ${item.cantidad}</p>
+                        </div>
+                        <div class="qty-controls">
+                            <button onclick="updateQty('${item.producto_id}', -1)" class="btn-qty">−</button>
+                            <span class="font-black text-sm w-4 text-center">${item.cantidad}</span>
+                            <button onclick="updateQty('${item.producto_id}', 1)" class="btn-qty">+</button>
+                        </div>
+                        <span class="font-black text-sm min-w-[50px] text-right">${(item.precio * item.cantidad).toFixed(2)}€</span>
+                    </div>
+                `).join('');
             }
-            grid.innerHTML = prods.filter(p => p.is_active !== false).map(p => {
-                const enCarrito = carrito.find(c => c.producto_id === p.id);
-                const qty = enCarrito ? enCarrito.cantidad : 0;
-                return `
-                <div onclick="addToCart('${p.id}')" class="prod-card p-3 md:p-4 flex flex-col gap-2 relative" title="${p.nombre}">
-                    ${qty > 0 ? `<div class="qty-badge">${qty}</div>` : ''}
-                    ${p.imagen_url && !p.imagen_url.startsWith('/static') ? `<img src="${p.imagen_url}" alt="${p.nombre}" class="w-full h-16 md:h-20 object-cover rounded-xl mb-1" onerror="this.style.display='none'">` : `<div class="w-full h-12 md:h-16 bg-slate-100 rounded-xl flex items-center justify-center text-2xl md:text-3xl">${getEmoji(p.categoria)}</div>`}
-                    <p class="text-[10px] md:text-[11px] font-black text-slate-900 leading-tight line-clamp-2">${p.nombre}</p>
-                    <p class="text-indigo-600 font-black text-xs md:text-sm mt-auto">${Number(p.precio).toFixed(2)} €</p>
-                </div>`;
-            }).join('');
+
+            updateTotals();
         }
 
-        function getEmoji(cat) {
-            if (!cat) return '🍽️';
-            const name = cat.toLowerCase();
-            if (name.includes('pollo')) return '🍗';
-            if (name.includes('pizza')) return '🍕';
-            if (name.includes('burger')) return '🍔';
-            if (name.includes('arroz')) return '🥘';
-            if (name.includes('bebida')) return '🥤';
-            if (name.includes('postre')) return '🍰';
-            if (name.includes('combo')) return '🛍️';
-            if (name.includes('sandwich') || name.includes('bocadillo')) return '🥖';
-            return '🍽️';
+        function updateTotals() {
+            const subtotal = state.cart.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
+            const iva = subtotal * CONFIG.iva;
+            const total = subtotal + iva;
+
+            document.getElementById('txt-subtotal').innerText = subtotal.toFixed(2) + " €";
+            document.getElementById('txt-iva').innerText = iva.toFixed(2) + " €";
+            document.getElementById('txt-total').innerText = total.toFixed(2) + " €";
         }
 
-        function addToCart(prodId) {
-            const prod = productos.find(p => p.id === prodId);
-            if (!prod) return;
-            const existing = carrito.find(c => c.producto_id === prodId);
+        function addToCart(id) {
+            const prod = state.products.find(p => p.id === id);
+            const existing = state.cart.find(i => i.producto_id === id);
+            
             if (existing) {
                 existing.cantidad++;
             } else {
-                carrito.push({ producto_id: prodId, nombre: prod.nombre, precio: prod.precio, cantidad: 1 });
+                state.cart.push({
+                    producto_id: id,
+                    nombre: prod.nombre,
+                    precio: Number(prod.price || prod.precio),
+                    cantidad: 1
+                });
             }
-            updateTicketUI();
-            filterByCategory(catActiva);
+            renderCart();
         }
 
-        function removeFromCart(prodId) {
-            const idx = carrito.findIndex(c => c.producto_id === prodId);
-            if (idx === -1) return;
-            if (carrito[idx].cantidad > 1) {
-                carrito[idx].cantidad--;
-            } else {
-                carrito.splice(idx, 1);
-            }
-            updateTicketUI();
-            filterByCategory(catActiva);
-        }
-
-        function limpiarTicket() {
-            carrito = [];
-            updateTicketUI();
-            filterByCategory(catActiva);
-        }
-
-        function updateTicketUI() {
-            const container = document.getElementById('ticket-items');
-            const emptyMsg = document.getElementById('empty-ticket');
-            const metodo = document.getElementById('metodo-pago').value;
-            const countBadge = document.getElementById('cart-count');
-
-            const totalQty = carrito.reduce((acc, c) => acc + c.cantidad, 0);
-            if (totalQty > 0) {
-                countBadge.innerText = totalQty;
-                countBadge.classList.remove('hidden');
-            } else {
-                countBadge.classList.add('hidden');
-            }
-
-            if (carrito.length === 0) {
-                container.innerHTML = '';
-                container.appendChild(emptyMsg);
-                emptyMsg.classList.remove('hidden');
-                document.getElementById('subtotal').innerText = '0.00 €';
-                document.getElementById('iva').innerText = '0.00 €';
-                document.getElementById('total').innerText = '0.00 €';
-                document.getElementById('btn-cobrar-text').innerText = 'COBRAR 0.00 €';
-                document.getElementById('cambio-section').classList.add('hidden');
-                return;
-            }
-
-            emptyMsg.classList.add('hidden');
-            const subtotal = carrito.reduce((acc, c) => acc + (c.precio * c.cantidad), 0);
-            const iva = subtotal * 0.10;
-            const total = subtotal + iva;
-
-            container.innerHTML = carrito.map(c => `
-                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl group">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[11px] font-black text-slate-900 truncate">${c.nombre}</p>
-                        <p class="text-[10px] font-bold text-slate-400">${Number(c.precio).toFixed(2)} € x ${c.cantidad}</p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="removeFromCart('${c.producto_id}')" class="w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-500 font-black text-sm flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-all">−</button>
-                        <span class="w-7 text-center text-xs font-black text-slate-900">${c.cantidad}</span>
-                        <button onclick="addToCart('${c.producto_id}')" class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center hover:bg-indigo-700 transition-all">+</button>
-                    </div>
-                    <p class="text-sm font-black text-indigo-600 tabular-nums min-w-[48px] text-right">${(c.precio * c.cantidad).toFixed(2)}€</p>
-                </div>
-            `).join('');
-
-            document.getElementById('subtotal').innerText = subtotal.toFixed(2) + ' €';
-            document.getElementById('iva').innerText = iva.toFixed(2) + ' €';
-            document.getElementById('total').innerText = total.toFixed(2) + ' €';
-            document.getElementById('btn-cobrar-text').innerText = `COBRAR ${total.toFixed(2)} €`;
-
-            if (metodo === 'EFECTIVO') {
-                document.getElementById('cambio-section').classList.remove('hidden');
-                calcularCambio();
-            } else {
-                document.getElementById('cambio-section').classList.add('hidden');
-            }
-        }
-
-        document.getElementById('metodo-pago').addEventListener('change', updateTicketUI);
-
-        function calcularCambio() {
-            const total = carrito.reduce((acc, c) => acc + (c.precio * c.cantidad), 0) * 1.10;
-            const entrega = parseFloat(document.getElementById('entrega-cliente').value) || 0;
-            const cambio = Math.max(0, entrega - total);
-            document.getElementById('cambio-valor').innerText = cambio.toFixed(2);
-        }
-
-        async function procesarPago() {
-            if (carrito.length === 0) return;
-            const btn = document.getElementById('btn-cobrar');
-            btn.disabled = true;
-
-            const subtotal = carrito.reduce((acc, c) => acc + (c.precio * c.cantidad), 0);
-            const total = subtotal * 1.10;
-            const metodo = document.getElementById('metodo-pago').value;
-            const origen = document.getElementById('origen-pedido').value;
-            const notas = document.getElementById('notas-pedido').value;
-
-            try {
-                const payload = {
-                    items: carrito.map(c => ({ producto_id: c.producto_id, cantidad: c.cantidad })),
-                    origen: origen,
-                    estado_inicial: 'COMPLETADO',
-                    metodo_pago: metodo,
-                    notas_cliente: notas || null,
-                    metodo_envio: 'LOCAL'
-                };
-
-                const res = await fetch(`${API}/orders/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                const data = await res.json();
-
-                if (!res.ok) throw new Error(data.detail || 'Error al crear pedido');
-
-                lastTicket = { ...data, items: carrito.slice(), total, metodo };
-
-                document.getElementById('success-ticket').innerText = `Ticket #${data.numero_ticket}`;
-                document.getElementById('success-total').innerText = total.toFixed(2) + ' €';
-
-                if (metodo === 'EFECTIVO') {
-                    const entrega = parseFloat(document.getElementById('entrega-cliente').value) || 0;
-                    const cambio = Math.max(0, entrega - total);
-                    document.getElementById('success-cambio').classList.remove('hidden');
-                    document.getElementById('success-cambio-val').innerText = cambio.toFixed(2) + ' €';
-                } else {
-                    document.getElementById('success-cambio').classList.add('hidden');
+        function updateQty(id, delta) {
+            const item = state.cart.find(i => i.producto_id === id);
+            if (item) {
+                item.cantidad += delta;
+                if (item.cantidad <= 0) {
+                    state.cart = state.cart.filter(i => i.producto_id !== id);
                 }
+            }
+            renderCart();
+        }
 
-                document.getElementById('success-modal').classList.remove('hidden');
-
-            } catch(e) {
-                alert('Error al procesar el cobro: ' + e.message);
-            } finally {
-                btn.disabled = false;
+        function clearTicket() {
+            if (confirm("¿Vaciar ticket actual?")) {
+                state.cart = [];
+                renderCart();
             }
         }
 
-        function cerrarModal() {
-            document.getElementById('success-modal').classList.add('hidden');
-            document.getElementById('notas-pedido').value = '';
-            document.getElementById('entrega-cliente').value = '';
-            toggleTicket(false);
-            limpiarTicket();
-        }
+        async function processCheckout() {
+            if (state.cart.length === 0) return;
 
-        async function imprimirTicket(event) {
-            if (!lastTicket) return;
-            
-            const btn = event ? event.currentTarget : null;
-            const originalText = btn ? btn.innerHTML : '🖨️ Imprimir';
-            if (btn) btn.innerHTML = '⏳ Enviando...';
+            const payload = {
+                items: state.cart.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad })),
+                metodo_pago: document.getElementById('sel-payment').value,
+                origen: document.getElementById('sel-origin').value,
+                estado_inicial: 'COMPLETADO',
+                metodo_envio: 'LOCAL'
+            };
 
             try {
-                const payload = {
-                    order_id: lastTicket.numero_ticket || 'S/N',
-                    channel: document.getElementById('origen-pedido').value || 'TPV',
-                    customer_name: "Cliente TPV",
-                    notes: document.getElementById('notas-pedido').value || '',
-                    items: lastTicket.items.map(i => ({
-                        name: i.nombre,
-                        qty: i.cantidad,
-                        price: i.precio
-                    }))
-                };
-
-                const res = await fetch(`${API}/print`, {
+                const res = await fetch(`${CONFIG.api}/orders/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                const data = await res.json();
-                
-                if (!res.ok && data.mode !== 'bridge') throw new Error(data.message || 'Error al enviar a impresora');
-                
-                // Fallback / Integración directa para Android (RawBT)
-                const isAndroid = /Android/i.test(navigator.userAgent);
-                if (isAndroid && data.ticket_text) {
-                    const b64 = btoa(unescape(encodeURIComponent(data.ticket_text)));
-                    window.location.href = `intent://${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+                const order = await res.json();
+                if (res.ok) {
+                    state.lastTicket = order;
+                    // Encolar impresión automática (Zero-Touch)
+                    await enqueuePrint(order);
+                    showSuccess();
+                } else {
+                    alert("Error: " + order.detail);
                 }
-                
-                if (btn) btn.innerHTML = '✅ Enviado!';
-                setTimeout(() => { if (btn) btn.innerHTML = originalText; }, 2000);
-            } catch(e) {
-                alert('Fallo al imprimir ticket: ' + e.message);
-                if (btn) btn.innerHTML = originalText;
+            } catch (e) {
+                alert("Fallo de conexión");
             }
         }
 
-        // Init
-        loadCatalog();
-
-        // Keyboard support
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F2') {
-                e.preventDefault();
-                document.getElementById('prod-search').focus();
+        async function enqueuePrint(order) {
+            try {
+                // Nuevo endpoint de cola de impresión
+                await fetch(`${CONFIG.api}/print/queue/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: order.numero_ticket,
+                        device_id: 'TPV_MOSTRADOR_01',
+                        job_type: 'TICKET_CLIENTE',
+                        payload: {
+                            ticket_number: order.numero_ticket,
+                            items: state.cart,
+                            total: order.total,
+                            payment: order.metodo_pago
+                        }
+                    })
+                });
+            } catch (e) {
+                console.warn("No se pudo encolar impresión automática", e);
             }
-        });
+        }
+
+        function showSuccess() {
+            document.getElementById('modal-success').classList.remove('hidden');
+        }
+
+        function closeSuccess() {
+            document.getElementById('modal-success').classList.add('hidden');
+            state.cart = [];
+            renderCart();
+        }
+
+        function getEmoji(name) {
+            name = name.toLowerCase();
+            if (name.includes('pollo')) return '🍗';
+            if (name.includes('pizza')) return '🍕';
+            if (name.includes('burger') || name.includes('hamburguesa')) return '🍔';
+            if (name.includes('arroz')) return '🥘';
+            if (name.includes('bebida')) return '🥤';
+            if (name.includes('postre')) return '🍰';
+            if (name.includes('combo')) return '🛍️';
+            return '🍽️';
+        }
+
+        init();
     </script>
 </body>
 </html>

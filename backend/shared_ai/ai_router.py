@@ -1,7 +1,7 @@
 """
 Enterprise AI Router
 ====================
-Router centralizado unificado para todo el ecosistema Koal/Carbones.
+Router centralizado unificado para el ecosistema Carbones y Pollos.
 Combina Gemini (varios modelos) y OpenRouter como último recurso.
 """
 
@@ -202,11 +202,11 @@ global_router = AIRouter()
 async def generate_ai_response(prompt: str, generation_config: Optional[dict] = None, is_sensitive: bool = False) -> str:
     text, model_id = await global_router.execute_task_async(prompt, generation_config, is_sensitive)
     if not text:
-        return "Koal-AI: Servicio temporalmente limitado (Modo Degradado)."
+        return "AI: Servicio temporalmente limitado (Modo Degradado)."
     return text
 
 def generate_ai_response_sync(prompt: str, generation_config: Optional[dict] = None, is_sensitive: bool = False) -> str:
     text, model_id = global_router.execute_task_sync(prompt, generation_config, is_sensitive)
     if not text:
-        return "Koal-AI: Servicio temporalmente limitado (Modo Degradado)."
+        return "AI: Servicio temporalmente limitado (Modo Degradado)."
     return text

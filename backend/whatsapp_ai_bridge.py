@@ -41,7 +41,7 @@ class WhatsAppAIBridge:
             data = json.loads(ai_response_raw)
             
             if data["accion"] == "UNKNOWN":
-                return "Koal-AI: No he entendido bien. Prueba con 'He asado 20 pollos' o 'Hay 5 ensaladas de merma'."
+                return "AI: No he entendido bien. Prueba con 'He asado 20 pollos' o 'Hay 5 ensaladas de merma'."
             
             # 2. Ejecutar Acción en DB
             db = SessionLocal()
@@ -81,6 +81,6 @@ class WhatsAppAIBridge:
                 
         except Exception as e:
             logger.error(f"Error en AI Bridge: {e}")
-            return "⚠️ Koal-AI: Error interno al procesar tu solicitud."
+            return "⚠️ AI: Error interno al procesar tu solicitud."
 
         return "Mensaje procesado."
