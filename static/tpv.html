@@ -217,7 +217,7 @@
                 <p id="success-cambio-val" class="text-2xl font-black text-amber-700 tabular-nums"></p>
             </div>
             <div class="flex gap-3">
-                <button onclick="imprimirTicket()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl transition-all">
+                <button onclick="imprimirTicket(event)" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl transition-all">
                     🖨️ Imprimir
                 </button>
                 <button onclick="cerrarModal()" class="flex-1 btn-pay text-white font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl shadow-lg shadow-indigo-200">
@@ -507,36 +507,40 @@
             limpiarTicket();
         }
 
-        function imprimirTicket() {
+        async function imprimirTicket(event) {
             if (!lastTicket) return;
-            const now = new Date();
-            const printArea = document.getElementById('print-area');
-            printArea.innerHTML = `
-                <div style="font-family: 'Courier New', monospace; font-size: 12px; padding: 10px; max-width: 300px;">
-                    <div style="text-align:center; margin-bottom:10px;">
-                        <strong style="font-size:16px;">CARBONES Y POLLOS</strong><br>
-                        La Granja S.L. - NIF: B24823270<br>
-                        Av. Malvarrosa 112, Valencia<br>
-                        <small>${now.toLocaleString('es-ES')}</small>
-                    </div>
-                    <hr>
-                    <strong>Ticket #${lastTicket.numero_ticket}</strong><br>
-                    Método: ${lastTicket.metodo}<br>
-                    <hr>
-                    ${lastTicket.items.map(i => `${i.cantidad}x ${i.nombre.substring(0,22).padEnd(22)} ${(i.precio*i.cantidad).toFixed(2)}€`).join('<br>')}
-                    <hr>
-                    <div style="text-align:right;">
-                        <strong>TOTAL: ${lastTicket.total.toFixed(2)} €</strong>
-                    </div>
-                    <hr>
-                    <div style="text-align:center; margin-top:10px;">
-                        ¡Gracias por su compra!<br>
-                        <small>carbones-tpv.onrender.com</small>
-                    </div>
-                </div>`;
-            printArea.classList.remove('hidden');
-            window.print();
-            printArea.classList.add('hidden');
+            
+            const btn = event ? event.currentTarget : null;
+            const originalText = btn ? btn.innerHTML : '🖨️ Imprimir';
+            if (btn) btn.innerHTML = '⏳ Enviando...';
+
+            try {
+                const payload = {
+                    order_id: lastTicket.numero_ticket || 'S/N',
+                    channel: document.getElementById('origen-pedido').value || 'TPV',
+                    customer_name: "Cliente TPV",
+                    notes: document.getElementById('notas-pedido').value || '',
+                    items: lastTicket.items.map(i => ({
+                        name: i.nombre,
+                        qty: i.cantidad,
+                        price: i.precio
+                    }))
+                };
+
+                const res = await fetch(`${API}/print`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!res.ok) throw new Error('Error al enviar a impresora');
+                
+                if (btn) btn.innerHTML = '✅ Enviado!';
+                setTimeout(() => { if (btn) btn.innerHTML = originalText; }, 2000);
+            } catch(e) {
+                alert('Fallo al imprimir ticket: ' + e.message);
+                if (btn) btn.innerHTML = originalText;
+            }
         }
 
         // Init
