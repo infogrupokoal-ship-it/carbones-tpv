@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class GeminiProvider:
     def __init__(self, model_name=None, timeout=30, system_instruction=None, response_mime_type="text/plain"):
         self.api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+        self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
         self.timeout = timeout
         self.system_instruction = system_instruction
         self.response_mime_type = response_mime_type
