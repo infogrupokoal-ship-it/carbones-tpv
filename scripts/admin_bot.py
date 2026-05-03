@@ -248,7 +248,18 @@ async def chat_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_query = update.message.text
     await update.message.reply_chat_action("typing")
     
+    import os
+    global_prompt = ""
+    prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "GLOBAL_AI_OPERATING_PROMPT.md")
+    try:
+        if os.path.exists(prompt_path):
+            with open(prompt_path, "r", encoding="utf-8") as f:
+                global_prompt = f.read()
+    except Exception:
+        pass
+
     context_prompt = (
+        f"{global_prompt}\n\n"
         "Eres el Administrador IA de Carbones y Pollos TPV. "
         "Ayudas al dueño (Jorge) a gestionar el restaurante. "
         "Sé profesional, conciso y técnico cuando sea necesario. "

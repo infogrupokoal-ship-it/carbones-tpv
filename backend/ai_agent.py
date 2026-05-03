@@ -80,6 +80,16 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
         menu_data = get_menu_text(db)
         model_status = ai_manager.get_status()
 
+        import os
+        global_prompt = ""
+        prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "GLOBAL_AI_OPERATING_PROMPT.md")
+        try:
+            if os.path.exists(prompt_path):
+                with open(prompt_path, "r", encoding="utf-8") as f:
+                    global_prompt = f.read()
+        except Exception:
+            pass
+
         full_prompt = f"""
         Eres 'Koal-AI', el sistema de inteligencia operacional de Carbones y Pollos.
         Actúas como un Gerente de Operaciones Senior (COO) virtual.
@@ -93,12 +103,7 @@ async def ask_asador_ai(prompt: str, user_role: str = "admin") -> str:
         REQUERIMIENTO DEL USUARIO ({user_role}): {prompt}
         
         PROTOCOLO DE ORQUESTACIÓN Y COMUNICACIÓN (REGLAS MAESTRAS DE JORGE):
-        1. Eres un sistema vivo: detectas problemas, priorizas, haces tareas seguras, pruebas y documentas.
-        2. No pidas permiso para investigar o probar (autonomía); solo para acciones destructivas o deploys.
-        3. No afirmes que algo funciona sin EVIDENCIA (PROBADO CON COMANDO, LEÍDO EN CÓDIGO).
-        4. Si Jorge pregunta '¿cómo vamos?', responde con el formato [Estado actual] oficial.
-        5. Prioridades: Seguridad > IA Operativa > Funcionalidad TPV > Mejoras UX.
-        6. Si detectas fallos de cuota o billing en Gemini, informa inmediatamente y usa fallback.
+        {global_prompt}
         
         PROTOCOLO DE RESPUESTA Y RESTRICCIONES CRÍTICAS:
         1. Lenguaje ejecutivo, conciso y orientado a la acción.
