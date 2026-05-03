@@ -11,6 +11,7 @@ from ..utils.logger import logger
 from .admin_audit import log_audit_action
 from .dependencies import require_admin, require_manager
 from ..models import Usuario
+from ..services.print_service import print_ticket
 
 router = APIRouter(prefix="/inventory", tags=["Logística"])
 router_legacy = APIRouter(prefix="/inventario", tags=["Legacy Inventario"])
@@ -77,6 +78,16 @@ class ProduccionRequest(BaseModel):
     cantidad: float = Field(..., gt=0)
     descripcion: Optional[str] = "Producción manual en cocina"
 
+class PrintItem(BaseModel):
+    name: str
+    qty: float = 1
+    price: float = 0
+
+class PrintPayload(BaseModel):
+    order_id: Optional[str] = None
+    channel: Optional[str] = "TPV"
+    items: List[PrintItem] = []
+
 # --- Rutas ---
 
 @router.get("/ingredientes", response_model=List[IngredienteOut])
@@ -134,6 +145,11 @@ def listar_productos(db: Session = Depends(get_db)):
 def products_alias(db: Session = Depends(get_db)):
     """Alias en inglés para compatibilidad del Kiosko"""
     return listar_productos(db)
+
+@router_root.post("/print")
+def api_print(payload: PrintPayload):
+    data = payload.model_dump()
+    return print_ticket(data)
 
 @router.patch("/productos/{producto_id}", response_model=ProductoOut)
 @router_productos.patch("/{producto_id}", response_model=ProductoOut)
