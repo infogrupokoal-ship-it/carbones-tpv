@@ -66,16 +66,26 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
         
         logger.info(f"Sesión Iniciada: {user.username} (Rol: {user.rol})")
         
+        # --- ZERO-TOUCH SECURITY INTERCEPT ---
+        # Garantizar dinámicamente que si entra con 1234, el sistema lo bloquee.
+        is_default_pin = (data.pin == "1234" and user.username == "admin")
+        must_change = getattr(user, 'must_change_pin', False)
+        
+        if is_default_pin and not must_change:
+            user.must_change_pin = True
+            db.commit()
+            must_change = True
+            logger.warning(" ATENCIÓN: Admin ha iniciado sesión con PIN 1234. Activando cambio obligatorio de forma dinámica.")
+            
         # Auditoría de Seguridad
         from .admin_audit import log_audit_action
         log_audit_action(
-
             db=db,
             usuario_id=user.id,
             accion="LOGIN",
             entidad="USUARIO",
             entidad_id=user.id,
-            payload_nuevo=f"Sesión iniciada con rol {user.rol}"
+            payload_nuevo=f"Sesión iniciada con rol {user.rol}. must_change_pin={must_change}"
         )
         
         return {
@@ -84,7 +94,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
             "role": user.rol,
             "rol": user.rol,
             "username": user.username,
-            "must_change_pin": getattr(user, 'must_change_pin', False)
+            "must_change_pin": must_change
         }
     except HTTPException:
         raise
