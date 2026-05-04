@@ -41,3 +41,8 @@ Este archivo sirve como bitácora de todas las modificaciones realizadas por la 
 - **orders.py**: Corrección de la lógica del cierre-z para utilizar el concepto de Jornada Comercial (04:00 UTC) y resolver los desfases de zona horaria de SQLite.
 - **scripts/factory_reset.py**: Nuevo script creado para purgar en un solo paso los pedidos, items y cola de impresión de prueba (Factory Reset), manteniendo los catálogos y usuarios intactos.
 - **static/kds.html**: Actualizada la UI de cocina para mostrar el estado y método de pago en badges dinámicos y condicionar la etiqueta del botón de acción según el estado actual.
+
+### 2026-05-04 - Fix Tests y Seed (QA Pass 3/3)
+- **Descripción:** Corrección de dos bugs críticos que bloqueaban CI: (1) `NameError: name 'Usuario' is not defined` en `scripts/seed_catalog_completo.py` — añadido import faltante. (2) Tests de telemetría devolvían 401 porque `conftest.py` no hacía override de `get_current_user` — añadido `mock_admin_user()` con `MagicMock(spec=Usuario)`. Resultado: 3/3 tests PASS.
+- **Archivos Modificados:** `scripts/seed_catalog_completo.py`, `tests/conftest.py`.
+- **Agente:** Antigravity (Claude Sonnet — Modo QA Revisora)

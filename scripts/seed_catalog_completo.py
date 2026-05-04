@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.database import SessionLocal, engine, Base
-from backend.models import Categoria, Producto, Tienda
+from backend.models import Categoria, Producto, Tienda, Usuario
 
 print(f"DEBUG: Engine URL: {engine.url}")
 Base.metadata.create_all(bind=engine)
