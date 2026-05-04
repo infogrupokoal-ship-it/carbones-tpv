@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tpv-enterprise-cache-v22.0';
+const CACHE_NAME = 'tpv-enterprise-cache-v23.0';
 const ASSETS_TO_CACHE = [
   '/',
   '/login',
@@ -40,15 +40,15 @@ self.addEventListener('activate', event => {
           return caches.delete(key);
         }
       })
-    ))
+    )).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // API y Pagos: Network First (No cacheamos transacciones críticas)
-  if (url.pathname.startsWith('/api/')) {
+  // API, Pagos y HTML: Network First (No cacheamos transacciones críticas ni vistas cambiantes)
+  if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.html') || url.pathname === '/login' || url.pathname === '/tpv') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
     );

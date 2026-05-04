@@ -22,7 +22,7 @@ def seed_ultra_industrial():
                 id=str(uuid.uuid4()),
                 nombre="Carbones y Pollos Central",
                 direccion="Av. del Fuego, 123",
-                telefono="900-KOAL-TPV"
+                telefono="900-CARBONES"
             )
             db.add(tienda)
             db.commit()
@@ -99,7 +99,7 @@ def seed_ultra_industrial():
             },
             # COMBOS
             {
-                "nombre": "Pack Familiar Koal",
+                "nombre": "Pack Familiar Carbones",
                 "desc": "2 Pollos + 2 Patatas Grandes + Ensalada de la Casa + Bebida 2L.",
                 "precio": 38.00,
                 "cat": "combos",
@@ -167,7 +167,7 @@ def seed_ultra_industrial():
             },
             # HAMBURGUESAS
             {
-                "nombre": "Burger Koal Classic",
+                "nombre": "Burger Carbones Classic",
                 "desc": "Ternera premium, queso, lechuga y salsa secreta.",
                 "precio": 12.00,
                 "cat": "burgers",
