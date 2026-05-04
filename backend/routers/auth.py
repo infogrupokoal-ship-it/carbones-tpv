@@ -42,6 +42,14 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
     y emite un token de acceso industrial cifrado.
     """
     try:
+        import os
+        if data.username == "admin" and data.pin == "1234" and os.environ.get("ENVIRONMENT", "local").lower() == "production":
+            logger.warning("Intento de acceso bloqueado: PIN '1234' para admin no permitido en PRODUCCIÓN.")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Por seguridad, el PIN '1234' está desactivado en producción. Por favor, cambie sus credenciales de acceso usando scripts/update_admin.py",
+            )
+
         user = db.query(Usuario).filter(Usuario.username == data.username).first()
         
         # En el contexto TPV, el PIN es la credencial principal del empleado

@@ -46,7 +46,7 @@ def descontar_stock_pedido(
     # --- 1. Lógica de Stock Jerárquico (Pue: 1/4 Pollo resta 0.25 del Padre 'Pollo Entero') ---
     if prod.stock_base_id:
         parent = db.query(Producto).get(prod.stock_base_id)
-        if parent:
+        if parent and parent.stock_actual is not None:
             cantidad_a_restar = cantidad * prod.factor_stock
             parent.stock_actual -= cantidad_a_restar
             
@@ -58,7 +58,7 @@ def descontar_stock_pedido(
             ))
 
             # Alerta de Stock Crítico en Producto Base
-            if parent.stock_minimo > 0 and parent.stock_actual <= parent.stock_minimo:
+            if parent.stock_minimo is not None and parent.stock_minimo > 0 and parent.stock_actual <= parent.stock_minimo:
                 msg = f"🚨 *STOCK CRÍTICO*: {parent.nombre} en {parent.stock_actual} uds. ¡Reponer producción!"
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
                 db.add(LogOperativo(
@@ -68,27 +68,28 @@ def descontar_stock_pedido(
                 ))
     else:
         # Venta Directa
-        prod.stock_actual -= cantidad
-        db.add(MovimientoStock(
-            producto_id=prod.id,
-            cantidad=-cantidad,
-            tipo="VENTA",
-            descripcion=f"Venta Directa: {prod.nombre}",
-        ))
-
-        if prod.stock_minimo > 0 and prod.stock_actual <= prod.stock_minimo:
-            msg = f"🚨 *ALERTA STOCK*: {prod.nombre} bajo mínimos ({prod.stock_actual} uds)."
-            background_tasks.add_task(enviar_alerta_whatsapp, msg)
-            db.add(LogOperativo(
-                nivel="WARNING",
-                modulo="INVENTARIO",
-                mensaje=f"Aviso de stock bajo: {prod.nombre} ({prod.stock_actual} uds)"
+        if prod.stock_actual is not None:
+            prod.stock_actual -= cantidad
+            db.add(MovimientoStock(
+                producto_id=prod.id,
+                cantidad=-cantidad,
+                tipo="VENTA",
+                descripcion=f"Venta Directa: {prod.nombre}",
             ))
+
+            if prod.stock_minimo is not None and prod.stock_minimo > 0 and prod.stock_actual <= prod.stock_minimo:
+                msg = f"🚨 *ALERTA STOCK*: {prod.nombre} bajo mínimos ({prod.stock_actual} uds)."
+                background_tasks.add_task(enviar_alerta_whatsapp, msg)
+                db.add(LogOperativo(
+                    nivel="WARNING",
+                    modulo="INVENTARIO",
+                    mensaje=f"Aviso de stock bajo: {prod.nombre} ({prod.stock_actual} uds)"
+                ))
 
     # --- 2. Explosión de Receta (Descuento de Materia Prima / Ingredientes) ---
     for item_receta in prod.receta_items:
         ing = item_receta.ingrediente
-        if ing:
+        if ing and getattr(ing, 'stock_actual', None) is not None:
             demanda_total = item_receta.cantidad_necesaria * cantidad
             ing.stock_actual -= demanda_total
 
@@ -101,7 +102,7 @@ def descontar_stock_pedido(
             ))
 
             # Alerta de Suministros
-            if ing.stock_minimo > 0 and ing.stock_actual <= ing.stock_minimo:
+            if getattr(ing, 'stock_minimo', None) is not None and ing.stock_minimo > 0 and ing.stock_actual <= ing.stock_minimo:
                 msg = f"🛒 *AVISO PROVEEDOR*: {ing.nombre} en niveles críticos ({ing.stock_actual} {ing.unidad_medida})."
                 background_tasks.add_task(enviar_alerta_whatsapp, msg)
                 db.add(LogOperativo(

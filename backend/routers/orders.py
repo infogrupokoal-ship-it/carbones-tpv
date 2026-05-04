@@ -263,6 +263,14 @@ async def crear_pedido(
                 prod = Producto(id="0000", nombre="Varios/Genérico", precio=item.precio if hasattr(item, 'precio') else 0.0, impuesto=10.0, tienda_id=nuevo_pedido.tienda_id)
                 # No hacemos db.add(prod) para no ensuciar el catálogo, solo lo usamos para el cálculo
             
+            # --- VALIDACIÓN SÍNCRONA DE STOCK ---
+            if prod.id != "0000" and getattr(prod, 'stock_actual', None) is not None:
+                if prod.stock_actual < item.cantidad:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Stock insuficiente para '{prod.nombre}'. Solicitado: {item.cantidad}, Disponible: {prod.stock_actual}."
+                    )
+
             # Registro de notas por ítem en el pedido general
             if item.notas:
                 nota_it = f"- {item.cantidad}x {prod.nombre}: {item.notas}"
@@ -370,6 +378,9 @@ async def crear_pedido(
 
         return response_data
 
+    except HTTPException:
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
         logger.error(f"Error crítico creando pedido: {str(e)}")
@@ -541,11 +552,4 @@ def _encolar_tickets(db: Session, pedido: Pedido):
         status="PENDING",
         metadata_json={"order_id": pedido.numero_ticket, "type": "CUSTOMER"}
     ))
-    
-    # Legacy Support (HardwareCommand)
-    db.add(HardwareCommand(
-        id=str(uuid.uuid4()),
-        accion="imprimir",
-        origen="backend_enterprise",
-        payload=json.dumps({**base_payload, "tipo": "legacy"}),
-    ))
+
