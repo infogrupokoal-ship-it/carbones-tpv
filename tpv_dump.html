@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TPV Operativo | Carbones y Pollos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/tpv_premium.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Grid specific overrides */
+        .cat-btn.active {
+            background-color: #f97316; /* orange-500 */
+            color: white;
+            border-color: #ea580c;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Top Bar -->
+    <header class="h-16 bg-slate-900 text-white flex items-center justify-between px-4 shrink-0 shadow-md z-10">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-xl">🔥</div>
+            <div>
+                <h1 class="text-xl font-black uppercase tracking-tight m-0 leading-none">Carbones TPV</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Mostrador Principal</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div id="status-badge" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 rounded-full border border-emerald-500/30 hidden sm:flex">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Online</span>
+            </div>
+            
+            <div class="text-right border-r border-slate-700 pr-6 mr-2 hidden sm:block">
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-0.5" id="clock-display">00:00</p>
+                <p id="current-user" class="text-sm font-bold m-0 leading-none">---</p>
+            </div>
+            
+            <button onclick="openChangePin()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors border border-slate-700">
+                🔐 Mi Cuenta
+            </button>
+            <a href="/stock" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">
+                📦 Stock
+            </a>
+            <a href="/kitchen" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">
+                👨‍🍳 Cocina
+            </a>
+            <a href="/portal.html" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors border border-slate-700">
+                Volver
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Left Col: Categories -->
+        <aside class="w-64 bg-slate-100 border-r border-slate-200 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-200 bg-white">
+                <input type="text" id="main-search" placeholder="Buscar (F2)..." 
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all">
+            </div>
+            <div class="flex-1 overflow-y-auto hide-scroll p-3">
+                <div id="cat-list" class="grid grid-cols-2 gap-2">
+                    <!-- Injected via JS - Fallbacks -->
+                    <button onclick="setCategory('favoritos')" class="cat-btn w-full h-20 bg-orange-50 border-2 border-orange-500 text-orange-700 rounded-xl flex flex-col items-center justify-center gap-1 transition-all"><span class="text-2xl">⭐</span><span class="text-[10px] font-black uppercase">Favoritos</span></button>
+                    <button onclick="setCategory('pollos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🐔</span><span class="text-[10px] font-black uppercase">Pollos</span></button>
+                    <button onclick="setCategory('arroz')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥘</span><span class="text-[10px] font-black uppercase">Arroces</span></button>
+                    <button onclick="setCategory('bocadillos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥖</span><span class="text-[10px] font-black uppercase">Bocadillos</span></button>
+                    <button onclick="setCategory('burgers')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍔</span><span class="text-[10px] font-black uppercase">Hamburguesas</span></button>
+                    <button onclick="setCategory('pizzas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍕</span><span class="text-[10px] font-black uppercase">Pizzas</span></button>
+                    <button onclick="setCategory('quijadas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Quijadas</span></button>
+                    <button onclick="setCategory('codillos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Codillos</span></button>
+                    <button onclick="setCategory('lados')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍟</span><span class="text-[10px] font-black uppercase">Raciones</span></button>
+                    <button onclick="setCategory('ensaladas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥗</span><span class="text-[10px] font-black uppercase">Ensaladas</span></button>
+                    <button onclick="setCategory('bebidas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥤</span><span class="text-[10px] font-black uppercase">Bebidas</span></button>
+                    <button onclick="setCategory('salsas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🧄</span><span class="text-[10px] font-black uppercase">Salsas</span></button>
+                    <button onclick="setCategory('menus')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍱</span><span class="text-[10px] font-black uppercase">Menús</span></button>
+                    <button onclick="setCategory('combos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🏷️</span><span class="text-[10px] font-black uppercase">Promos</span></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Col: Products Grid -->
+        <main class="flex-1 bg-white flex flex-col min-w-0">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <h2 id="current-cat-title" class="text-2xl font-black uppercase tracking-tight text-slate-800">Cargando Catálogo...</h2>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">1 Clic = Añadir</span>
+            </div>
+            <div class="flex-1 overflow-y-auto hide-scroll p-4 bg-slate-50">
+                <div id="prod-grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-max">
+                    <!-- Favoritos Fallback Base HTML -->
+                    <button onclick="addToCartFallback('Medio Pollo', 5.90)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🐔</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Medio Pollo</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">5.90 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Pollo Entero', 10.90)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🐔</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Pollo Entero</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">10.90 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Arroz con Pollo', 9.00)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥘</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Ración Arroz</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">9.00 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Coca-Cola', 2.20)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥤</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Coca-Cola</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">2.20 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Agua Mineral', 1.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥤</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Agua</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">1.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Salsa Alioli', 1.00)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🧄</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Alioli</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">1.00 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Bocadillo', 4.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥖</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Pan</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">4.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Croquetas', 5.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🍟</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Croquetas</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">5.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Patatas Fritas', 3.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🍟</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Patatas</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">3.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Ensalada Mixta', 4.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥗</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Ensaladilla</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">4.50 €</span></div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Col: Cart -->
+        <aside class="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
+            <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                <div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operación Activa</span>
+                    <h2 class="text-lg font-black uppercase m-0 text-slate-800">Ticket #<span id="ticket-num">NUEVO</span></h2>
+                </div>
+                <button onclick="clearTicket()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto hide-scroll p-3 bg-white" id="ticket-list">
+                <!-- Items injected here -->
+                <div id="empty-hint" class="flex flex-col items-center justify-center h-full opacity-40">
+                    <span class="text-5xl mb-3 grayscale">🛒</span>
+                    <p class="font-black uppercase text-sm tracking-widest text-slate-500">Carrito Vacío</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border-t border-slate-200 p-4 shrink-0">
+                <div class="flex flex-col gap-2 mb-4">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500 font-bold uppercase tracking-wider">Subtotal</span>
+                        <span id="txt-subtotal" class="font-black text-slate-700">0.00 €</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500 font-bold uppercase tracking-wider">IVA (10%)</span>
+                        <span id="txt-iva" class="font-black text-slate-700">0.00 €</span>
+                    </div>
+                    <div class="flex justify-between items-end pt-2 border-t border-slate-200 mt-1">
+                        <span class="text-xl font-black uppercase text-slate-800 tracking-tight">Total</span>
+                        <span id="txt-total" class="text-4xl font-black text-orange-600 leading-none">0.00 €</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button onclick="setPayment('EFECTIVO')" id="btn-pay-cash" class="pay-method-btn bg-white border-2 border-slate-200 text-slate-600 font-bold py-3 rounded-xl uppercase tracking-widest text-xs transition-colors hover:border-emerald-500 hover:text-emerald-600">💵 Efectivo</button>
+                    <button onclick="setPayment('TARJETA')" id="btn-pay-card" class="pay-method-btn bg-emerald-50 border-2 border-emerald-500 text-emerald-700 font-bold py-3 rounded-xl uppercase tracking-widest text-xs transition-colors">💳 Tarjeta</button>
+                    <button onclick="setPayment('BIZUM')" id="btn-pay-bizum" class="pay-method-btn bg-white border-2 border-slate-200 text-slate-600 font-bold py-3 rounded-xl uppercase tracking-widest text-xs transition-colors hover:border-cyan-500 hover:text-cyan-600 col-span-2">📱 Bizum</button>
+                </div>
+                
+                <input type="hidden" id="sel-payment" value="TARJETA">
+                <input type="hidden" id="sel-origin" value="MOSTRADOR">
+
+                <button onclick="processCheckout()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black text-lg py-4 rounded-xl uppercase tracking-widest shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]">
+                    COBRAR
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modales -->
+    <div id="modal-success" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center">
+        <div class="bg-white border border-slate-200 rounded-[2rem] p-10 text-center max-w-sm w-full shadow-2xl">
+            <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-6">✅</div>
+            <h2 class="text-3xl font-black uppercase text-slate-800 mb-2">¡Venta Exitosa!</h2>
+            <p class="text-slate-500 font-bold mb-8 uppercase tracking-widest text-xs">Registrado en sistema</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="closeSuccess()" class="bg-orange-500 text-white font-black py-4 rounded-xl uppercase tracking-widest hover:bg-orange-600 transition-colors">Siguiente Pedido</button>
+                <button onclick="forcePrint()" class="bg-slate-100 text-slate-600 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-slate-200 transition-colors">Re-Imprimir Ticket</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Cambio PIN -->
+    <div id="modal-pin" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[300] hidden flex items-center justify-center">
+        <div class="bg-white border border-slate-200 rounded-[2rem] p-8 max-w-sm w-full shadow-2xl">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl">🔐</div>
+                <div>
+                    <h2 class="text-xl font-black uppercase text-slate-800 leading-tight">Cambiar PIN</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Seguridad de cuenta</p>
+                </div>
+            </div>
+            
+            <form id="form-change-pin" onsubmit="submitPinChange(event)" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 pl-2">PIN Actual</label>
+                    <input type="password" id="pin_old" required pattern="[0-9]{4,20}" inputmode="numeric"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-black text-center tracking-[0.5em] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 pl-2">Nuevo PIN (Mín. 6)</label>
+                    <input type="password" id="pin_new" required pattern="[0-9]{6,20}" inputmode="numeric"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-black text-center tracking-[0.5em] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 pl-2">Repetir Nuevo PIN</label>
+                    <input type="password" id="pin_confirm" required pattern="[0-9]{6,20}" inputmode="numeric"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-black text-center tracking-[0.5em] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                </div>
+                
+                <p id="pin-err-msg" class="text-red-500 text-xs font-bold text-center hidden"></p>
+                
+                <div class="flex gap-2 mt-4">
+                    <button type="button" onclick="closeChangePin()" class="flex-1 bg-slate-100 text-slate-600 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-slate-200 transition-colors">Cancelar</button>
+                    <button type="submit" id="btn-submit-pin" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-xl uppercase tracking-widest hover:bg-indigo-700 transition-colors">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts Operativos -->
+    <script>
+        let state = {
+            products: [],
+            categories: [{id: 'favoritos', nombre: 'Favoritos ⭐'}],
+            cart: [],
+            activeCat: 'favoritos',
+            lastTicket: null
+        };
+
+        const CONFIG = {
+            api: '/api',
+            iva: 0.10
+        };
+
+        // --- Auth Info ---
+        const currentUser = localStorage.getItem('auth_user') || 'Admin';
+        document.getElementById('current-user').innerText = currentUser;
+
+        // --- Init & Load ---
+        async function init() {
+            await loadCatalog();
+            setupEvents();
+            render();
+        }
+
+        async function loadCatalog() {
+            try {
+                const res = await fetch(`${CONFIG.api}/productos/`);
+                const data = await res.json();
+                state.products = Array.isArray(data) ? data : (data.value || []);
+                
+                // Categorías únicas
+                const catMap = {};
+                state.products.forEach(p => {
+                    if (p.categoria_id && !catMap[p.categoria_id]) {
+                        catMap[p.categoria_id] = p.categoria || "General";
+                    }
+                });
+                
+                // Mantener Favoritos como la primera
+                const dbCats = Object.entries(catMap).map(([id, nombre]) => ({ id, nombre }));
+                state.categories = [{id: 'favoritos', nombre: 'Favoritos ⭐'}, ...dbCats];
+                
+            } catch (e) {
+                console.error("Fallo al cargar catálogo", e);
+            }
+        }
+
+        // --- Rendering ---
+        function render() {
+            renderCategories();
+            renderProducts();
+            renderCart();
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('cat-list');
+            list.innerHTML = state.categories.map(cat => `
+                <button onclick="setActiveCat('${cat.id}', '${cat.nombre}')" class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors hover:border-orange-400 ${state.activeCat === cat.id ? 'active' : ''}">
+                    <span class="text-2xl leading-none">${getEmoji(cat.nombre)}</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-center px-1 leading-tight">${cleanName(cat.nombre)}</span>
+                </button>
+            `).join('');
+        }
+
+        function setActiveCat(id, nombre) {
+            state.activeCat = id;
+            document.getElementById('current-cat-title').innerText = cleanName(nombre) + " " + getEmoji(nombre);
+            renderCategories();
+            renderProducts();
+            document.getElementById('main-search').value = '';
+        }
+
+        function renderProducts(search = "") {
+            const grid = document.getElementById('prod-grid-container');
+            let filtered = state.products.filter(p => p.is_active !== false);
+            
+            if (search) {
+                filtered = filtered.filter(p => p.nombre.toLowerCase().includes(search));
+                document.getElementById('current-cat-title').innerText = "Búsqueda: " + search;
+            } else {
+                if (state.activeCat === 'favoritos') {
+                    const favNames = ["Medio Pollo", "Pollo Entero", "Ración Arroz", "Coca-Cola", "Agua", "Alioli", "Pan", "Croquetas", "Patatas", "Ensaladilla"];
+                    filtered = filtered.filter(p => favNames.some(f => p.nombre.toLowerCase().includes(f.toLowerCase())));
+                } else {
+                    filtered = filtered.filter(p => p.categoria_id === state.activeCat);
+                }
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const stockAlert = p.stock_actual !== null && p.stock_actual <= 5;
+                const stockBadge = p.stock_actual !== null ? 
+                    (p.stock_actual > 0 ? 
+                        `<div class="absolute top-2 right-2 px-2 py-1 rounded-md text-[9px] font-black uppercase ${p.stock_actual <= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-500'}">Stock: ${p.stock_actual}</div>` 
+                        : `<div class="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center z-10 backdrop-blur-sm"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-black uppercase">Agotado</span></div>`)
+                    : '';
+                
+                const isOut = p.stock_actual !== null && p.stock_actual <= 0;
+                
+                return `
+                <button onclick="${isOut ? '' : `addToCart('${p.id}')`}" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95 ${isOut ? 'cursor-not-allowed' : ''}">
+                    ${stockBadge}
+                    <div class="text-3xl mb-2">${getEmoji(p.nombre)}</div>
+                    <p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">${p.nombre}</p>
+                    <div class="mt-auto pt-2 w-full border-t border-slate-100 text-center">
+                        <span class="text-lg font-black text-orange-600">${Number(p.price || p.precio).toFixed(2)}€</span>
+                    </div>
+                </button>
+            `}).join('');
+        }
+
+        function renderCart() {
+            const list = document.getElementById('ticket-list');
+            const hint = document.getElementById('empty-hint');
+            
+            if (state.cart.length === 0) {
+                list.innerHTML = "";
+                list.appendChild(hint);
+                hint.style.display = "flex";
+            } else {
+                hint.style.display = "none";
+                list.innerHTML = state.cart.map(item => `
+                    <div class="flex flex-col border-b border-slate-100 py-2">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="font-black text-xs text-slate-800 uppercase leading-tight pr-2">${item.nombre}</p>
+                            <span class="font-black text-sm text-slate-800">${(item.precio * item.cantidad).toFixed(2)}€</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">${item.precio.toFixed(2)}€ / ud</span>
+                            <div class="flex items-center bg-slate-100 rounded-lg overflow-hidden">
+                                <button onclick="updateQty('${item.producto_id}', -1)" class="w-8 h-8 flex items-center justify-center bg-slate-200 text-slate-600 hover:bg-red-500 hover:text-white transition-colors font-bold">−</button>
+                                <span class="font-black text-xs w-8 text-center text-slate-800">${item.cantidad}</span>
+                                <button onclick="updateQty('${item.producto_id}', 1)" class="w-8 h-8 flex items-center justify-center bg-slate-200 text-slate-600 hover:bg-emerald-500 hover:text-white transition-colors font-bold">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Auto-scroll al final del carrito
+                list.scrollTop = list.scrollHeight;
+            }
+
+            updateTotals();
+        }
+
+        // --- Logic ---
+        function addToCartFallback(name, price) {
+            const prod = state.products.find(p => p.nombre.toLowerCase().includes(name.toLowerCase()));
+            if (prod) {
+                addToCart(prod.id);
+            } else {
+                const fakeId = 'temp-' + name;
+                const existing = state.cart.find(i => i.producto_id === fakeId);
+                if (existing) {
+                    existing.cantidad++;
+                } else {
+                    state.cart.push({
+                        producto_id: fakeId,
+                        nombre: name,
+                        precio: price,
+                        cantidad: 1
+                    });
+                }
+                renderCart();
+            }
+        }
+
+        function addToCart(id) {
+            const prod = state.products.find(p => p.id === id);
+            const existing = state.cart.find(i => i.producto_id === id);
+            
+            if (existing) {
+                existing.cantidad++;
+            } else {
+                state.cart.push({
+                    producto_id: id,
+                    nombre: prod.nombre,
+                    precio: Number(prod.price || prod.precio),
+                    cantidad: 1
+                });
+            }
+            renderCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = state.cart.find(i => i.producto_id === id);
+            if (item) {
+                item.cantidad += delta;
+                if (item.cantidad <= 0) {
+                    state.cart = state.cart.filter(i => i.producto_id !== id);
+                }
+            }
+            renderCart();
+        }
+
+        function clearTicket() {
+            if (state.cart.length === 0) return;
+            if (confirm("¿Vaciar ticket actual?")) {
+                state.cart = [];
+                renderCart();
+            }
+        }
+
+        function updateTotals() {
+            const subtotal = state.cart.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
+            const iva = subtotal * CONFIG.iva;
+            const total = subtotal + iva;
+
+            document.getElementById('txt-subtotal').innerText = subtotal.toFixed(2) + " €";
+            document.getElementById('txt-iva').innerText = iva.toFixed(2) + " €";
+            document.getElementById('txt-total').innerText = total.toFixed(2) + " €";
+        }
+
+        function setPayment(method) {
+            document.getElementById('sel-payment').value = method;
+            const btns = document.querySelectorAll('.pay-method-btn');
+            btns.forEach(b => {
+                b.classList.remove('bg-emerald-50', 'border-emerald-500', 'text-emerald-700');
+                b.classList.add('bg-white', 'border-slate-200', 'text-slate-600');
+            });
+            
+            let btnId = '';
+            if (method === 'EFECTIVO') btnId = 'btn-pay-cash';
+            if (method === 'TARJETA') btnId = 'btn-pay-card';
+            if (method === 'BIZUM') btnId = 'btn-pay-bizum';
+            
+            const selected = document.getElementById(btnId);
+            if(selected) {
+                selected.classList.remove('bg-white', 'border-slate-200', 'text-slate-600');
+                selected.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-700');
+            }
+        }
+
+        async function processCheckout() {
+            if (state.cart.length === 0) return;
+
+            const payload = {
+                items: state.cart.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad })),
+                metodo_pago: document.getElementById('sel-payment').value,
+                origen: document.getElementById('sel-origin').value,
+                estado_inicial: 'COMPLETADO',
+                metodo_envio: 'LOCAL'
+            };
+
+            try {
+                const token = localStorage.getItem('auth_token');
+                const res = await fetch(`${CONFIG.api}/orders/`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const order = await res.json();
+                if (res.ok) {
+                    state.lastTicket = order;
+                    // Encolar impresión automática (Zero-Touch)
+                    enqueuePrint(order); // No bloqueante
+                    showSuccess();
+                } else {
+                    alert("Error: " + (order.detail || "Error desconocido"));
+                }
+            } catch (e) {
+                alert("Fallo de conexión al procesar la venta.");
+            }
+        }
+
+        async function enqueuePrint(order) {
+            try {
+                const token = localStorage.getItem('auth_token');
+                await fetch(`${CONFIG.api}/print/queue/`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({
+                        order_id: order.numero_ticket,
+                        device_id: 'TPV_MOSTRADOR_01',
+                        job_type: 'TICKET_CLIENTE',
+                        payload: {
+                            ticket_number: order.numero_ticket,
+                            items: state.cart,
+                            total: order.total,
+                            payment: order.metodo_pago
+                        }
+                    })
+                });
+            } catch (e) {
+                console.warn("No se pudo encolar impresión automática", e);
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('modal-success').classList.remove('hidden');
+        }
+
+        function closeSuccess() {
+            document.getElementById('modal-success').classList.add('hidden');
+            state.cart = [];
+            renderCart();
+            // Actualizar stock local temporalmente o recargar catálogo
+            loadCatalog().then(() => renderProducts());
+        }
+        
+        function forcePrint() {
+            if(state.lastTicket) enqueuePrint(state.lastTicket);
+            alert("Orden de impresión reenviada.");
+        }
+
+        // --- Eventos Adicionales ---
+        function setupEvents() {
+            document.getElementById('main-search').addEventListener('input', (e) => {
+                renderProducts(e.target.value.toLowerCase());
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    document.getElementById('main-search').focus();
+                }
+            });
+        }
+
+        // --- Modales Mi Cuenta / PIN ---
+        function openChangePin() {
+            document.getElementById('modal-pin').classList.remove('hidden');
+        }
+
+        function closeChangePin() {
+            document.getElementById('modal-pin').classList.add('hidden');
+            document.getElementById('form-change-pin').reset();
+            document.getElementById('pin-err-msg').classList.add('hidden');
+        }
+
+        async function submitPinChange(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-pin');
+            const err = document.getElementById('pin-err-msg');
+            
+            const oldPin = document.getElementById('pin_old').value;
+            const newPin = document.getElementById('pin_new').value;
+            const confirmPin = document.getElementById('pin_confirm').value;
+            
+            btn.innerText = "Cambiando...";
+            btn.disabled = true;
+            err.classList.add('hidden');
+            
+            try {
+                const token = localStorage.getItem('auth_token');
+                const r = await fetch('/api/auth/change-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        old_pin: oldPin,
+                        new_pin: newPin,
+                        confirm_pin: confirmPin
+                    })
+                });
+                
+                if (r.ok) {
+                    alert("PIN cambiado con éxito. Use este nuevo PIN la próxima vez.");
+                    closeChangePin();
+                } else {
+                    const data = await r.json();
+                    err.innerText = data.detail || "Error al cambiar PIN.";
+                    err.classList.remove('hidden');
+                }
+            } catch(ex) {
+                err.innerText = "Error de conexión.";
+                err.classList.remove('hidden');
+            } finally {
+                btn.innerText = "Guardar";
+                btn.disabled = false;
+            }
+        }
+
+        // --- Utils ---
+        function cleanName(name) {
+            return name.replace('⭐⭐', '').replace('⭐', '').trim();
+        }
+
+        function getEmoji(name) {
+            name = name.toLowerCase();
+            if (name.includes('pollo')) return '🐔';
+            if (name.includes('pizza')) return '🍕';
+            if (name.includes('burger') || name.includes('hamburguesa')) return '🍔';
+            if (name.includes('arroz') || name.includes('arroces') || name.includes('paella')) return '🥘';
+            if (name.includes('bocadillo') || name.includes('pan')) return '🥖';
+            if (name.includes('quijada') || name.includes('codillo') || name.includes('costilla')) return '🍖';
+            if (name.includes('ración') || name.includes('raciones') || name.includes('patata') || name.includes('croqueta')) return '🍟';
+            if (name.includes('ensalada')) return '🥗';
+            if (name.includes('bebida') || name.includes('refresco') || name.includes('cola') || name.includes('agua')) return '🥤';
+            if (name.includes('salsa') || name.includes('alioli')) return '🧄';
+            if (name.includes('menú') || name.includes('menu')) return '🍱';
+            if (name.includes('promo') || name.includes('pack')) return '🏷️';
+            if (name.includes('postre')) return '🍰';
+            if (name.includes('favoritos')) return '⭐';
+            return '🍽️';
+        }
+
+        // Boot
+        init();
+    </script>
+</body>
+</html>
