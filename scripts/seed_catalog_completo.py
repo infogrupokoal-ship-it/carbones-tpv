@@ -130,11 +130,13 @@ def seed_completo():
             "Pollos Asados 🔥": "Pollos",
             "Bocadillos & Baguettes 🥖": "Bocadillos",
             "Hamburguesas 🍔": "Hamburguesas",
+            "Hamburguesas Pro 🍔": "Hamburguesas",
             "Pizzas Artesanas 🍕": "Pizzas",
             "Arroces & Paellas 🥘": "Arroces",
             "Sándwiches & Snacks 🥪": "Sándwiches",
             "Complementos 🍟": "Raciones",
             "Bebidas 🥤": "Bebidas",
+            "Bebidas Frías 🥤": "Bebidas",
             "Combos Ahorro 🛍️": "Promos",
             "Postres Caseros 🍰": "Postres",
             "Salsas 🧄": "Salsas",
@@ -167,6 +169,7 @@ def seed_completo():
                     if not existing.imagen_url and p_data.get("img"):
                         existing.imagen_url = p_data.get("img")
                     existing.is_active = True
+                    existing.categoria_id = cat.id
                 else:
                     p = Producto(
                         id=str(uuid.uuid4()),
@@ -184,6 +187,17 @@ def seed_completo():
                     total_creados += 1
 
         db.commit()
+        
+        # DESACTIVAR CATEGORÍAS QUE NO ESTÁN EN EL CATÁLOGO OFICIAL
+        valid_cat_names = set(CATALOG.keys())
+        all_cats = db.query(Categoria).all()
+        for c in all_cats:
+            if c.nombre not in valid_cat_names:
+                if hasattr(c, 'is_active'):
+                    c.is_active = False
+                db.add(c)
+        db.commit()
+
         print(f"[OK] Seed completo: {total_creados} creados, {total_actualizados} actualizados")
         print(f"[OK] Total categorías: {len(CATALOG)}")
         print(f"[OK] Total productos: {sum(len(v) for v in CATALOG.values())}")
