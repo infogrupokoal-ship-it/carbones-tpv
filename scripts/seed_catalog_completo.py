@@ -149,6 +149,19 @@ def seed_completo():
         total_creados = 0
         total_actualizados = 0
 
+        # LIMPIEZA ZERO-TOUCH DE PRODUCTOS ANTIGUOS CON "KOAL"
+        try:
+            koal_prods = db.query(Producto).filter(Producto.nombre.like('%Koal%')).all()
+            for kp in koal_prods:
+                kp.nombre = kp.nombre.replace('Koal', 'Carbones')
+                kp.is_active = True
+                db.add(kp)
+            db.commit()
+            if koal_prods:
+                print(f"[OK] Saneados {len(koal_prods)} productos legacy de Koal.")
+        except Exception as e:
+            print(f"[WARN] No se pudo limpiar productos legacy: {e}")
+
         for cat_nombre, productos in CATALOG.items():
             # Crear/obtener categoría
             cat = db.query(Categoria).filter_by(nombre=cat_nombre).first()
