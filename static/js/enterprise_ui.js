@@ -115,6 +115,29 @@ const EnterpriseUI = {
      */
     formatCurrency(value) {
         return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+    },
+
+    /**
+     * Renderiza un estado vacío con estética premium (Singularity).
+     */
+    renderEmptyState(containerId, { title, message, icon, actionLabel, actionOnClick }) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-12 text-center animate-fade-in max-w-md mx-auto">
+                <div class="w-24 h-24 rounded-[2.5rem] bg-indigo-50 flex items-center justify-center text-3xl mb-8 shadow-inner border border-white">
+                    <i class="fas ${icon || 'fa-box-open'} text-indigo-300"></i>
+                </div>
+                <h2 class="text-xl font-900 text-slate-900 tracking-tight mb-3 uppercase">${title || 'Sin Datos Disponibles'}</h2>
+                <p class="text-sm font-500 text-slate-400 leading-relaxed mb-8">${message || 'Parece que no hay registros en esta sección todavía.'}</p>
+                ${actionLabel ? `
+                    <button onclick="${actionOnClick}" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-800 text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all">
+                        ${actionLabel}
+                    </button>
+                ` : ''}
+            </div>
+        `;
     }
 };
 

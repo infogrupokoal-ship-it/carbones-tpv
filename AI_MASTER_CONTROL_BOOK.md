@@ -157,11 +157,11 @@ Todo el sistema principal NO vive en el ordenador de la tienda, sino en la nube 
 
 * **Archivos Clave (en la nube):**
 
-    * `main.py`: El corazón del sistema. Recibe todas las conexiones y maneja el backend.
+  * `main.py`: El corazón del sistema. Recibe todas las conexiones y maneja el backend.
 
-    * `ai_agent.py`: La Inteligencia Artificial de Gemini. Lee WhatsApps y procesa comandos.
+  * `ai_agent.py`: La Inteligencia Artificial de Gemini. Lee WhatsApps y procesa comandos.
 
-    * `stripe_service.py`: Controla la pasarela de pagos.
+  * `stripe_service.py`: Controla la pasarela de pagos.
 
 ### 8.2 🖨️ El Puente Físico (Ordenador/Tablet de la Tienda)
 

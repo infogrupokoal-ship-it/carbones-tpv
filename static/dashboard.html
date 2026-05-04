@@ -79,44 +79,13 @@
 
         <div id="module-telemetry" class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8"></div>
 
-        <!-- KPI Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-8">
-            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #4f46e5;">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Ventas Brutas Hoy</p>
-                <h3 id="kpi-ventas" class="text-4xl font-black text-slate-900 tracking-tighter">0.00€</h3>
-                <div class="mt-4 flex items-center gap-2">
-                    <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-1 rounded-lg">↑ En Tiempo Real</span>
-                </div>
-            </div>
-            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #10b981;">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Volumen Operativo</p>
-                <h3 id="kpi-pedidos" class="text-4xl font-black text-slate-900 tracking-tighter">0</h3>
-                <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase">Ticket Avg: <span id="kpi-avg-ticket" class="text-slate-900">0€</span></p>
-            </div>
-            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #f59e0b;">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Satisfacción AI</p>
-                <h3 id="kpi-margen" class="text-4xl font-black text-slate-900 tracking-tighter">--%</h3>
-                <div class="mt-4 h-1 bg-slate-50 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[85%]"></div></div>
-            </div>
-            <div class="glass-panel kpi-card p-8 rounded-[2rem] bg-white" style="--accent: #ec4899;">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Tiempo avg Cocina</p>
-                <h3 id="kpi-cocina" class="text-4xl font-black text-slate-900 tracking-tighter">14m</h3>
-                <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">Target: < 15 min</p>
-            </div>
-            <div data-role="ADMIN,MANAGER" class="glass-panel p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-200">
-                <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-4">Estado de Nodo</p>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                        <span class="text-slate-400">CPU</span> <span id="tele-cpu">--%</span>
-                    </div>
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                        <span class="text-slate-400">RAM</span> <span id="tele-ram">--%</span>
-                    </div>
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase border-t border-white/5 pt-2">
-                        <span class="text-slate-400">Latency</span> <span id="tele-db" class="text-emerald-400">--ms</span>
-                    </div>
-                </div>
-            </div>
+        <div id="premium-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-8">
+            <!-- Widgets de Telemetría Operativa Premium -->
+            <div id="kpi-ventas-container"></div>
+            <div id="kpi-pedidos-container"></div>
+            <div id="kpi-margen-container"></div>
+            <div id="kpi-cocina-container"></div>
+            <div id="kpi-nodos-container"></div>
         </div>
 
         <!-- Charts Section -->
@@ -164,6 +133,10 @@
                 <div id="stock-alerts-list" class="space-y-6">
                     <!-- Stock Alerts -->
                 </div>
+            </div>
+
+            <div id="quick-task-panel-container">
+                <!-- EnterpriseUI will render the Quick Task Panel here -->
             </div>
         </div>
     </div>
@@ -227,6 +200,7 @@
         </div>
     </div>
 
+    <script src="/static/js/ui_components.js"></script>
     <script src="/static/js/enterprise_shell.js"></script>
     <script>
         let salesChart;
@@ -234,20 +208,45 @@
 
         async function updateDashboard() {
             try {
-                const res = await fetch(`${API_URL}/stats/dashboard`);
+                const res = await EnterpriseUI.safeFetch(`${API_URL}/stats/dashboard`);
+                if (!res) return;
                 const data = await res.json();
                 
-                document.getElementById('kpi-ventas').innerText = data.kpis.ventas_hoy.toFixed(2) + '€';
-                document.getElementById('kpi-pedidos').innerText = data.kpis.pedidos_count;
-                document.getElementById('kpi-margen').innerText = data.kpis.satisfaccion + "/5.0";
-                document.getElementById('kpi-avg-ticket').innerText = (data.kpis.ventas_hoy / (data.kpis.pedidos_count || 1)).toFixed(2) + '€';
-                
-                // Update Enterprise Nodes
-                if (data.kpis.esg_score) {
-                    const esgNode = document.querySelector('[title="Seguridad"]'); // Reusing slot
-                    if(esgNode) esgNode.querySelector('.text-2xl').innerText = data.kpis.esg_score + ' kg CO2';
-                }
+                if (typeof EnterpriseUI !== 'undefined') {
+                    EnterpriseUI.renderPremiumKPI('kpi-ventas-container', {
+                        label: 'Ventas Brutas Hoy',
+                        value: data.kpis.ventas_hoy.toFixed(2) + '€',
+                        icon: 'payments',
+                        progress: (data.kpis.ventas_hoy / 2000) * 100, // Target 2000€
+                        trend: 12
+                    });
 
+                    EnterpriseUI.renderPremiumKPI('kpi-pedidos-container', {
+                        label: 'Volumen Operativo',
+                        value: data.kpis.pedidos_count,
+                        icon: 'shopping_bag',
+                        progress: (data.kpis.pedidos_count / 100) * 100, // Target 100 orders
+                        colorClass: 'bg-gradient-premium-emerald'
+                    });
+
+                    EnterpriseUI.renderPremiumKPI('kpi-margen-container', {
+                        label: 'Satisfacción Staff',
+                        value: data.kpis.satisfaccion + "/5.0",
+                        icon: 'stars',
+                        progress: (data.kpis.satisfaccion / 5) * 100,
+                        colorClass: 'bg-gradient-premium-amber'
+                    });
+
+                    EnterpriseUI.renderPremiumKPI('kpi-cocina-container', {
+                        label: 'Tiempo Avg Cocina',
+                        value: '14m',
+                        icon: 'timer',
+                        progress: 85,
+                        trend: -5,
+                        colorClass: 'bg-gradient-premium-rose'
+                    });
+                }
+                
                 updateSalesChart(data.charts.horas);
                 renderTopProducts(data.charts.top_pollos);
                 renderLiveFeed(data.recent_orders);
@@ -258,11 +257,20 @@
 
         async function updateTelemetry() {
             try {
-                const res = await fetch(`${API_URL}/health`);
+                const res = await EnterpriseUI.safeFetch(`${API_URL}/health`);
+                if (!res) return;
                 const health = await res.json();
-                document.getElementById('tele-cpu').innerText = `${health.telemetry.cpu_usage || 0}%`;
-                document.getElementById('tele-ram').innerText = `${health.telemetry.memory_usage || 0}%`;
-                document.getElementById('tele-db').innerText = `${(health.telemetry.db_latency_ms || 0).toFixed(1)}ms`;
+                
+                if (typeof EnterpriseUI !== 'undefined') {
+                    EnterpriseUI.renderPremiumKPI('kpi-nodos-container', {
+                        label: 'Salud de Nodo',
+                        value: health.telemetry.cpu_usage + '%',
+                        icon: 'settings_input_component',
+                        progress: health.telemetry.cpu_usage,
+                        trend: 0,
+                        colorClass: 'bg-slate-900'
+                    });
+                }
             } catch(e) {}
         }
 
@@ -429,46 +437,16 @@
         window.onload = () => {
             EnterpriseShell.init('Operational BI');
             updateDashboard();
+            if (typeof EnterpriseUI !== 'undefined') {
+                EnterpriseUI.renderQuickTaskPanel('quick-task-panel-container');
+            }
             setInterval(updateDashboard, 60000);
         };
     </script>
 
     <script>
         window.addEventListener('load', () => {
-            if (typeof EnterpriseUI !== 'undefined') {
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Estado del Nodo',
-                    value: 'ACTIVO',
-                    unit: 'SECURE',
-                    trend: 'up',
-                    trendValue: '100%',
-                    icon: 'fa-server'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Carga de Trabajo',
-                    value: Math.floor(Math.random() * 40 + 20),
-                    unit: '%',
-                    trend: 'up',
-                    trendValue: 'LOW',
-                    icon: 'fa-microchip'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Latencia Sync',
-                    value: Math.floor(Math.random() * 50 + 10),
-                    unit: 'ms',
-                    trend: 'down',
-                    trendValue: 'OPTIMAL',
-                    icon: 'fa-bolt'
-                });
-                EnterpriseUI.renderKPICard('module-telemetry', {
-                    title: 'Seguridad',
-                    value: 'V4.0',
-                    unit: 'SSL',
-                    trend: 'up',
-                    trendValue: 'MAX',
-                    icon: 'fa-shield-halved'
-                });
-            }
+            // El dashboard se actualiza automáticamente mediante updateDashboard() llamado en onload
         });
     </script>
             

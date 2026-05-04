@@ -7,8 +7,11 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.database import SessionLocal
-from backend.models import Categoria, Producto, Tienda
+from backend.database import SessionLocal, engine, Base
+from backend.models import Categoria, Producto, Tienda, Usuario
+
+print(f"DEBUG: Engine URL: {engine.url}")
+Base.metadata.create_all(bind=engine)
 
 CATALOG = {
     # ── POLLOS ──────────────────────────────────────────────────────────────
@@ -31,11 +34,11 @@ CATALOG = {
     ],
     # ── HAMBURGUESAS ─────────────────────────────────────────────────────────
     "Hamburguesas 🍔": [
-        {"nombre": "Burger Koal Classic",              "precio": 10.90, "desc": "200g de ternera, queso cheddar, lechuga, tomate, cebolla y salsa secreta.", "img": "/static/img/pollo_asado.png"},
-        {"nombre": "Burger Doble Koal",                "precio": 13.90, "desc": "400g de carne, doble queso y todo lo demás. Para los valientes."},
+        {"nombre": "Burger Carbones Classic",              "precio": 10.90, "desc": "200g de ternera, queso cheddar, lechuga, tomate, cebolla y salsa secreta.", "img": "/static/img/pollo_asado.png"},
+        {"nombre": "Burger Doble Carbones",                "precio": 13.90, "desc": "400g de carne, doble queso y todo lo demás. Para los valientes."},
         {"nombre": "Burger de Pollo Crujiente",        "precio":  9.90, "desc": "Filetes de pechuga rebozados crujientes con salsa sriracha y col."},
         {"nombre": "Burger Veggie",                    "precio":  9.50, "desc": "Hamburguesa de garbanzos y verduras asadas, con aguacate y sprouts."},
-        {"nombre": "Burger Koal BBQ",                  "precio": 11.90, "desc": "Ternera con salsa BBQ ahumada, bacon crujiente y cebolla caramelizada."},
+        {"nombre": "Burger Carbones BBQ",                  "precio": 11.90, "desc": "Ternera con salsa BBQ ahumada, bacon crujiente y cebolla caramelizada."},
     ],
     # ── PIZZAS ───────────────────────────────────────────────────────────────
     "Pizzas Artesanas 🍕": [
@@ -112,10 +115,36 @@ def seed_completo():
         if not tienda:
             tienda = db.query(Tienda).first()
         if not tienda:
-            tienda = Tienda(id=str(uuid.uuid4()), nombre="Carbones y Pollos La Granja",
-                            direccion="Av. Malvarrosa 112, 46011 Valencia", telefono="963 000 000")
+            tienda = Tienda(
+                id=str(uuid.uuid4()), 
+                nombre="Carbones y Pollos La Granja",
+                direccion="Av. Malvarrosa 112, 46011 Valencia", 
+                telefono="963 000 000"
+            )
             db.add(tienda)
             db.commit()
+
+        # Usuario Admin (PIN 1234 restringido a entornos locales/demo)
+        from backend.utils.auth import get_password_hash
+        from backend.config import settings
+        
+        is_demo_or_local = settings.DEBUG or os.getenv("ENVIRONMENT") == "local" or os.getenv("DEMO_MODE") == "true"
+        
+        if not db.query(Usuario).filter_by(username="admin").first():
+            if is_demo_or_local:
+                admin = Usuario(
+                    id=str(uuid.uuid4()),
+                    username="admin",
+                    full_name="Gerente Carbones (DEMO)",
+                    pin_hash=get_password_hash("1234"),
+                    rol="ADMIN",
+                    tienda_id=tienda.id
+                )
+                db.add(admin)
+                db.commit()
+                print("[OK] Usuario ADMIN de prueba creado (PIN: 1234)")
+            else:
+                print("[WARN] Saltando creación de usuario 'admin/1234' por seguridad (Entorno Producción).")
 
         total_creados = 0
         total_actualizados = 0
@@ -129,7 +158,9 @@ def seed_completo():
                 db.commit()
 
             for p_data in productos:
-                existing = db.query(Producto).filter_by(nombre=p_data["nombre"]).first()
+                # Normalizar nombres para evitar duplicados por Koal
+                p_nombre = p_data["nombre"].replace("Koal", "Carbones")
+                existing = db.query(Producto).filter_by(nombre=p_nombre).first()
                 if existing:
                     # Actualizar precio si ha cambiado
                     if existing.precio != p_data["precio"]:
@@ -141,7 +172,7 @@ def seed_completo():
                 else:
                     p = Producto(
                         id=str(uuid.uuid4()),
-                        nombre=p_data["nombre"],
+                        nombre=p_nombre,
                         descripcion=p_data["desc"],
                         precio=p_data["precio"],
                         categoria_id=cat.id,

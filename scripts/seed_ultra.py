@@ -28,18 +28,26 @@ def seed_ultra_industrial():
             db.commit()
             logger.info(f"Tienda Central Creada: {tienda.id}")
 
-        # 2. Usuarios
+        # 2. Usuarios (PIN 1234 restringido a entornos locales/demo)
+        from backend.config import settings
+        import os
+        
+        is_demo_or_local = settings.DEBUG or os.getenv("ENVIRONMENT") == "local" or os.getenv("DEMO_MODE") == "true"
+        
         if not db.query(Usuario).filter_by(username="admin").first():
-            admin = Usuario(
-                id=str(uuid.uuid4()),
-                username="admin",
-                full_name="Gerente de Operaciones",
-                pin_hash=get_password_hash("1234"),
-                rol="ADMIN",
-                tienda_id=tienda.id
-            )
-            db.add(admin)
-            logger.info("Usuario ADMIN Creado: PIN 1234")
+            if is_demo_or_local:
+                admin = Usuario(
+                    id=str(uuid.uuid4()),
+                    username="admin",
+                    full_name="Gerente de Operaciones (DEMO)",
+                    pin_hash=get_password_hash("1234"),
+                    rol="ADMIN",
+                    tienda_id=tienda.id
+                )
+                db.add(admin)
+                logger.info("Usuario ADMIN Creado: PIN 1234")
+            else:
+                logger.warning("Saltando creación de usuario 'admin' en PRODUCCIÓN por seguridad.")
 
         # 3. Categorías con Iconos Visuales (Simulados en el nombre para el Kiosko)
         cat_data = [

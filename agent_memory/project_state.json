@@ -1,0 +1,13 @@
+{
+  "Carbones_TPV": {
+    "security_status": "HARDENED",
+    "infrastructure_status": "STABLE",
+    "last_audit": "2026-05-03",
+    "critical_services": ["uvicorn", "watchdog_bridge", "local_printer_bridge", "sync_daemon"],
+    "active_branch": "main"
+  },
+  "Grupo_Koal": {
+    "status": "PENDING_AUDIT",
+    "path": "C:/proyecto/gestion_avisos"
+  }
+}

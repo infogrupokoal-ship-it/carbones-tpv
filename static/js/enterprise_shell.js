@@ -18,7 +18,7 @@ const EnterpriseShell = {
         { id: 'repartidores', label: 'Logística', icon: '🛵', path: '/static/repartidores.html', roles: ['ADMIN', 'MANAGER'] },
         { id: 'rrhh', label: 'Talent', icon: '🧬', path: '/static/rrhh.html', roles: ['ADMIN', 'MANAGER'] },
         { id: 'clientes', label: 'Fidelización', icon: '👥', path: '/static/loyalty.html', roles: ['ADMIN', 'MANAGER'] },
-        { id: 'telemetria', label: 'Metrics', icon: '⚡', path: '/static/telemetria.html', roles: ['ADMIN'] },
+        { id: 'telemetria', label: 'Telemetría', icon: '⚡', path: '/static/stats.html', roles: ['ADMIN'] },
         { id: 'config', label: 'Sistema', icon: '⚙️', path: '/static/settings.html', roles: ['ADMIN'] },
         { id: 'marketing', label: 'Marketing', icon: '🚀', path: '/static/marketing.html', roles: ['ADMIN', 'MANAGER'] },
         { id: 'financial', label: 'Finanzas', icon: '🏦', path: '/static/financial.html', roles: ['ADMIN', 'MANAGER'] },
@@ -61,6 +61,15 @@ const EnterpriseShell = {
 
         this.injectGlobalStyles();
         this.renderBase();
+        
+        // Auto-detect current module for breadcrumbs and active state
+        const path = window.location.pathname;
+        const currentModule = this.modules.find(m => path.includes(m.path) || path.includes(m.id));
+        if (currentModule) {
+            this.breadcrumb = ['Portal', currentModule.label];
+            document.title = `${currentModule.label} | Carbones y Pollos`;
+        }
+
         this.updateBreadcrumbs();
         this.renderSecureUI();
         this.applyRoleShields();
@@ -334,12 +343,15 @@ const EnterpriseShell = {
 
         nav.innerHTML = this.modules
             .filter(m => !this.user || m.roles.includes(this.user.rol))
-            .map(m => `
-                <a href="${m.path}" class="nav-item ${currentPath.includes(m.id) ? 'active' : ''}" data-module="${m.id}">
-                    <span class="nav-icon">${m.icon}</span>
-                    <span class="nav-label">${m.label}</span>
-                </a>
-            `).join('');
+            .map(m => {
+                const isActive = currentPath.includes(m.path) || currentPath.includes(m.id);
+                return `
+                    <a href="${m.path}" class="nav-item ${isActive ? 'active' : ''}" data-module="${m.id}">
+                        <span class="nav-icon">${m.icon}</span>
+                        <span class="nav-label">${m.label}</span>
+                    </a>
+                `;
+            }).join('');
 
         if (this.user && this.user.rol === 'ADMIN') {
             document.querySelectorAll('.telemetry-item').forEach(el => el.style.display = 'flex');

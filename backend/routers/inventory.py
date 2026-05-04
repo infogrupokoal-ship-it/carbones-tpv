@@ -9,6 +9,9 @@ from ..database import get_db
 from ..models import Ingrediente, MovimientoStock, Producto
 from ..utils.logger import logger
 from .admin_audit import log_audit_action
+from .dependencies import require_admin, require_manager
+from ..models import Usuario
+from ..services.print_service import print_ticket
 
 router = APIRouter(prefix="/inventory", tags=["Logística"])
 router_legacy = APIRouter(prefix="/inventario", tags=["Legacy Inventario"])
@@ -75,11 +78,23 @@ class ProduccionRequest(BaseModel):
     cantidad: float = Field(..., gt=0)
     descripcion: Optional[str] = "Producción manual en cocina"
 
+class PrintItem(BaseModel):
+    name: str
+    qty: float = 1
+    price: float = 0
+
+class PrintPayload(BaseModel):
+    order_id: Optional[str] = None
+    channel: Optional[str] = "TPV"
+    customer_name: Optional[str] = None
+    notes: Optional[str] = None
+    items: List[PrintItem] = []
+
 # --- Rutas ---
 
 @router.get("/ingredientes", response_model=List[IngredienteOut])
 @router_legacy.get("/ingredientes", response_model=List[IngredienteOut])
-def listar_ingredientes(db: Session = Depends(get_db)):
+def listar_ingredientes(db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Obtiene el estado crítico del inventario de materia prima y suministros activos.
     """
@@ -128,9 +143,29 @@ def listar_productos(db: Session = Depends(get_db)):
         ))
     return out
 
+@router_root.get("/products", response_model=List[ProductoOut])
+def products_alias(db: Session = Depends(get_db)):
+    """Alias en inglés para compatibilidad del Kiosko"""
+    return listar_productos(db)
+
+@router_root.post("/print")
+def api_print(payload: PrintPayload):
+    """
+    Endpoint para solicitar impresión del ticket.
+    Delegado al print_service que enruta a mock, local bridge o ESC/POS nativo.
+    """
+    data = payload.model_dump()
+    result = print_ticket(data)
+    
+    if result.get("ok"):
+        return {"msg": "Impresión encolada/enviada", **result}
+    else:
+        # Devolvemos el texto generado incluso si falla el envío, para fallback en frontend
+        return {"msg": "Fallo en envío de impresión", **result}
+
 @router.patch("/productos/{producto_id}", response_model=ProductoOut)
 @router_productos.patch("/{producto_id}", response_model=ProductoOut)
-def actualizar_producto(producto_id: str, req: UpdateProductoRequest, db: Session = Depends(get_db)):
+def actualizar_producto(producto_id: str, req: UpdateProductoRequest, db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Actualiza la información de un producto (como la imagen, precio o nombre).
     Ideal para el panel de control del administrador.
@@ -184,7 +219,7 @@ def listar_categorias(db: Session = Depends(get_db)):
 
 @router.post("/produccion", status_code=status.HTTP_201_CREATED)
 @router_legacy.post("/produccion")
-def registrar_produccion(req: ProduccionRequest, db: Session = Depends(get_db)):
+def registrar_produccion(req: ProduccionRequest, db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Registra el procesado de materia prima en productos finales (Ej: Cocción de pollos).
     """
@@ -213,7 +248,7 @@ def registrar_produccion(req: ProduccionRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="No se pudo registrar la producción")
 
 @router.post("/pedido_proveedor", status_code=status.HTTP_201_CREATED)
-def realizar_pedido_proveedor(req: PedidoProveedorRequest, db: Session = Depends(get_db)):
+def realizar_pedido_proveedor(req: PedidoProveedorRequest, db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Simula la reposición de suministros tras una orden de compra a proveedores.
     """
@@ -241,7 +276,7 @@ def realizar_pedido_proveedor(req: PedidoProveedorRequest, db: Session = Depends
         raise HTTPException(status_code=500, detail="Error procesando entrada de mercancía")
 
 @router.post("/ajuste", status_code=status.HTTP_200_OK)
-def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db)):
+def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Gestiona ajustes manuales, mermas por rotura o regalos de cortesía en el inventario.
     """
@@ -275,7 +310,7 @@ def ajustar_stock(req: AjusteStockRequest, db: Session = Depends(get_db)):
         # Auditoría Industrial
         log_audit_action(
             db=db,
-            usuario_id=None, # Debería venir de auth en prod
+            usuario_id=current_user.id,
             accion=f"AJUSTE_STOCK_{req.tipo}",
             entidad="PRODUCTO" if req.producto_id else "INGREDIENTE",
             entidad_id=req.producto_id or req.ingrediente_id,
@@ -299,7 +334,7 @@ class MermaRequest(BaseModel):
     usuario_id: Optional[str] = None # En el futuro, sacar del token JWT
 
 @router.post("/merma", status_code=status.HTTP_201_CREATED)
-def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
+def registrar_merma(req: MermaRequest, db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Endpoint avanzado para gestión de desperdicios. 
     Registra la merma calculando su coste asociado para Business Intelligence.
@@ -355,7 +390,7 @@ def registrar_merma(req: MermaRequest, db: Session = Depends(get_db)):
         # Auditoría de Mermas
         log_audit_action(
             db=db,
-            usuario_id=req.usuario_id,
+            usuario_id=current_user.id,
             accion="REGISTRO_MERMA",
             entidad=req.entidad_tipo,
             entidad_id=req.entidad_id,

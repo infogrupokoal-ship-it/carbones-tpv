@@ -6,7 +6,7 @@ services:
     name: carbones-tpv
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    preDeployCommand: "python scripts/migrate_v5.py && python scripts/seed_ultra.py"
+    preDeployCommand: "python scripts/migrate_v5.py && python scripts/seed_catalog_completo.py"
     startCommand: gunicorn -w 4 -k uvicorn.workers.UvicornWorker backend.main:app --bind 0.0.0.0:$PORT
     plan: free
     region: frankfurt

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tpv_data.sqlite")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/tpv_data.sqlite")
 
 # Normalización para Render (postgres:// -> postgresql://)
 if DATABASE_URL.startswith("postgres://"):

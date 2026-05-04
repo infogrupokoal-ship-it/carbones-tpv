@@ -8,15 +8,24 @@ from sqlalchemy import func
 from pydantic import BaseModel, Field
 
 from ..database import get_db
-from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria
+from ..models import Producto, Pedido, ItemPedido, Review, ReporteZ, HardwareCommand, Categoria, Usuario, TareaOperativa
 from ..ai_agent import ask_asador_ai
 from ..utils.logger import logger
 from scripts.seed_ultra import seed_ultra_industrial
 from .admin_audit import log_audit_action
+from .dependencies import require_admin, get_current_user
 
-router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"])
+router = APIRouter(prefix="/admin", tags=["Gestión Administrativa"], dependencies=[Depends(require_admin)])
 
 # --- Esquemas de Datos ---
+
+class TareaCreate(BaseModel):
+    titulo: str = Field(..., min_length=3, max_length=100)
+    descripcion: Optional[str] = None
+    prioridad: str = "MEDIA" # BAJA, MEDIA, ALTA, CRITICA
+
+class TareaUpdate(BaseModel):
+    estado: str # PENDIENTE, COMPLETADO
 
 class ProductoCreate(BaseModel):
     nombre: str = Field(..., json_schema_extra={"example": "Pollo Asado XL"})
@@ -75,7 +84,7 @@ async def get_ai_insights(db: Session = Depends(get_db)):
         sugerencia = parts[1] if len(parts) > 1 else "Mantener niveles de producción según demanda histórica."
         
         return {
-            "resumen_reviews": resumen.replace("Koal-AI:", "").strip(),
+            "resumen_reviews": resumen.replace("AI:", "").strip(),
             "sugerencia_produccion": sugerencia.strip()
         }
     except Exception as e:
@@ -88,7 +97,7 @@ async def get_ai_insights(db: Session = Depends(get_db)):
 @router.post("/ai/chat")
 async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
     """
-    Agente Conversacional Koal-AI: Proporciona soporte operativo e insights 
+    Agente Conversacional: Proporciona soporte operativo e insights 
     estratégicos mediante interacción en lenguaje natural.
     """
     try:
@@ -99,7 +108,7 @@ async def ai_chat(data: Dict[str, str], db: Session = Depends(get_db)):
         # Contexto del sistema para el agente
         prompt = f"El usuario pregunta: {message}\nResponde como el asistente experto del TPV Carbones y Pollos."
         response = await ask_asador_ai(prompt, user_role="staff")
-        return {"response": response.replace("Koal-AI:", "").strip()}
+        return {"response": response.replace("AI:", "").strip()}
     except Exception as e:
         logger.error(f"Error en AI Chat: {e}")
         return {"response": "Lo siento, mi conexión con el núcleo neuronal está inestable. ¿Puedes repetir?"}
@@ -129,7 +138,7 @@ async def seed_production_data(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/factory_reset", status_code=status.HTTP_200_OK)
-async def factory_reset(db: Session = Depends(get_db)):
+async def factory_reset(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Comando de Emergencia: Limpia todo el catálogo y pedidos para un despliegue limpio.
     ¡USAR CON PRECAUCIÓN!
@@ -143,7 +152,7 @@ async def factory_reset(db: Session = Depends(get_db)):
         # Auditoría Industrial
         log_audit_action(
             db=db,
-            usuario_id=None,
+            usuario_id=current_user.id,
             accion="FACTORY_RESET",
             entidad="SISTEMA",
             payload_nuevo="Reseteo completo de tablas transaccionales y catálogo."
@@ -156,7 +165,7 @@ async def factory_reset(db: Session = Depends(get_db)):
         raise HTTPException(500, detail=str(e))
 
 @router.post("/abrir-cajon", status_code=status.HTTP_202_ACCEPTED)
-async def abrir_cajon_remoto(db: Session = Depends(get_db)):
+async def abrir_cajon_remoto(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Comando de Seguridad: Solicita la apertura física del cajón portamonedas 
     desde el panel de administración central. Registra el evento para auditoría.
@@ -171,14 +180,14 @@ async def abrir_cajon_remoto(db: Session = Depends(get_db)):
     # Auditoría Industrial
     log_audit_action(
         db=db,
-        usuario_id=None,
+        usuario_id=current_user.id,
         accion="ABRIR_CAJON_REMOTO",
         entidad="HARDWARE",
-        payload_nuevo="Solicitud remota de apertura de caja desde admin dashboard."
+        payload_nuevo=f"Solicitud remota de apertura de caja por {current_user.username}."
     )
     
     db.commit()
-    logger.warning("AUDITORÍA: Apertura de cajón solicitada remotamente por administrador.")
+    logger.warning(f"AUDITORÍA: Apertura de cajón solicitada remotamente por {current_user.username}.")
     return {"status": "success", "detail": "Comando de apertura encolado"}
 
 @router.get("/dashboard/kpis", response_model=DashboardOut)
@@ -259,3 +268,67 @@ async def get_dashboard_kpis(db: Session = Depends(get_db)):
             charts={},
             reviews=[]
         )
+
+# --- Gestión de Tareas Operativas ---
+
+@router.get("/tasks", response_model=List[Dict[str, Any]])
+async def list_tasks(db: Session = Depends(get_db)):
+    tasks = db.query(TareaOperativa).order_by(TareaOperativa.fecha.desc()).limit(50).all()
+    return [
+        {
+            "id": t.id,
+            "fecha": t.fecha.isoformat(),
+            "titulo": t.titulo,
+            "descripcion": t.descripcion,
+            "prioridad": t.prioridad,
+            "estado": t.estado
+        } for t in tasks
+    ]
+
+@router.post("/tasks", status_code=status.HTTP_201_CREATED)
+async def create_task(tarea: TareaCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    # Obtener tienda_id del usuario o tienda central por defecto
+    tienda_id = current_user.tienda_id if current_user else db.query(Usuario).first().tienda_id
+    
+    new_task = TareaOperativa(
+        id=str(uuid.uuid4()),
+        titulo=tarea.titulo,
+        descripcion=tarea.descripcion,
+        prioridad=tarea.prioridad,
+        estado="PENDIENTE",
+        usuario_id=current_user.id if current_user else None,
+        tienda_id=tienda_id
+    )
+    db.add(new_task)
+    
+    log_audit_action(
+        db=db,
+        usuario_id=current_user.id if current_user else None,
+        accion="CREATE_TASK",
+        entidad="TAREA_OPERATIVA",
+        payload_nuevo=f"Nueva tarea: {tarea.titulo} ({tarea.prioridad})"
+    )
+    
+    db.commit()
+    return {"status": "success", "id": new_task.id}
+
+@router.patch("/tasks/{task_id}")
+async def update_task_status(task_id: str, update: TareaUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    task = db.query(TareaOperativa).filter(TareaOperativa.id == task_id).first()
+    if not task:
+        raise HTTPException(404, detail="Tarea no encontrada")
+    
+    old_status = task.estado
+    task.estado = update.estado
+    
+    log_audit_action(
+        db=db,
+        usuario_id=current_user.id if current_user else None,
+        accion="UPDATE_TASK_STATUS",
+        entidad="TAREA_OPERATIVA",
+        payload_previo=f"Estado: {old_status}",
+        payload_nuevo=f"Estado: {update.estado}"
+    )
+    
+    db.commit()
+    return {"status": "success"}

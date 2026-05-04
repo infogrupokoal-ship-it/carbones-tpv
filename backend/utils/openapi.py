@@ -9,7 +9,7 @@ def custom_openapi(app):
         version="2.6.0",
         description="""
         ## 🚀 Interfaz de Control de Operaciones
-        Esta API permite la integración total de terminales TPV, KDS de cocina, y el motor de inteligencia operacional Koal-AI.
+        Esta API permite la integración total de terminales TPV, KDS de cocina, y el motor de inteligencia operacional avanzado.
         
         ### 🔒 Seguridad
         Todos los endpoints están protegidos por middleware de auditoría y, opcionalmente, JWT.
@@ -19,7 +19,7 @@ def custom_openapi(app):
     
     # Personalización estética de Swagger (Añadir logo/colores)
     openapi_schema["info"]["x-logo"] = {
-        "url": "https://grupokoal.com/assets/tpv_logo.png"
+        "url": "/static/img/logo_tpv.png"
     }
     
     app.openapi_schema = openapi_schema

@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import os
 import time
 import signal
@@ -24,7 +24,10 @@ if not os.path.exists(INSTANCE_DIR):
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] [SYNC_DAEMON] %(message)s",
-    handlers=[logging.FileHandler(os.path.join(INSTANCE_DIR, "sync.log")), logging.StreamHandler()]
+    handlers=[
+        logging.FileHandler(os.path.join(INSTANCE_DIR, "sync.log"), encoding="utf-8"),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger("SyncDaemon")
 
@@ -48,8 +51,8 @@ def acquire_lock():
                 else:
                     raise OSError
                     
-            logger.error(f"âŒ Ya hay una instancia ejecutÃ¡ndose (PID: {old_pid}). Abortando.")
-            sys.exit(1)
+            logger.error(f"[LOCK] Instancia activa detectada (PID: {old_pid}).")
+            sys.exit(0) # Exit code 0 so watchdog doesn't restart immediately
         except (OSError, ValueError):
             os.remove(PID_FILE)
 
@@ -103,9 +106,9 @@ def push_local_data():
             for p in pedidos_unsynced:
                 p.is_synced = True
             db.commit()
-            logger.info(f"âœ… Sincronizados {len(pedidos_unsynced)} pedidos con Ã©xito.")
+            logger.info(f"[SUCCESS] Sincronizados {len(pedidos_unsynced)} pedidos con éxito.")
     except Exception as e:
-        logger.error(f"âŒ Error en PUSH: {str(e)}")
+        logger.error(f"[ERROR] Error en PUSH: {str(e)}")
     finally:
         db.close()
 
@@ -142,7 +145,7 @@ def pull_remote_data():
 
 def daemon_loop():
     acquire_lock()
-    logger.info(f"ðŸš€ Demonio de SincronizaciÃ³n v4.5 Industrializado (Target: {VPS_URL})")
+    logger.info(f"[BOOT] Demonio de Sincronización v4.5 (Target: {VPS_URL})")
     
     while running:
         start_time = time.time()
@@ -159,7 +162,7 @@ def daemon_loop():
         time.sleep(sleep_time)
     
     release_lock()
-    logger.info("ðŸ‘‹ Sync Daemon detenido correctamente.")
+    logger.info("[STOP] Sync Daemon detenido.")
 
 if __name__ == "__main__":
     daemon_loop()

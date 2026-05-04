@@ -9,11 +9,12 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto
+from ..models import Cliente, HardwareCommand, ItemPedido, Pedido, Producto, PrintJob, Usuario
 from ..utils.stock import descontar_stock_pedido
 from ..utils.logger import logger
 from .admin_audit import log_audit_action
 from .ws import notify_new_order
+from .dependencies import get_current_user, require_admin, require_manager
 
 router = APIRouter(prefix="/orders", tags=["Operaciones"])
 router_legacy = APIRouter(prefix="/pedidos", tags=["Legacy Pedidos"])
@@ -39,7 +40,7 @@ class PedidoCrear(BaseModel):
 
 class ItemPedidoOut(BaseModel):
     id: str
-    producto_id: str
+    producto_id: Optional[str] = None
     nombre: str
     cantidad: int
     precio: float
@@ -67,7 +68,7 @@ class PedidoOut(BaseModel):
 
 @router.get("/", response_model=List[PedidoOut])
 @router_legacy.get("/", response_model=List[PedidoOut])
-def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
+def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Lista los pedidos con soporte para filtrado por estado y paginación básica.
     """
@@ -82,7 +83,7 @@ def listar_pedidos(estado: Optional[str] = None, limit: int = 50, db: Session = 
         raise HTTPException(status_code=500, detail="Error interno al listar pedidos")
 
 @router.get("/pending", response_model=List[PedidoOut])
-def listar_pedidos_pendientes(db: Session = Depends(get_db)):
+def listar_pedidos_pendientes(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Endpoint optimizado para el KDS: Retorna pedidos en estado EN_PREPARACION.
     """
@@ -93,7 +94,7 @@ def listar_pedidos_pendientes(db: Session = Depends(get_db)):
         return []
 
 @router.get("/today", response_model=List[PedidoOut])
-def listar_pedidos_hoy(db: Session = Depends(get_db)):
+def listar_pedidos_hoy(db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Retorna todos los pedidos realizados en la fecha actual (Jornada Operativa).
     """
@@ -109,12 +110,29 @@ def listar_pedidos_activos(db: Session = Depends(get_db)):
     return db.query(Pedido).filter(Pedido.estado.in_(["ESPERANDO_PAGO", "EN_PREPARACION", "PREPARADO", "EN_CAMINO"])).all()
 
 @router.get("/cierre-z")
-def obtener_cierre_z(db: Session = Depends(get_db)):
+def obtener_cierre_z(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
-    Genera el Cierre Z de la jornada actual: Ingresos por método de pago y totales.
+    Genera el Cierre Z de la jornada comercial actual.
+    El corte se hace a las 04:00 UTC (06:00 ESP aprox) para que ventas de madrugada 
+    se cuenten en la jornada comercial correcta, solucionando el problema de timezone.
     """
-    today = datetime.date.today()
-    pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today, Pedido.estado == "COMPLETADO").all()
+    now_utc = datetime.datetime.utcnow()
+    
+    # Si estamos antes de las 04:00 UTC, seguimos en la jornada comercial del día anterior
+    if now_utc.hour < 4:
+        jornada_date = (now_utc - datetime.timedelta(days=1)).date()
+    else:
+        jornada_date = now_utc.date()
+
+    # Inicio a las 04:00:00 UTC del día que consideramos "Jornada"
+    inicio_jornada = datetime.datetime.combine(jornada_date, datetime.time(4, 0, 0))
+    fin_jornada = inicio_jornada + datetime.timedelta(days=1) - datetime.timedelta(microseconds=1)
+
+    pedidos = db.query(Pedido).filter(
+        Pedido.fecha >= inicio_jornada,
+        Pedido.fecha <= fin_jornada,
+        Pedido.estado == "COMPLETADO"
+    ).all()
     
     total_dia = 0.0
     total_efectivo = 0.0
@@ -129,7 +147,7 @@ def obtener_cierre_z(db: Session = Depends(get_db)):
             total_tarjeta += p.total
 
     return {
-        "fecha": str(today),
+        "fecha": str(jornada_date),
         "pedidos_completados": pedidos_count,
         "total_ingresos": round(total_dia, 2),
         "desglose": {
@@ -137,7 +155,6 @@ def obtener_cierre_z(db: Session = Depends(get_db)):
             "TARJETA": round(total_tarjeta, 2)
         }
     }
-
 @router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 @router_legacy.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
@@ -337,6 +354,8 @@ async def crear_pedido(
             "pedido_id": nuevo_pedido.id,
             "ticket": nuevo_pedido.numero_ticket,
             "total": nuevo_pedido.total,
+            "estado": nuevo_pedido.estado,
+            "metodo_pago": nuevo_pedido.metodo_pago,
         }
 
         # Integración con Stripe para pagos online
@@ -358,7 +377,7 @@ async def crear_pedido(
 
 @router.put("/{pedido_id}/estado")
 @router_legacy.post("/{pedido_id}/estado")
-def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Cambia el flujo operativo de un pedido y dispara comandos de hardware (impresión) según el cambio.
     """
@@ -414,7 +433,14 @@ def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundT
     }
     background_tasks.add_task(notify_new_order, ws_payload)
     
-    return {"status": "success", "nuevo_estado": estado}
+    return {
+        "status": "success",
+        "nuevo_estado": estado,
+        "estado": estado,
+        "pedido_id": pedido.id,
+        "ticket": pedido.numero_ticket,
+        "total": pedido.total
+    }
 
 class UbicacionPayload(BaseModel):
     lat: float
@@ -441,7 +467,7 @@ def actualizar_ubicacion(pedido_id: str, payload: UbicacionPayload, db: Session 
 
 @router.post("/{pedido_id}/cobrar")
 @router_legacy.post("/{pedido_id}/cobrar")
-def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db)):
+def cobrar_pedido(pedido_id: str, payload: Dict[str, Any], db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """
     Finaliza el proceso de cobro, gestiona el cajón inteligente y emite tickets legales.
     A través de la arquitectura de repositorios (OrderService).
@@ -498,18 +524,28 @@ def _encolar_tickets(db: Session, pedido: Pedido):
         "fecha": pedido.fecha.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Ticket Producción (Cocina)
-    db.add(HardwareCommand(
+    # Ticket Producción (Cocina) - Arquitectura Zero-Touch
+    db.add(PrintJob(
         id=str(uuid.uuid4()),
-        accion="imprimir",
-        origen="backend_enterprise",
         payload=json.dumps({**base_payload, "tipo": "cocina"}),
+        target_device="KITCHEN_PRINTER_01",
+        status="PENDING",
+        metadata_json={"order_id": pedido.numero_ticket, "type": "KITCHEN"}
     ))
     
-    # Ticket Fiscal (Cliente)
+    # Ticket Fiscal (Cliente) - Arquitectura Zero-Touch
+    db.add(PrintJob(
+        id=str(uuid.uuid4()),
+        payload=json.dumps({**base_payload, "tipo": "cliente"}),
+        target_device="TPV_FRONT_PRINTER",
+        status="PENDING",
+        metadata_json={"order_id": pedido.numero_ticket, "type": "CUSTOMER"}
+    ))
+    
+    # Legacy Support (HardwareCommand)
     db.add(HardwareCommand(
         id=str(uuid.uuid4()),
         accion="imprimir",
         origen="backend_enterprise",
-        payload=json.dumps({**base_payload, "tipo": "cliente"}),
+        payload=json.dumps({**base_payload, "tipo": "legacy"}),
     ))

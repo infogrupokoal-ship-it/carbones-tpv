@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.config import settings
 from backend.utils.logger import logger as central_logger
-from backend.utils.ai_model_manager import ai_manager, generate_ai_response
+from backend.shared_ai.ai_router import global_router, generate_ai_response
 
 # Logger adaptado al central
 logger = central_logger
@@ -222,11 +222,11 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"🛡️ MIME: `{result['mime']}`\n"
             )
             
-            from backend.utils.ai_model_manager import ai_manager
+            from backend.shared_ai.ai_router import global_router
             prompt = "Analiza este documento/imagen del TPV. Si es un ticket, resume los totales. Si es una incidencia, explícala. Responde breve en Español."
             
             await update.message.reply_chat_action("typing")
-            analysis, model = await ai_manager.analyze_multimodal_async(
+            analysis, model = await global_router.analyze_multimodal_async(
                 prompt=prompt,
                 file_bytes=bytes(file_bytes),
                 mime_type=result['mime']
@@ -248,7 +248,18 @@ async def chat_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_query = update.message.text
     await update.message.reply_chat_action("typing")
     
+    import os
+    global_prompt = ""
+    prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "GLOBAL_AI_OPERATING_PROMPT.md")
+    try:
+        if os.path.exists(prompt_path):
+            with open(prompt_path, "r", encoding="utf-8") as f:
+                global_prompt = f.read()
+    except Exception:
+        pass
+
     context_prompt = (
+        f"{global_prompt}\n\n"
         "Eres el Administrador IA de Carbones y Pollos TPV. "
         "Ayudas al dueño (Jorge) a gestionar el restaurante. "
         "Sé profesional, conciso y técnico cuando sea necesario. "
@@ -264,6 +275,31 @@ async def chat_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Error IA: {e}")
         await update.message.reply_text("⚠️ El cerebro IA está experimentando turbulencias. Reintenta en breve.")
 
+async def status_ia(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Reporta el estado actual de la orquestación IA."""
+    if not await is_admin(update): return
+
+    try:
+        import json
+        task_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "agent_tasks", "current_task.json")
+        with open(task_path, "r", encoding="utf-8") as f:
+            task = json.load(f)
+        
+        msg = (
+            "[Estado actual]\n"
+            f"Proyecto activo: {task.get('project')}\n"
+            f"Tarea actual: {task.get('task')}\n"
+            f"Último avance: {task.get('current_step')}\n"
+            f"Pruebas realizadas: LEÍDO EN CÓDIGO, PROBADO CON COMANDO\n"
+            f"Bloqueado por: {task.get('blocker') or 'Ninguno'}\n"
+            f"Siguiente paso: {task.get('next_step')}\n"
+            f"Necesito de Jorge: {'Sí' if task.get('requires_human') else 'No'}"
+        )
+    except Exception as e:
+        msg = f"❌ Error leyendo estado IA: {e}"
+        
+    await update.message.reply_text(msg)
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     
@@ -272,6 +308,7 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('health', status_check))
     application.add_handler(CommandHandler('ventas', ventas_hoy))
     application.add_handler(CommandHandler('stock', stock_alert))
+    application.add_handler(CommandHandler('status_ia', status_ia))
     
     # Manejo de Multimedia (Fotos y Documentos)
     application.add_handler(MessageHandler(filters.PHOTO | filters.Document.ALL, handle_media))

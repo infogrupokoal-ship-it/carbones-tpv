@@ -227,9 +227,35 @@
                 if(res.ok) {
                     const pedidoObj = window.pedidosCaja.find(p => p.id == pedId);
                     if (pedidoObj) {
-                        const ticketDiv = document.getElementById('ticket-impresion');
-                        ticketDiv.innerHTML = `...`; // Estructura de impresión simplificada
-                        window.print();
+                        try {
+                            const payload = {
+                                order_id: pedidoObj.numero_ticket || 'S/N',
+                                channel: pedidoObj.origen || 'CAJA',
+                                customer_name: pedidoObj.cliente?.nombre || 'Cliente Caja',
+                                notes: pedidoObj.notas_cliente || '',
+                                items: pedidoObj.items.map(i => ({
+                                    name: i.nombre,
+                                    qty: i.cantidad,
+                                    price: i.precio
+                                }))
+                            };
+
+                            const res = await fetch(`${API_URL}/print`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            
+                            const data = await res.json();
+                            const isAndroid = /Android/i.test(navigator.userAgent);
+                            if (isAndroid && data.ticket_text) {
+                                const b64 = btoa(unescape(encodeURIComponent(data.ticket_text)));
+                                window.location.href = `intent://${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+                            }
+                        } catch(e) {
+                            console.error("Error imprimiendo:", e);
+                            showToast("⚠️ Error al enviar a impresora");
+                        }
                     }
                     showToast(`✅ Cobro # ${ticketNum} completado`);
                     cargarPedidos();

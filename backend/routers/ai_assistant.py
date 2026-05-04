@@ -1,5 +1,5 @@
 """
-AI Assistant Router - Asistente de Ventas Koal-AI
+AI Assistant Router - Asistente de Ventas Carbones y Pollos
 ====================================================
 Usa AIModelManager para rotación automática de modelos Gemini.
 Endpoint: POST /api/ai/chat
@@ -13,7 +13,8 @@ from ..database import get_db
 from ..models import Producto, LogOperativo
 from ..config import settings
 from ..utils.logger import logger
-from ..utils.ai_model_manager import ai_manager
+from ..shared_ai.ai_router import global_router
+from ..shared_ai.ai_task_lock import check_is_degraded, get_remaining_cooldown
 
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 
@@ -78,13 +79,14 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
         MENÚ ACTUAL:
         {menu_text}
 
-        REGLAS:
+        REGLAS Y RESTRICCIONES CRÍTICAS:
         1. Sé amable, divertido y profesional. Usa emojis relacionados con comida.
-        2. Si eligen un pollo, recomienda patatas o ensalada.
-        3. Si eligen una pizza, recomienda bebidas o postre.
-        4. Si preguntan por el precio, dáselo exacto según el menú.
-        5. Mantén las respuestas breves y directas.
-        6. Responde siempre en Español.
+        2. Si eligen un pollo, recomienda patatas o ensalada (solo si están en el menú).
+        3. BAJO NINGUNA CIRCUNSTANCIA inventes productos, modificadores o precios que no estén explícitamente listados en el MENÚ ACTUAL.
+        4. Si preguntan por el precio, dáselo exacto según el MENÚ ACTUAL. Nunca ofrezcas precios distintos.
+        5. Si el cliente pide algo que no está en el menú, discúlpate e indica amablemente que no disponemos de ese artículo, ofreciendo una alternativa real del menú.
+        6. Mantén las respuestas breves y directas.
+        7. Responde siempre en Español.
         
         COMUNICACIÓN CON OTROS AGENTES (SISTEMA DE MENSAJERÍA AGENTE):
         - Si detectas un error crítico (500, fallo de DB en logs), o si el usuario te pide algo técnico que no puedes hacer (ej: "reinicia el servidor", "revisa los logs de ayer"), puedes solicitar ayuda al agente "OPENCLAW" (DevOps).
@@ -99,12 +101,15 @@ async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
             f"Contexto del Sistema (Módulo): {req.context.get('module', 'n/a')}"
         )
 
-        reply_text, model_used = await ai_manager.generate_content_async(full_prompt)
+        reply_text, model_used = await global_router.execute_task_async(full_prompt)
 
         if reply_text is None:
             reply_text = "Lo siento, estoy avivando las brasas ahora mismo. ¿Puedo ayudarte con otra cosa? 🔥"
-
-        final_model_info = ai_manager.current_model_info
+            
+        final_model_info = {
+            "id": model_used,
+            "tier": "fallback" if "openrouter" in model_used or model_used in ["exhausted", "degraded"] else "primary"
+        }
         
         # --- NUEVO: Interceptación de AgentMessage (Industrialización) ---
         if "[[AGENT_REQUEST:" in reply_text:
@@ -153,9 +158,13 @@ async def get_ai_status():
     Devuelve el estado completo del gestor de modelos IA.
     Incluye modelo activo, tiempo para reset al primario, y jerarquía completa.
     """
+    is_degraded = check_is_degraded()
+    rem_cooldown = get_remaining_cooldown() if is_degraded else 0
     return {
-        "status": "operational",
-        **ai_manager.get_status()
+        "status": "degraded" if is_degraded else "operational",
+        "current_model": "openrouter/llama-3-8b-free" if is_degraded else "gemini-2.5-pro",
+        "is_fallback": is_degraded,
+        "cooldown_remaining": rem_cooldown
     }
 
 class NLPRequest(BaseModel):
@@ -187,7 +196,7 @@ async def parse_order_nlp(req: NLPRequest, db: Session = Depends(get_db)):
         
         full_prompt = f"{system_prompt}\nTexto: {req.text}"
         
-        reply_text, _ = await ai_manager.generate_content_async(full_prompt)
+        reply_text, _ = await global_router.execute_task_async(full_prompt)
         
         if not reply_text:
             raise ValueError("Respuesta vacía del modelo IA")

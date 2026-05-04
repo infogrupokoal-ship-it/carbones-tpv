@@ -210,6 +210,17 @@ class LogOperativo(Base):
     modulo = Column(String(50))
     mensaje = Column(Text)
 
+class TareaOperativa(Base):
+    __tablename__ = "tareas_operativas"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    titulo = Column(String(100), nullable=False)
+    descripcion = Column(Text)
+    prioridad = Column(String(20), default="MEDIA") # BAJA, MEDIA, ALTA, CRITICA
+    estado = Column(String(20), default="PENDIENTE") # PENDIENTE, COMPLETADO
+    usuario_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    tienda_id = Column(String(36), ForeignKey("tiendas.id"))
+
 
 class ReporteZ(Base):
     __tablename__ = "reportes_z"
@@ -507,7 +518,7 @@ class Attachment(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Core Identification
-    project = Column(String(50), nullable=False, default="carbones_tpv") # 'gestion_koal', 'carbones_tpv'
+    project = Column(String(50), nullable=False, default="carbones_tpv") # 'carbones_tpv'
     source = Column(String(50), nullable=False, default="web") # whatsapp, telegram, web, email, drive
     entity_type = Column(String(50), nullable=False) # 'client', 'job', 'quote', 'invoice', 'provider', etc
     entity_id = Column(String(36), nullable=False)
@@ -568,5 +579,19 @@ class AgentMessage(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     processed_at = Column(DateTime)
 
+
+class PrintJob(Base):
+    __tablename__ = "print_jobs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    payload = Column(Text, nullable=False) # Contenido del ticket (JSON o Texto)
+    printer_type = Column(String(50), default="thermal") # thermal, A4, label
+    target_device = Column(String(100), nullable=True) # ID del dispositivo destino (Tablet ID o IP)
+    status = Column(String(20), default="PENDING") # PENDING, IN_FLIGHT, COMPLETED, FAILED
+    error_log = Column(Text, nullable=True)
+    attempts = Column(Integer, default=0)
+    last_attempt = Column(DateTime, nullable=True)
+    metadata_json = Column(JSON, nullable=True) # Datos extra (nº pedido, canal, etc)
+
     def __repr__(self):
-        return f"<AgentMessage from {self.sender_agent} to {self.receiver_agent}>"
+        return f"<PrintJob {self.id} status={self.status}>"

@@ -30,7 +30,8 @@ from .routers import (
     procurement, marketing, reservas, delivery_aggregators,
     mantenimiento, stats, aoi, enterprise_api,
     ai_assistant, commercial, logistics,
-    multi_agent, multimedia, ws
+    multi_agent, multimedia, ws, autocomplete,
+    print_queue
 )
 
 from .utils.logger import logger
@@ -127,6 +128,26 @@ async def read_admin():
     """Acceso exclusivo a la administración Enterprise."""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
+@app.get("/tpv", response_class=FileResponse, include_in_schema=False)
+async def read_tpv():
+    """Terminal Punto de Venta (TPV) - Interfaz Táctil."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "tpv.html"))
+
+@app.get("/kitchen", response_class=FileResponse, include_in_schema=False)
+@app.get("/cocina", response_class=FileResponse, include_in_schema=False)
+async def read_kitchen():
+    """Kitchen Display System (KDS) - Gestión de pedidos en cocina."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "cocina.html"))
+
+@app.get("/stock", response_class=FileResponse, include_in_schema=False)
+@app.get("/inventario", response_class=FileResponse, include_in_schema=False)
+async def read_stock():
+    """Gestión de Inventario y Mermas."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "inventario.html"))
 
 @app.get("/portal.html", response_class=FileResponse, include_in_schema=False)
 async def read_portal_root():
@@ -323,6 +344,8 @@ api_router.include_router(ai_assistant.router, tags=["Asistente AI"])
 api_router.include_router(commercial.router, tags=["Gestión Comercial"])
 api_router.include_router(logistics.router, tags=["Logística y Riders"])
 api_router.include_router(multi_agent.router, tags=["Autonomous Agents"])
+api_router.include_router(autocomplete.router, tags=["Predictive Search"])
+api_router.include_router(print_queue.router, tags=["Hardware"])
 
 # Registro final en la aplicación
 app.include_router(api_router)

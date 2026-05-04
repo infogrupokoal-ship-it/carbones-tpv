@@ -8,6 +8,7 @@ from ..database import get_db
 from ..models import Usuario, Fichaje, Liquidacion
 from ..utils.auth import verify_password
 from ..utils.logger import logger
+from .dependencies import require_admin, require_manager
 
 router = APIRouter(prefix="/rrhh", tags=["Recursos Humanos"])
 
@@ -63,7 +64,7 @@ def registrar_fichaje(req: FichajeRequest, db: Session = Depends(get_db)):
     }
 
 @router.get("/estado-plantilla")
-def obtener_estado_plantilla(db: Session = Depends(get_db)):
+def obtener_estado_plantilla(db: Session = Depends(get_db), current_user: Usuario = Depends(require_manager)):
     """
     Retorna la lista de empleados y su último estado de fichaje hoy.
     """
@@ -84,7 +85,7 @@ def obtener_estado_plantilla(db: Session = Depends(get_db)):
 
 
 @router.post("/liquidaciones/calcular")
-def calcular_liquidaciones(fecha_inicio: str, fecha_fin: str, db: Session = Depends(get_db)):
+def calcular_liquidaciones(fecha_inicio: str, fecha_fin: str, db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Calcula la liquidación financiera de los empleados (Ej: Repartidores) 
     para un rango de fechas.
@@ -137,7 +138,7 @@ def calcular_liquidaciones(fecha_inicio: str, fecha_fin: str, db: Session = Depe
     return {"status": "success", "generadas": len(resultados), "detalles": resultados}
 
 @router.get("/exportar-nominas")
-def exportar_prenominas(db: Session = Depends(get_db)):
+def exportar_prenominas(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
     Fase 11: Exportación de pre-nóminas (CSV).
     Exporta el listado de liquidaciones pendientes para su importación en software contable.
