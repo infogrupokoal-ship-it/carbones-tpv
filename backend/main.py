@@ -61,25 +61,30 @@ async def lifespan(app: FastAPI):
     try:
         migrate_schema()
         
-        # --- HOOK DE SEGURIDAD: PIN TEMPORAL EN PRODUCCIÓN ---
+        # --- HOOK DE SEGURIDAD: RESET CONTROLADO ---
         from sqlalchemy.orm import Session
         from .database import SessionLocal
         from .models import Usuario
-        from .utils.auth import verify_password
+        from .utils.auth import get_password_hash, verify_password
         
         db: Session = SessionLocal()
         try:
             admin_user = db.query(Usuario).filter(Usuario.username == "admin").first()
-            if admin_user and os.environ.get("ENVIRONMENT", "local").lower() == "production":
-                # Si está en producción y tiene el PIN 1234, marcar como inseguro
+            if admin_user:
+                # 1. Si el PIN es 1234, activamos el cambio obligatorio.
                 if verify_password("1234", admin_user.pin_hash):
                     if not admin_user.must_change_pin:
                         admin_user.must_change_pin = True
                         db.commit()
-                        logger.warning("*" * 60)
-                        logger.warning(" ATENCIÓN: CREDENCIALES DE PRODUCCIÓN INSEGURAS DETECTADAS")
-                        logger.warning(" El PIN actual es '1234'. Se ha marcado para cambio obligatorio.")
-                        logger.warning("*" * 60)
+                        logger.warning(" ATENCIÓN: PIN 1234 DETECTADO. Cambio obligatorio activado.")
+                
+                # 2. Si tiene cambio obligatorio pendiente (quizá por un PIN temporal perdido), 
+                # forzamos que sea 1234 para que el dueño pueda entrar a cambiarlo.
+                elif admin_user.must_change_pin:
+                    admin_user.pin_hash = get_password_hash("1234")
+                    db.commit()
+                    logger.warning(" ATENCIÓN: Se ha restaurado el PIN a '1234' para permitir el flujo de cambio obligatorio.")
+                    
         finally:
             db.close()
             
@@ -177,6 +182,15 @@ async def read_portal_root():
     """Sirve el portal desde la raíz para evitar errores 404 de enlaces relativos."""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return FileResponse(os.path.join(base_dir, "static", "portal.html"))
+
+@app.get("/login", response_class=FileResponse, include_in_schema=False)
+@app.get("/auth/login", response_class=FileResponse, include_in_schema=False)
+@app.get("/login.html", response_class=FileResponse, include_in_schema=False)
+async def read_login():
+    """Sirve la página de acceso/login."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "login.html"))
+
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def read_favicon():

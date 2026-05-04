@@ -44,19 +44,22 @@
         </div>
         
         <div class="flex items-center gap-6">
-            <div id="status-badge" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 rounded-full border border-emerald-500/30">
+            <div id="status-badge" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 rounded-full border border-emerald-500/30 hidden sm:flex">
                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Online</span>
             </div>
             
             <div class="text-right border-r border-slate-700 pr-6 mr-2 hidden sm:block">
-                <p class="text-xs text-slate-400 uppercase tracking-widest mb-0.5">Operador</p>
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-0.5" id="clock-display">00:00</p>
                 <p id="current-user" class="text-sm font-bold m-0 leading-none">---</p>
             </div>
             
             <button onclick="openChangePin()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors border border-slate-700">
                 🔐 Mi Cuenta
             </button>
+            <a href="/stock" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">
+                📦 Stock
+            </a>
             <a href="/kitchen" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">
                 👨‍🍳 Cocina
             </a>
