@@ -81,20 +81,20 @@
             <div class="flex-1 overflow-y-auto hide-scroll p-3">
                 <div id="cat-list" class="grid grid-cols-2 gap-2">
                     <!-- Injected via JS - Fallbacks -->
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">⭐</span><span class="text-[10px] font-black uppercase">Favoritos</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🐔</span><span class="text-[10px] font-black uppercase">Pollos</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🥘</span><span class="text-[10px] font-black uppercase">Arroces</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🥖</span><span class="text-[10px] font-black uppercase">Bocadillos</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍔</span><span class="text-[10px] font-black uppercase">Hamburguesas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍕</span><span class="text-[10px] font-black uppercase">Pizzas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Quijadas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Codillos</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍟</span><span class="text-[10px] font-black uppercase">Raciones</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🥗</span><span class="text-[10px] font-black uppercase">Ensaladas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🥤</span><span class="text-[10px] font-black uppercase">Bebidas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🧄</span><span class="text-[10px] font-black uppercase">Salsas</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍱</span><span class="text-[10px] font-black uppercase">Menús</span></button>
-                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🏷️</span><span class="text-[10px] font-black uppercase">Promos</span></button>
+                    <button onclick="setCategory('favoritos')" class="cat-btn w-full h-20 bg-orange-50 border-2 border-orange-500 text-orange-700 rounded-xl flex flex-col items-center justify-center gap-1 transition-all"><span class="text-2xl">⭐</span><span class="text-[10px] font-black uppercase">Favoritos</span></button>
+                    <button onclick="setCategory('pollos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🐔</span><span class="text-[10px] font-black uppercase">Pollos</span></button>
+                    <button onclick="setCategory('arroz')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥘</span><span class="text-[10px] font-black uppercase">Arroces</span></button>
+                    <button onclick="setCategory('bocadillos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥖</span><span class="text-[10px] font-black uppercase">Bocadillos</span></button>
+                    <button onclick="setCategory('burgers')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍔</span><span class="text-[10px] font-black uppercase">Hamburguesas</span></button>
+                    <button onclick="setCategory('pizzas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍕</span><span class="text-[10px] font-black uppercase">Pizzas</span></button>
+                    <button onclick="setCategory('quijadas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Quijadas</span></button>
+                    <button onclick="setCategory('codillos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍖</span><span class="text-[10px] font-black uppercase">Codillos</span></button>
+                    <button onclick="setCategory('lados')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍟</span><span class="text-[10px] font-black uppercase">Raciones</span></button>
+                    <button onclick="setCategory('ensaladas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥗</span><span class="text-[10px] font-black uppercase">Ensaladas</span></button>
+                    <button onclick="setCategory('bebidas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🥤</span><span class="text-[10px] font-black uppercase">Bebidas</span></button>
+                    <button onclick="setCategory('salsas')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🧄</span><span class="text-[10px] font-black uppercase">Salsas</span></button>
+                    <button onclick="setCategory('menus')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🍱</span><span class="text-[10px] font-black uppercase">Menús</span></button>
+                    <button onclick="setCategory('combos')" class="cat-btn w-full h-20 bg-white border border-slate-200 text-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-slate-50 transition-colors"><span class="text-2xl">🏷️</span><span class="text-[10px] font-black uppercase">Promos</span></button>
                 </div>
             </div>
         </aside>
@@ -107,12 +107,37 @@
             </div>
             <div class="flex-1 overflow-y-auto hide-scroll p-4 bg-slate-50">
                 <div id="prod-grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-max">
-                    <!-- Injected via JS - Fallback -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center h-36 opacity-30 animate-pulse">
-                        <div class="w-10 h-10 bg-slate-200 rounded-full mb-2"></div>
-                        <div class="w-20 h-3 bg-slate-200 rounded-full mb-1"></div>
-                        <div class="w-12 h-3 bg-slate-200 rounded-full mt-auto"></div>
-                    </div>
+                    <!-- Favoritos Fallback Base HTML -->
+                    <button onclick="addToCartFallback('Medio Pollo', 5.90)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🐔</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Medio Pollo</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">5.90 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Pollo Entero', 10.90)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🐔</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Pollo Entero</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">10.90 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Arroz con Pollo', 9.00)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥘</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Ración Arroz</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">9.00 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Coca-Cola', 2.20)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥤</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Coca-Cola</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">2.20 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Agua Mineral', 1.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥤</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Agua</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">1.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Salsa Alioli', 1.00)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🧄</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Alioli</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">1.00 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Bocadillo', 4.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥖</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Pan</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">4.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Croquetas', 5.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🍟</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Croquetas</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">5.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Patatas Fritas', 3.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🍟</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Patatas</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">3.50 €</span></div>
+                    </button>
+                    <button onclick="addToCartFallback('Ensalada Mixta', 4.50)" class="relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between h-36 transition-all hover:border-orange-400 hover:shadow-lg hover:-translate-y-1 active:scale-95">
+                        <div class="text-3xl mb-2">🥗</div><p class="font-black text-xs leading-tight text-slate-800 text-center uppercase line-clamp-2 w-full">Ensaladilla</p><div class="mt-auto pt-2 w-full text-center border-t border-slate-100"><span class="font-black text-sm text-orange-600">4.50 €</span></div>
+                    </button>
                 </div>
             </div>
         </main>
@@ -367,6 +392,27 @@
         }
 
         // --- Logic ---
+        function addToCartFallback(name, price) {
+            const prod = state.products.find(p => p.nombre.toLowerCase().includes(name.toLowerCase()));
+            if (prod) {
+                addToCart(prod.id);
+            } else {
+                const fakeId = 'temp-' + name;
+                const existing = state.cart.find(i => i.producto_id === fakeId);
+                if (existing) {
+                    existing.cantidad++;
+                } else {
+                    state.cart.push({
+                        producto_id: fakeId,
+                        nombre: name,
+                        precio: price,
+                        cantidad: 1
+                    });
+                }
+                renderCart();
+            }
+        }
+
         function addToCart(id) {
             const prod = state.products.find(p => p.id === id);
             const existing = state.cart.find(i => i.producto_id === id);
