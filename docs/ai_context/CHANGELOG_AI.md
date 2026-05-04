@@ -298,3 +298,12 @@
 - **KDS Operativo (Cocina)**: Resuelto bug de parseo de fechas ISO con Z y agregado alerta s贸nica de pedidos entrantes.
 - **Enterprise Dashboard BI**: Revisado y validado como operativo.
 - **Github y Render**: Se realiz贸 commit de estabilizaci贸n y despliegue aut贸mata hacia los entornos remotos.
+
+## [V16.0-TPV-INDUSTRIAL-SECURITY] - 2026-05-04
+
+### TPV Industrial & Seguridad Zero-Touch
+
+- **Seguridad Zero-Touch**: Se ha implementado un flujo de cambio de PIN obligatorio (must_change_pin) al detectar el uso de contrase馻s por defecto (1234) en producci髇. El flujo obliga al administrador a cambiar el PIN desde el Frontend antes de poder operar, sin necesidad de comandos de shell.
+- **UX TPV Industrial**: Reescritura completa del TPV (static/tpv.html) hacia un dise駉 100vh fijo sin scroll para uso en pantallas t醕tiles r醦idas. A馻didas categor韆s grandes, ticket permanente y botones de cobro a un click.
+- **Modo Producci髇 Validad**: Sistema totalmente operativo con Fast-Checkout en modo Light Theme.
+- **Depuraci髇**: Desactivado bloqueo 403 y auto-generaci髇 de contrase馻s por logs; se deja al frontend la responsabilidad del redireccionamiento de seguridad.
