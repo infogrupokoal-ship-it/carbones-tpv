@@ -173,3 +173,10 @@
 - [x] **Zero-Touch Database Sanitization**: Implemented category renaming and legacy product sanitization in `seed_catalog_completo.py` to ensure clean deployment without breaking foreign keys.
 - [x] **Render Production Hardening**: Verified clean SQLite migration logic on application startup for Render environment.
 - [x] **UI Category Matching**: Confirmed API endpoints correctly output the 13 required standard categories.
+
+## Fase XXIII: Industrial Catalog & Test Stabilization (V21.0)
+
+- [x] **Catalog Industrialization**: Added 22 missing products (Chivitos, Brascadas, Specialty Bocadillos, and Raciones) to the industrial seeder.
+- [x] **Product Count Calibration**: Synchronized database to reach 50+ total active products with 0 legacy "Koal" references.
+- [x] **Pytest ValueError Fix**: Resolved I/O operation on closed file in Windows tests by preventing redundant stdout/stderr wrapping.
+- [x] **CI/CD Push**: Pushed 100% verified code to Render (main branch) for automatic deployment.

@@ -57,3 +57,7 @@ Este archivo sirve como bitácora de todas las modificaciones realizadas por la 
 - **Descripción:** Se completó la sanitización y normalización del catálogo en la base de datos para la producción en Render. Se actualizaron los scripts de seeding (`seed_catalog_completo.py`) añadiendo rutinas de reemplazo dinámico (de "Koal" a "Carbones") y mapeo de nombres antiguos de categorías para evitar pérdida de foreign keys en el historial. El catálogo B2C ahora refleja exactamente los requerimientos del cliente sin branding residual.
 - **Archivos Modificados:** `scripts/seed_catalog_completo.py`.
 - **Agente:** Antigravity (Gemini)
+### [2026-05-04] - Sincronización Industrial de Catálogo (Chivitos/Brascadas) y Fix Tests
+- **Descripción:** Finalización de la industrialización del catálogo de productos para producción en Render. Se han integrado los productos de alta conversión faltantes (Chivitos, Brascadas, Bocadillos especiales y Raciones adicionales). Se ha corregido el error `ValueError: I/O operation on closed file` en la suite de tests (pytest) mediante la protección del re-envoltorio de `sys.stdout/stderr` en entornos de prueba. Los tests pasan 5/5 en local con `pytest -s`. Se ha desplegado a Render mediante commit automático.
+- **Archivos Modificados:** `scripts/seed_catalog_completo.py`, `backend/main.py`, `backend/utils/logger.py`.
+- **Agente:** Antigravity (Gemini)
