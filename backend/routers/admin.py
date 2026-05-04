@@ -137,6 +137,29 @@ async def seed_production_data(db: Session = Depends(get_db)):
         logger.error(f"Fallo en Seeding: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/sanitize-catalog", status_code=status.HTTP_200_OK)
+async def sanitize_catalog_admin(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
+    """
+    Limpieza forzada del catálogo. Busca y elimina cualquier producto 
+    que contenga branding prohibido si existe su homónimo Carbones,
+    o lo renombra directamente.
+    """
+    try:
+        from scripts.sanitize_carbones_catalog import sanitize
+        resumen = sanitize()
+        
+        log_audit_action(
+            db=db,
+            usuario_id=current_user.id,
+            accion="SANITIZE_CATALOG",
+            entidad="SISTEMA",
+            payload_nuevo=f"Sanitización manual forzada: {resumen}"
+        )
+        return {"status": "success", "message": "Sanitización ejecutada", "resumen": resumen}
+    except Exception as e:
+        logger.error(f"Fallo en sanitización manual: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/factory_reset", status_code=status.HTTP_200_OK)
 async def factory_reset(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
