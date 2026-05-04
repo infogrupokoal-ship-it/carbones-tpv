@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tpv-enterprise-cache-v23.0';
+const CACHE_NAME = 'tpv-enterprise-cache-v23.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/login',
@@ -48,7 +48,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // API, Pagos y HTML: Network First (No cacheamos transacciones críticas ni vistas cambiantes)
-  if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.html') || url.pathname === '/login' || url.pathname === '/tpv') {
+  if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.html') || url.pathname === '/login' || url.pathname === '/tpv' || url.pathname.startsWith('/admin')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
     );
