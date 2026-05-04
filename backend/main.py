@@ -129,6 +129,26 @@ async def read_admin():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return FileResponse(os.path.join(base_dir, "static", "portal.html"))
 
+@app.get("/tpv", response_class=FileResponse, include_in_schema=False)
+async def read_tpv():
+    """Terminal Punto de Venta (TPV) - Interfaz Táctil."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "tpv.html"))
+
+@app.get("/kitchen", response_class=FileResponse, include_in_schema=False)
+@app.get("/cocina", response_class=FileResponse, include_in_schema=False)
+async def read_kitchen():
+    """Kitchen Display System (KDS) - Gestión de pedidos en cocina."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "cocina.html"))
+
+@app.get("/stock", response_class=FileResponse, include_in_schema=False)
+@app.get("/inventario", response_class=FileResponse, include_in_schema=False)
+async def read_stock():
+    """Gestión de Inventario y Mermas."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base_dir, "static", "inventario.html"))
+
 @app.get("/portal.html", response_class=FileResponse, include_in_schema=False)
 async def read_portal_root():
     """Sirve el portal desde la raíz para evitar errores 404 de enlaces relativos."""

@@ -23,6 +23,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     role: str
+    rol: str  # alias para compatibilidad con frontend legacy
     username: str
 
 class UserProfile(BaseModel):
@@ -74,6 +75,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
         return TokenResponse(
             access_token=access_token,
             role=user.rol,
+            rol=user.rol,
             username=user.username
         )
     except HTTPException:

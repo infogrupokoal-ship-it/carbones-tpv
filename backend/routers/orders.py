@@ -40,7 +40,7 @@ class PedidoCrear(BaseModel):
 
 class ItemPedidoOut(BaseModel):
     id: str
-    producto_id: str
+    producto_id: Optional[str] = None
     nombre: str
     cantidad: int
     precio: float
@@ -112,10 +112,27 @@ def listar_pedidos_activos(db: Session = Depends(get_db)):
 @router.get("/cierre-z")
 def obtener_cierre_z(db: Session = Depends(get_db), current_user: Usuario = Depends(require_admin)):
     """
-    Genera el Cierre Z de la jornada actual: Ingresos por método de pago y totales.
+    Genera el Cierre Z de la jornada comercial actual.
+    El corte se hace a las 04:00 UTC (06:00 ESP aprox) para que ventas de madrugada 
+    se cuenten en la jornada comercial correcta, solucionando el problema de timezone.
     """
-    today = datetime.date.today()
-    pedidos = db.query(Pedido).filter(func.date(Pedido.fecha) == today, Pedido.estado == "COMPLETADO").all()
+    now_utc = datetime.datetime.utcnow()
+    
+    # Si estamos antes de las 04:00 UTC, seguimos en la jornada comercial del día anterior
+    if now_utc.hour < 4:
+        jornada_date = (now_utc - datetime.timedelta(days=1)).date()
+    else:
+        jornada_date = now_utc.date()
+
+    # Inicio a las 04:00:00 UTC del día que consideramos "Jornada"
+    inicio_jornada = datetime.datetime.combine(jornada_date, datetime.time(4, 0, 0))
+    fin_jornada = inicio_jornada + datetime.timedelta(days=1) - datetime.timedelta(microseconds=1)
+
+    pedidos = db.query(Pedido).filter(
+        Pedido.fecha >= inicio_jornada,
+        Pedido.fecha <= fin_jornada,
+        Pedido.estado == "COMPLETADO"
+    ).all()
     
     total_dia = 0.0
     total_efectivo = 0.0
@@ -130,7 +147,7 @@ def obtener_cierre_z(db: Session = Depends(get_db), current_user: Usuario = Depe
             total_tarjeta += p.total
 
     return {
-        "fecha": str(today),
+        "fecha": str(jornada_date),
         "pedidos_completados": pedidos_count,
         "total_ingresos": round(total_dia, 2),
         "desglose": {
@@ -138,7 +155,6 @@ def obtener_cierre_z(db: Session = Depends(get_db), current_user: Usuario = Depe
             "TARJETA": round(total_tarjeta, 2)
         }
     }
-
 @router.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 @router_legacy.get("/{pedido_id}/items", response_model=List[ItemPedidoOut])
 def obtener_items_pedido(pedido_id: str, db: Session = Depends(get_db)):
@@ -338,6 +354,8 @@ async def crear_pedido(
             "pedido_id": nuevo_pedido.id,
             "ticket": nuevo_pedido.numero_ticket,
             "total": nuevo_pedido.total,
+            "estado": nuevo_pedido.estado,
+            "metodo_pago": nuevo_pedido.metodo_pago,
         }
 
         # Integración con Stripe para pagos online
@@ -415,7 +433,14 @@ def actualizar_estado(pedido_id: str, estado: str, background_tasks: BackgroundT
     }
     background_tasks.add_task(notify_new_order, ws_payload)
     
-    return {"status": "success", "nuevo_estado": estado}
+    return {
+        "status": "success",
+        "nuevo_estado": estado,
+        "estado": estado,
+        "pedido_id": pedido.id,
+        "ticket": pedido.numero_ticket,
+        "total": pedido.total
+    }
 
 class UbicacionPayload(BaseModel):
     lat: float

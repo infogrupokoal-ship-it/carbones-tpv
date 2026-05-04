@@ -124,20 +124,27 @@ def seed_completo():
             db.add(tienda)
             db.commit()
 
-        # Usuario Admin (PIN 1234)
+        # Usuario Admin (PIN 1234 restringido a entornos locales/demo)
         from backend.utils.auth import get_password_hash
+        from backend.config import settings
+        
+        is_demo_or_local = settings.DEBUG or os.getenv("ENVIRONMENT") == "local" or os.getenv("DEMO_MODE") == "true"
+        
         if not db.query(Usuario).filter_by(username="admin").first():
-            admin = Usuario(
-                id=str(uuid.uuid4()),
-                username="admin",
-                full_name="Gerente Carbones",
-                pin_hash=get_password_hash("1234"),
-                rol="ADMIN",
-                tienda_id=tienda.id
-            )
-            db.add(admin)
-            db.commit()
-            print("[OK] Usuario ADMIN creado (PIN: 1234)")
+            if is_demo_or_local:
+                admin = Usuario(
+                    id=str(uuid.uuid4()),
+                    username="admin",
+                    full_name="Gerente Carbones (DEMO)",
+                    pin_hash=get_password_hash("1234"),
+                    rol="ADMIN",
+                    tienda_id=tienda.id
+                )
+                db.add(admin)
+                db.commit()
+                print("[OK] Usuario ADMIN de prueba creado (PIN: 1234)")
+            else:
+                print("[WARN] Saltando creación de usuario 'admin/1234' por seguridad (Entorno Producción).")
 
         total_creados = 0
         total_actualizados = 0
