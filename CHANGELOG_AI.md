@@ -46,3 +46,9 @@ Este archivo sirve como bitácora de todas las modificaciones realizadas por la 
 - **Descripción:** Corrección de dos bugs críticos que bloqueaban CI: (1) `NameError: name 'Usuario' is not defined` en `scripts/seed_catalog_completo.py` — añadido import faltante. (2) Tests de telemetría devolvían 401 porque `conftest.py` no hacía override de `get_current_user` — añadido `mock_admin_user()` con `MagicMock(spec=Usuario)`. Resultado: 3/3 tests PASS.
 - **Archivos Modificados:** `scripts/seed_catalog_completo.py`, `tests/conftest.py`.
 - **Agente:** Antigravity (Claude Sonnet — Modo QA Revisora)
+
+## [2026-05-04] Fase 2 Completada: Industrialización TPV Zero-Touch
+- **Seguridad**: Se forzó el bloqueo 403 para credenciales admin demo (1234) en producción.
+- **Seguridad**: Creación del script scripts/update_admin.py para recuperación de acceso sin control de versiones.
+- **Inventario**: Validación dura de stock previo al cobro y validación de doble-descuento. Soporte completo de NULL (Stock Infinito).
+- **Impresión**: Transición consolidada a PrintJob para resiliencia asíncrona de impresión KDS y Tickets Front.
