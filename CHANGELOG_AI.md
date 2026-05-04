@@ -52,3 +52,8 @@ Este archivo sirve como bitácora de todas las modificaciones realizadas por la 
 - **Seguridad**: Creación del script scripts/update_admin.py para recuperación de acceso sin control de versiones.
 - **Inventario**: Validación dura de stock previo al cobro y validación de doble-descuento. Soporte completo de NULL (Stock Infinito).
 - **Impresión**: Transición consolidada a PrintJob para resiliencia asíncrona de impresión KDS y Tickets Front.
+
+### [2026-05-04] Fase XXII: Zero-Touch Render DB Synchronization
+- **Descripción:** Se completó la sanitización y normalización del catálogo en la base de datos para la producción en Render. Se actualizaron los scripts de seeding (`seed_catalog_completo.py`) añadiendo rutinas de reemplazo dinámico (de "Koal" a "Carbones") y mapeo de nombres antiguos de categorías para evitar pérdida de foreign keys en el historial. El catálogo B2C ahora refleja exactamente los requerimientos del cliente sin branding residual.
+- **Archivos Modificados:** `scripts/seed_catalog_completo.py`.
+- **Agente:** Antigravity (Gemini)
