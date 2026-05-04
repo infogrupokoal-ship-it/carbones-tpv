@@ -17,7 +17,8 @@ logger = logging.getLogger("TPV_ENTERPRISE")
 logger.setLevel(logging.INFO)
 
 # Handler para consola (Standard Output) con soporte robusto de codificación
-if sys.platform == "win32":
+is_test = "pytest" in sys.modules or any("pytest" in arg for arg in sys.argv)
+if sys.platform == "win32" and not is_test:
     # En Windows, intentamos forzar UTF-8 para la consola si es posible
     import io
     try:

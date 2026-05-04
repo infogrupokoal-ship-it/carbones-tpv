@@ -46,13 +46,19 @@ async def lifespan(app: FastAPI):
     os.makedirs("instance", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
     
-    # Asegurar codificación UTF-8 en Windows para logs limpios (evitar en tests)
-    if sys.platform == "win32" and "pytest" not in sys.modules:
+    # Asegurar codificación UTF-8 en Windows para logs limpios
+    # Se evita en tests para prevenir 'ValueError: I/O operation on closed file' con pytest
+    is_test = "pytest" in sys.modules or any("pytest" in arg for arg in sys.argv)
+    if sys.platform == "win32" and not is_test:
         try:
             import io
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
-        except Exception:
+            # Solo envolver si no es ya UTF-8 para evitar recursión o errores de cierre
+            if getattr(sys.stdout, 'encoding', '').lower() != 'utf-8':
+                sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+            if getattr(sys.stderr, 'encoding', '').lower() != 'utf-8':
+                sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
+        except Exception as e:
+            # Fallback silencioso si no se puede re-envolver
             pass
 
     logger.info(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} Iniciando [QUANTUM v16.0]...")

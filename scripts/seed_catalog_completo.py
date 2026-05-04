@@ -27,6 +27,29 @@ CATALOG = {
     "Bocadillos": [
         {"nombre": "Bocadillo de Pollo", "precio": 4.50, "desc": "Tierno pollo a la brasa."},
         {"nombre": "Bocadillo de Serranito", "precio": 5.50, "desc": "Lomo, jamón serrano, pimiento y tomate."},
+        {"nombre": "Lomo, queso y bacon", "precio": 5.00, "desc": "Un clásico irresistible."},
+        {"nombre": "Bocadillo de hamburguesa completa", "precio": 6.50, "desc": "Hamburguesa en pan de bocadillo con todo."},
+        {"nombre": "Bocadillo Cabramelizado La Granja", "precio": 6.90, "desc": "Lomo, queso de cabra y cebolla caramelizada."},
+        {"nombre": "Sobrasada, lomo, queso y bacon", "precio": 6.50, "desc": "Sabor intenso mallorquín."},
+        {"nombre": "Lomo, pimientos, cebolla a la plancha", "precio": 5.50, "desc": "El bocadillo del huerto."},
+        {"nombre": "Bocadillo de sepia a la plancha con mayonesa", "precio": 7.50, "desc": "Sepia tierna con un toque de ajo."},
+        {"nombre": "Calamares con alioli", "precio": 7.00, "desc": "Calamares a la romana con alioli casero."},
+        {"nombre": "Bocadillo vegetal", "precio": 5.00, "desc": "Lechuga, tomate, huevo, atún y mayonesa."},
+        {"nombre": "Tortilla de patatas con alioli", "precio": 4.50, "desc": "Tortilla casera con nuestro alioli."},
+        {"nombre": "Tortilla francesa, tomate y longanizas", "precio": 5.50, "desc": "Combinación tradicional valenciana."},
+        {"nombre": "Embutidos con pisto", "precio": 6.00, "desc": "Longaniza, morcilla y pisto casero."},
+        {"nombre": "Pechuga empanada", "precio": 5.50, "desc": "Pollo crujiente con lechuga y tomate."},
+    ],
+    "Chivitos": [
+        {"nombre": "Chivito de pollo", "precio": 6.50, "desc": "Pollo, lechuga, tomate, huevo, bacon, queso y mayonesa."},
+        {"nombre": "Chivito de lomo", "precio": 6.50, "desc": "Lomo, lechuga, tomate, huevo, bacon, queso y mayonesa."},
+        {"nombre": "Chivito de ternera", "precio": 7.50, "desc": "Ternera, lechuga, tomate, huevo, bacon, queso y mayonesa."},
+        {"nombre": "Chivito de carne de caballo", "precio": 7.50, "desc": "Caballo, lechuga, tomate, huevo, bacon, queso y mayonesa."},
+    ],
+    "Brascadas": [
+        {"nombre": "Brascada", "precio": 6.50, "desc": "Ternera, cebolla frita y jamón serrano."},
+        {"nombre": "Brascada de lomo", "precio": 6.00, "desc": "Lomo, cebolla frita y jamón serrano."},
+        {"nombre": "Brascada de caballo", "precio": 7.00, "desc": "Caballo, cebolla frita y jamón serrano."},
     ],
     "Hamburguesas": [
         {"nombre": "Burger Carbones Classic", "precio": 10.90, "desc": "200g de ternera, queso cheddar.", "img": "/static/img/pollo_asado.png"},
@@ -46,6 +69,9 @@ CATALOG = {
         {"nombre": "Ración de Patatas", "precio": 3.50, "desc": "Patatas caseras fritas.", "img": "/static/img/pollo_asado.png"},
         {"nombre": "Croquetas de Pollo (6uds)", "precio": 5.50, "desc": "Croquetas caseras."},
         {"nombre": "Nuggets de Pollo (8uds)", "precio": 5.00, "desc": "Nuggets crujientes."},
+        {"nombre": "Revuelto de gambas con ajos tiernos", "precio": 8.50, "desc": "Sabor del mar con ajos tiernos."},
+        {"nombre": "Tomate, anchoas y queso", "precio": 9.00, "desc": "Ensalada de tomate premium con anchoas."},
+        {"nombre": "Huevos fritos, chistorra, patatas y alioli", "precio": 12.00, "desc": "El plato combinado estrella."},
     ],
     "Ensaladas": [
         {"nombre": "Ensalada Mixta", "precio": 4.50, "desc": "Lechuga, tomate, cebolla, maíz."},
@@ -68,6 +94,7 @@ CATALOG = {
         {"nombre": "Promo Pareja", "precio": 18.90, "desc": "1 Pollo + Patatas + 2 Refrescos."},
         {"nombre": "Pack Party", "precio": 39.90, "desc": "2 Pollos + 4 Burgers + Patatas + 4 Refrescos."},
     ],
+
 }
 
 def seed_completo():
