@@ -25,6 +25,12 @@ class TokenResponse(BaseModel):
     role: str
     rol: str  # alias para compatibilidad con frontend legacy
     username: str
+    must_change_pin: bool = False
+
+class ChangePinRequest(BaseModel):
+    old_pin: str = Field(..., min_length=4)
+    new_pin: str = Field(..., min_length=6, max_length=20)
+    confirm_pin: str = Field(..., min_length=6, max_length=20)
 
 class UserProfile(BaseModel):
     id: str
@@ -84,7 +90,8 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
             access_token=access_token,
             role=user.rol,
             rol=user.rol,
-            username=user.username
+            username=user.username,
+            must_change_pin=getattr(user, 'must_change_pin', False)
         )
     except HTTPException:
         raise
@@ -121,3 +128,38 @@ async def logout(current_user: Usuario = Depends(get_current_user), db: Session 
     )
     
     return None
+
+@router.post("/change-pin", status_code=status.HTTP_200_OK)
+async def change_pin(data: ChangePinRequest, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Permite a un usuario cambiar su PIN de forma segura. Requerido para administradores con PIN temporal.
+    """
+    if not verify_password(data.old_pin, current_user.pin_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El PIN actual no es correcto.")
+    
+    if data.new_pin != data.confirm_pin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Los nuevos PIN no coinciden.")
+        
+    if len(set(data.new_pin)) <= 1 or data.new_pin in ["123456", "654321", "1234", "0000", "1111", "8080"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El nuevo PIN es demasiado débil (ej. secuencias obvias o caracteres repetidos).")
+        
+    if data.new_pin == data.old_pin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El nuevo PIN no puede ser igual al actual.")
+
+    from ..utils.auth import get_password_hash
+    current_user.pin_hash = get_password_hash(data.new_pin)
+    current_user.must_change_pin = False
+    
+    db.commit()
+    logger.info(f"PIN modificado exitosamente para el usuario: {current_user.username}")
+    
+    from .admin_audit import log_audit_action
+    log_audit_action(
+        db=db,
+        usuario_id=current_user.id,
+        accion="CHANGE_PIN",
+        entidad="USUARIO",
+        entidad_id=current_user.id
+    )
+    
+    return {"message": "PIN actualizado correctamente."}

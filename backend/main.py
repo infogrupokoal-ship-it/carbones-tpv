@@ -60,6 +60,36 @@ async def lifespan(app: FastAPI):
     # 1. Base de Datos y Estructura
     try:
         migrate_schema()
+        
+        # --- HOOK DE SEGURIDAD: PIN TEMPORAL EN PRODUCCIÓN ---
+        from sqlalchemy.orm import Session
+        from .database import SessionLocal
+        from .models import Usuario
+        from .utils.auth import get_password_hash, verify_password
+        import random
+        
+        db: Session = SessionLocal()
+        try:
+            admin_user = db.query(Usuario).filter(Usuario.username == "admin").first()
+            if admin_user and os.environ.get("ENVIRONMENT", "local").lower() == "production":
+                # Si está en producción y tiene el PIN 1234, generar uno nuevo
+                if verify_password("1234", admin_user.pin_hash):
+                    # Generar PIN de 6 dígitos que no sea trivial
+                    while True:
+                        temp_pin = str(random.randint(100000, 999999))
+                        if len(set(temp_pin)) > 1 and temp_pin not in ["123456", "654321"]:
+                            break
+                    admin_user.pin_hash = get_password_hash(temp_pin)
+                    admin_user.must_change_pin = True
+                    db.commit()
+                    logger.warning("*" * 60)
+                    logger.warning(" ATENCIÓN: CREDENCIALES DE PRODUCCIÓN INSEGURAS DETECTADAS")
+                    logger.warning(f" Se ha generado un PIN TEMPORAL para 'admin': {temp_pin}")
+                    logger.warning(" Inicie sesión y cambie este PIN inmediatamente.")
+                    logger.warning("*" * 60)
+        finally:
+            db.close()
+            
         # Seeding Industrial: Ejecutar siempre (idempotente) para garantizar catálogo completo
         from sqlalchemy import text
         with engine.connect() as conn:

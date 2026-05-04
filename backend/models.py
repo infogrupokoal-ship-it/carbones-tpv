@@ -35,6 +35,7 @@ class Usuario(Base):
     pin_hash = Column(String(128))
     rol = Column(String(20), default="CASHIER") # ADMIN, MANAGER, CASHIER
     is_active = Column(Boolean, default=True)
+    must_change_pin = Column(Boolean, default=False)
     tienda_id = Column(String(36), ForeignKey("tiendas.id"))
     
     tienda = relationship("Tienda", back_populates="usuarios")

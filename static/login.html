@@ -125,6 +125,33 @@
             </form>
         </div>
 
+        <div id="change-pin-container" class="hidden opacity-0 transition-opacity duration-500">
+            <h2 class="text-center text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-6 animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Cambio de PIN Obligatorio
+            </h2>
+            <form id="change-pin-form" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PIN Actual (Temporal)</label>
+                    <input id="old_pin" type="password" class="input-premium w-full py-4 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300 tracking-widest" required autocomplete="current-password" placeholder="••••••">
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nuevo PIN Seguro (Mínimo 6)</label>
+                    <input id="new_pin" type="password" class="input-premium w-full py-4 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300 tracking-widest" required autocomplete="new-password" placeholder="••••••••">
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirmar Nuevo PIN</label>
+                    <input id="confirm_pin" type="password" class="input-premium w-full py-4 pl-6 pr-6 rounded-2xl font-black text-slate-900 placeholder-slate-300 tracking-widest" required autocomplete="new-password" placeholder="••••••••">
+                </div>
+                <div id="pin-error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                    Error al cambiar PIN
+                </div>
+                <button type="submit" id="btn-change-pin" class="btn-premium w-full bg-red-500 text-white font-black text-[11px] uppercase tracking-[0.3em] py-5 rounded-2xl flex justify-center items-center gap-3">
+                    <span>Actualizar y Acceder</span>
+                    <i class="fa-solid fa-lock"></i>
+                </button>
+            </form>
+        </div>
+
         <div id="role-selector" class="hidden opacity-0 transition-opacity duration-500">
             <h2 class="text-center text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em] mb-6">Seleccione Modalidad Operativa</h2>
             <div class="grid grid-cols-1 gap-4">
@@ -199,9 +226,12 @@
         const form = document.getElementById('login-form');
         const loginContainer = document.getElementById('login-container');
         const roleSelector = document.getElementById('role-selector');
+        const changePinContainer = document.getElementById('change-pin-container');
+        const changePinForm = document.getElementById('change-pin-form');
         const btn = document.getElementById('btn-submit');
         const btnText = btn.querySelector('span');
         const error = document.getElementById('error-msg');
+        const pinError = document.getElementById('pin-error-msg');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -224,21 +254,78 @@
                     localStorage.setItem('auth_role', data.role);
                     localStorage.setItem('auth_token', data.access_token);
                     
-                    // Show role selector instead of redirecting
                     loginContainer.style.display = 'none';
-                    roleSelector.classList.remove('hidden');
-                    setTimeout(() => roleSelector.classList.remove('opacity-0'), 50);
+                    
+                    if (data.must_change_pin) {
+                        // Obligar a cambiar PIN
+                        document.getElementById('old_pin').value = form.pass.value;
+                        changePinContainer.classList.remove('hidden');
+                        setTimeout(() => changePinContainer.classList.remove('opacity-0'), 50);
+                    } else {
+                        // Normal flow
+                        roleSelector.classList.remove('hidden');
+                        setTimeout(() => roleSelector.classList.remove('opacity-0'), 50);
+                    }
 
                 } else {
+                    const errData = await r.json();
+                    error.innerText = errData.detail || "Credenciales No Válidas";
                     error.classList.remove('hidden');
                     btnText.innerText = originalText;
                     btn.classList.remove('opacity-50', 'pointer-events-none');
-                    showToast("Acceso Denegado", "Las credenciales no coinciden con nuestros registros.");
+                    showToast("Acceso Denegado", errData.detail || "Las credenciales no coinciden con nuestros registros.");
                 }
             } catch(ex) {
                 showToast("Fallo Crítico", "No se pudo contactar con el núcleo del sistema.");
                 btnText.innerText = originalText;
                 btn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        });
+
+        changePinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            pinError.classList.add('hidden');
+            const token = localStorage.getItem('auth_token');
+            const oldPin = document.getElementById('old_pin').value;
+            const newPin = document.getElementById('new_pin').value;
+            const confirmPin = document.getElementById('confirm_pin').value;
+            
+            const btnChange = document.getElementById('btn-change-pin');
+            const origHTML = btnChange.innerHTML;
+            btnChange.innerHTML = '<span>ACTUALIZANDO...</span>';
+            btnChange.classList.add('opacity-50', 'pointer-events-none');
+
+            try {
+                const r = await fetch('/api/auth/change-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        old_pin: oldPin,
+                        new_pin: newPin,
+                        confirm_pin: confirmPin
+                    })
+                });
+
+                if (r.ok) {
+                    showToast("Éxito", "El PIN se ha actualizado de forma segura.", "success");
+                    changePinContainer.style.display = 'none';
+                    roleSelector.classList.remove('hidden');
+                    setTimeout(() => roleSelector.classList.remove('opacity-0'), 50);
+                } else {
+                    const errData = await r.json();
+                    pinError.innerText = errData.detail || "Error al cambiar el PIN.";
+                    pinError.classList.remove('hidden');
+                    showToast("Error de Seguridad", pinError.innerText);
+                }
+            } catch (ex) {
+                pinError.innerText = "Error de red.";
+                pinError.classList.remove('hidden');
+            } finally {
+                btnChange.innerHTML = origHTML;
+                btnChange.classList.remove('opacity-50', 'pointer-events-none');
             }
         });
 
