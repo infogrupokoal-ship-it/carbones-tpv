@@ -36,3 +36,8 @@ Este archivo sirve como bitácora de todas las modificaciones realizadas por la 
 - **Descripción:** Se ha creado una serie de 10 archivos `AI_*.md` (Context, API, DB, Hardware, Frontend, Business, Deploy, Env, Tasks) para almacenar toda la información operativa del negocio y la arquitectura del TPV, eliminando la dependencia de la memoria volátil de la IA y permitiendo que futuros agentes puedan integrarse y modificar el código de forma segura y sin alucinaciones. También se actualizó el `AGENTS.md`.
 - **Archivos Modificados/Creados:** `AI_PROJECT_CONTEXT.md`, `AI_FILE_MAP.md`, `AI_DATABASE_CONTEXT.md`, `AI_API_ROUTES.md`, `AI_FRONTEND_CONTEXT.md`, `AI_DEPLOY_CONTEXT.md`, `AI_ENVIRONMENT_CONTEXT.md`, `AI_HARDWARE_CONTEXT.md`, `AI_BUSINESS_CONTEXT.md`, `AI_NEXT_TASKS.md`, `CHANGELOG_AI.md`.
 - **Agente:** Antigravity (Gemini)
+
+### 2026-05-04 - Finalización Auditoría TPV Operativa
+- **orders.py**: Corrección de la lógica del cierre-z para utilizar el concepto de Jornada Comercial (04:00 UTC) y resolver los desfases de zona horaria de SQLite.
+- **scripts/factory_reset.py**: Nuevo script creado para purgar en un solo paso los pedidos, items y cola de impresión de prueba (Factory Reset), manteniendo los catálogos y usuarios intactos.
+- **static/kds.html**: Actualizada la UI de cocina para mostrar el estado y método de pago en badges dinámicos y condicionar la etiqueta del botón de acción según el estado actual.
