@@ -1,6 +1,10 @@
-const CACHE_NAME = 'tpv-enterprise-cache-v21.0';
+const CACHE_NAME = 'tpv-enterprise-cache-v22.0';
 const ASSETS_TO_CACHE = [
   '/',
+  '/login',
+  '/tpv',
+  '/static/login.html',
+  '/static/tpv.html',
   '/static/kiosko.html',
   '/static/nosotros.html',
   '/static/tracking.html',
@@ -10,6 +14,7 @@ const ASSETS_TO_CACHE = [
   '/static/dashboard_produccion.html',
   '/static/admin/system_logs.html',
   '/static/css/design_system.css',
+  '/static/css/tpv_premium.css',
   '/static/repartidores.html',
   '/static/manifest.json',
   'https://cdn.tailwindcss.com',
