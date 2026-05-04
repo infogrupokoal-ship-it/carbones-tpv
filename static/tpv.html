@@ -80,7 +80,11 @@
             </div>
             <div class="flex-1 overflow-y-auto hide-scroll p-3">
                 <div id="cat-list" class="grid grid-cols-2 gap-2">
-                    <!-- Injected via JS -->
+                    <!-- Injected via JS - Fallbacks -->
+                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">⭐</span><span class="text-[10px] font-black uppercase">Favoritos</span></button>
+                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍗</span><span class="text-[10px] font-black uppercase">Pollos</span></button>
+                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🥘</span><span class="text-[10px] font-black uppercase">Arroces</span></button>
+                    <button class="cat-btn w-full h-20 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-2xl">🍔</span><span class="text-[10px] font-black uppercase">Hamburguesas</span></button>
                 </div>
             </div>
         </aside>
@@ -88,12 +92,17 @@
         <!-- Center Col: Products Grid -->
         <main class="flex-1 bg-white flex flex-col min-w-0">
             <div class="p-4 border-b border-slate-100 flex justify-between items-center shrink-0">
-                <h2 id="current-cat-title" class="text-2xl font-black uppercase tracking-tight text-slate-800">Favoritos ⭐</h2>
+                <h2 id="current-cat-title" class="text-2xl font-black uppercase tracking-tight text-slate-800">Cargando Catálogo...</h2>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">1 Clic = Añadir</span>
             </div>
             <div class="flex-1 overflow-y-auto hide-scroll p-4 bg-slate-50">
                 <div id="prod-grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-max">
-                    <!-- Injected via JS -->
+                    <!-- Injected via JS - Fallback -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center h-36 opacity-30 animate-pulse">
+                        <div class="w-10 h-10 bg-slate-200 rounded-full mb-2"></div>
+                        <div class="w-20 h-3 bg-slate-200 rounded-full mb-1"></div>
+                        <div class="w-12 h-3 bg-slate-200 rounded-full mt-auto"></div>
+                    </div>
                 </div>
             </div>
         </main>
